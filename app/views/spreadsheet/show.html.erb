@@ -1,0 +1,8 @@
+<%
+  spreadsheet_props = {
+    shortId: @short_id,
+    data: @data,
+  }
+%>
+
+<div data-react-class="Root" data-react-props="<%==h spreadsheet_props.to_json %>"></div>

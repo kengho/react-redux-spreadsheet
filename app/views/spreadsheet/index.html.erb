@@ -1,0 +1,8 @@
+<%
+  landing_props = {
+    'message' => flash[:message],
+    'recaptchaSitekey' => ENV['RECAPTCHA_SITE_KEY'],
+  }
+%>
+
+<div data-react-class="Landing" data-react-props="<%==h landing_props.to_json %>"></div>

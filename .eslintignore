@@ -1,0 +1,5 @@
+**/application.js
+**/cable.js
+**/*spec.js
+node_modules
+app/assets/javascripts/lib/react-textarea-autosize

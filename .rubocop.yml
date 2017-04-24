@@ -1,0 +1,39 @@
+AllCops:
+  Exclude:
+    - '**/config.ru'
+    - '**/Rakefile'
+    - 'db/**/*'
+    - 'bin/*'
+    - 'config/**/*'
+    - 'node_modules/**/*'
+  DisplayCopNames: true
+
+# FIXME
+Metrics/AbcSize:
+  Max: 20
+
+# FIXME
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+# FIXME
+Metrics/MethodLength:
+  Max: 30
+
+Style/Documentation:
+  Enabled: false
+
+Style/IndentationConsistency:
+  EnforcedStyle: rails
+
+Style/TrailingCommaInLiteral:
+  EnforcedStyleForMultiline: comma
+
+Metrics/LineLength:
+  Max: 80
+  IgnoredPatterns:
+    - '^\s*#.*'
+
+# render ... and return
+Style/AndOr:
+  Enabled: false
