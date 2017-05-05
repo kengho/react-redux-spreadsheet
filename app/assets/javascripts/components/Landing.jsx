@@ -19,10 +19,8 @@ class Landing extends React.Component {
   componentWillMount() {
     const script = document.createElement('script'); // eslint-disable-line no-undef
 
-    const recaptchaCallback = () => {
-      document.getElementsByName('landing')[0].submit(); // eslint-disable-line no-undef
-    };
-    script.innerHTML = recaptchaCallback.toString();
+    // When using toString optimize-minimize 'eats' function's name.
+    script.innerHTML = 'function recaptchaCallback() { document.getElementsByName("landing")[0].submit(); }';
     document.body.appendChild(script); // eslint-disable-line no-undef
   }
 
