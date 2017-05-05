@@ -96,8 +96,12 @@ export default function calculateNodeSize(uiTextNode,
         lastHigherBoundary
       ) => {
         if (higherBoundary - lowerBoundary < autosizeWidthPrecision) {
-          // lastHigherBoundary should be enough, but for some reason it's not.
-          return lastHigherBoundary + 10;
+          // 'lastHigherBoundary + 0' should be enough, but for some reason it's not.
+          // 'lastHigherBoundary + 10' is enough for most cases,
+          // but in Firefox when inserting new line
+          // sometimes there are vertical scrollbar appears
+          // (especially when ome lines exceeded max width).
+          return lastHigherBoundary + 12;
         }
 
         const lowerScrollHeight = getScrollHeight(higherBoundary);
