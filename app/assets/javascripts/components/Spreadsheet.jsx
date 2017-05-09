@@ -63,6 +63,7 @@ class Spreadsheet extends React.Component {
     this.cellDoubleClickHandler = this.cellDoubleClickHandler.bind(this);
     this.cellKeyDownHandler = this.cellKeyDownHandler.bind(this);
     this.documentKeyDownHandler = this.documentKeyDownHandler.bind(this);
+    this.table = props.table.toJS();
   }
 
   componentDidMount() {
@@ -70,6 +71,10 @@ class Spreadsheet extends React.Component {
     if (!dialog.showModal) {
       dialogPolyfill.registerDialog(dialog);
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.table = nextProps.table.toJS();
   }
 
   shouldComponentUpdate(nextProps, nextState) { // eslint-disable-line no-unused-vars
@@ -91,9 +96,9 @@ class Spreadsheet extends React.Component {
     //   How to get currently editing Cell's data right?
     const editingTextarea = document.querySelector('.editing textarea'); // eslint-disable-line no-undef
     if (editingTextarea) {
-      const cellData = this.props.table.get('data')
-        .get(rowNumber(this.table.pointer.pos))
-        .get(columnNumber(this.table.pointer.pos));
+      const pointerRowNumber = rowNumber(this.table.pointer.pos);
+      const pointerColumnNumber = columnNumber(this.table.pointer.pos);
+      const cellData = this.table.data[pointerRowNumber][pointerColumnNumber];
       const previousValue = cellData.value; // may be undefined, but we don't care
       const nextValue = editingTextarea.value;
 
@@ -285,8 +290,6 @@ class Spreadsheet extends React.Component {
   }
 
   render() {
-    this.table = this.props.table.toJS();
-
     const pointer = this.table.pointer;
     if (pointer.modifiers.indexOf('EDIT') === -1) {
       document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
