@@ -8,6 +8,8 @@ import TableActionsCell from './Cell/TableActionsCell';
 import LineActionsCell from './Cell/LineActionsCell';
 import DataCell from './Cell/DataCell';
 import { rowNumber, columnNumber } from '../core';
+import scrollbarShift from '../lib/scrollbarShift';
+import isScrolledIntoView from '../lib/isScrolledIntoView';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -217,7 +219,35 @@ class Spreadsheet extends React.Component {
         case 'PageDown':
         case 'Home':
         case 'End': {
+          // Prevents native scrollbar movement.
+          e.preventDefault();
+
+          // REVIEW: 'querySelector' is probably not React-way.
+          // Save previous pointed Cell's on-page visibility.
+          const pointedCellBefore = document.querySelector('.pointed'); // eslint-disable-line no-undef
+          let isScrolledIntoViewBefore;
+          if (pointedCellBefore) {
+            isScrolledIntoViewBefore = isScrolledIntoView(pointedCellBefore);
+          } else {
+            // Default value.
+            isScrolledIntoViewBefore = { x: true, y: true };
+          }
+
+          // Perform pointer movement.
           this.props.actions.movePointer(e.key);
+
+          // Figure out, should we move scrollbars to align with poinger movement.
+          const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
+          const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
+
+          // REVIEW: '4' (extra) is .table's border-spacing x2.
+          //   Figure out how to sync those values.
+          if (
+            (isScrolledIntoViewBefore.x && !isScrolledIntoViewAfter.x) ||
+            (isScrolledIntoViewBefore.y && !isScrolledIntoViewAfter.y)
+          ) {
+            scrollbarShift(e.key, pointedCellAfter, 4);
+          }
           break;
         }
 
