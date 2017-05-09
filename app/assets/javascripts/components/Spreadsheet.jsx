@@ -71,6 +71,8 @@ class Spreadsheet extends React.Component {
     if (!dialog.showModal) {
       dialogPolyfill.registerDialog(dialog);
     }
+
+    document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
   }
 
   componentWillReceiveProps(nextProps) {
@@ -202,6 +204,10 @@ class Spreadsheet extends React.Component {
   }
 
   documentKeyDownHandler(e) {
+    if (this.table.pointer.modifiers.indexOf('EDIT') !== -1) {
+      return;
+    }
+
     // TODO: handle Ctrl+C, Ctrl+V, etc.
     //   This is tmp dummy.
     if (e.altKey || e.ctrlKey || e.shiftKey) {
@@ -290,13 +296,6 @@ class Spreadsheet extends React.Component {
   }
 
   render() {
-    const pointer = this.table.pointer;
-    if (pointer.modifiers.indexOf('EDIT') === -1) {
-      document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
-    } else {
-      document.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
-    }
-
     // TODO: unite data cells in one table, and attach special cells to it somehow.
     // Table map:
     //
@@ -350,6 +349,7 @@ class Spreadsheet extends React.Component {
       tableMap.push(rowMap);
     }
 
+    const pointer = this.table.pointer;
     const rows = [];
     tableMap.forEach((rowMap) => {
       const row = [];
