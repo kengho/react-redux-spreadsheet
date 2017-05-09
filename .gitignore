@@ -25,6 +25,9 @@
 !/shared/sockets/.keep
 app/views/layouts/application.html.erb
 
+# Dropbox conflicts
+app/views/layouts/application.html (*
+
 /node_modules
 /public
 /dev
