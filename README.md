@@ -58,6 +58,7 @@ http://localhost:3000/spreadsheet should display langing page.
 
 * doesn't work with touch devices
 * may be slow on really large spreadsheets (>100x100)
+* row menu items is inaccessible for cells on the bottom of page
 
 ## TODO (random order)
 
@@ -82,6 +83,12 @@ http://localhost:3000/spreadsheet should display langing page.
 * optimize CPU, memory and traffic usage
 * fix all code imperfections (`REVIEW`, `TODO`, etc.)
 * i18n
+* scripting
+* customize max width for columns
+* trim new lines when user deletes all visible text (?)
+* statistics page (?)
+* admin web tools
+* consider rendering infinite empty grid at startup
 * more spreadsheeting
 * full xlsx compatibility (just a joke)
 
