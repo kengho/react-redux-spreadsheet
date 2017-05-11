@@ -34,16 +34,20 @@ class LineActionsCell extends React.Component {
     const { reduce, expand } = this.props.actions;
     const currentLineRef = lineRef(this.props.pos);
 
-    let cellsMenuItems;
+    const cellsMenuItems = [];
     if (currentLineRef === 'row') {
-      cellsMenuItems = [
-        {
+      // Don't allow to delete first row/column.
+      // TODO: repeat check in reducer.
+      if (currentRowNumber !== 0) {
+        cellsMenuItems.push({
           icon: 'close',
 
           // TODO: i18n.
           label: 'Delete row',
           action: () => reduce(this.props.pos),
-        },
+        });
+      }
+      cellsMenuItems.push(
         {
           icon: 'keyboard_arrow_up',
           label: 'Insert row above',
@@ -53,15 +57,17 @@ class LineActionsCell extends React.Component {
           icon: 'keyboard_arrow_down',
           label: 'Insert row below',
           action: () => expand([currentRowNumber + 1, currentColumnNumber]),
-        },
-      ];
+        }
+      );
     } else if (currentLineRef === 'column') {
-      cellsMenuItems = [
-        {
+      if (currentColumnNumber !== 0) {
+        cellsMenuItems.push({
           icon: 'close',
           label: 'Delete column',
           action: () => reduce(this.props.pos),
-        },
+        });
+      }
+      cellsMenuItems.push(
         {
           icon: 'chevron_left',
           label: 'Insert column at left',
@@ -71,8 +77,8 @@ class LineActionsCell extends React.Component {
           icon: 'chevron_right',
           label: 'Insert column at right',
           action: () => expand([currentRowNumber, currentColumnNumber + 1]),
-        },
-      ];
+        }
+      );
     }
 
     return (
