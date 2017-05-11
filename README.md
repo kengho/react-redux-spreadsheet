@@ -58,7 +58,6 @@ http://localhost:3000/spreadsheet should display langing page.
 
 * doesn't work with touch devices
 * may be slow on really large spreadsheets (>100x100)
-* row menu items is inaccessible for cells on the bottom of page
 
 ## TODO (random order)
 

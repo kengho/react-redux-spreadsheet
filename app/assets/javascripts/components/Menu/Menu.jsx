@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import MenuItem from './MenuItem';
 
 const propTypes = {
@@ -83,13 +84,30 @@ class Menu extends React.Component {
         <button
           id={buttonId}
           className="mdl-button mdl-js-button mdl-button--icon"
+          onClick={
+            () => {
+              setTimeout(() => {
+                // REVIEW: this should be placed somewhere after this line:
+                //   https://github.com/google/material-design-lite/blob/
+                //   fd21836fd49d94270e58b252187ebe93410209e4/src/menu/menu.js#L404
+                //   But I didn't find better way to do so because of it's delays
+                //   (excluding overriding entire MaterialMenu.prototype.show).
+                //   Here we wait until animation stops and the focusing on first menu item.
+                // TODO: focus on '0th' menu item somehow, so ArrowDown goes to 1st.
+                this.menu.querySelector('li').focus();
+              }, 100);
+            }
+          }
         >
           <i className="material-icons md-18">{buttonIcon}</i>
         </button>
+
+        { /* blur unfocuses previously focused menu item when user uses mouse. */ }
         <ul
           className="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
           htmlFor={buttonId}
           ref={(c) => { this.menu = c; }}
+          onMouseOver={(e) => { e.target.blur(); }}
         >
           {currentMenuItems}
         </ul>

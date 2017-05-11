@@ -141,11 +141,18 @@ body {
       position: absolute;
       top: 48px;
 
-      // Icons style.
       & .mdl-menu__item {
+        // Icons style.
         & i {
           vertical-align: middle;
           padding-right: 8px;
+        }
+
+        &.selected {
+          // Color from here:
+          // https://github.com/google/material-design-lite/blob/88872e672e41c56af0a78a35b34373b8c4a8c49d/src/_variables.scss
+          // ($data-table-selection-color).
+          background-color: #e0e0e0;
         }
       }
     }

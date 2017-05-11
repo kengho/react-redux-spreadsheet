@@ -204,7 +204,19 @@ class Spreadsheet extends React.Component {
   }
 
   documentKeyDownHandler(e) {
+    // Custom Cell keydown handler.
     if (this.table.pointer.modifiers.indexOf('EDIT') !== -1) {
+      return;
+    }
+
+    // TODO: custom dialog keydown handler.
+    // if () {
+    //   return;
+    // }
+
+    // Custom Munu keydown handler.
+    const currentMenu = document.querySelector('.mdl-menu__container.is-visible'); // eslint-disable-line no-undef
+    if (currentMenu) {
       return;
     }
 
@@ -214,6 +226,7 @@ class Spreadsheet extends React.Component {
       return;
     }
 
+    // Here actual Cell-related keydown handler starts.
     if (e.key.length === 1) {
       // 'input' renders after 'keydown', and symbols appears after 'keyup',
       // thus after `setState` input's value is already 'e.key'.
