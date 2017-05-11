@@ -10,6 +10,7 @@ import DataCell from './Cell/DataCell';
 import { rowNumber, columnNumber } from '../core';
 import scrollbarShift from '../lib/scrollbarShift';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
+import activateDialogButton from '../lib/activateDialogButton';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -209,10 +210,19 @@ class Spreadsheet extends React.Component {
       return;
     }
 
-    // TODO: custom dialog keydown handler.
-    // if () {
-    //   return;
-    // }
+    // Custom Dialog keydown handler.
+    const dialog = document.querySelector('dialog'); // eslint-disable-line no-undef
+    if (dialog.getAttribute('open') !== null) {
+      switch (e.key) {
+        case 'ArrowLeft':
+        case 'ArrowRight':
+          activateDialogButton(dialog, e.key);
+          break;
+        default:
+      }
+
+      return;
+    }
 
     // Custom Munu keydown handler.
     const currentMenu = document.querySelector('.mdl-menu__container.is-visible'); // eslint-disable-line no-undef
