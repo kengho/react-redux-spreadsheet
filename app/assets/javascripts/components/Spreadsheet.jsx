@@ -225,6 +225,7 @@ class Spreadsheet extends React.Component {
     }
 
     // Custom Munu keydown handler.
+    // TODO: ArrowLeft and ArrowRight to jump to adjacent menu.
     const currentMenu = document.querySelector('.mdl-menu__container.is-visible'); // eslint-disable-line no-undef
     if (currentMenu) {
       return;
@@ -410,6 +411,7 @@ class Spreadsheet extends React.Component {
                 isHover={this.isHover(pos, this.table.hover)}
                 id={cellKey}
                 pos={pos}
+                maxPos={[this.table.data.length - 1, this.table.data[0].length - 1]}
               />
             );
             break;
