@@ -34,7 +34,6 @@ end
 
 group :development do
   gem 'foreman', '~> 0'
-  gem 'listen', '~> 3.0.5'
   gem 'rubocop', '~> 0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
@@ -47,4 +46,5 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'dotenv-rails', '~> 2'
+gem 'listen', '~> 3.0.5'
 gem 'rest-client', '~> 2'
