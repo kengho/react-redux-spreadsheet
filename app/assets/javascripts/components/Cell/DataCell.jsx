@@ -74,8 +74,11 @@ class DataCell extends React.Component {
         {/*   Also it allows autoFocus to work. */}
         {/*   http://stackoverflow.com/a/41717743/6376451 */}
 
-        {/* onHeightChange fixes Chromium Linux zoom scrollbar issue.*/}
-        {/* https://github.com/andreypopp/react-textarea-autosize/issues/147*/}
+        {/* HACK: onHeightChange fixes Chromium Linux zoom scrollbar issue. */}
+        {/*   https://github.com/andreypopp/react-textarea-autosize/issues/147 */}
+
+        {/* TODO [PERF]: don't print TextareaAutosize when value is empty */}
+        {/*   Caveat: Cell's size. */}
         <div className="data-wrapper">
           <TextareaAutosize
             className="data-textarea"
@@ -90,7 +93,7 @@ class DataCell extends React.Component {
             disabled={disabled}
             onHeightChange={() => {
               const currentHeightPx = this.textareaInput.style.height;
-              const currentHeight = Number(currentHeightPx.slice(0, currentHeightPx.length - 2));
+              const currentHeight = Number(currentHeightPx.slice(0, currentHeightPx.length - 'px'.length));
               this.textareaInput.style.height = `${currentHeight + 1}px`;
             }}
           />

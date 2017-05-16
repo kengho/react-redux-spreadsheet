@@ -61,7 +61,6 @@ http://localhost:3000/spreadsheet should display langing page.
 
 ## TODO (random order)
 
-* captcha
 * copy/paste multiple cells
 * mobile clients support
 * undo/redo (`Ctrl+Z` and `Ctrl+Y`)
