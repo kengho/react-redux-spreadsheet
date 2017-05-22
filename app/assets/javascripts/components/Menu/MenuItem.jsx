@@ -1,12 +1,13 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+
 import confirmAction from '../../lib/confirmAction';
 
 const propTypes = {
   action: PropTypes.func.isRequired,
-  label: PropTypes.string.isRequired,
-  icon: PropTypes.string,
   confirm: PropTypes.bool,
+  icon: PropTypes.string,
+  label: PropTypes.string.isRequired,
 };
 
 const defaultProps = {

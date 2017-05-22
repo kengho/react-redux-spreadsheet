@@ -1,13 +1,13 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 import MenuItem from './MenuItem';
 
 const propTypes = {
   buttonIcon: PropTypes.string,
   buttonId: PropTypes.string.isRequired,
-  menuItems: PropTypes.array.isRequired,
   hideOnMouseLeave: PropTypes.bool,
+  menuItems: PropTypes.array.isRequired,
 };
 
 const defaultProps = {
@@ -59,6 +59,16 @@ class Menu extends React.Component {
     componentHandler.upgradeElement(this.menu); // eslint-disable-line no-undef
   }
 
+  // TODO: recompose/pure?
+  shouldComponentUpdate(nextProps) {
+    const currentProps = this.props;
+    if (JSON.stringify(nextProps.menuItems) !== JSON.stringify(currentProps.menuItems)) {
+      return true;
+    }
+
+    return false;
+  }
+
   render() {
     const { buttonIcon, buttonId, menuItems, hideOnMouseLeave } = this.props;
 
@@ -67,11 +77,11 @@ class Menu extends React.Component {
     menuItems.forEach((item) => {
       currentMenuItems.push(
         <MenuItem
-          key={`menu-button-${buttonId}-${item.label}`}
           action={item.action}
-          icon={item.icon}
-          label={item.label}
           confirm={item.confirm}
+          icon={item.icon}
+          key={`menu-button-${buttonId}-${item.label}`}
+          label={item.label}
         />
       );
     });
@@ -82,8 +92,8 @@ class Menu extends React.Component {
         onMouseLeave={hideOnMouseLeave && ((e) => this.cellActionsMenuOnMouseLeaveHandler(e))}
       >
         <button
-          id={buttonId}
           className="mdl-button mdl-js-button mdl-button--icon"
+          id={buttonId}
           onClick={
             () => {
               setTimeout(() => {
@@ -106,8 +116,8 @@ class Menu extends React.Component {
         <ul
           className="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
           htmlFor={buttonId}
-          ref={(c) => { this.menu = c; }}
           onMouseOver={(e) => { e.target.blur(); }}
+          ref={(c) => { this.menu = c; }}
         >
           {currentMenuItems}
         </ul>

@@ -1,42 +1,42 @@
-// Data comes from server, so we doesn't need to sync it.
-export function setData(data) {
+// In this context data comes from server,
+// so we doesn't need to sync it.
+export function setTableFromJSON(tableJSON) {
   return {
-    type: 'SET_DATA',
-    data,
+    type: 'SET_TABLE_FROM_JSON',
+    tableJSON,
   };
 }
 
-export function setProp(pos, prop, value) {
+export function setProp(cellId, prop, value) {
   return {
     type: 'SET_PROP',
     syncWithServer: true,
-    pos,
+    cellId,
     prop,
     value,
   };
 }
 
-export function deleteProp(pos, prop) {
+export function deleteProp(cellId, prop) {
   return {
     type: 'DELETE_PROP',
     syncWithServer: true,
-    pos,
+    cellId,
     prop,
   };
 }
 
-export function setHover(pos) {
+export function setHover(cellId) {
   return {
     type: 'SET_HOVER',
-    pos,
+    cellId,
   };
 }
 
-export function setPointer(pos, modifiers = []) {
+export function setPointer(pointer) {
   return {
     type: 'SET_POINTER',
-    pos,
-    modifiers,
+    pointer,
   };
 }
 
@@ -45,12 +45,6 @@ export function movePointer(key) {
     type: 'MOVE_POINTER',
     syncWithServer: true,
     key,
-  };
-}
-
-export function togglePointerEdit() {
-  return {
-    type: 'TOGGLE_POINTER_EDIT',
   };
 }
 

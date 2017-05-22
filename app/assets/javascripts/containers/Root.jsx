@@ -1,22 +1,22 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import SpreadsheetApp from './SpreadsheetApp';
-import configureStore from '../store/configureStore';
-import { setData } from '../actions/table';
 import { setShortId } from '../actions/meta';
+import { setTableFromJSON } from '../actions/table';
+import configureStore from '../store/configureStore';
+import SpreadsheetApp from './SpreadsheetApp';
 
 const store = configureStore();
 
 const propTypes = {
-  data: PropTypes.string.isRequired,
   shortId: PropTypes.string.isRequired,
+  table: PropTypes.string.isRequired,
 };
 
 export default class Root extends Component {
   componentWillMount() {
-    store.dispatch(setData(JSON.parse(this.props.data)));
+    store.dispatch(setTableFromJSON(this.props.table));
     store.dispatch(setShortId(this.props.shortId));
   }
 

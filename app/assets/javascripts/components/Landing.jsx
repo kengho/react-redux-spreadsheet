@@ -1,5 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 import { initialState } from '../core';
 
@@ -25,7 +25,11 @@ class Landing extends React.Component {
   }
 
   render() {
-    const data = JSON.stringify(initialState().toJS().table.data);
+    const table = JSON.stringify(initialState().toJS().table);
+
+    // TODO: consider storage session data.
+    delete table.session;
+
     let captchaProps = {};
     if (this.props.recaptchaSitekey) {
       captchaProps = {
@@ -41,7 +45,7 @@ class Landing extends React.Component {
           {this.props.message}
         </div>
         <form name="landing" method="POST" action="spreadsheet">
-          <input hidden readOnly name="data" value={data} />
+          <input hidden readOnly name="table" value={table} />
           <button
             className={
               `${this.props.recaptchaSitekey ? 'g-recaptcha' : ''}

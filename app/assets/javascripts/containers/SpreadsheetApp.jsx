@@ -1,9 +1,9 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import Spreadsheet from '../components/Spreadsheet';
-import * as TableActions from '../actions/table';
 import * as RequestsActions from '../actions/requests';
+import * as TableActions from '../actions/table';
+import Spreadsheet from '../components/Spreadsheet';
 
 function mapStateToProps(state) {
   return {

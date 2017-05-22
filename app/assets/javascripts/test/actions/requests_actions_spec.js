@@ -1,18 +1,23 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-undef */
+/* eslint-disable object-property-newline */
+/* eslint-disable no-multi-spaces */
+/* eslint-disable key-spacing */
+
 // REVIEW: rename to requests_reducer_spec?
 import { expect } from 'chai';
 import { fromJS } from 'immutable';
 import uuid from 'uuid/v4';
 
 import {
-  pushRequest,
-  popRequestId,
   markRequestAsFailed,
+  popRequestId,
+  pushRequest,
 } from '../../actions/requests';
 import configureStore from '../../store/configureStore';
 
 
 describe('requests', () => {
-
   it('should be able to push request', () => {
     const store = configureStore();
     const method = 'GET';
@@ -74,5 +79,4 @@ describe('requests', () => {
     });
     expect(store.getState().get('requests')).to.deep.equal(nextStateExpected.get('requests'));
   });
-
 });

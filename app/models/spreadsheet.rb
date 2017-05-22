@@ -1,7 +1,7 @@
 class Spreadsheet < ActiveRecord::Base
-  validates_each :data do |record, attr, value|
+  validates_each :table do |record, attr, value|
     unless value.size < 10 * 1024 * 1024 # 10 MB
-      record.errors.add(attr, 'data size should be less than 10 MB')
+      record.errors.add(attr, 'table size should be less than 10 MB')
     end
   end
 

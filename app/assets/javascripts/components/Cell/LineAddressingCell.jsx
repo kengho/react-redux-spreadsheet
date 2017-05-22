@@ -1,10 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { intToExcelCol } from 'excel-column-name';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { lineRef, rowNumber, columnNumber } from '../../core';
 
 const propTypes = {
+  id: PropTypes.string.isRequired,
   onMouseOverHandler: PropTypes.func.isRequired,
   pos: PropTypes.array.isRequired,
 };
@@ -29,17 +30,22 @@ class LineAddressingCell extends React.Component {
   }
 
   render() {
-    const currentLineRef = lineRef(this.props.pos);
+    const pos = this.props.pos;
+    const currentLineRef = lineRef(pos);
 
     let address;
-    if (currentLineRef === 'row') {
-      address = rowNumber(this.props.pos) + 1;
-    } else if (currentLineRef === 'column') {
-      address = intToExcelCol(columnNumber(this.props.pos) + 1);
+    if (currentLineRef === 'ROW') {
+      address = rowNumber(pos) + 1;
+    } else if (currentLineRef === 'COLUMN') {
+      address = intToExcelCol(columnNumber(pos) + 1);
     }
 
     return (
-      <div className={`td line-addressing ${currentLineRef}`} onMouseOver={this.props.onMouseOverHandler}>
+      <div
+        className={`td line-addressing ${currentLineRef.toLowerCase()}`}
+        id={this.props.id}
+        onMouseOver={this.props.onMouseOverHandler}
+      >
         {address}
       </div>
     );

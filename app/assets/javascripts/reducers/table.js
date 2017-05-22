@@ -1,231 +1,232 @@
 import { fromJS } from 'immutable';
+import uuid from 'uuid/v4';
 
 import {
   calcNewPos,
-  defaultCell,
   initialState,
   rowNumber,
   columnNumber,
-  defaultSelection,
+  maxPos,
+  rowId,
+  columnId,
+  cellId,
 } from '../core';
 
-const updatePointer = (value, action, increment) => {
-  if (columnNumber(action.pos) < 0) {
-    const diff = rowNumber(value.toJS()) - rowNumber(action.pos);
-    switch (true) {
-      case (diff < 0):
-        return value;
-      case (diff === 0):
-        return fromJS([]);
-      case (diff > 0):
-        return value.update(
-          0, // TODO: make some kind of rowNumber setter.
-          posValue => posValue + increment
-        );
-      default:
-    }
-  } else if (rowNumber(action.pos) < 0) {
-    const diff = columnNumber(value.toJS()) - columnNumber(action.pos);
-    switch (true) {
-      case (diff < 0):
-        return value;
-      case (diff === 0):
-        return fromJS([]);
-      case (diff > 0):
-        return value.update(
-          1, // TODO: make some kind of columnNumber setter.
-          posValue => posValue + increment
-        );
-      default:
-    }
-  }
-
-  return value;
-};
+// process.log = (x) => console.log(JSON.stringify(x, null, 2));
 
 export default function table(state = initialState().get('table'), action) {
-  const tableHeight = state.get('data').size;
-  const tableWidth = state.get('data').get(0).size;
-  const lastRowNumber = tableHeight - 1;
-  const lastColumnNumber = tableWidth - 1;
-
   switch (action.type) {
-    case 'SET_DATA': {
-      return state.set(
-        'data',
-        fromJS(action.data)
-      ).set(
-        'selection',
-        fromJS(defaultSelection(action.data))
-      );
+    case 'SET_TABLE_FROM_JSON': {
+      const serverTable = fromJS(JSON.parse(action.tableJSON));
+      let newState;
+
+      // TODO: consider storage session data.
+      if (!serverTable.get('session')) {
+        newState = serverTable.set(
+          'session',
+          fromJS({
+            pointer: {
+              id: null,
+              modifiers: {},
+            },
+            hover: null,
+            selection: [],
+          })
+        );
+      } else {
+        newState = serverTable;
+      }
+
+      return newState;
     }
 
     case 'SET_PROP': {
-      return state.updateIn(
-        ['data', rowNumber(action.pos), columnNumber(action.pos)],
-        value => value.set(action.prop, action.value)
+      return state.setIn(
+        ['data', 'cells', action.cellId, action.prop],
+        action.value
       );
     }
 
     case 'DELETE_PROP': {
       return state.updateIn(
-        ['data', rowNumber(action.pos), columnNumber(action.pos)],
-        value => value.delete(action.prop)
+        ['data', 'cells'],
+        value => {
+          if (!value.get(action.cellId)) {
+            return value;
+          }
+
+          const deletedPropValue = value.deleteIn(
+            [action.cellId, action.prop]
+          );
+
+          let newValue;
+          if (deletedPropValue.get(action.cellId).size === 0) {
+            newValue = deletedPropValue.delete(action.cellId);
+          } else {
+            newValue = deletedPropValue;
+          }
+
+          return newValue;
+        }
       );
     }
 
     case 'SET_HOVER': {
-      return state.set(
-        'hover',
-        fromJS(action.pos)
+      return state.setIn(
+        ['session', 'hover'],
+        action.cellId
       );
     }
 
     case 'SET_POINTER': {
-      // TODO: test.
-      const currentPos = state.get('pointer').get('pos').toJS();
-      let pos = action.pos;
-      if (!action.pos) {
-        if (currentPos.length === 0) {
-          pos = [0, 0];
-        } else {
-          pos = currentPos;
-        }
-      }
-      // /TODO: test.
-
-      return state.set(
-        'pointer',
-        fromJS({ pos, modifiers: action.modifiers })
+      return state.setIn(
+        ['session', 'pointer'],
+        fromJS(action.pointer)
       );
     }
 
-    // TODO: 'smart' movenent
-    //   (like tab - tab - tab - enter => shift [-3, +1])
     case 'MOVE_POINTER': {
-      const posNew = calcNewPos(state, action.key);
+      const currentRows = state.getIn(['data', 'rows']).toJS();
+      const currentColumns = state.getIn(['data', 'columns']).toJS();
+      const currentPointer = state.getIn(['session', 'pointer']).toJS();
 
-      const addRowIfNeeded = (value, currentRowNumber) => {
-        if (currentRowNumber === lastRowNumber + 1) {
-          const newRow = Array.from(Array(tableWidth)).map(() => {
-            return defaultCell();
-          });
-          return value.push(fromJS(newRow));
+      let currentPointerPos;
+      if (currentPointer.cellId) {
+        currentPointerPos = [
+          currentRows.indexOf(rowId(currentPointer.cellId)),
+          currentColumns.indexOf(columnId(currentPointer.cellId)),
+        ];
+      } else {
+        currentPointerPos = [];
+      }
+
+      const newPointerPos = calcNewPos(currentRows, currentColumns, currentPointerPos, action.key);
+      const currentMaxPos = maxPos(currentRows, currentColumns);
+
+      let newRows;
+      let newColumns;
+      let expandedState;
+      if (rowNumber(newPointerPos) > rowNumber(currentMaxPos)) {
+        let newRowId;
+        if (process.env.NODE_ENV === 'test') {
+          newRowId = `r${currentRows.length}`;
+        } else {
+          newRowId = `r${uuid()}`;
         }
 
-        return value;
-      };
-
-      const addColumnIfNeeded = (value, currentColumnNumber) => {
-        if (currentColumnNumber === lastColumnNumber + 1) {
-          return value.map(
-            rowValue => rowValue.insert(value.size, fromJS(defaultCell()))
-          );
+        expandedState = state.updateIn(
+          ['data', 'rows'],
+          value => value.push(newRowId)
+        );
+        newRows = expandedState.getIn(['data', 'rows']).toJS();
+        newColumns = currentColumns;
+      } else if (columnNumber(newPointerPos) > columnNumber(currentMaxPos)) {
+        let newColumnId;
+        if (process.env.NODE_ENV === 'test') {
+          newColumnId = `c${currentColumns.length}`;
+        } else {
+          newColumnId = `c${uuid()}`;
         }
 
-        return value;
-      };
+        expandedState = state.updateIn(
+          ['data', 'columns'],
+          value => value.push(newColumnId)
+        );
+        newRows = currentRows;
+        newColumns = expandedState.getIn(['data', 'columns']).toJS();
+      } else {
+        expandedState = state;
+        newRows = currentRows;
+        newColumns = currentColumns;
+      }
 
-      const changedDataState = state.update(
-        'data',
-        value => addRowIfNeeded(value, rowNumber(posNew))
-      ).update(
-        'data',
-        value => addColumnIfNeeded(value, columnNumber(posNew))
+      const newPointerCellId = cellId(
+        newRows[rowNumber(newPointerPos)],
+        newColumns[columnNumber(newPointerPos)]
       );
 
-      // @TODO: test non-changing modifiers.
-      return changedDataState.set(
-        'selection',
-        fromJS(defaultSelection(changedDataState.get('data').toJS()))
-      ).setIn(
-        ['pointer', 'pos'],
-        fromJS(posNew)
+      return expandedState.setIn(
+        ['session', 'pointer', 'cellId'],
+        newPointerCellId
       );
     }
 
+    // NOTE: reducing leaves cells object untouched,
+    //   so it should be cleaned afterwards somehow.
     case 'REDUCE': {
+      let deletingRow;
+      let deletingColumn;
+      let reducedLinesState;
       if (columnNumber(action.pos) < 0) {
-        return state.deleteIn(
-          ['data', rowNumber(action.pos)]
-        ).deleteIn(
-          ['selection', rowNumber(action.pos)]
-        ).updateIn(
-          ['pointer', 'pos'],
-          value => updatePointer(value, action, -1)
+        deletingRow = state.getIn(['data', 'rows']).get(rowNumber(action.pos));
+        reducedLinesState = state.deleteIn(
+          ['data', 'rows', rowNumber(action.pos)]
         );
       } else if (rowNumber(action.pos) < 0) {
-        return state.update(
-          'data',
-          value => value.map(
-            rowValue => rowValue.delete(columnNumber(action.pos))
-          )
-        ).update(
-          'selection',
-          value => value.map(
-            rowValue => rowValue.delete(columnNumber(action.pos))
-          )
-        ).updateIn(
-          ['pointer', 'pos'],
-          value => updatePointer(value, action, -1)
+        deletingColumn = state.getIn(['data', 'columns']).get(columnNumber(action.pos));
+        reducedLinesState = state.deleteIn(
+          ['data', 'columns', columnNumber(action.pos)]
         );
       }
-      break;
+
+      const currentPointerCellId = state.getIn(['session', 'pointer', 'cellId']);
+      let deletedPointerState;
+      if (
+        currentPointerCellId &&
+        (
+          rowId(currentPointerCellId) === deletingRow ||
+          columnId(currentPointerCellId) === deletingColumn
+        )
+      ) {
+        deletedPointerState = reducedLinesState.setIn(
+          ['session', 'pointer', 'cellId'],
+          null
+        );
+      } else {
+        deletedPointerState = reducedLinesState;
+      }
+
+      return deletedPointerState;
     }
 
     case 'EXPAND': {
+      let expandedLinesState;
       if (columnNumber(action.pos) < 0) {
-        const newDataRow = Array.from(Array(tableWidth)).map(() => {
-          return defaultCell();
-        });
-        const newSelectionRow = Array.from(Array(tableWidth)).map(() => {
-          return undefined;
-        });
+        let newRowId;
+        if (process.env.NODE_ENV === 'test') {
+          newRowId = `r${rowNumber(action.pos)}a`;
+        } else {
+          newRowId = `r${uuid()}`;
+        }
 
-        return state.update(
-          'data',
+        expandedLinesState = state.updateIn(
+          ['data', 'rows'],
           value => value.insert(
             rowNumber(action.pos),
-            fromJS(newDataRow)
+            newRowId
           )
-        ).update(
-          'selection',
-          value => value.insert(
-            rowNumber(action.pos),
-            fromJS(newSelectionRow)
-          )
-        ).updateIn(
-          ['pointer', 'pos'],
-          value => updatePointer(value, action, 1)
         );
       } else if (rowNumber(action.pos) < 0) {
-        return state.update(
-          'data',
-          value => value.map(
-            rowValue => rowValue.insert(
-              columnNumber(action.pos),
-              fromJS(defaultCell())
-            )
+        let newColumnId;
+        if (process.env.NODE_ENV === 'test') {
+          newColumnId = `c${columnNumber(action.pos)}a`;
+        } else {
+          newColumnId = `c${uuid()}`;
+        }
+
+        expandedLinesState = state.updateIn(
+          ['data', 'columns'],
+          value => value.insert(
+            columnNumber(action.pos),
+            newColumnId
           )
-        ).update(
-          'selection',
-          value => value.map(
-            rowValue => rowValue.insert(
-              columnNumber(action.pos),
-              undefined
-            )
-          )
-        ).updateIn(
-          ['pointer', 'pos'],
-          value => updatePointer(value, action, 1)
         );
       }
-      break;
+
+      return expandedLinesState;
     }
 
     default:
       return state;
   }
-
-  return state;
 }

@@ -1,12 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import domready from 'domready';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // TODO: create own package or pull request to existing.
 import TextareaAutosize from '../../lib/react-textarea-autosize/TextareaAutosize';
 // import TextareaAutosize from 'react-textarea-autosize';
 
 const propTypes = {
+  id: PropTypes.string.isRequired,
   isEditing: PropTypes.bool.isRequired,
   isPointed: PropTypes.bool.isRequired,
   isSelectingOnFocus: PropTypes.bool.isRequired,
@@ -14,7 +15,6 @@ const propTypes = {
   onDoubleClickHandler: PropTypes.func.isRequired,
   onKeyDownHandler: PropTypes.func.isRequired,
   onMouseOverHandler: PropTypes.func.isRequired,
-  posJSON: PropTypes.string.isRequired, // eslint-disable-line react/no-unused-prop-types
   value: PropTypes.string,
 };
 
@@ -42,7 +42,7 @@ class DataCell extends React.Component {
   // TODO: recompose/pure?
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
-    const importantProps = ['value', 'isEditing', 'isPointed', 'isSelectingOnFocus', 'posJSON'];
+    const importantProps = ['value', 'isEditing', 'isPointed', 'isSelectingOnFocus'];
 
     const importantCellPropsAreNotEqual = importantProps.some((prop) => {
       return nextProps[prop] !== currentProps[prop];
@@ -55,13 +55,12 @@ class DataCell extends React.Component {
   }
 
   render() {
-    const { value, isPointed, isEditing, isSelectingOnFocus } = this.props;
+    const { id, value, isPointed, isEditing, isSelectingOnFocus } = this.props;
     const disabled = !isEditing;
 
     return (
       <div
         className={`td data ${isPointed ? 'pointed' : ''} ${isEditing ? 'editing' : ''}`}
-        onMouseOver={this.props.onMouseOverHandler}
         onClick={disabled && this.props.onClickHandler}
         onDoubleClick={disabled && this.props.onDoubleClickHandler}
         onKeyDown={(e) => this.props.onKeyDownHandler(e, {
@@ -69,8 +68,9 @@ class DataCell extends React.Component {
           nextValue: this.textarea.value,
           textareaOnChange: this.textarea._onChange, // eslint-disable-line no-underscore-dangle
         })}
+        onMouseOver={this.props.onMouseOverHandler}
       >
-        {/* HACK: key uptates textarea value after changing some props. */}
+        {/* HACK: key uptates textarea after changing some props. */}
         {/*   Also it allows autoFocus to work. */}
         {/*   http://stackoverflow.com/a/41717743/6376451 */}
 
@@ -81,21 +81,21 @@ class DataCell extends React.Component {
         {/*   Caveat: Cell's size. */}
         <div className="data-wrapper">
           <TextareaAutosize
-            className="data-textarea"
-            key={JSON.stringify({ value, isPointed, isEditing, isSelectingOnFocus })}
-            defaultValue={value}
-            ref={(c) => { this.textarea = c; }}
-            inputRef={(c) => { this.textareaInput = c; }}
-            onFocus={isSelectingOnFocus && ((e) => e.target.select())}
             autoFocus={!disabled}
             autosizeWidth
-            maxWidth="512px"
+            className="data-textarea"
+            defaultValue={value}
             disabled={disabled}
+            inputRef={(c) => { this.textareaInput = c; }}
+            key={JSON.stringify({ id, value, isPointed, isEditing, isSelectingOnFocus })}
+            maxWidth="512px"
+            onFocus={isSelectingOnFocus && ((e) => e.target.select())}
             onHeightChange={() => {
               const currentHeightPx = this.textareaInput.style.height;
               const currentHeight = Number(currentHeightPx.slice(0, currentHeightPx.length - 'px'.length));
               this.textareaInput.style.height = `${currentHeight + 1}px`;
             }}
+            ref={(c) => { this.textarea = c; }}
           />
         </div>
       </div>

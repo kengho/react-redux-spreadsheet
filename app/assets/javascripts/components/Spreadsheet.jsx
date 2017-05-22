@@ -1,21 +1,26 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import dialogPolyfill from 'dialog-polyfill';
+import PropTypes from 'prop-types';
+import React from 'react';
+import uuid from 'uuid/v4';
 
-import Dialog from '../components/Dialog';
-import LineAddressingCell from './Cell/LineAddressingCell';
-import TableActionsCell from './Cell/TableActionsCell';
-import LineActionsCell from './Cell/LineActionsCell';
-import DataCell from './Cell/DataCell';
-import { rowNumber, columnNumber } from '../core';
-import scrollbarShift from '../lib/scrollbarShift';
-import isScrolledIntoView from '../lib/isScrolledIntoView';
+import {
+  cellId,
+  columnId,
+  rowId,
+} from '../core';
 import activateDialogButton from '../lib/activateDialogButton';
+import DataCell from './Cell/DataCell';
+import Dialog from '../components/Dialog';
+import isScrolledIntoView from '../lib/isScrolledIntoView';
+import LineActionsCell from './Cell/LineActionsCell';
+import LineAddressingCell from './Cell/LineAddressingCell';
+import scrollbarShift from '../lib/scrollbarShift';
+import TableActionsCell from './Cell/TableActionsCell';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
-  table: PropTypes.object.isRequired,
+  table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
 };
 
 const defaultProps = {
@@ -25,46 +30,24 @@ class Spreadsheet extends React.Component {
   constructor(props) {
     super(props);
 
-    this.dataCellProps = (pos, pointer) => {
-      const currentRowNumber = rowNumber(pos);
-      const currentColumnNumber = columnNumber(pos);
-      const data = this.table.data[currentRowNumber][currentColumnNumber];
-      const value = data.value;
-
-      // TODO: improve.
-      const isPointed = (
-        pos.length > 0 &&
-        JSON.stringify(pos) === JSON.stringify(pointer.pos)
-      );
-      const isEditing = isPointed && pointer.modifiers.indexOf('EDIT') !== -1;
-      const isSelectingOnFocus = isPointed && pointer.modifiers.indexOf('SELECT_ON_FOCUS') !== -1;
-
-      return { value, isPointed, isEditing, isSelectingOnFocus };
-    };
-
-    this.isHover = (pos, hover) => {
-      const currentRowNumber = rowNumber(pos);
-      const currentColumnNumber = columnNumber(pos);
-      const currentHoverRowNumber = rowNumber(hover);
-      const currentHoverColumnNumber = columnNumber(hover);
-
-      if (currentRowNumber === -2) {
-        return (currentHoverColumnNumber === currentColumnNumber);
-      }
-
-      if (currentColumnNumber === -2) {
-        return (currentHoverRowNumber === currentRowNumber);
-      }
-
-      return false;
-    };
-
-    this.cellMouseOverHandler = this.cellMouseOverHandler.bind(this);
     this.cellClickHandler = this.cellClickHandler.bind(this);
     this.cellDoubleClickHandler = this.cellDoubleClickHandler.bind(this);
     this.cellKeyDownHandler = this.cellKeyDownHandler.bind(this);
+    this.cellMouseOverHandler = this.cellMouseOverHandler.bind(this);
     this.documentKeyDownHandler = this.documentKeyDownHandler.bind(this);
-    this.table = props.table.toJS();
+
+    this.fictiveRows = [`r${uuid()}`, `r${uuid()}`];
+    this.fictiveColumns = [`c${uuid()}`, `c${uuid()}`];
+
+    this.prepareTable = (somePops) => {
+      this.table = somePops.table.toJS();
+
+      // Add 2 fictive rows and columns for actions and addressing.
+      // See render().
+      this.table.data.rows = [...this.fictiveRows, ...this.table.data.rows];
+      this.table.data.columns = [...this.fictiveColumns, ...this.table.data.columns];
+    };
+    this.prepareTable(props);
   }
 
   componentDidMount() {
@@ -77,7 +60,7 @@ class Spreadsheet extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.table = nextProps.table.toJS();
+    this.prepareTable(nextProps);
   }
 
   shouldComponentUpdate(nextProps, nextState) { // eslint-disable-line no-unused-vars
@@ -86,11 +69,11 @@ class Spreadsheet extends React.Component {
   }
 
   // REVIEW: shouldn't all Cell-related handlers be defined in Cell component?
-  cellMouseOverHandler(e, pos) {
-    this.props.actions.setHover(pos);
+  cellMouseOverHandler(e, currentCellId) {
+    this.props.actions.setHover(currentCellId);
   }
 
-  cellClickHandler(e, pos) {
+  cellClickHandler(e, currentCellId) {
     // Save currently editing Cell's data if needed.
     // REVIEW: this is probably not React-way.
     //   But pointer shouldn't contain nor React element or DOM ref.
@@ -99,22 +82,22 @@ class Spreadsheet extends React.Component {
     //   How to get currently editing Cell's data right?
     const editingTextarea = document.querySelector('.editing textarea'); // eslint-disable-line no-undef
     if (editingTextarea) {
-      const pointerRowNumber = rowNumber(this.table.pointer.pos);
-      const pointerColumnNumber = columnNumber(this.table.pointer.pos);
-      const cellData = this.table.data[pointerRowNumber][pointerColumnNumber];
-      const previousValue = cellData.value; // may be undefined, but we don't care
+      // const pointerRowNumber = rowNumber(this.table.pointer.pos);
+      // const pointerColumnNumber = columnNumber(this.table.pointer.pos);
+      const cell = this.table.data.cells[this.table.session.pointer.cellId];
+      const previousValue = cell ? cell.value : '';
       const nextValue = editingTextarea.value;
 
       if (nextValue !== previousValue) {
-        this.props.actions.setProp(this.table.pointer.pos, 'value', nextValue);
+        this.props.actions.setProp(this.table.session.pointer.cellId, 'value', nextValue);
       }
     }
 
-    this.props.actions.setPointer(pos, []);
+    this.props.actions.setPointer({ cellId: currentCellId, modifiers: {} });
   }
 
-  cellDoubleClickHandler(e, pos) {
-    this.props.actions.setPointer(pos, ['EDIT']);
+  cellDoubleClickHandler(e, currentCellId) {
+    this.props.actions.setPointer({ cellId: currentCellId, modifiers: { edit: true } });
   }
 
   cellKeyDownHandler(e, args) {
@@ -126,7 +109,7 @@ class Spreadsheet extends React.Component {
       // REVIEW: double render and sending request here.
       this.props.actions.movePointer(movePointerKey);
       if (args.nextValue !== args.previousValue) {
-        this.props.actions.setProp(args.pos, 'value', args.nextValue);
+        this.props.actions.setProp(args.currentCellId, 'value', args.nextValue);
       }
     };
 
@@ -184,7 +167,9 @@ class Spreadsheet extends React.Component {
       {
         key: 'Escape',
         handler: () => {
-          this.props.actions.setPointer(undefined, []);
+          const currentPointer = this.table.session.pointer;
+          delete currentPointer.modifiers.edit;
+          this.props.actions.setPointer(currentPointer);
         },
       },
     ];
@@ -206,7 +191,7 @@ class Spreadsheet extends React.Component {
 
   documentKeyDownHandler(e) {
     // Custom Cell keydown handler.
-    if (this.table.pointer.modifiers.indexOf('EDIT') !== -1) {
+    if (this.table.session.pointer.modifiers.edit === true) {
       return;
     }
 
@@ -238,12 +223,22 @@ class Spreadsheet extends React.Component {
     }
 
     // Here actual Cell-related keydown handler starts.
+    const pointer = { ...this.table.session.pointer };
+
+    // Regular key.
     if (e.key.length === 1) {
       // 'input' renders after 'keydown', and symbols appears after 'keyup',
       // thus after `setState` input's value is already 'e.key'.
-      this.props.actions.setPointer(undefined, ['EDIT', 'SELECT_ON_FOCUS']);
 
-    // Special key is pressed.
+      // Default pointer on [0, 0].
+      if (!pointer.cellId) {
+        // 2 is for fictive rows/columns.
+        pointer.cellId = cellId(this.table.data.rows[2], this.table.data.columns[2]);
+      }
+      pointer.modifiers = { edit: true, select_on_focus: true };
+      this.props.actions.setPointer(pointer);
+
+    // Special key.
     } else {
       switch (e.key) {
         case 'ArrowUp':
@@ -259,6 +254,7 @@ class Spreadsheet extends React.Component {
 
           // REVIEW: 'querySelector' is probably not React-way.
           // Save previous pointed Cell's on-page visibility.
+          // TODO: scroll to the very left when archiving it from right, etc.
           const pointedCellBefore = document.querySelector('.pointed'); // eslint-disable-line no-undef
           let isScrolledIntoViewBefore;
           if (pointedCellBefore) {
@@ -271,7 +267,7 @@ class Spreadsheet extends React.Component {
           // Perform pointer movement.
           this.props.actions.movePointer(e.key);
 
-          // Figure out, should we move scrollbars to align with poinger movement.
+          // Figure out, should we move scrollbars to align with pointer movement.
           const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
           const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
 
@@ -289,22 +285,35 @@ class Spreadsheet extends React.Component {
         case 'Enter': {
           // Prevents immediately pressing Enter and deletes selected text after focus.
           e.preventDefault();
-          this.props.actions.setPointer(undefined, ['EDIT', 'SELECT_ON_FOCUS']);
+
+          // Default pointer on [0, 0].
+          if (!pointer.cellId) {
+            // 2 is for fictive rows/columns.
+            pointer.cellId = cellId(this.table.data.rows[2], this.table.data.columns[2]);
+          }
+          pointer.modifiers = { edit: true, select_on_focus: true };
+          this.props.actions.setPointer(pointer);
           break;
         }
+
         case 'F2': {
-          this.props.actions.setPointer(undefined, ['EDIT']);
+          pointer.modifiers = { edit: true };
+          this.props.actions.setPointer(pointer);
           break;
         }
 
         case 'Escape': {
-          this.props.actions.setPointer([]);
+          pointer.cellId = null;
+          pointer.modifiers = {};
+          this.props.actions.setPointer(pointer);
           break;
         }
 
         case 'Delete': {
-          const pointer = this.table.pointer;
-          this.props.actions.deleteProp(pointer.pos, 'value');
+          const cell = this.table.data.cells[pointer.cellId];
+          if (cell && cell.value) {
+            this.props.actions.deleteProp(pointer.cellId, 'value');
+          }
           break;
         }
 
@@ -320,15 +329,14 @@ class Spreadsheet extends React.Component {
   }
 
   render() {
-    // TODO: unite data cells in one table, and attach special cells to it somehow.
     // Table map:
     //
-    // TECCCC...A // actions row
-    // EENNNN...N // addressing row
-    // ANDDDD...D // data[0]
-    // ANDDDD...D // data[1]
+    // TECCCC...A // actions row (fictive)
+    // EENNNN...N // addressing row (fictive)
+    // ANDDDD...D //
+    // ANDDDD...D //
     // ..........
-    // CADDDD...D // data[data.length - 1]
+    // CADDDD...D //
     //
     // T - table actions
     // E - empty
@@ -336,113 +344,142 @@ class Spreadsheet extends React.Component {
     // N - line addressing
     // D - data cell
 
-    const tableMap = [];
-    for (let rowIndex = -2; rowIndex < this.table.data.length; rowIndex += 1) {
-      let rowsFirstDataCell;
-      if (this.table.data[rowIndex]) {
-        rowsFirstDataCell = this.table.data[rowIndex][0];
+    const isHover = (currentCellId, hover) => {
+      if (!hover) {
+        return false;
       }
 
-      const rowMap = { key: undefined, cells: [] };
-      for (let columnIndex = -2; columnIndex < this.table.data[0].length; columnIndex += 1) {
-        const columnFirstDataCell = this.table.data[0][columnIndex];
-        let currentCell;
-        if (this.table.data[rowIndex]) {
-          currentCell = this.table.data[rowIndex][columnIndex];
-        }
-        const pos = [rowIndex, columnIndex];
-
-        if (rowIndex === -2 && columnIndex === -2) {
-          rowMap.cells.push({ pos, type: 'T', key: 'cell-table-actions' });
-        } else if (rowIndex < 0 && columnIndex < 0) {
-          rowMap.cells.push({ pos, type: 'E', key: `cell-empty-${rowIndex}-${columnIndex}` });
-        } else if (rowIndex === -2) {
-          rowMap.cells.push({ pos, type: 'A', key: `line-actions-column-${columnFirstDataCell.id}` });
-        } else if (rowIndex === -1) {
-          rowMap.cells.push({ pos, type: 'N', key: `line-addressing-column-${columnFirstDataCell.id}` });
-        } else if (columnIndex === -2) {
-          rowMap.cells.push({ pos, type: 'A', key: `line-actions-row-${rowsFirstDataCell.id}` });
-        } else if (columnIndex === -1) {
-          rowMap.cells.push({ pos, type: 'N', key: `line-addressing-row-${rowsFirstDataCell.id}` });
-        } else {
-          rowMap.cells.push({ pos, type: 'D', key: `cell-data-${currentCell.id}` });
-        }
+      // If hover on first fictive row/column.
+      if (
+        this.fictiveRows.indexOf(rowId(hover)) === 0 ||
+        this.fictiveColumns.indexOf(columnId(hover)) === 0
+      ) {
+        // Hover only one cell.
+        return (
+          columnId(hover) === columnId(currentCellId) &&
+          rowId(hover) === rowId(currentCellId)
+        );
       }
 
-      rowMap.key = `row-${rowMap.cells[2].key}`;
-      tableMap.push(rowMap);
-    }
+      // Else hover appropriate fictive row/column cell.
+      if (
+        rowId(hover) === rowId(currentCellId) ||
+        columnId(hover) === columnId(currentCellId)
+      ) {
+        return true;
+      }
 
-    const pointer = this.table.pointer;
-    const rows = [];
-    tableMap.forEach((rowMap) => {
-      const row = [];
-      const rowKey = rowMap.key;
-      rowMap.cells.forEach((cellMap) => {
-        const pos = cellMap.pos;
-        const typeMap = cellMap.type;
-        const cellKey = cellMap.key;
+      return false;
+    };
 
+    const dataCellProps = (currentCellId, cell, pointer) => {
+      const effectiveCell = cell || {};
+
+      const value = effectiveCell.value;
+      const isPointed = currentCellId === pointer.cellId;
+      const isEditing = isPointed && pointer.modifiers.edit === true;
+      const isSelectingOnFocus = isPointed && pointer.modifiers.select_on_focus === true;
+
+      return { value, isPointed, isEditing, isSelectingOnFocus };
+    };
+
+    const rows = this.table.data.rows;
+    const columns = this.table.data.columns;
+
+    // TODO [PERF]: rendering by rows may improve performance.
+    const outputRows = [];
+    rows.forEach((currentRowId, rowIndex) => {
+      // There are 2 more fictive rows and columns for actions and addressing.
+      // See constructor()
+      const effectiveRowIndex = rowIndex - 2;
+      const outputRow = [];
+      columns.forEach((currentColumnId, columnIndex) => {
+        const currentCellId = cellId(currentRowId, currentColumnId);
+        const effectiveColumnIndex = columnIndex - 2;
+
+        const pos = [effectiveRowIndex, effectiveColumnIndex];
         const commonProps = {
-          key: cellKey,
-          onMouseOverHandler: (e) => this.cellMouseOverHandler(e, pos),
+          id: currentCellId,
+          key: currentCellId,
+          onMouseOverHandler: (evt) => this.cellMouseOverHandler(evt, currentCellId),
         };
 
-        switch (typeMap) {
-          case 'T': {
-            row.push(
-              <TableActionsCell
-                {...commonProps}
-                actions={this.props.actions}
-                requests={this.props.requests}
-              />
+        if (effectiveRowIndex === -2 && effectiveColumnIndex === -2) {
+          outputRow.push(
+            <TableActionsCell
+              {...commonProps}
+              actions={this.props.actions}
+              requests={this.props.requests}
+            />
           );
-            break;
+        } else if (effectiveRowIndex < 0 && effectiveColumnIndex < 0) {
+          outputRow.push(
+            <div
+              className="td empty"
+              id={currentCellId}
+              key={currentCellId}
+            />
+          );
+        } else if (
+          effectiveRowIndex === -2 ||
+          effectiveColumnIndex === -2
+        ) {
+          // -2 is because of fictive columns.
+          let isOnly;
+          if (effectiveRowIndex === -2) {
+            isOnly = columns.length - 2 === 1;
+          } else if (effectiveColumnIndex === -2) {
+            isOnly = rows.length - 2 === 1;
           }
-          case 'E': {
-            row.push(<div key={cellKey} className="td empty" />);
-            break;
-          }
-          case 'A': {
-            row.push(
-              <LineActionsCell
-                {...commonProps}
-                actions={this.props.actions}
-                isHover={this.isHover(pos, this.table.hover)}
-                id={cellKey}
-                pos={pos}
-                maxPos={[this.table.data.length - 1, this.table.data[0].length - 1]}
-              />
-            );
-            break;
-          }
-          case 'N': {
-            row.push(<LineAddressingCell {...commonProps} pos={pos} />);
-            break;
-          }
-          case 'D': {
-            const currentDataCellProps = this.dataCellProps(pos, pointer);
 
-            row.push(
-              // posJSON is using in shouldComponentUpdate in case new row/cell added/deleted.
-              <DataCell
-                {...commonProps}
-                {...currentDataCellProps}
-                onClickHandler={(e) => this.cellClickHandler(e, pos)}
-                onDoubleClickHandler={(e) => this.cellDoubleClickHandler(e, pos)}
-                onKeyDownHandler={(e, args) => this.cellKeyDownHandler(e, { ...args, pos })}
-                posJSON={JSON.stringify(pos)}
-              />
-            );
-            break;
-          }
-          default:
+          const actionsProps = {
+            actions: this.props.actions,
+            isHover: isHover(currentCellId, this.table.session.hover),
+            isOnly,
+            pos,
+          };
+
+          outputRow.push(
+            <LineActionsCell
+              {...actionsProps}
+              {...commonProps}
+            />
+          );
+        } else if (
+          effectiveRowIndex === -1 ||
+          effectiveColumnIndex === -1
+        ) {
+          outputRow.push(
+            <LineAddressingCell
+              {...commonProps}
+              pos={pos}
+            />
+          );
+        } else {
+          const cell = this.table.data.cells[currentCellId];
+          const currentDataCellProps = dataCellProps(
+            currentCellId,
+            cell,
+            this.table.session.pointer
+          );
+          outputRow.push(
+            <DataCell
+              {...commonProps}
+              {...currentDataCellProps}
+              onClickHandler={(evt) => this.cellClickHandler(evt, currentCellId)}
+              onDoubleClickHandler={(evt) => this.cellDoubleClickHandler(evt, currentCellId)}
+              onKeyDownHandler={(evt, args) => this.cellKeyDownHandler(
+                evt,
+                { ...args, currentCellId }
+              )}
+            />
+          );
         }
       });
 
-      rows.push(
-        <div className="tr" key={rowKey}>
-          {row}
+      outputRows.push(
+        <div className="tr" key={currentRowId}>
+          {outputRow}
         </div>
       );
     });
@@ -453,9 +490,9 @@ class Spreadsheet extends React.Component {
       <div>
         <div
           className="table"
-          onMouseLeave={() => { this.props.actions.setHover([]); }}
+          onMouseLeave={() => { this.props.actions.setHover(null); }}
         >
-          {rows}
+          {outputRows}
         </div>
         <div className="dialog">
           <Dialog />

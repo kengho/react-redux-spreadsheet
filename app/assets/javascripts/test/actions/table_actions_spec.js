@@ -1,9 +1,10 @@
-// TODO: rename to table_reducer_spec?
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-undef */
+/* eslint-disable object-property-newline */
+/* eslint-disable no-multi-spaces */
+/* eslint-disable key-spacing */
 import { expect } from 'chai';
-import {
-  fromJS,
-  toJS,
-} from 'immutable';
+import { fromJS } from 'immutable';
 
 import * as Core from '../../core';
 import * as TableActions from '../../actions/table';
@@ -11,755 +12,535 @@ import configureStore from '../../store/configureStore';
 
 // process.log = (x) => console.log(JSON.stringify(x, null, 2));
 
+const tableSize = [3, 4];
+
 describe('table', () => {
-  const tableHeight = 3;
-  const tableWidth = 4;
-  const lastRowNumber = tableHeight - 1;
-  const lastColumnNumber = tableWidth - 1;
+  it('set table from JSON', () => {
+    const tableJSON = `{
+      "data": {
+        "rows": ["r0", "r1", "r2"],
+        "columns": ["c0", "c1", "c2", "c3"],
+        "cells": {}
+      },
+      "session": {
+        "pointer": {
+          "id": null,
+          "modifiers": {}
+        },
+        "hover": null,
+        "selection": []
+      }
+    }`;
 
-  // TODO: do it better (checking arbitrary object with RegExp),
-  //   also apply this approach to requests.
-  // TODO: move everything to helper.
-  const expectWithUuids = (table1, table2) => {
-    const table1JS = table1.toJS();
-    const table2JS = table2.toJS();
-    const removeUuids = (table) => {
-      table.data.forEach((row) => {
-        row.forEach((cell) => {
-          delete cell.id;
-        });
-      })
-      return table;
-    }
+    const store = configureStore();
+    store.dispatch(TableActions.setTableFromJSON(tableJSON));
 
-    const table1WOUuids = removeUuids(table1JS);
-    const table2WOUuids = removeUuids(table2JS);
-    expect(fromJS(table1WOUuids)).to.deep.equal(fromJS(table2WOUuids));
-  };
-
-  describe('setters', () => {
-
-    it('should be able to set data', () => {
-      const store = configureStore();
-      const data = [[1, 2], [2, 3]];
-
-      store.dispatch(TableActions.setData(data));
-
-      // TODO: emptyState()?
-      let nextStateExpectedMap = Core.initialState(1, 1).toJS();
-      nextStateExpectedMap.table.data = data;
-      nextStateExpectedMap.table.selection = Core.defaultSelection(data);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
+    const expectedTable = fromJS({
+      data: {
+        rows: ['r0', 'r1', 'r2'],
+        columns: ['c0', 'c1', 'c2', 'c3'],
+        cells: {},
+      },
+      session: {
+        pointer: {
+          id: null,
+          modifiers: {},
+        },
+        hover: null,
+        selection: [],
+      },
     });
 
-    it('should be able to set a prop', () => {
-      const state = Core.initialState(tableHeight, tableWidth);
+    expect(store.getState().get('table')).to.deep.equal(expectedTable);
+  });
+
+  it('set table from JSON (no session given)', () => {
+    const tableJSON = `{
+      "data": {
+        "rows": ["r0", "r1", "r2"],
+        "columns": ["c0", "c1", "c2", "c3"],
+        "cells": {}
+      }
+    }`;
+
+    const store = configureStore();
+    store.dispatch(TableActions.setTableFromJSON(tableJSON));
+
+    const expectedTable = fromJS({
+      data: {
+        rows: ['r0', 'r1', 'r2'],
+        columns: ['c0', 'c1', 'c2', 'c3'],
+        cells: {},
+      },
+      session: {
+        pointer: {
+          id: null,
+          modifiers: {},
+        },
+        hover: null,
+        selection: [],
+      },
+    });
+
+    expect(store.getState().get('table')).to.deep.equal(expectedTable);
+  });
+
+  describe('cells', () => {
+    it('set prop', () => {
+      const state = Core.initialState(...tableSize);
       const store = configureStore(state);
-      const pos = [1, 2];
-      const prop = 'value';
+      const cellId = 'r1,c1';
       const value = 'Cell value';
 
-      store.dispatch(TableActions.setProp(pos, prop, value));
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
+      const expectedCells = fromJS({ 'r1,c1': { value } });
 
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.data[Core.rowNumber(pos)][Core.columnNumber(pos)][prop] = value;
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
+      expect(store.getState().getIn(['table', 'data', 'cells'])).to.deep.equal(expectedCells);
     });
 
-    it('should be able to delete a prop', () => {
-      const state = Core.initialState(tableHeight, tableWidth);
+    it('delete prop (more that one prop remaining)', () => {
+      const state = Core.initialState(...tableSize);
       const store = configureStore(state);
-      const pos = [1, 2];
-      const prop = 'value';
+      const cellId = 'r1,c1';
+      const value = 'Cell value';
+      const color = 'red';
+
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
+      store.dispatch(TableActions.setProp(cellId, 'color', color));
+      store.dispatch(TableActions.deleteProp(cellId, 'color'));
+
+      const expectedCells = fromJS({ 'r1,c1': { value } });
+
+      expect(store.getState().getIn(['table', 'data', 'cells'])).to.deep.equal(expectedCells);
+    });
+
+    it('delete prop (no props remaining)', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const cellId = 'r1,c1';
       const value = 'Cell value';
 
-      store.dispatch(TableActions.setProp(pos, prop, value));
-      store.dispatch(TableActions.deleteProp(pos, prop));
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
+      store.dispatch(TableActions.deleteProp(cellId, 'value'));
 
-      expect(store.getState().get('table')).to.deep.equal(state.get('table'));
+      const expectedCells = fromJS({});
+
+      expect(store.getState().getIn(['table', 'data', 'cells'])).to.deep.equal(expectedCells);
     });
 
-    it('should be able to set hover', () => {
-      const state = Core.initialState(tableHeight, tableWidth);
+    it('delete prop (there is no cell with such cellId)', () => {
+      const state = Core.initialState(...tableSize);
       const store = configureStore(state);
-      const pos = [1, 2];
+      const cellId = 'r1,c1';
 
-      store.dispatch(TableActions.setHover(pos));
+      store.dispatch(TableActions.deleteProp(cellId, 'value'));
 
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.hover = pos;
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
+      const expectedCells = fromJS({});
+
+      expect(store.getState().getIn(['table', 'data', 'cells'])).to.deep.equal(expectedCells);
     });
-
-    it('should be able to set pointer', () => {
-      const state = Core.initialState(tableHeight, tableWidth);
-      const store = configureStore(state);
-      const pointer = { pos: [1, 2], modifiers: ['EDIT'] };
-
-      store.dispatch(TableActions.setPointer(pointer.pos, pointer.modifiers));
-
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.pointer = pointer;
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    });
-
   });
 
-  describe('user actions', () => {
-    const state = Core.initialState(tableHeight, tableWidth).updateIn(
-      ['table', 'selection', 0, 1],
-      value => true,
-    ).updateIn(
-      ['table', 'selection', 0, 2],
-      value => true,
-    );
-
-    const expectNoPointerMovement = (key) => {
+  describe('hover', () => {
+    it('set hover', () => {
+      const state = Core.initialState(...tableSize);
       const store = configureStore(state);
+      const cellId = 'r1,c1';
 
-      let posNew;
-      switch (key) {
-        case 'ArrowUp':
-        case 'PageDown':
-          posNew = [lastRowNumber, 0];
-          break;
-        case 'ArrowDown':
-        case 'ArrowRight':
-        case 'PageUp':
-        case 'Home':
-          posNew = [0, 0];
-          break;
-        case 'ArrowLeft':
-        case 'End':
-          posNew = [0, lastColumnNumber];
-          break;
-        default:
-      }
+      store.dispatch(TableActions.setHover(cellId));
 
-      store.dispatch(TableActions.movePointer(key));
+      const expectedHover = 'r1,c1';
 
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.pointer = { pos: posNew, modifiers: [] };
-      nextStateExpectedMap.table.selection = Core.defaultSelection(nextStateExpectedMap.table.data);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    }
-
-    const expectOkPointerMovement = (key) => {
-      const posOld = [1, 2];
-
-      let posNew;
-      switch (key) {
-        case 'ArrowUp':
-          posNew = [Core.rowNumber(posOld) - 1, Core.columnNumber(posOld)];
-          break;
-        case 'PageUp':
-          posNew = [0,                     Core.columnNumber(posOld)];
-          break;
-        case 'ArrowDown':
-          posNew = [Core.rowNumber(posOld) + 1, Core.columnNumber(posOld)];
-          break;
-        case 'PageDown':
-          posNew = [lastRowNumber,         Core.columnNumber(posOld)];
-          break;
-        case 'ArrowLeft':
-          posNew = [Core.rowNumber(posOld),     Core.columnNumber(posOld) - 1];
-          break;
-        case 'Home':
-          posNew = [Core.rowNumber(posOld),     0];
-          break;
-        case 'ArrowRight':
-          posNew = [Core.rowNumber(posOld),     Core.columnNumber(posOld) + 1];
-          break;
-        case 'End':
-          posNew = [Core.rowNumber(posOld),     lastColumnNumber];
-          break;
-        default:
-      }
-
-      const pointerState = state.setIn(
-        ['table', 'pointer'],
-        fromJS({ pos: posOld, modifiers: [] }),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.movePointer(key));
-
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.pointer = { pos: posNew, modifiers: [] };
-      nextStateExpectedMap.table.selection = Core.defaultSelection(nextStateExpectedMap.table.data);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    }
-
-    const expectBorderPointerMovement = (key) => {
-      let posOld;
-      switch (key) {
-        case 'ArrowUp':
-        case 'PageUp':
-          posOld = [0, 2];
-          break;
-        // case 'ArrowDown':
-        case 'PageDown':
-          posOld = [lastRowNumber, 2];
-          break;
-        case 'ArrowLeft':
-        case 'Home':
-          posOld = [2, 0];
-          break;
-        // case 'ArrowRight':
-        case 'End':
-          posOld = [2, lastColumnNumber];
-          break;
-        default:
-      }
-
-      const pointerState = state.setIn(
-        ['table', 'pointer'],
-        fromJS({ pos: posOld, modifiers: [] }),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.movePointer(key));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.selection = Core.defaultSelection(nextStateExpectedMap.table.data);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    };
-
-    describe('pointer movement', () => {
-
-      describe('ArrowUp', () => {
-        const key = 'ArrowUp';
-
-        it('should move pointer (no pointer)', () => {
-          expectNoPointerMovement(key);
-        });
-
-        it('should move pointer (ok)', () => {
-          expectOkPointerMovement(key);
-        });
-
-        it('should move pointer (border)', () => {
-          expectBorderPointerMovement(key);
-        });
-
-      });
-
-      describe('PageUp', () => {
-        const key = 'PageUp';
-
-          it('should move pointer (no pointer)', () => {
-            expectNoPointerMovement(key);
-          });
-
-          it('should move pointer (ok)', () => {
-            expectOkPointerMovement(key);
-          });
-
-          it('should move pointer (border)', () => {
-            expectBorderPointerMovement(key);
-          });
-
-        });
-
-        describe('ArrowDown', () => {
-          const key = 'ArrowDown';
-
-          it('should move pointer (no pointer)', () => {
-            expectNoPointerMovement(key);
-          });
-
-          it('should move pointer (ok)', () => {
-            expectOkPointerMovement(key);
-          });
-
-        it('should move pointer (expand table)', () => {
-          const posOld = [lastRowNumber, 2];
-          const posNew = [Core.rowNumber(posOld) + 1, Core.columnNumber(posOld)];
-          const pointerState = state.setIn(
-            ['table', 'pointer'],
-            fromJS({ pos: posOld, modifiers: [] }),
-          );
-          const store = configureStore(pointerState);
-
-          store.dispatch(TableActions.movePointer(key));
-
-          let nextStateExpectedMap = state.toJS();
-          nextStateExpectedMap.table.pointer = { pos: posNew, modifiers: [] };
-          const newDataRow = Array.from(Array(tableWidth)).map(() => {
-            return Core.defaultCell();
-          });
-          const newSelectionRow = Array.from(Array(tableWidth)).map(() => {
-            return undefined;
-          });
-          nextStateExpectedMap.table.selection[Core.rowNumber(posNew)] = newSelectionRow;
-          nextStateExpectedMap.table.data[Core.rowNumber(posNew)] = newDataRow;
-          nextStateExpectedMap.table.selection = Core.defaultSelection(nextStateExpectedMap.table.data);
-          const nextStateExpected = fromJS(nextStateExpectedMap);
-          expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-        });
-
-      });
-
-      describe('PageDown', () => {
-        const key = 'PageDown';
-
-        it('should move pointer (no pointer)', () => {
-          expectNoPointerMovement(key);
-        });
-
-        it('should move pointer (ok)', () => {
-          expectOkPointerMovement(key);
-        });
-
-        it('should move pointer (border)', () => {
-          expectBorderPointerMovement(key);
-        });
-
-      });
-
-      describe('ArrowLeft', () => {
-        const key = 'ArrowLeft';
-
-        it('should move pointer (no pointer)', () => {
-          expectNoPointerMovement(key);
-        });
-
-        it('should move pointer (ok)', () => {
-          expectOkPointerMovement(key);
-        });
-
-        it('should move pointer (border)', () => {
-          expectBorderPointerMovement(key);
-        });
-
-      });
-
-      describe('Home', () => {
-        const key = 'Home';
-
-        it('should move pointer (no pointer)', () => {
-          expectNoPointerMovement(key);
-        });
-
-        it('should move pointer (ok)', () => {
-          expectOkPointerMovement(key);
-        });
-
-        it('should move pointer (border)', () => {
-          expectBorderPointerMovement(key);
-        });
-
-      });
-
-      describe('ArrowRight', () => {
-        const key = 'ArrowRight';
-
-        it('should move pointer (no pointer)', () => {
-          expectNoPointerMovement(key);
-        });
-
-        it('should move pointer (ok)', () => {
-          expectOkPointerMovement(key);
-        });
-
-        it('should move pointer (expand table)', () => {
-          const posOld = [2, lastColumnNumber];
-          const posNew = [Core.rowNumber(posOld), lastColumnNumber + 1];
-          const pointerState = state.setIn(
-            ['table', 'pointer'],
-            fromJS({ pos: posOld, modifiers: [] }),
-          );
-
-          const store = configureStore(pointerState);
-
-          store.dispatch(TableActions.movePointer(key));
-          let nextStateExpectedMap = state.toJS();
-          nextStateExpectedMap.table.data.forEach((row) => {
-            row.push(Core.defaultCell());
-          });
-          nextStateExpectedMap.table.selection.forEach((row) => {
-            row.push(undefined);
-          });
-          nextStateExpectedMap.table.pointer = { pos: posNew, modifiers: [] };
-          nextStateExpectedMap.table.selection = Core.defaultSelection(nextStateExpectedMap.table.data);
-          const nextStateExpected = fromJS(nextStateExpectedMap);
-          expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-        });
-
-      });
-
-      describe('End', () => {
-        const key = 'End';
-
-        it('should move pointer (no pointer)', () => {
-          expectNoPointerMovement(key);
-        });
-
-        it('should move pointer (ok)', () => {
-          expectOkPointerMovement(key);
-        });
-
-        it('should move pointer (border)', () => {
-          expectBorderPointerMovement(key);
-        });
-
-      });
-
+      expect(store.getState().getIn(['table', 'session', 'hover'])).to.equal(expectedHover);
     });
-
   });
 
-  describe('reduce table', () => {
-    const state = Core.initialState(3, 4, 'INDEX');
-
-    it('should remove row (no pointer)', () => {
-      const pos = [1, -1]
+  describe('pointer', () => {
+    it('set pointer', () => {
+      const state = Core.initialState(...tableSize);
       const store = configureStore(state);
-
-      store.dispatch(TableActions.reduce(pos));
-
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 1);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 1);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    });
-
-    it('should remove row (pointer is upper than that row)', () => {
-      const pos = [1, -1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([Core.rowNumber(pos) - 1, 1]),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.reduce(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 1);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 1);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    });
-
-    it('should remove row (pointer is on that row)', () => {
-      const pos = [1, -1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([Core.rowNumber(pos), 1]),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.reduce(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 1);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 1);
-      nextStateExpectedMap.table.pointer = { pos: [], modifiers: [] };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    });
-
-    it('should remove row (pointer is lower than that row)', () => {
-      const pos = [1, -1];
-      const pointerPos = [Core.rowNumber(pos) + 1, 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS(pointerPos),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.reduce(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 1);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 1);
-      nextStateExpectedMap.table.pointer = {
-        pos: [Core.rowNumber(pointerPos) - 1, Core.columnNumber(pointerPos)],
-        modifiers: [],
+      const pointer = {
+        cellId: 'r1,c1',
+        modifiers: { edit: true },
       };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
+
+      store.dispatch(TableActions.setPointer(pointer));
+
+      const expectedPointer = fromJS(pointer);
+
+      expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
     });
 
-    it('should remove column (no pointer)', () => {
-      const pos = [-1, 1];
-      const store = configureStore(state);
+    describe('movement', () => {
+      it('move pointer (ArrowUp, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
 
-      store.dispatch(TableActions.reduce(pos));
+        store.dispatch(TableActions.movePointer('ArrowUp'));
 
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
+        const expectedPointer = fromJS({
+          cellId: 'r2,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
       });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
+
+      it('move pointer (ArrowUp, OK)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c2'));
+
+        store.dispatch(TableActions.movePointer('ArrowUp'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
       });
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
+
+      it('move pointer (ArrowUp, border)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r0,c2'));
+
+        store.dispatch(TableActions.movePointer('ArrowUp'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (PageUp, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('PageUp'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (PageUp, OK)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c2'));
+
+        store.dispatch(TableActions.movePointer('PageUp'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (PageUp, border)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r0,c2'));
+
+        store.dispatch(TableActions.movePointer('PageUp'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowDown, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('ArrowDown'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowDown, expand)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c2'));
+
+        store.dispatch(TableActions.movePointer('ArrowDown'));
+
+        const expectedRows = fromJS(['r0',  'r1',  'r2',  'r3']);
+        const expectedPointer = fromJS({
+          cellId: 'r3,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (PageDown, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('PageDown'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (PageDown, OK)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r0,c2'));
+
+        store.dispatch(TableActions.movePointer('PageDown'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (PageDown, border)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c2'));
+
+        store.dispatch(TableActions.movePointer('PageDown'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c2',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowLeft, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('ArrowLeft'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c3',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowLeft, OK)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c2'));
+
+        store.dispatch(TableActions.movePointer('ArrowLeft'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c1',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowLeft, border)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c0'));
+
+        store.dispatch(TableActions.movePointer('ArrowLeft'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (Home, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('Home'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (Home, OK)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c2'));
+
+        store.dispatch(TableActions.movePointer('Home'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (Home, border)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c0'));
+
+        store.dispatch(TableActions.movePointer('Home'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowRight, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('ArrowRight'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c0',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (ArrowRight, expand)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r0,c3'));
+
+        store.dispatch(TableActions.movePointer('ArrowRight'));
+
+        const expectedColumns = fromJS(['c0',  'c1',  'c2',  'c3',  'c4']);
+        const expectedPointer = fromJS({
+          cellId: 'r0,c4',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (End, no initial pos)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.movePointer('End'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r0,c3',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (End, OK)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c1'));
+
+        store.dispatch(TableActions.movePointer('End'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c3',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('move pointer (End, border)', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r2,c3'));
+
+        store.dispatch(TableActions.movePointer('End'));
+
+        const expectedPointer = fromJS({
+          cellId: 'r2,c3',
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
     });
 
-    it('should remove column (pointer is on column\'s left)', () => {
-      const pos = [-1, 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([1, Core.columnNumber(pos) - 1]),
-      );
-      const store = configureStore(pointerState);
+    describe('reduce', () => {
+      it('remove row', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
 
-      store.dispatch(TableActions.reduce(pos));
+        store.dispatch(TableActions.reduce([1, -1]));
 
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
+        const expectedRows = fromJS(['r0', 'r2']);
+        const expectedPointer = fromJS({
+          cellId: null,
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
       });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
+
+      it('remove column', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
+
+        store.dispatch(TableActions.reduce([-1, 1]));
+
+        const expectedColumns = fromJS(['c0', 'c2', 'c3']);
+        const expectedPointer = fromJS({
+          cellId: null,
+          modifiers: {},
+        });
+
+        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
+        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
       });
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
     });
 
-    it('should remove column (pointer is on column)', () => {
-      const pos = [-1, 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([1, Core.columnNumber(pos)]),
-      );
-      const store = configureStore(pointerState);
+    describe('expand', () => {
+      it('add row', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
 
-      store.dispatch(TableActions.reduce(pos));
+        store.dispatch(TableActions.expand([1, -1]));
 
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
+        const expectedRows = fromJS(['r0', 'r1a', 'r1', 'r2']);
+
+        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
       });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
+
+      it('add column', () => {
+        const state = Core.initialState(...tableSize);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.expand([-1, 1]));
+
+        const expectedColumns = fromJS(['c0', 'c1a', 'c1', 'c2', 'c3']);
+
+        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
       });
-      nextStateExpectedMap.table.pointer = { pos: [], modifiers: [] };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
     });
-
-    it('should remove column (pointer is on column\'s right)', () => {
-      const pos = [-1, 1];
-      const pointerPos = [1, Core.columnNumber(pos) + 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS(pointerPos),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.reduce(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
-      });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 1);
-      });
-      nextStateExpectedMap.table.pointer = {
-        pos: [Core.rowNumber(pointerPos), Core.columnNumber(pointerPos) - 1],
-        modifiers: [],
-      };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expect(store.getState().get('table')).to.deep.equal(nextStateExpected.get('table'));
-    });
-
   });
-
-  describe('expand table', () => {
-    const state = Core.initialState(3, 4);
-
-    it('should add row (no pointer)', () => {
-      const pos = [2, -1]
-      const store = configureStore(state);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = state.toJS();
-      const newDataRow = Array.from(Array(tableWidth)).map(() => {
-        return Core.defaultCell();
-      });
-      const newSelectionRow = Array.from(Array(tableWidth)).map(() => {
-        return undefined;
-      });
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 0, newDataRow);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 0, newSelectionRow);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add row (pointer is upper than that row)', () => {
-      const pos = [2, -1]
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([Core.rowNumber(pos) - 1, 1]),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      const newDataRow = Array.from(Array(tableWidth)).map(() => {
-        return Core.defaultCell();
-      });
-      const newSelectionRow = Array.from(Array(tableWidth)).map(() => {
-        return undefined;
-      });
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 0, newDataRow);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 0, newSelectionRow);
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add row (pointer is on that row)', () => {
-      const pos = [2, -1]
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([Core.rowNumber(pos), 1]),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      const newDataRow = Array.from(Array(tableWidth)).map(() => {
-        return Core.defaultCell();
-      });
-      const newSelectionRow = Array.from(Array(tableWidth)).map(() => {
-        return undefined;
-      });
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 0, newDataRow);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 0, newSelectionRow);
-      nextStateExpectedMap.table.pointer = { pos: [], modifiers: [] };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add row (pointer is lower than that row)', () => {
-      const pos = [2, -1]
-      const pointerPos = [Core.rowNumber(pos) + 1, 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS(pointerPos),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      const newDataRow = Array.from(Array(tableWidth)).map(() => {
-        return Core.defaultCell();
-      });
-      const newSelectionRow = Array.from(Array(tableWidth)).map(() => {
-        return undefined;
-      });
-      nextStateExpectedMap.table.data.splice(Core.rowNumber(pos), 0, newDataRow);
-      nextStateExpectedMap.table.selection.splice(Core.rowNumber(pos), 0, newSelectionRow);
-      nextStateExpectedMap.table.pointer = {
-        pos: [Core.rowNumber(pointerPos) + 1, Core.columnNumber(pointerPos)],
-        modifiers: [],
-      };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add column (no pointer)', () => {
-      const pos = [-1, 1];
-      const store = configureStore(state);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = state.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, Core.defaultCell());
-      });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, undefined);
-      });
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add column (pointer is on column\'s left)', () => {
-      const pos = [-1, 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([1, Core.columnNumber(pos) - 1]),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, Core.defaultCell());
-      });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, undefined);
-      });
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add column (pointer is on column)', () => {
-      const pos = [-1, 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS([1, Core.columnNumber(pos)]),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, Core.defaultCell());
-      });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, undefined);
-      });
-      nextStateExpectedMap.table.pointer = { pos: [], modifiers: [] };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-    it('should add column (pointer is on column\'s right)', () => {
-      const pos = [-1, 1];
-      const pointerPos = [1, Core.columnNumber(pos) + 1];
-      const pointerState = state.updateIn(
-        ['table', 'pointer', 'pos'],
-        value => fromJS(pointerPos),
-      );
-      const store = configureStore(pointerState);
-
-      store.dispatch(TableActions.expand(pos));
-
-      let nextStateExpectedMap = pointerState.toJS();
-      nextStateExpectedMap.table.data.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, Core.defaultCell());
-      });
-      nextStateExpectedMap.table.selection.forEach((row) => {
-        row.splice(Core.columnNumber(pos), 0, undefined);
-      });
-      nextStateExpectedMap.table.pointer = {
-        pos: [Core.rowNumber(pointerPos), Core.columnNumber(pointerPos) + 1],
-        modifiers: [],
-      };
-      const nextStateExpected = fromJS(nextStateExpectedMap);
-      expectWithUuids(store.getState().get('table'), nextStateExpected.get('table'));
-    });
-
-  });
-
 });

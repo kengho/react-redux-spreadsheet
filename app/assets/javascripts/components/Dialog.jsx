@@ -3,12 +3,12 @@ import React from 'react';
 const Dialog = () => {
   const buttonsMap = [
     {
-      label: 'Yes',
       idPostfix: 'yes',
+      label: 'Yes',
     },
     {
-      label: 'No, go back',
       idPostfix: 'no',
+      label: 'No, go back',
     },
   ];
 
@@ -17,11 +17,11 @@ const Dialog = () => {
     buttons.push(
       // id uses in lib/confirmAction.js
       <button
-        key={`dialog-button--${buttonMap.idPostfix}`}
-        id={`dialog-button--${buttonMap.idPostfix}`}
-        type="button"
         className="mdl-button"
+        id={`dialog-button--${buttonMap.idPostfix}`}
+        key={`dialog-button--${buttonMap.idPostfix}`}
         onClick={(e) => e.target.parentNode.parentNode.close()}
+        type="button"
       >
         {buttonMap.label}
       </button>

@@ -1,56 +1,22 @@
 import { fromJS } from 'immutable';
 import uuid from 'uuid/v4';
 
-// 'defaultCell' isn't just an object because we want brand new copy of it
-// each time we call it.
-export function defaultCell() {
-  return { id: uuid() };
+export function rowId(currentCellId) {
+  return currentCellId.slice(
+    0,
+    Math.floor(currentCellId.length / 2)
+  );
 }
 
-export function defaultTable(height = 4, width = 4, fill = 'DEFAULT_CELL') {
-  const table = Array.from(Array(height)).map((_, rowIndex) => {
-    return Array.from(Array(width)).map((__, columnIndex) => {
-      switch (fill) {
-        case 'DEFAULT_CELL':
-          return defaultCell();
-        case 'UNDEFINED':
-          return undefined;
-        case 'INDEX':
-          return Object.assign(defaultCell(), { value: String((rowIndex * width) + columnIndex) });
-        default:
-          return '';
-      }
-    });
-  });
-
-  return table;
+export function columnId(currentCellId) {
+  return currentCellId.slice(
+    Math.ceil(currentCellId.length / 2),
+    currentCellId.length
+  );
 }
 
-export function defaultSelection(data) {
-  return defaultTable(data.length, data[0].length, 'UNDEFINED');
-}
-
-export function initialState(width, height, fill = 'DEFAULT_CELL') {
-  const data = defaultTable(width, height, fill);
-
-  return fromJS({
-    table: {
-      data,
-      selection: defaultSelection(data),
-      pointer: {
-
-        // REVIEW: pos should be object with rowNumber, columnNumber, equal
-        //   and other useful methods.
-        //   But immutable store shouldn't contain functions.
-        //   http://redux.js.org/docs/faq/OrganizingState.html#can-i-put-functions-promises-or-other-non-serializable-items-in-my-store-state
-        pos: [],
-
-        // TODO: modifiers should be object.
-        modifiers: [],
-      },
-      hover: [],
-    },
-  });
+export function cellId(currentRowId, currentColumnId) {
+  return `${currentRowId},${currentColumnId}`;
 }
 
 export function rowNumber(pos) {
@@ -61,31 +27,84 @@ export function columnNumber(pos) {
   return pos[1];
 }
 
+export function initialLines(height = 4, width = 4) {
+  const rows = Array.from(Array(height)).map((_, rowIndex) => {
+    let newRowId;
+    if (process.env.NODE_ENV === 'test') {
+      newRowId = `r${rowIndex}`;
+    } else {
+      newRowId = `r${uuid()}`;
+    }
+
+    return newRowId;
+  });
+
+  const columns = Array.from(Array(width)).map((_, columnIndex) => {
+    let newColumnId;
+    if (process.env.NODE_ENV === 'test') {
+      newColumnId = `c${columnIndex}`;
+    } else {
+      newColumnId = `c${uuid()}`;
+    }
+
+    return newColumnId;
+  });
+
+  return { rows, columns };
+}
+
+export function initialTable(width, height) {
+  const lines = initialLines(width, height);
+
+  return {
+    data: {
+      ...lines,
+      cells: {},
+    },
+    session: {
+      pointer: {
+        cellId: null,
+        modifiers: {},
+      },
+      hover: null,
+      selection: [],
+    },
+  };
+}
+
+export function initialState(width, height) {
+  const table = initialTable(width, height);
+
+  return fromJS({
+    table,
+  });
+}
+
 // Indicates that Cell represents some row or column (in actions and etc).
 export function lineRef(pos) {
   let ref;
-  if (!pos) {
-    ref = undefined;
-  } else if (rowNumber(pos) >= 0) {
-    ref = 'row';
+  if (rowNumber(pos) >= 0) {
+    ref = 'ROW';
   } else if (columnNumber(pos) >= 0) {
-    ref = 'column';
+    ref = 'COLUMN';
   }
 
   return ref;
 }
 
-export function calcNewPos(state, key) {
-  const pos = state.get('pointer').get('pos').toJS();
-  const lastRowNumber = state.get('selection').size - 1;
-  const lastColumnNumber = state.get('selection').get(0).size - 1;
+export function maxPos(rows, columns) {
+  return [rows.length - 1, columns.length - 1];
+}
+
+export function calcNewPos(rows, columns, pos, key) {
+  const currentMaxPos = maxPos(rows, columns);
 
   let newRowNumber;
   let newColumnNumber;
   switch (key) {
     case 'ArrowUp': {
       if (pos.length === 0) {
-        newRowNumber = lastRowNumber;
+        newRowNumber = rowNumber(currentMaxPos);
         newColumnNumber = 0;
       } else {
         newRowNumber = rowNumber(pos) - 1;
@@ -116,7 +135,7 @@ export function calcNewPos(state, key) {
     }
 
     case 'PageDown': {
-      newRowNumber = lastRowNumber;
+      newRowNumber = rowNumber(currentMaxPos);
       if (pos.length === 0) {
         newColumnNumber = 0;
       } else {
@@ -128,7 +147,7 @@ export function calcNewPos(state, key) {
     case 'ArrowLeft': {
       if (pos.length === 0) {
         newRowNumber = 0;
-        newColumnNumber = lastColumnNumber;
+        newColumnNumber = columnNumber(currentMaxPos);
       } else {
         newRowNumber = rowNumber(pos);
         newColumnNumber = columnNumber(pos) - 1;
@@ -158,7 +177,7 @@ export function calcNewPos(state, key) {
     }
 
     case 'End': {
-      newColumnNumber = lastColumnNumber;
+      newColumnNumber = columnNumber(currentMaxPos);
       if (pos.length === 0) {
         newRowNumber = 0;
       } else {

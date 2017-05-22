@@ -1,12 +1,13 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 import Menu from '../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  requests: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
   onMouseOverHandler: PropTypes.func.isRequired,
+  requests: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -71,20 +72,24 @@ class TableActionsCell extends React.Component {
 
     const tableMenuItems = [
       {
-        icon: 'close',
-        label: 'Delete spreadsheet',
         action: () => pushRequest('DELETE'),
         confirm: true,
+        icon: 'close',
+        label: 'Delete spreadsheet',
       },
     ];
 
     return (
-      <div className="td table-actions" onMouseOver={this.props.onMouseOverHandler}>
+      <div
+        className="td table-actions"
+        id={this.props.id}
+        onMouseOver={this.props.onMouseOverHandler}
+      >
         <Menu
-          buttonId="table-actions-button"
           buttonIcon="more_vert"
-          menuItems={tableMenuItems}
+          buttonId="table-actions-button"
           hideOnMouseLeave={false}
+          menuItems={tableMenuItems}
         />
       </div>
     );

@@ -6,6 +6,8 @@ import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleDataChanges from './middleware/handleDataChanges';
 
 let middleware = [thunk];
+
+// TODO: use process.env.NODE_ENV instead.
 if (typeof (window) !== 'undefined') {
   middleware = [
     ...middleware,

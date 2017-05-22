@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/kengho/react-redux-spreadsheet",
   "scripts": {
-    "test": "mocha ./app/assets/javascripts/test --recursive --compilers js:babel-core/register --require ./app/assets/javascripts/test/test_helper.js",
+    "test": "NODE_ENV='test' mocha ./app/assets/javascripts/test --recursive --compilers js:babel-core/register --require ./app/assets/javascripts/test/test_helper.js",
     "test:watch": "npm run test -- --watch",
     "lint": "eslint -c .eslintrc.json app/assets/javascripts webpack.client.config.js --ext .js --ext .jsx",
     "dev:client": "NODE_ENV='development' webpack -w --config webpack.client.config.js",

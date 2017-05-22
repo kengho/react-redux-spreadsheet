@@ -9,7 +9,7 @@ import Root from './containers/Root';
 // TODO: use router.
 domready(() => {
   mountComponents({
-    Root,
     Landing,
+    Root,
   });
 });

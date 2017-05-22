@@ -13,7 +13,7 @@ class SpreadsheetController < ApplicationController
   end
 
   def create
-    if ENV['RECAPTCHA_SECRET_KEY']
+    if ENV['RECAPTCHA_SECRET_KEY'] && ENV['RECAPTCHA_SITE_KEY']
       unless captcha_is_valid
         flash[:message] = 'Sorry, but CAPTCHA is invalid'
         redirect_to spreadsheet_index_path and return
@@ -21,14 +21,14 @@ class SpreadsheetController < ApplicationController
     end
 
     # TODO: data check, errors.
-    @spreadsheet = Spreadsheet.create!(data: params[:data])
+    @spreadsheet = Spreadsheet.create!(table: params[:table])
     redirect_to spreadsheet_path(@spreadsheet.short_id)
   end
 
   def show
     @spreadsheet.update_attributes(updates_counter: 0)
     @short_id = params[:short_id]
-    @data = @spreadsheet.data
+    @table = @spreadsheet.table
 
     respond_to do |f|
       f.html
@@ -40,7 +40,7 @@ class SpreadsheetController < ApplicationController
     status =
       if @spreadsheet.updates_counter > params['counter']
         'OK'
-      elsif @spreadsheet.update_attributes!(data: params['data'])
+      elsif @spreadsheet.update_attributes!(table: params['table'])
         @spreadsheet.update_attributes(updates_counter: params['counter'] + 1)
         'OK'
       else
