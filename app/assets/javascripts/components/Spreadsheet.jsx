@@ -80,6 +80,7 @@ class Spreadsheet extends React.Component {
     //   http://web.archive.org/web/20150419023006/http://facebook.github.io/react/docs/interactivity-and-dynamic-uis.html
     //   (What Shouldn’t Go in State?)
     //   How to get currently editing Cell's data right?
+    //   Also, classname in DataCell should be synced with this selector.
     const editingTextarea = document.querySelector('.editing textarea'); // eslint-disable-line no-undef
     if (editingTextarea) {
       // const pointerRowNumber = rowNumber(this.table.pointer.pos);
@@ -349,7 +350,7 @@ class Spreadsheet extends React.Component {
         return false;
       }
 
-      // If hover on first fictive row/column.
+      // If hover is on first fictive row/column.
       if (
         this.fictiveRows.indexOf(rowId(hover)) === 0 ||
         this.fictiveColumns.indexOf(columnId(hover)) === 0
@@ -390,7 +391,7 @@ class Spreadsheet extends React.Component {
     const outputRows = [];
     rows.forEach((currentRowId, rowIndex) => {
       // There are 2 more fictive rows and columns for actions and addressing.
-      // See constructor()
+      // See constructor().
       const effectiveRowIndex = rowIndex - 2;
       const outputRow = [];
       columns.forEach((currentColumnId, columnIndex) => {
@@ -425,11 +426,12 @@ class Spreadsheet extends React.Component {
           effectiveColumnIndex === -2
         ) {
           // -2 is because of fictive columns.
-          let isOnly;
-          if (effectiveRowIndex === -2) {
-            isOnly = columns.length - 2 === 1;
-          } else if (effectiveColumnIndex === -2) {
-            isOnly = rows.length - 2 === 1;
+          let isOnly = false;
+          if (
+            (effectiveRowIndex === -2 && columns.length - 2 === 1) ||
+            (effectiveColumnIndex === -2 && rows.length - 2 === 1)
+          ) {
+            isOnly = true;
           }
 
           const actionsProps = {
