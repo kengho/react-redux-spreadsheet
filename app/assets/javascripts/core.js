@@ -1,6 +1,7 @@
 import { fromJS } from 'immutable';
 import uuid from 'uuid/v4';
 
+// TODO: rename getters to `get${functionName}`.
 export function rowId(currentCellId) {
   return currentCellId.slice(
     0,
