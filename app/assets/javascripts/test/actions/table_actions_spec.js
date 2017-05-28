@@ -98,6 +98,18 @@ describe('table', () => {
       expect(store.getState().getIn(['table', 'data', 'cells'])).to.deep.equal(expectedCells);
     });
 
+    it('set prop (undefined cellId)', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const cellId = undefined;
+      const value = 'Cell value';
+
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
+      const expectedCells = fromJS({});
+
+      expect(store.getState().getIn(['table', 'data', 'cells'])).to.deep.equal(expectedCells);
+    });
+
     it('delete prop (more that one prop remaining)', () => {
       const state = Core.initialState(...tableSize);
       const store = configureStore(state);
@@ -502,6 +514,17 @@ describe('table', () => {
         expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
       });
 
+      it('remove row (only)', () => {
+        const state = Core.initialState(1, 4);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.reduce([0, -1]));
+
+        const expectedRows = fromJS(['r0']);
+
+        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+      });
+
       it('remove column', () => {
         const state = Core.initialState(...tableSize);
         const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
@@ -516,6 +539,17 @@ describe('table', () => {
 
         expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
         expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+      });
+
+      it('remove column (only)', () => {
+        const state = Core.initialState(3, 1);
+        const store = configureStore(state);
+
+        store.dispatch(TableActions.reduce([-1, 0]));
+
+        const expectedColumns = fromJS(['c0']);
+
+        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
       });
     });
 

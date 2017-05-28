@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { arePropsEqual } from '../../core';
 import Menu from '../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
-  onMouseOverHandler: PropTypes.func.isRequired,
   requests: PropTypes.object.isRequired,
+  requestsQueueSize: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 };
 
 const defaultProps = {
@@ -20,20 +21,10 @@ class TableActionsCell extends React.Component {
     this.tooltip = null;
   }
 
-  // TODO: recompose/pure?
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
-    const currentRequests = currentProps.requests.toJS();
-    const nextRequests = nextProps.requests.toJS();
 
-    if (
-      (currentRequests.queue.length === 0 && nextRequests.queue.length > 0) ||
-      (currentRequests.queue.length > 0 && nextRequests.queue.length) === 0
-    ) {
-      return true;
-    }
-
-    return false;
+    return !arePropsEqual(currentProps, nextProps, ['requestsQueueSize']);
   }
 
   componentDidUpdate() {
@@ -43,7 +34,12 @@ class TableActionsCell extends React.Component {
   }
 
   render() {
-    const requests = this.props.requests.toJS();
+    const {
+      actions,
+      id,
+      requests,
+     } = this.props;
+
     if (requests.queue.length > 0) {
       // Wrapper solves issue with disabled button.
       // https://github.com/angular-ui/bootstrap/issues/1025
@@ -68,11 +64,9 @@ class TableActionsCell extends React.Component {
       );
     }
 
-    const { pushRequest } = this.props.actions;
-
     const tableMenuItems = [
       {
-        action: () => pushRequest('DELETE'),
+        action: () => actions.pushRequest('DELETE'),
         confirm: true,
         icon: 'close',
         label: 'Delete spreadsheet',
@@ -82,8 +76,8 @@ class TableActionsCell extends React.Component {
     return (
       <div
         className="td table-actions"
-        id={this.props.id}
-        onMouseOver={this.props.onMouseOverHandler}
+        id={id}
+        onMouseOver={() => { actions.setHover(id); }}
       >
         <Menu
           buttonIcon="more_vert"

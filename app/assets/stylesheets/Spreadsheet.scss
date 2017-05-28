@@ -24,6 +24,10 @@ body {
 
 .tr {
   display: table-row;
+
+  &.action-cells-hover:hover .line-actions {
+    opacity: 1;
+  }
 }
 
 .td {

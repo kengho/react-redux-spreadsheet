@@ -1,45 +1,58 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { arePropsEqual } from '../../core';
 import MenuItem from './MenuItem';
 
 const propTypes = {
   buttonIcon: PropTypes.string,
   buttonId: PropTypes.string.isRequired,
   hideOnMouseLeave: PropTypes.bool,
+  isOnly: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   menuItems: PropTypes.array.isRequired,
+  pos: PropTypes.array, // eslint-disable-line react/no-unused-prop-types
 };
 
 const defaultProps = {
-  hideOnMouseLeave: true,
   buttonIcon: '',
+  hideOnMouseLeave: true,
+
+  // Defaults for Menu in TableActionsCell.
+  isOnly: false,
+  pos: [],
 };
 
 class Menu extends React.Component {
   constructor(props) {
     super(props);
 
-    this.cellActionsMenuOnMouseLeaveHandler = (e) => {
+    this.keyDownHandler = (evt) => {
+      // TODO: ArrowLeft and ArrowRight to jump to adjacent menu.
+      // Prevents firing documentKeyDownHandler() and lets MDL handler to work.
+      evt.nativeEvent.stopImmediatePropagation();
+    };
+
+    this.cellActionsMenuOnMouseLeaveHandler = (evt) => {
       // Event may be fired at all of '.menu' children.
       // REVIEW: is there are way to prevent firing 'onMouseLeave' at for childen?
       //   (Excluding quering 'document' directly.)
       let container;
       // container = document.querySelector(`[id='${props.buttonId}'] + .mdl-menu__container`);
-      switch (e.target.tagName) {
+      switch (evt.target.tagName) {
         case 'DIV':
-          container = e.target.querySelector('.mdl-menu__container');
+          container = evt.target.querySelector('.mdl-menu__container');
           break;
         case 'BUTTON':
-          container = e.target.parentNode.querySelector('.mdl-menu__container');
+          container = evt.target.parentNode.querySelector('.mdl-menu__container');
           break;
         case 'I':
-          container = e.target.parentNode.parentNode.querySelector('.mdl-menu__container');
+          container = evt.target.parentNode.parentNode.querySelector('.mdl-menu__container');
           break;
         case 'UL':
-          container = e.target.parentNode;
+          container = evt.target.parentNode;
           break;
         case 'LI':
-          container = e.target.parentNode.parentNode;
+          container = evt.target.parentNode.parentNode;
           break;
         default:
       }
@@ -59,23 +72,23 @@ class Menu extends React.Component {
     componentHandler.upgradeElement(this.menu); // eslint-disable-line no-undef
   }
 
-  // TODO: recompose/pure?
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
-    if (JSON.stringify(nextProps.menuItems) !== JSON.stringify(currentProps.menuItems)) {
-      return true;
-    }
 
-    return false;
+    return !arePropsEqual(currentProps, nextProps, ['isOnly', 'pos']);
   }
 
   render() {
-    const { buttonIcon, buttonId, menuItems, hideOnMouseLeave } = this.props;
+    const {
+      buttonIcon,
+      buttonId,
+      hideOnMouseLeave,
+      menuItems,
+     } = this.props;
 
-    // TODO: ArrowDown and ArrowDown, Enter, Escape to navigate through menu.
-    const currentMenuItems = [];
+    const outputMenuItems = [];
     menuItems.forEach((item) => {
-      currentMenuItems.push(
+      outputMenuItems.push(
         <MenuItem
           action={item.action}
           confirm={item.confirm}
@@ -89,7 +102,8 @@ class Menu extends React.Component {
     return (
       <div
         className="menu"
-        onMouseLeave={hideOnMouseLeave && ((e) => this.cellActionsMenuOnMouseLeaveHandler(e))}
+        onKeyDown={(evt) => this.keyDownHandler(evt)}
+        onMouseLeave={hideOnMouseLeave && ((evt) => this.cellActionsMenuOnMouseLeaveHandler(evt))}
       >
         <button
           className="mdl-button mdl-js-button mdl-button--icon"
@@ -103,7 +117,7 @@ class Menu extends React.Component {
                 //   But I didn't find better way to do so because of it's delays
                 //   (excluding overriding entire MaterialMenu.prototype.show).
                 //   Here we wait until animation stops and the focusing on first menu item.
-                // TODO: focus on '0th' menu item somehow, so ArrowDown goes to 1st.
+                // TODO: focus on '0-th' menu item somehow, so ArrowDown goes to 1st.
                 this.menu.querySelector('li').focus();
               }, 100);
             }
@@ -116,10 +130,10 @@ class Menu extends React.Component {
         <ul
           className="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
           htmlFor={buttonId}
-          onMouseOver={(e) => { e.target.blur(); }}
+          onMouseOver={(evt) => { evt.target.blur(); }}
           ref={(c) => { this.menu = c; }}
         >
-          {currentMenuItems}
+          {outputMenuItems}
         </ul>
       </div>
     );

@@ -5,15 +5,12 @@ import rootReducer from '../reducers';
 import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleDataChanges from './middleware/handleDataChanges';
 
-let middleware = [thunk];
-
-// TODO: use process.env.NODE_ENV instead.
-if (typeof (window) !== 'undefined') {
-  middleware = [
-    ...middleware,
+const middleware = [thunk];
+if (process.env.NODE_ENV !== 'test') {
+  middleware.push(
     handleRequestsChanges,
-    handleDataChanges, // make sure this is the last middleware
-  ];
+    handleDataChanges // make sure this is the last middleware
+  );
 }
 
 const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);

@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 // http://stackoverflow.com/a/22480938/6376451
 // (+-)
-// TODO: use 'evt' and 'el' notation everywhere.
 const isScrolledIntoView = (el) => {
   const elemTop = el.getBoundingClientRect().top;
   const elemBottom = el.getBoundingClientRect().bottom;

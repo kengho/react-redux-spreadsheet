@@ -1,59 +1,50 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { lineRef, rowNumber, columnNumber } from '../../core';
+import {
+  arePropsEqual,
+  getColumnNumber,
+  getLineRef,
+  getRowNumber,
+} from '../../core';
 import Menu from '../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
-  isHover: PropTypes.bool.isRequired,
+  isHover: PropTypes.bool,
   isOnly: PropTypes.bool.isRequired,
-  onMouseOverHandler: PropTypes.func.isRequired,
   pos: PropTypes.array.isRequired,
 };
 
 const defaultProps = {
+  isHover: false,
 };
 
 class LineActionsCell extends React.Component {
   shouldComponentUpdate(nextProps) {
-    // TODO: to lib (see DataCell).
     const currentProps = this.props;
-    const importantProps = ['isHover', 'isOnly', 'pos'];
 
-    const importantCellPropsAreNotEqual = importantProps.some((prop) => {
-      let result;
-      if (typeof currentProps[prop] === 'object') { // pos
-        result =
-          rowNumber(nextProps[prop]) !== rowNumber(currentProps[prop]) ||
-          columnNumber(nextProps[prop]) !== columnNumber(currentProps[prop]);
-      } else {
-        result = nextProps[prop] !== currentProps[prop];
-      }
-
-      return result;
-    });
-
-    if (importantCellPropsAreNotEqual) {
-      return true;
-    }
-    return false;
+    return !arePropsEqual(currentProps, nextProps, ['isHover', 'isOnly', 'pos']);
   }
 
   render() {
     const cellsButtonId = `line-actions-button-${this.props.id}`;
-    const { reduce, expand } = this.props.actions;
-    const pos = this.props.pos;
-    const currentLineRef = lineRef(pos);
+    const {
+      pos,
+      isHover,
+      actions,
+      id,
+      isOnly,
+    } = this.props;
+    const lineRef = getLineRef(pos);
 
     const cellsMenuItems = [];
-    if (currentLineRef === 'ROW') {
+    if (lineRef === 'ROW') {
       // Don't allow to delete first row/column if there are only one row/column left.
-      // TODO: repeat check in reducer.
-      if (!this.props.isOnly) {
+      if (!isOnly) {
         cellsMenuItems.push({
-          action: () => reduce(pos),
+          action: () => actions.reduce(pos),
           icon: 'close',
 
           // TODO: i18n.
@@ -62,32 +53,32 @@ class LineActionsCell extends React.Component {
       }
       cellsMenuItems.push(
         {
-          action: () => expand(pos),
+          action: () => actions.expand(pos),
           icon: 'keyboard_arrow_up',
           label: 'Insert row above',
         },
         {
-          action: () => expand([rowNumber(pos) + 1, columnNumber(pos)]),
+          action: () => actions.expand([getRowNumber(pos) + 1, getColumnNumber(pos)]),
           icon: 'keyboard_arrow_down',
           label: 'Insert row below',
         }
       );
-    } else if (currentLineRef === 'COLUMN') {
-      if (!this.props.isOnly) {
+    } else if (lineRef === 'COLUMN') {
+      if (!isOnly) {
         cellsMenuItems.push({
-          action: () => reduce(pos),
+          action: () => actions.reduce(pos),
           icon: 'close',
           label: 'Delete column',
         });
       }
       cellsMenuItems.push(
         {
-          action: () => expand(pos),
+          action: () => actions.expand(pos),
           icon: 'chevron_left',
           label: 'Insert column at left',
         },
         {
-          action: () => expand([rowNumber(pos), columnNumber(pos) + 1]),
+          action: () => actions.expand([getRowNumber(pos), getColumnNumber(pos) + 1]),
           icon: 'chevron_right',
           label: 'Insert column at right',
         }
@@ -96,13 +87,15 @@ class LineActionsCell extends React.Component {
 
     return (
       <div
-        className={`td line-actions ${currentLineRef.toLowerCase()} ${this.props.isHover ? 'hover' : ''}`}
-        onMouseOver={this.props.onMouseOverHandler}
+        className={`td line-actions ${lineRef.toLowerCase()} ${isHover ? 'hover' : ''}`}
+        onMouseOver={() => { actions.setHover(id); }}
       >
         <Menu
           buttonIcon="more_vert"
           buttonId={cellsButtonId}
+          isOnly={isOnly}
           menuItems={cellsMenuItems}
+          pos={pos}
         />
       </div>
     );

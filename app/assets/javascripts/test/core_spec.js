@@ -10,17 +10,17 @@ import * as Core from '../core';
 
 describe('core', () => {
   it('get rowId and columnId by cellId', () => {
-    expect(Core.rowId('r1,c1')).to.equal('r1');
-    expect(Core.columnId('r1,c1')).to.equal('c1');
+    expect(Core.getRowId('r1,c1')).to.equal('r1');
+    expect(Core.getColumnId('r1,c1')).to.equal('c1');
   });
 
   it('get cellId by rowId and columnId', () => {
-    expect(Core.cellId('r1', 'c1')).to.equal('r1,c1');
+    expect(Core.getCellId('r1', 'c1')).to.equal('r1,c1');
   });
 
   it('get rowNumber and columnNumber', () => {
-    expect(Core.rowNumber([0, 1])).to.equal(0);
-    expect(Core.columnNumber([0, 1])).to.equal(1);
+    expect(Core.getRowNumber([0, 1])).to.equal(0);
+    expect(Core.getColumnNumber([0, 1])).to.equal(1);
   });
 
   it('return initial lines (rows and columns)', () => {
@@ -61,15 +61,15 @@ describe('core', () => {
   });
 
   it('get line ref', () => {
-    expect(Core.lineRef([-1, 2])).to.equal('COLUMN');
-    expect(Core.lineRef([2, -1])).to.equal('ROW');
+    expect(Core.getLineRef([-1, 2])).to.equal('COLUMN');
+    expect(Core.getLineRef([2, -1])).to.equal('ROW');
   });
 
   it('get maximum pos in table', () => {
     const rows = ['r0', 'r1', 'r2'];
     const columns = ['c0', 'c1', 'c2',  'c3'];
 
-    expect(Core.maxPos(rows, columns)).to.deep.equal([2, 3]);
+    expect(Core.getMaxPos(rows, columns)).to.deep.equal([2, 3]);
   });
 
   it('get position after key pressed', () => {
@@ -105,5 +105,37 @@ describe('core', () => {
     expect(Core.calcNewPos(rows, columns, [],     'End')).to.deep.equal([0, 3]); // no pos
     expect(Core.calcNewPos(rows, columns, [2, 1], 'End')).to.deep.equal([2, 3]); // OK
     expect(Core.calcNewPos(rows, columns, [2, 3], 'End')).to.deep.equal([2, 3]); // border
+  });
+
+  it('return are props equal in two objects (sting, true)', () => {
+    const currentProps = { a: 1, b: 2, c: 3 };
+    const nextProps = { a: 1, b: 2, c: 4 };
+    const props = ['a', 'b'];
+
+    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(true);
+  });
+
+  it('return are props equal in two objects (sting, false)', () => {
+    const currentProps = { a: 1, b: 2, c: 3 };
+    const nextProps = { a: 1, b: 3, c: 4 };
+    const props = ['a', 'b'];
+
+    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(false);
+  });
+
+  it('return are props equal in two objects (array, true)', () => {
+    const currentProps = { a: [1, 2], b: 2, c: 3 };
+    const nextProps = { a: [1, 2], b: 2, c: 4 };
+    const props = ['a', 'b'];
+
+    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(true);
+  });
+
+  it('return are props equal in two objects (array, false)', () => {
+    const currentProps = { a: [1, 2], b: 2, c: 3 };
+    const nextProps = { a: [1, 3], b: 3, c: 4 };
+    const props = ['a', 'b'];
+
+    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(false);
   });
 });

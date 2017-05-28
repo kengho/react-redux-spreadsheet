@@ -2,53 +2,53 @@ import { fromJS } from 'immutable';
 import uuid from 'uuid/v4';
 
 // TODO: rename getters to `get${functionName}`.
-export function rowId(currentCellId) {
-  return currentCellId.slice(
+export function getRowId(cellId) {
+  return cellId.slice(
     0,
-    Math.floor(currentCellId.length / 2)
+    Math.floor(cellId.length / 2)
   );
 }
 
-export function columnId(currentCellId) {
-  return currentCellId.slice(
-    Math.ceil(currentCellId.length / 2),
-    currentCellId.length
+export function getColumnId(cellId) {
+  return cellId.slice(
+    Math.ceil(cellId.length / 2),
+    cellId.length
   );
 }
 
-export function cellId(currentRowId, currentColumnId) {
-  return `${currentRowId},${currentColumnId}`;
+export function getCellId(rowId, columnId) {
+  return `${rowId},${columnId}`;
 }
 
-export function rowNumber(pos) {
+export function getRowNumber(pos) {
   return pos[0];
 }
 
-export function columnNumber(pos) {
+export function getColumnNumber(pos) {
   return pos[1];
 }
 
 export function initialLines(height = 4, width = 4) {
   const rows = Array.from(Array(height)).map((_, rowIndex) => {
-    let newRowId;
+    let rowId;
     if (process.env.NODE_ENV === 'test') {
-      newRowId = `r${rowIndex}`;
+      rowId = `r${rowIndex}`;
     } else {
-      newRowId = `r${uuid()}`;
+      rowId = `r${uuid()}`;
     }
 
-    return newRowId;
+    return rowId;
   });
 
   const columns = Array.from(Array(width)).map((_, columnIndex) => {
-    let newColumnId;
+    let columnId;
     if (process.env.NODE_ENV === 'test') {
-      newColumnId = `c${columnIndex}`;
+      columnId = `c${columnIndex}`;
     } else {
-      newColumnId = `c${uuid()}`;
+      columnId = `c${uuid()}`;
     }
 
-    return newColumnId;
+    return columnId;
   });
 
   return { rows, columns };
@@ -82,107 +82,107 @@ export function initialState(width, height) {
 }
 
 // Indicates that Cell represents some row or column (in actions and etc).
-export function lineRef(pos) {
+export function getLineRef(pos) {
   let ref;
-  if (rowNumber(pos) >= 0) {
+  if (getRowNumber(pos) >= 0) {
     ref = 'ROW';
-  } else if (columnNumber(pos) >= 0) {
+  } else if (getColumnNumber(pos) >= 0) {
     ref = 'COLUMN';
   }
 
   return ref;
 }
 
-export function maxPos(rows, columns) {
+export function getMaxPos(rows, columns) {
   return [rows.length - 1, columns.length - 1];
 }
 
 export function calcNewPos(rows, columns, pos, key) {
-  const currentMaxPos = maxPos(rows, columns);
+  const maxPos = getMaxPos(rows, columns);
 
-  let newRowNumber;
-  let newColumnNumber;
+  let rowNumber;
+  let columnNumber;
   switch (key) {
     case 'ArrowUp': {
       if (pos.length === 0) {
-        newRowNumber = rowNumber(currentMaxPos);
-        newColumnNumber = 0;
+        rowNumber = getRowNumber(maxPos);
+        columnNumber = 0;
       } else {
-        newRowNumber = rowNumber(pos) - 1;
-        newColumnNumber = columnNumber(pos);
+        rowNumber = getRowNumber(pos) - 1;
+        columnNumber = getColumnNumber(pos);
       }
       break;
     }
 
     case 'PageUp': {
-      newRowNumber = 0;
+      rowNumber = 0;
       if (pos.length === 0) {
-        newColumnNumber = 0;
+        columnNumber = 0;
       } else {
-        newColumnNumber = columnNumber(pos);
+        columnNumber = getColumnNumber(pos);
       }
       break;
     }
 
     case 'ArrowDown': {
       if (pos.length === 0) {
-        newRowNumber = 0;
-        newColumnNumber = 0;
+        rowNumber = 0;
+        columnNumber = 0;
       } else {
-        newRowNumber = rowNumber(pos) + 1;
-        newColumnNumber = columnNumber(pos);
+        rowNumber = getRowNumber(pos) + 1;
+        columnNumber = getColumnNumber(pos);
       }
       break;
     }
 
     case 'PageDown': {
-      newRowNumber = rowNumber(currentMaxPos);
+      rowNumber = getRowNumber(maxPos);
       if (pos.length === 0) {
-        newColumnNumber = 0;
+        columnNumber = 0;
       } else {
-        newColumnNumber = columnNumber(pos);
+        columnNumber = getColumnNumber(pos);
       }
       break;
     }
 
     case 'ArrowLeft': {
       if (pos.length === 0) {
-        newRowNumber = 0;
-        newColumnNumber = columnNumber(currentMaxPos);
+        rowNumber = 0;
+        columnNumber = getColumnNumber(maxPos);
       } else {
-        newRowNumber = rowNumber(pos);
-        newColumnNumber = columnNumber(pos) - 1;
+        rowNumber = getRowNumber(pos);
+        columnNumber = getColumnNumber(pos) - 1;
       }
       break;
     }
 
     case 'Home': {
-      newColumnNumber = 0;
+      columnNumber = 0;
       if (pos.length === 0) {
-        newRowNumber = 0;
+        rowNumber = 0;
       } else {
-        newRowNumber = rowNumber(pos);
+        rowNumber = getRowNumber(pos);
       }
       break;
     }
 
     case 'ArrowRight': {
       if (pos.length === 0) {
-        newRowNumber = 0;
-        newColumnNumber = 0;
+        rowNumber = 0;
+        columnNumber = 0;
       } else {
-        newRowNumber = rowNumber(pos);
-        newColumnNumber = columnNumber(pos) + 1;
+        rowNumber = getRowNumber(pos);
+        columnNumber = getColumnNumber(pos) + 1;
       }
       break;
     }
 
     case 'End': {
-      newColumnNumber = columnNumber(currentMaxPos);
+      columnNumber = getColumnNumber(maxPos);
       if (pos.length === 0) {
-        newRowNumber = 0;
+        rowNumber = 0;
       } else {
-        newRowNumber = rowNumber(pos);
+        rowNumber = getRowNumber(pos);
       }
       break;
     }
@@ -190,12 +190,27 @@ export function calcNewPos(rows, columns, pos, key) {
     default:
   }
 
-  if (newRowNumber < 0) {
-    newRowNumber = 0;
+  if (rowNumber < 0) {
+    rowNumber = 0;
   }
-  if (newColumnNumber < 0) {
-    newColumnNumber = 0;
+  if (columnNumber < 0) {
+    columnNumber = 0;
   }
 
-  return [newRowNumber, newColumnNumber];
+  return [rowNumber, columnNumber];
+}
+
+// NOTE: order or props on array is important.
+//   Place strings in the beginning, objects in the end (more complex => closer to the end).
+export function arePropsEqual(currentProps, nextProps, props) {
+  return !props.some((prop) => {
+    let propsArentEqual;
+    if (typeof nextProps[prop] === 'object') {
+      propsArentEqual = (JSON.stringify(nextProps[prop]) !== JSON.stringify(currentProps[prop]));
+    } else {
+      propsArentEqual = (nextProps[prop] !== currentProps[prop]);
+    }
+
+    return propsArentEqual;
+  });
 }

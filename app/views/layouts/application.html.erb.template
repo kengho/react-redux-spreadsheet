@@ -5,7 +5,7 @@
     <%= csrf_meta_tags %>
 <%#= begin_webpack_head_tags %>
 <%#= end_webpack_head_tags %>
-  <% if ENV['RECAPTCHA_SECRET_KEY'] %>
+  <% if ENV['RECAPTCHA_SECRET_KEY'] && ENV['RECAPTCHA_SITE_KEY']%>
   <script src='https://www.google.com/recaptcha/api.js'></script>
   <% end %>
   </head>

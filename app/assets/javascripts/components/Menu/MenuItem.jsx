@@ -11,24 +11,31 @@ const propTypes = {
 };
 
 const defaultProps = {
-  icon: '',
   confirm: false,
+  icon: '',
 };
 
 const DELAY_BEFORE_ACTION = 200;
 
 const MenuItem = (props) => {
-  let action;
-  if (!props.confirm) {
-    action = props.action;
+  const {
+    action,
+    confirm,
+    icon,
+    label,
+  } = props;
+
+  let effectiveAction;
+  if (!confirm) {
+    effectiveAction = action;
   } else {
-    action = () => confirmAction(props.action);
+    effectiveAction = () => confirmAction(action);
   }
 
   // Delay action until ripple animation isn't finished.
   const delayedAction = () => {
     setTimeout(
-      action,
+      effectiveAction,
       DELAY_BEFORE_ACTION
     );
   };
@@ -38,9 +45,9 @@ const MenuItem = (props) => {
       className="mdl-menu__item"
       onClick={delayedAction}
     >
-      {/* Emply icon works just fine, occupying the same space. */}
-      <i className="material-icons md-18">{props.icon}</i>
-      {props.label}
+      {/* Emply icon works just fine, occupying the same space as regular one. */}
+      <i className="material-icons md-18">{icon}</i>
+      {label}
     </li>
   );
 };

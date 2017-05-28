@@ -25,33 +25,40 @@ class Landing extends React.Component {
   }
 
   render() {
+    const {
+      message,
+      recaptchaSitekey,
+    } = this.props;
+
     const table = JSON.stringify(initialState().toJS().table);
 
     // TODO: consider storage session data.
     delete table.session;
 
     let captchaProps = {};
-    if (this.props.recaptchaSitekey) {
+    if (recaptchaSitekey) {
       captchaProps = {
-        'data-sitekey': this.props.recaptchaSitekey,
+        'data-sitekey': recaptchaSitekey,
         'data-callback': 'recaptchaCallback',
-        onClick: (e) => { e.target.disabled = true; }, // TODO: add some kind of spinner.
+
+        // TODO: add some kind of spinner.
+        onClick: (evt) => { evt.target.disabled = true; }, // eslint-disable-line no-param-reassign
       };
     }
 
     return (
       <div className="landing">
         <div className="message">
-          {this.props.message}
+          {message}
         </div>
         <form name="landing" method="POST" action="spreadsheet">
           <input hidden readOnly name="table" value={table} />
           <button
+            {...captchaProps}
             className={
-              `${this.props.recaptchaSitekey ? 'g-recaptcha' : ''}
+              `${recaptchaSitekey ? 'g-recaptcha' : ''}
               mdl-button mdl-js-button mdl-button--raised mdl-button--colored`
             }
-            {...captchaProps}
             type="submit"
           >
             create spreadsheet

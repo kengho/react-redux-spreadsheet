@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux-immutable';
-import table from './table';
-import requests from './requests';
 import meta from './meta';
+import requests from './requests';
+import table from './table';
 
 const rootReducer = combineReducers({
   meta,
