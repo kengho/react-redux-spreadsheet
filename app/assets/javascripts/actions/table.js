@@ -48,6 +48,39 @@ export function movePointer(key) {
   };
 }
 
+export function setSelection(selection) {
+  return {
+    type: 'SET_SELECTION',
+    selection,
+  };
+}
+
+export function clearSelection() {
+  return {
+    type: 'CLEAR_SELECTION',
+  };
+}
+
+export function setClipboard(clipboard) {
+  return {
+    type: 'SET_CLIPBOARD',
+    clipboard,
+  };
+}
+
+export function clearClipboard() {
+  return {
+    type: 'CLEAR_CLIPBOARD',
+  };
+}
+
+export function toggleRowUpdateTrigger(rowId) {
+  return {
+    type: 'TOGGLE_ROW_UPDATE_TRIGGER',
+    rowId,
+  };
+}
+
 export function reduce(pos) {
   return {
     type: 'REDUCE',

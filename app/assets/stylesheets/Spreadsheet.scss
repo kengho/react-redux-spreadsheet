@@ -3,11 +3,12 @@
 $header-text-color: #222;
 $data-bgcolor: $body-bgcolor;
 $data-bgcolor: white;
-$selected-bgcolor: #ccc;
 $cell-border-thickness: 1px;
-$data-border: $cell-border-thickness solid $data-bgcolor;
-$pointed-border: $cell-border-thickness solid #48e;
-$editing-border: $data-border;
+$data-border: $cell-border-thickness solid rgba(white, 0);
+$pointed-border-color: #48e;
+$pointed-border: $cell-border-thickness solid $pointed-border-color;
+$clipboard-border: $cell-border-thickness dashed #777;
+$clipboard-pointed-border: $cell-border-thickness dashed $pointed-border-color;
 $cell-height: 32px;
 $cell-padding: 8px 16px;
 $cell-font-size: 18px;
@@ -115,7 +116,15 @@ body {
   }
 
   &.editing {
-    border: $editing-border;
+    border: $data-border;
+  }
+
+  &.clipboard {
+    border: $clipboard-border;
+  }
+
+  &.pointed.clipboard {
+    border: $clipboard-pointed-border;
   }
 }
 

@@ -39,14 +39,25 @@ describe('core', () => {
         ...Core.initialLines(3, 4),
         cells: {},
       },
-      session:{
+      session: {
         pointer: {
           cellId: null,
           modifiers: {},
         },
         hover: null,
-        selection: [],
-      }
+        selection: {
+          cellsIds: [],
+        },
+        clipboard: {
+          cells: {},
+          operation: null,
+        }
+      },
+      updateTriggers: {
+        data: {
+          rows: {},
+        },
+      },
     };
 
     expect(Core.initialTable(3, 4)).to.deep.equal(expectedInitialTable);

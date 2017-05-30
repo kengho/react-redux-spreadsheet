@@ -24,11 +24,22 @@ describe('table', () => {
       },
       "session": {
         "pointer": {
-          "id": null,
+          "cellId": null,
           "modifiers": {}
         },
         "hover": null,
-        "selection": []
+        "selection": {
+          "cellsIds": []
+        },
+        "clipboard": {
+          "cells": {},
+          "operation": null
+        }
+      },
+      "updateTriggers": {
+        "data": {
+          "rows": {}
+        }
       }
     }`;
 
@@ -43,11 +54,22 @@ describe('table', () => {
       },
       session: {
         pointer: {
-          id: null,
+          cellId: null,
           modifiers: {},
         },
         hover: null,
-        selection: [],
+        selection: {
+          cellsIds: [],
+        },
+        clipboard: {
+          cells: {},
+          operation: null,
+        }
+      },
+      updateTriggers: {
+        data: {
+          rows: {},
+        },
       },
     });
 
@@ -74,11 +96,22 @@ describe('table', () => {
       },
       session: {
         pointer: {
-          id: null,
+          cellId: null,
           modifiers: {},
         },
         hover: null,
-        selection: [],
+        selection: {
+          cellsIds: [],
+        },
+        clipboard: {
+          cells: {},
+          operation: null,
+        },
+      },
+      updateTriggers: {
+        data: {
+          rows: {},
+        },
       },
     });
 
@@ -496,85 +529,197 @@ describe('table', () => {
         expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
       });
     });
+  });
 
-    describe('reduce', () => {
-      it('remove row', () => {
-        const state = Core.initialState(...tableSize);
-        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
+  describe('selection', () => {
+    it('set selection', () => {
+      const state = Core.initialState(...tableSize);
+      const selection = { cellsIds: ['r2,c3'] };
+      const store = configureStore(state);
 
-        store.dispatch(TableActions.reduce([1, -1]));
+      store.dispatch(TableActions.setSelection(selection));
 
-        const expectedRows = fromJS(['r0', 'r2']);
-        const expectedPointer = fromJS({
-          cellId: null,
-          modifiers: {},
-        });
+      const expectedSelection = fromJS(selection);
 
-        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
-        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('remove row (only)', () => {
-        const state = Core.initialState(1, 4);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.reduce([0, -1]));
-
-        const expectedRows = fromJS(['r0']);
-
-        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
-      });
-
-      it('remove column', () => {
-        const state = Core.initialState(...tableSize);
-        const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
-
-        store.dispatch(TableActions.reduce([-1, 1]));
-
-        const expectedColumns = fromJS(['c0', 'c2', 'c3']);
-        const expectedPointer = fromJS({
-          cellId: null,
-          modifiers: {},
-        });
-
-        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
-        expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('remove column (only)', () => {
-        const state = Core.initialState(3, 1);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.reduce([-1, 0]));
-
-        const expectedColumns = fromJS(['c0']);
-
-        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
-      });
+      expect(store.getState().getIn(['table', 'session', 'selection'])).to.equal(expectedSelection);
     });
 
-    describe('expand', () => {
-      it('add row', () => {
-        const state = Core.initialState(...tableSize);
-        const store = configureStore(state);
+    it('clear selection', () => {
+      const state = Core.initialState(...tableSize);
+      const selection = { cellsIds: ['r2,c3'] };
+      const store = configureStore(state.setIn(
+        ['table', 'session', 'selection'],
+        fromJS(selection)
+      ));
 
-        store.dispatch(TableActions.expand([1, -1]));
+      store.dispatch(TableActions.clearSelection());
 
-        const expectedRows = fromJS(['r0', 'r1a', 'r1', 'r2']);
+      const expectedSelection = fromJS({ cellsIds: [] });
 
-        expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+      expect(store.getState().getIn(['table', 'session', 'selection'])).to.equal(expectedSelection);
+    });
+  });
+
+  describe('clipboard', () => {
+    it('set clipboard', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const clipboard = {
+        cells: {
+          'r2,c3': {
+            value: '1',
+          },
+        },
+        operation: 'COPY',
+      };
+
+      store.dispatch(TableActions.setClipboard(clipboard));
+
+      const expectedClipboard = fromJS(clipboard);
+
+      expect(store.getState().getIn(['table', 'session', 'clipboard'])).to.equal(expectedClipboard);
+    });
+
+    it('clear clipboard', () => {
+      const state = Core.initialState(...tableSize);
+      const clipboard = {
+        cells: {
+          'r2,c3': {
+            value: '1',
+          },
+        },
+        operation: 'COPY',
+      };
+      const store = configureStore(state.setIn(
+        ['table', 'session', 'clipboard'],
+        fromJS(clipboard)
+      ));
+
+      store.dispatch(TableActions.clearClipboard());
+
+      const expectedClipboard = fromJS({
+        cells: [],
+        operation: null,
       });
 
-      it('add column', () => {
-        const state = Core.initialState(...tableSize);
-        const store = configureStore(state);
+      expect(store.getState().getIn(['table', 'session', 'clipboard'])).to.equal(expectedClipboard);
+    });
+  });
 
-        store.dispatch(TableActions.expand([-1, 1]));
+  describe('update triggers', () => {
+    it('toggle row update trigger (set)', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const rowId = 'r1';
 
-        const expectedColumns = fromJS(['c0', 'c1a', 'c1', 'c2', 'c3']);
+      store.dispatch(TableActions.toggleRowUpdateTrigger(rowId));
 
-        expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
+      const expectedUpdateTriggersJS = {
+        data: {
+          rows: {},
+        },
+      };
+      expectedUpdateTriggersJS.data.rows[rowId] = true;
+      const expectedUpdateTriggers = fromJS(expectedUpdateTriggersJS);
+
+      expect(store.getState().getIn(['table', 'updateTriggers'])).to.equal(expectedUpdateTriggers);
+    });
+
+    it('toggle row update trigger (unset)', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const rowId = 'r1';
+
+      store.dispatch(TableActions.toggleRowUpdateTrigger(rowId));
+      store.dispatch(TableActions.toggleRowUpdateTrigger(rowId));
+
+      const expectedUpdateTriggers = fromJS({
+        data: {
+          rows: {},
+        },
       });
+
+      expect(store.getState().getIn(['table', 'updateTriggers'])).to.equal(expectedUpdateTriggers);
+    });
+  });
+
+  describe('reduce', () => {
+    it('remove row', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
+
+      store.dispatch(TableActions.reduce([1, -1]));
+
+      const expectedRows = fromJS(['r0', 'r2']);
+      const expectedPointer = fromJS({
+        cellId: null,
+        modifiers: {},
+      });
+
+      expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+      expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+    });
+
+    it('remove row (only)', () => {
+      const state = Core.initialState(1, 4);
+      const store = configureStore(state);
+
+      store.dispatch(TableActions.reduce([0, -1]));
+
+      const expectedRows = fromJS(['r0']);
+
+      expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+    });
+
+    it('remove column', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state.setIn(['table', 'session', 'pointer', 'cellId'], 'r1,c1'));
+
+      store.dispatch(TableActions.reduce([-1, 1]));
+
+      const expectedColumns = fromJS(['c0', 'c2', 'c3']);
+      const expectedPointer = fromJS({
+        cellId: null,
+        modifiers: {},
+      });
+
+      expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
+      expect(store.getState().getIn(['table', 'session', 'pointer'])).to.equal(expectedPointer);
+    });
+
+    it('remove column (only)', () => {
+      const state = Core.initialState(3, 1);
+      const store = configureStore(state);
+
+      store.dispatch(TableActions.reduce([-1, 0]));
+
+      const expectedColumns = fromJS(['c0']);
+
+      expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
+    });
+  });
+
+  describe('expand', () => {
+    it('add row', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+
+      store.dispatch(TableActions.expand([1, -1]));
+
+      const expectedRows = fromJS(['r0', 'r1a', 'r1', 'r2']);
+
+      expect(store.getState().getIn(['table', 'data', 'rows'])).to.equal(expectedRows);
+    });
+
+    it('add column', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+
+      store.dispatch(TableActions.expand([-1, 1]));
+
+      const expectedColumns = fromJS(['c0', 'c1a', 'c1', 'c2', 'c3']);
+
+      expect(store.getState().getIn(['table', 'data', 'columns'])).to.equal(expectedColumns);
     });
   });
 });

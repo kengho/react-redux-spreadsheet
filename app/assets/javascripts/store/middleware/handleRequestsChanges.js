@@ -1,3 +1,5 @@
+// TODO: save batched changes periodically.
+
 import {
   popRequestId,
   markRequestAsFailed,

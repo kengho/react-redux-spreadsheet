@@ -12,20 +12,25 @@ import LineActionsCell from './../Cells/LineActionsCell';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cells: PropTypes.object.isRequired,
+  clipboard: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
   firstActionsCellIsOnly: PropTypes.bool.isRequired,
   isPointerOnRow: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
+  isRowInClipboard: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   localPointerColumnId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
   localPointerModifiers: PropTypes.object, // eslint-disable-line react/no-unused-prop-types
   originalRowIndex: PropTypes.number.isRequired,
   pointer: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
+  rowUpdateTrigger: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
 };
 
 const defaultProps = {
   isPointerOnRow: false,
+  isRowInClipboard: false,
   localPointerColumnId: '',
   localPointerModifiers: {},
+  rowUpdateTrigger: false,
 };
 
 class DataRow extends React.Component {
@@ -33,6 +38,9 @@ class DataRow extends React.Component {
     const currentProps = this.props;
 
     return !arePropsEqual(currentProps, nextProps, [
+      'rowUpdateTrigger', // some cells' value changed
+      'firstActionsCellIsOnly', // only one row/column left or otherwise
+      'isRowInClipboard', // clipboard changes
       'isPointerOnRow', // pointer movement up/down
       'localPointerColumnId', // pointer movement left/right
       'localPointerModifiers', // edit/unedit cell
@@ -45,6 +53,7 @@ class DataRow extends React.Component {
     const {
       actions,
       cells,
+      clipboard,
       columns,
       firstActionsCellIsOnly,
       originalRowIndex,
@@ -79,15 +88,26 @@ class DataRow extends React.Component {
       />
     );
 
-    const getDataCellProps = (cellId, cell, somePointer) => {
+    const getDataCellProps = (cellId, cell, somePointer, someClipboard) => {
       const effectiveCell = cell || {};
 
       const value = effectiveCell.value;
       const isPointed = cellId === somePointer.cellId;
       const isEditing = isPointed && somePointer.modifiers.edit === true;
-      const isSelectingOnFocus = isPointed && somePointer.modifiers.select_on_focus === true;
+      const isSelectingOnFocus =
+        isPointed &&
+        (somePointer.modifiers.select_on_focus === true);
 
-      return { value, isPointed, isEditing, isSelectingOnFocus };
+      // !!someClipboard.cells[cellId] gives false if value under key exists but is undefined.
+      const isOnClipboard = Object.keys(someClipboard.cells).indexOf(cellId) !== -1;
+
+      return {
+        isEditing,
+        isOnClipboard,
+        isPointed,
+        isSelectingOnFocus,
+        value,
+      };
     };
 
     // The rest.
@@ -96,7 +116,8 @@ class DataRow extends React.Component {
       const dataCellProps = getDataCellProps(
         dataCellId,
         cells[dataCellId],
-        pointer
+        pointer,
+        clipboard
       );
 
       outputCells.push(

@@ -61,13 +61,12 @@ http://localhost:3000/spreadsheet should display langing page.
 
 ## TODO (random order)
 
-* copy/paste multiple cells
 * mobile clients support
 * undo/redo (`Ctrl+Z` and `Ctrl+Y`)
-* cut/copy/paste (`Ctrl+X`, `Ctrl+C` and `Ctrl+V`)
+* cut/copy/paste (`Ctrl+X`, `Ctrl+C` and `Ctrl+V`) multiple cells
 * linked with other spreadsheets values
 * sort
-* lists (?)
+* lists (in form of just links to other spreadsheets)
 * consider users' auth
 * block/clone/crop spreadsheet
 * export/import (CSV, ...)
@@ -85,7 +84,7 @@ http://localhost:3000/spreadsheet should display langing page.
 * customize max width for columns
 * trim new lines when user deletes all visible text (?)
 * statistics page (?)
-* admin web tools
+* admin web tools (?)
 * consider rendering infinite empty grid at startup
 * more spreadsheeting
 * full xlsx compatibility (just a joke)

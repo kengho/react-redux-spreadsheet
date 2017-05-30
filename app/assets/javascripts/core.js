@@ -68,7 +68,18 @@ export function initialTable(width, height) {
         modifiers: {},
       },
       hover: null,
-      selection: [],
+      selection: {
+        cellsIds: [],
+      },
+      clipboard: {
+        cells: {},
+        operation: null,
+      },
+    },
+    updateTriggers: {
+      data: {
+        rows: {},
+      },
     },
   };
 }

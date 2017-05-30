@@ -18,19 +18,34 @@ export default function table(state = initialState().get('table'), action) {
   switch (action.type) {
     case 'SET_TABLE_FROM_JSON': {
       const serverTable = fromJS(JSON.parse(action.tableJSON));
-      let nextState;
 
       // TODO: consider storage session data.
+      const updateTriggersState = serverTable.set(
+        'updateTriggers',
+        fromJS({
+          data: {
+            rows: {},
+          },
+        })
+      );
+
+      let nextState;
       if (!serverTable.get('session')) {
-        nextState = serverTable.set(
+        nextState = updateTriggersState.set(
           'session',
           fromJS({
             pointer: {
-              id: null,
+              cellId: null,
               modifiers: {},
             },
             hover: null,
-            selection: [],
+            selection: {
+              cellsIds: [],
+            },
+            clipboard: {
+              cells: {},
+              operation: null,
+            },
           })
         );
       } else {
@@ -85,6 +100,7 @@ export default function table(state = initialState().get('table'), action) {
       );
     }
 
+    // TODO: set modifiers.
     case 'SET_POINTER': {
       return state.setIn(
         ['session', 'pointer'],
@@ -155,6 +171,37 @@ export default function table(state = initialState().get('table'), action) {
       return expandedState.setIn(
         ['session', 'pointer', 'cellId'],
         nextPointerCellId
+      );
+    }
+
+    case 'SET_SELECTION': {
+      return state.setIn(
+        ['session', 'selection'],
+        fromJS(action.selection)
+      );
+    }
+
+    case 'CLEAR_SELECTION': {
+      return state.setIn(
+        ['session', 'selection'],
+        fromJS({ cellsIds: [] })
+      );
+    }
+
+    case 'SET_CLIPBOARD': {
+      return state.setIn(
+        ['session', 'clipboard'],
+        fromJS(action.clipboard)
+      );
+    }
+
+    case 'CLEAR_CLIPBOARD': {
+      return state.setIn(
+        ['session', 'clipboard'],
+        fromJS({
+          cells: [],
+          operation: null,
+        })
       );
     }
 
@@ -239,6 +286,20 @@ export default function table(state = initialState().get('table'), action) {
       }
 
       return expandedLinesState;
+    }
+
+    case 'TOGGLE_ROW_UPDATE_TRIGGER': {
+      const rowUpdateTriggerPath = ['updateTriggers', 'data', 'rows', action.rowId];
+      const currentRowUpdateTrigger = state.getIn(rowUpdateTriggerPath);
+
+      let nextState;
+      if (currentRowUpdateTrigger) {
+        nextState = state.deleteIn(rowUpdateTriggerPath);
+      } else {
+        nextState = state.setIn(rowUpdateTriggerPath, true);
+      }
+
+      return nextState;
     }
 
     default:

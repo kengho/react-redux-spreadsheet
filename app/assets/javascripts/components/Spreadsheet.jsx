@@ -8,12 +8,13 @@ import {
   getColumnId,
   getRowId,
 } from '../core';
-import Dialog from '../components/Dialog';
-import isScrolledIntoView from '../lib/isScrolledIntoView';
-import scrollbarShift from '../lib/scrollbarShift';
 import ActionsRow from './Rows/ActionsRow';
 import AddressingRow from './Rows/AddressingRow';
 import DataRow from './Rows/DataRow';
+import Dialog from '../components/Dialog';
+import findKeyAction from '../lib/findKeyAction';
+import isScrolledIntoView from '../lib/isScrolledIntoView';
+import scrollbarShift from '../lib/scrollbarShift';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -63,38 +64,41 @@ class Spreadsheet extends React.Component {
   }
 
   documentKeyDownHandler(evt) {
-    // TODO: handle Ctrl+C, Ctrl+V, etc.
-    //   This is tmp dummy.
-    if (evt.altKey || evt.ctrlKey || evt.shiftKey) {
-      return;
-    }
-
     const pointer = { ...this.table.session.pointer };
+    const clipboard = this.table.session.clipboard;
+    const cells = this.table.data.cells;
 
-    // Regular key.
-    if (evt.key.length === 1) {
-      // 'input' renders after 'keydown', and symbols appears after 'keyup',
-      // thus after `setState` input's value is already 'evt.key'.
+    const action = findKeyAction(evt, [
+      {
+        condition: () => evt.key.length === 1,
+        altKey: false,
+        ctrlKey: false,
+        shiftKey: false,
+        action: () => {
+          // 'input' renders after 'keydown', and symbols appears after 'keyup',
+          // thus after `setState` input's value is already 'evt.key'.
 
-      // Default pointer on [0, 0].
-      if (!pointer.cellId) {
-        // 2 is for fictive rows/columns.
-        pointer.cellId = getCellId(this.table.data.rows[2], this.table.data.columns[2]);
-      }
-      pointer.modifiers = { edit: true, select_on_focus: true };
-      this.props.actions.setPointer(pointer);
-
-    // Special key.
-    } else {
-      switch (evt.key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
-        case 'ArrowLeft':
-        case 'ArrowRight':
-        case 'PageUp':
-        case 'PageDown':
-        case 'Home':
-        case 'End': {
+          // Default pointer on [0, 0].
+          if (!pointer.cellId) {
+            // 2 is for fictive rows/columns.
+            pointer.cellId = getCellId(this.table.data.rows[2], this.table.data.columns[2]);
+          }
+          pointer.modifiers = { edit: true, select_on_focus: true };
+          this.props.actions.setPointer(pointer);
+        },
+      },
+      {
+        keys: [
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          'PageUp',
+          'PageDown',
+          'Home',
+          'End',
+        ],
+        action: () => {
           // Prevents native scrollbar movement.
           evt.preventDefault();
 
@@ -119,16 +123,18 @@ class Spreadsheet extends React.Component {
 
           // REVIEW: '4' (extra) is .table's border-spacing x2.
           //   Figure out how to sync those values.
+          // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.
           if (
             (isScrolledIntoViewBefore.x && !isScrolledIntoViewAfter.x) ||
             (isScrolledIntoViewBefore.y && !isScrolledIntoViewAfter.y)
           ) {
             scrollbarShift(evt.key, pointedCellAfter, 4);
           }
-          break;
-        }
-
-        case 'Enter': {
+        },
+      },
+      {
+        key: 'Enter',
+        action: () => {
           // Prevents immediately pressing Enter and deletes selected text after focus.
           evt.preventDefault();
 
@@ -139,52 +145,103 @@ class Spreadsheet extends React.Component {
           }
           pointer.modifiers = { edit: true, select_on_focus: true };
           this.props.actions.setPointer(pointer);
-          break;
-        }
-
-        case 'F2': {
+        },
+      },
+      {
+        key: 'F2',
+        action: () => {
           pointer.modifiers = { edit: true };
           this.props.actions.setPointer(pointer);
-          break;
-        }
-
-        case 'Escape': {
+        },
+      },
+      {
+        key: 'Escape',
+        action: () => {
           pointer.cellId = null;
           pointer.modifiers = {};
           this.props.actions.setPointer(pointer);
-          break;
-        }
-
-        case 'Delete': {
-          const cell = this.table.data.cells[pointer.cellId];
+          this.props.actions.clearClipboard();
+        },
+      },
+      {
+        keys: ['Delete', 'Backspace'],
+        action: () => {
+          const cell = cells[pointer.cellId];
           if (cell && cell.value) {
+            // Prevents going back in history for Backspace.
+            evt.preventDefault();
+
             this.props.actions.deleteProp(pointer.cellId, 'value');
-
-            // toggleDeleteProp uses in DataRow's shouldComponentUpdate().
-            if (pointer.modifiers.toggleDeleteProp) {
-              delete pointer.modifiers.toggleDeleteProp;
-            } else {
-              pointer.modifiers.toggleDeleteProp = true;
-            }
-            this.props.actions.setPointer(pointer);
+            this.props.actions.toggleRowUpdateTrigger(getRowId(pointer.cellId));
           }
-          break;
-        }
-
-        case 'Tab': {
-          // Prevents error when user press Tab 2 times on document.
+        },
+      },
+      {
+        whichs: [67, 88], // 'Ctrl+C', 'Ctrl+X'
+        ctrlKey: true,
+        action: () => {
+          // Prevents default action.
           evt.preventDefault();
-          break;
-        }
 
-        default:
-      }
-    }
+          let operation;
+          if (evt.which === 67) { // 'c'
+            operation = 'COPY';
+          } else if (evt.which === 88) { // 'x'
+            operation = 'CUT';
+          }
+
+          const clipboardCells = {};
+
+          // TODO: handle many selected cells.
+          clipboardCells[pointer.cellId] = cells[pointer.cellId];
+
+          this.props.actions.setClipboard({
+            cells: clipboardCells,
+            operation,
+          });
+        },
+      },
+      {
+        which: 86, // 'Ctrl+V'
+        ctrlKey: true,
+        action: () => {
+          // Prevents native pasting into cell.
+          evt.preventDefault();
+
+          // TODO: handle many selected cells.
+          const srcCellsIds = Object.keys(clipboard.cells);
+          if (srcCellsIds.length !== 1) {
+            return;
+          }
+
+          const srcCellId = srcCellsIds[0];
+          const value = clipboard.cells[srcCellId] && clipboard.cells[srcCellId].value;
+          if (value) {
+            // TODO: copy all props.
+            this.props.actions.setProp(pointer.cellId, 'value', value);
+            this.props.actions.toggleRowUpdateTrigger(getRowId(pointer.cellId));
+          }
+
+          switch (clipboard.operation) {
+            case 'COPY': {
+              break;
+            }
+            case 'CUT': {
+              // TODO: cut all props.
+              this.props.actions.deleteProp(srcCellId, 'value');
+              this.props.actions.toggleRowUpdateTrigger(getRowId(srcCellId));
+              break;
+            }
+            default:
+          }
+        },
+      },
+    ]);
+
+    action();
   }
 
   render() {
-    // TODO: manual or automatic tests.
-
     // Table map:
     //
     // TECCCC...A // actions row (fictive)
@@ -201,9 +258,11 @@ class Spreadsheet extends React.Component {
     // D - data cell
 
     const { actions, requests } = this.props;
+    const clipboard = this.table.session.clipboard;
+    const columns = this.table.data.columns;
     const pointer = this.table.session.pointer;
     const rows = this.table.data.rows;
-    const columns = this.table.data.columns;
+    const updateTriggers = this.table.updateTriggers;
 
     const outputRows = [];
 
@@ -248,25 +307,38 @@ class Spreadsheet extends React.Component {
         localPointerModifiers = { ...pointer.modifiers };
       }
 
+      const isRowInClipboard = !!Object.keys(clipboard.cells).some((cellId) => {
+        let match;
+        if (getRowId(cellId) === rowId) {
+          match = true;
+        }
+
+        return match;
+      });
+
       outputRows.push(
         <DataRow
           actions={actions}
           cells={cells}
+          clipboard={clipboard}
           columns={columns}
           firstActionsCellIsOnly={rows.length - 2 === 1}
           isPointerOnRow={isPointerOnRow}
+          isRowInClipboard={isRowInClipboard}
           key={rowId}
           localPointerColumnId={localPointerColumnId}
           localPointerModifiers={localPointerModifiers}
           originalRowIndex={rowIndex - 2}
           pointer={pointer}
           rowId={rowId}
+          rowUpdateTrigger={updateTriggers.data.rows[rowId]}
         />
       );
     }
 
     // TODO: show requests queue.
     // TODO: handle click ouside table.
+    // TODO: scroll to tpo/bottom buttons
     return (
       <div>
         <div
