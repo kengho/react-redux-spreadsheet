@@ -18,9 +18,10 @@
 * multiline text (`Ctrl+Enter`)
 * autosizing cells
 * delete/insert row/column buttons
-* automaticly expanding table
+* automatically expanding table
+* copy/paste cells
 * built-in invisible Google reCAPTCHA
-* clean material-ish desing
+* clean material-ish design
 
 ## Installing
 
@@ -44,7 +45,7 @@ nano .env
 rake db:setup
 foreman start -f Procfile.dev
 ```
-http://localhost:3000/spreadsheet should display langing page.
+http://localhost:3000/spreadsheet should display landing page.
 
 ### Production
 
@@ -64,7 +65,7 @@ http://localhost:3000/spreadsheet should display langing page.
 * mobile clients support
 * undo/redo (`Ctrl+Z` and `Ctrl+Y`)
 * cut/copy/paste (`Ctrl+X`, `Ctrl+C` and `Ctrl+V`) multiple cells
-* linked with other spreadsheets values
+* cells, linked with other spreadsheets
 * sort
 * lists (in form of just links to other spreadsheets)
 * consider users' auth
@@ -74,18 +75,13 @@ http://localhost:3000/spreadsheet should display langing page.
 * cells' styling
 * sync user session (pointer and stuff) with server
 * cell context menu (?)
-* move `Spreadsheet` into own npm package with various settings (?)
+* context actions panel
 * embedding (?)
-* actions panel
 * optimize CPU, memory and traffic usage
 * fix all code imperfections (`REVIEW`, `TODO`, etc.)
 * i18n
 * scripting
-* customize max width for columns
-* trim new lines when user deletes all visible text (?)
-* statistics page (?)
-* admin web tools (?)
-* consider rendering infinite empty grid at startup
+* customize max width for columns (with dblclick for optimal width)
 * more spreadsheeting
 * full xlsx compatibility (just a joke)
 
