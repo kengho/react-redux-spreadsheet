@@ -42,7 +42,10 @@ body {
     box-sizing: border-box;
     height: $cell-height;
     min-width: 64px;
-    max-width: 512px;
+
+    // Width is limited by textarea width.
+    // Return if there are will be non-textarea data cells.
+    // max-width: 512px;
     word-wrap: break-word;
     padding: $cell-padding;
     background-color: $data-bgcolor;
