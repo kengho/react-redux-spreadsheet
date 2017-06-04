@@ -1,3 +1,5 @@
+import uuid from 'uuid/v4';
+
 // In this context data comes from server,
 // so we doesn't need to sync it.
 export function setTableFromJSON(tableJSON) {
@@ -10,7 +12,8 @@ export function setTableFromJSON(tableJSON) {
 export function setProp(cellId, prop, value) {
   return {
     type: 'SET_PROP',
-    syncWithServer: true,
+    changesData: true,
+    triggersRowUpdate: true,
     cellId,
     prop,
     value,
@@ -20,7 +23,8 @@ export function setProp(cellId, prop, value) {
 export function deleteProp(cellId, prop) {
   return {
     type: 'DELETE_PROP',
-    syncWithServer: true,
+    changesData: true,
+    triggersRowUpdate: true,
     cellId,
     prop,
   };
@@ -43,7 +47,6 @@ export function setPointer(pointer) {
 export function movePointer(key) {
   return {
     type: 'MOVE_POINTER',
-    syncWithServer: true,
     key,
   };
 }
@@ -84,15 +87,20 @@ export function toggleRowUpdateTrigger(rowId) {
 export function reduce(pos) {
   return {
     type: 'REDUCE',
-    syncWithServer: true,
+    changesData: true,
     pos,
   };
 }
 
-export function expand(pos) {
+export function expand(pos, id = uuid()) {
   return {
     type: 'EXPAND',
-    syncWithServer: true,
+
+    // Even though expand() changes data, we don't want
+    // 1) to press Ctrl+Z twice to undo SET_PROP, EXPAND actions sequence, and
+    // 2) to send empty rows to server each time user presses ArrowDown.
+    changesData: false,
     pos,
+    id,
   };
 }

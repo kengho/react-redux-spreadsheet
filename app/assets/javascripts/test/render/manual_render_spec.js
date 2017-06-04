@@ -40,5 +40,7 @@ TODO: automate.
 * when data is changed table menu icon should change, and it should be visible even is not hover until data is saved and it changes back
 * moving pointer should scroll page if necessary (even after 100 key presses)
 * when hover on cell, ones and only appropriate row/column menus should visible
+* Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
+* expanding table with empty cells shouldn't affect history and/or server sync
 
 */

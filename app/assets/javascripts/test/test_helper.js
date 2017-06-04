@@ -3,4 +3,5 @@ import chaiImmutable from 'chai-immutable'; // eslint-disable-line import/no-ext
 
 chai.use(chaiImmutable);
 
-// process.log = (x) => console.log(JSON.stringify(x, null, 2));
+// eslint-disable-next-line no-undef, no-console
+process.log = (x) => console.log(JSON.stringify(x, null, 2));

@@ -20,6 +20,7 @@ const propTypes = {
   actions: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
+  undo: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -33,7 +34,6 @@ class Spreadsheet extends React.Component {
 
     this.fictiveRows = [`r${uuid()}`, `r${uuid()}`];
     this.fictiveColumns = [`c${uuid()}`, `c${uuid()}`];
-
     this.prepareTable = (somePops) => {
       this.table = somePops.table.toJS();
 
@@ -172,7 +172,6 @@ class Spreadsheet extends React.Component {
             evt.preventDefault();
 
             this.props.actions.deleteProp(pointer.cellId, 'value');
-            this.props.actions.toggleRowUpdateTrigger(getRowId(pointer.cellId));
           }
         },
       },
@@ -193,6 +192,7 @@ class Spreadsheet extends React.Component {
           const clipboardCells = {};
 
           // TODO: handle many selected cells.
+          // REVIEW: shouldn't Ctrl+X cut cell immediately?
           clipboardCells[pointer.cellId] = cells[pointer.cellId];
 
           this.props.actions.setClipboard({
@@ -219,7 +219,6 @@ class Spreadsheet extends React.Component {
           if (value) {
             // TODO: copy all props.
             this.props.actions.setProp(pointer.cellId, 'value', value);
-            this.props.actions.toggleRowUpdateTrigger(getRowId(pointer.cellId));
           }
 
           switch (clipboard.operation) {
@@ -229,10 +228,27 @@ class Spreadsheet extends React.Component {
             case 'CUT': {
               // TODO: cut all props.
               this.props.actions.deleteProp(srcCellId, 'value');
-              this.props.actions.toggleRowUpdateTrigger(getRowId(srcCellId));
               break;
             }
             default:
+          }
+        },
+      },
+      {
+        which: 90, // 'Ctrl+Z'
+        ctrlKey: true,
+        action: () => {
+          if (this.props.undo.canUndo) {
+            this.props.actions.undo();
+          }
+        },
+      },
+      {
+        which: 89, // 'Ctrl+Y'
+        ctrlKey: true,
+        action: () => {
+          if (this.props.undo.canRedo) {
+            this.props.actions.redo();
           }
         },
       },
@@ -338,7 +354,7 @@ class Spreadsheet extends React.Component {
 
     // TODO: show requests queue.
     // TODO: handle click ouside table.
-    // TODO: scroll to tpo/bottom buttons
+    // TODO: scroll to top/bottom buttons.
     return (
       <div>
         <div
@@ -347,9 +363,7 @@ class Spreadsheet extends React.Component {
         >
           {outputRows}
         </div>
-        <div className="dialog">
-          <Dialog />
-        </div>
+        <Dialog />
       </div>
     );
   }

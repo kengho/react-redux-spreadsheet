@@ -12,9 +12,7 @@ import {
   initialState,
 } from '../core';
 
-// process.log = (x) => console.log(JSON.stringify(x, null, 2));
-
-export default function table(state = initialState().get('table'), action) {
+export default function table(state = initialState().table, action) {
   switch (action.type) {
     case 'SET_TABLE_FROM_JSON': {
       const serverTable = fromJS(JSON.parse(action.tableJSON));
@@ -109,66 +107,46 @@ export default function table(state = initialState().get('table'), action) {
     }
 
     case 'MOVE_POINTER': {
-      const currentRows = state.getIn(['data', 'rows']).toJS();
-      const currentColumns = state.getIn(['data', 'columns']).toJS();
+      const rows = state.getIn(['data', 'rows']).toJS();
+      const columns = state.getIn(['data', 'columns']).toJS();
       const pointer = state.getIn(['session', 'pointer']).toJS();
 
       let currentPointerPos;
       if (pointer.cellId) {
         currentPointerPos = [
-          currentRows.indexOf(getRowId(pointer.cellId)),
-          currentColumns.indexOf(getColumnId(pointer.cellId)),
+          rows.indexOf(getRowId(pointer.cellId)),
+          columns.indexOf(getColumnId(pointer.cellId)),
         ];
-      } else {
-        currentPointerPos = [];
       }
 
-      const nextPointerPos = calcNewPos(currentRows, currentColumns, currentPointerPos, action.key);
-      const currentMaxPos = getMaxPos(currentRows, currentColumns);
+      const newPointerPos = calcNewPos(rows, columns, currentPointerPos, action.key);
+      const currentMaxPos = getMaxPos(rows, columns);
 
-      let nextRows;
-      let nextColumns;
-      let expandedState;
-      if (getRowNumber(nextPointerPos) > getRowNumber(currentMaxPos)) {
-        let nextRowId;
+      let nextPointerRowId = rows[getRowNumber(newPointerPos)];
+      let nextPointerColumnId = columns[getColumnNumber(newPointerPos)];
+      if (getRowNumber(newPointerPos) > getRowNumber(currentMaxPos)) {
+        let newRowId;
         if (process.env.NODE_ENV === 'test') {
-          nextRowId = `r${currentRows.length}`;
+          newRowId = `r${rows.length}`;
         } else {
-          nextRowId = `r${uuid()}`;
+          newRowId = `r${uuid()}`;
         }
 
-        expandedState = state.updateIn(
-          ['data', 'rows'],
-          value => value.push(nextRowId)
-        );
-        nextRows = expandedState.getIn(['data', 'rows']).toJS();
-        nextColumns = currentColumns;
-      } else if (getColumnNumber(nextPointerPos) > getColumnNumber(currentMaxPos)) {
-        let nextColumnId;
+        nextPointerRowId = newRowId;
+      } else if (getColumnNumber(newPointerPos) > getColumnNumber(currentMaxPos)) {
+        let newColumnId;
         if (process.env.NODE_ENV === 'test') {
-          nextColumnId = `c${currentColumns.length}`;
+          newColumnId = `c${columns.length}`;
         } else {
-          nextColumnId = `c${uuid()}`;
+          newColumnId = `c${uuid()}`;
         }
 
-        expandedState = state.updateIn(
-          ['data', 'columns'],
-          value => value.push(nextColumnId)
-        );
-        nextRows = currentRows;
-        nextColumns = expandedState.getIn(['data', 'columns']).toJS();
-      } else {
-        expandedState = state;
-        nextRows = currentRows;
-        nextColumns = currentColumns;
+        nextPointerColumnId = newColumnId;
       }
 
-      const nextPointerCellId = getCellId(
-        nextRows[getRowNumber(nextPointerPos)],
-        nextColumns[getColumnNumber(nextPointerPos)]
-      );
+      const nextPointerCellId = getCellId(nextPointerRowId, nextPointerColumnId);
 
-      return expandedState.setIn(
+      return state.setIn(
         ['session', 'pointer', 'cellId'],
         nextPointerCellId
       );
@@ -258,7 +236,7 @@ export default function table(state = initialState().get('table'), action) {
         if (process.env.NODE_ENV === 'test') {
           newRowId = `r${getRowNumber(action.pos)}a`;
         } else {
-          newRowId = `r${uuid()}`;
+          newRowId = `r${action.id}`;
         }
 
         expandedLinesState = state.updateIn(
@@ -273,7 +251,7 @@ export default function table(state = initialState().get('table'), action) {
         if (process.env.NODE_ENV === 'test') {
           newColumnId = `c${getColumnNumber(action.pos)}a`;
         } else {
-          newColumnId = `c${uuid()}`;
+          newColumnId = `c${action.id}`;
         }
 
         expandedLinesState = state.updateIn(

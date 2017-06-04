@@ -1,14 +1,20 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
-import rootReducer from '../reducers';
-import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleDataChanges from './middleware/handleDataChanges';
+import handlePointerChanges from './middleware/handlePointerChanges';
+import handleRequestsChanges from './middleware/handleRequestsChanges';
+import handleUndoRedo from './middleware/handleUndoRedo';
+import rootReducer from '../reducers';
 
-const middleware = [thunk];
+const middleware = [
+  thunk,
+  handlePointerChanges,
+];
 if (process.env.NODE_ENV !== 'test') {
   middleware.push(
     handleRequestsChanges,
+    handleUndoRedo,
     handleDataChanges // make sure this is the last middleware
   );
 }

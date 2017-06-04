@@ -1,7 +1,11 @@
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 import uuid from 'uuid/v4';
 
-// TODO: rename getters to `get${functionName}`.
+if (process.env.NODE_ENV !== 'test') {
+  // eslint-disable-next-line no-undef, no-console
+  window.log = (x) => console.log(JSON.stringify(x, null, 2));
+}
+
 export function getRowId(cellId) {
   return cellId.slice(
     0,
@@ -87,9 +91,27 @@ export function initialTable(width, height) {
 export function initialState(width, height) {
   const table = initialTable(width, height);
 
-  return fromJS({
+  let state;
+  state = fromJS({
     table,
   });
+
+  // REVIEW: is there are way to apply redux-undo for tests automatically?
+  if (process.env.NODE_ENV === 'test') {
+    state = Map({
+      table: {
+        past: [],
+        present: fromJS(table),
+        future: [],
+      },
+    });
+  } else {
+    state = fromJS({
+      table,
+    });
+  }
+
+  return state;
 }
 
 // Indicates that Cell represents some row or column (in actions and etc).
@@ -115,7 +137,7 @@ export function calcNewPos(rows, columns, pos, key) {
   let columnNumber;
   switch (key) {
     case 'ArrowUp': {
-      if (pos.length === 0) {
+      if (!pos) {
         rowNumber = getRowNumber(maxPos);
         columnNumber = 0;
       } else {
@@ -127,7 +149,7 @@ export function calcNewPos(rows, columns, pos, key) {
 
     case 'PageUp': {
       rowNumber = 0;
-      if (pos.length === 0) {
+      if (!pos) {
         columnNumber = 0;
       } else {
         columnNumber = getColumnNumber(pos);
@@ -136,7 +158,7 @@ export function calcNewPos(rows, columns, pos, key) {
     }
 
     case 'ArrowDown': {
-      if (pos.length === 0) {
+      if (!pos) {
         rowNumber = 0;
         columnNumber = 0;
       } else {
@@ -148,7 +170,7 @@ export function calcNewPos(rows, columns, pos, key) {
 
     case 'PageDown': {
       rowNumber = getRowNumber(maxPos);
-      if (pos.length === 0) {
+      if (!pos) {
         columnNumber = 0;
       } else {
         columnNumber = getColumnNumber(pos);
@@ -157,7 +179,7 @@ export function calcNewPos(rows, columns, pos, key) {
     }
 
     case 'ArrowLeft': {
-      if (pos.length === 0) {
+      if (!pos) {
         rowNumber = 0;
         columnNumber = getColumnNumber(maxPos);
       } else {
@@ -169,7 +191,7 @@ export function calcNewPos(rows, columns, pos, key) {
 
     case 'Home': {
       columnNumber = 0;
-      if (pos.length === 0) {
+      if (!pos) {
         rowNumber = 0;
       } else {
         rowNumber = getRowNumber(pos);
@@ -178,7 +200,7 @@ export function calcNewPos(rows, columns, pos, key) {
     }
 
     case 'ArrowRight': {
-      if (pos.length === 0) {
+      if (!pos) {
         rowNumber = 0;
         columnNumber = 0;
       } else {
@@ -190,7 +212,7 @@ export function calcNewPos(rows, columns, pos, key) {
 
     case 'End': {
       columnNumber = getColumnNumber(maxPos);
-      if (pos.length === 0) {
+      if (!pos) {
         rowNumber = 0;
       } else {
         rowNumber = getRowNumber(pos);
@@ -211,7 +233,7 @@ export function calcNewPos(rows, columns, pos, key) {
   return [rowNumber, columnNumber];
 }
 
-// NOTE: order or props on array is important.
+// NOTE: order or props in array is important.
 //   Place strings in the beginning, objects in the end (more complex => closer to the end).
 export function arePropsEqual(currentProps, nextProps, props) {
   return !props.some((prop) => {

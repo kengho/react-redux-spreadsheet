@@ -98,8 +98,6 @@ class DataCell extends React.Component {
       evt.preventDefault();
 
       // REVIEW: double render and sending request here.
-      // NOTE: until those actions batched somehow, place movePointer below setProp
-      //   because shouldComponentUpdate() in DataRow doesn't know when cells' props changes.
       if (this.textarea.value !== this.props.value) {
         this.props.actions.setProp(this.props.id, 'value', this.textarea.value);
       }

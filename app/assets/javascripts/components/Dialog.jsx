@@ -53,19 +53,21 @@ class Dialog extends React.Component {
     });
 
     return (
-      <dialog
-        className="mdl-dialog"
-        onKeyDown={(evt) => this.keyDownHandler(evt)}
-        ref={(c) => { this.dialog = c; }}
-      >
-        <h4 className="mdl-dialog__title">Confirm action</h4>
-        <div className="mdl-dialog__content">
-          <p>Are you sure?</p>
-        </div>
-        <div className="mdl-dialog__actions">
-          {outputButtons}
-        </div>
-      </dialog>
+      <div className="dialog">
+        <dialog
+          className="mdl-dialog"
+          onKeyDown={(evt) => this.keyDownHandler(evt)}
+          ref={(c) => { this.dialog = c; }}
+        >
+          <h4 className="mdl-dialog__title">Confirm action</h4>
+          <div className="mdl-dialog__content">
+            <p>Are you sure?</p>
+          </div>
+          <div className="mdl-dialog__actions">
+            {outputButtons}
+          </div>
+        </dialog>
+      </div>
     );
   }
 }

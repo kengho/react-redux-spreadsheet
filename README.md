@@ -14,12 +14,12 @@
 
 * automatic sync with server with requests queue
 * basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Home`, `End`, `Delete`)
-* click/dblclick handlers
+* copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`)
+* [redux-undo](https://github.com/omnidan/redux-undo)-powered undo/redo (`Ctrl+Z`, `Ctrl+Y`)
 * multiline text (`Ctrl+Enter`)
 * autosizing cells
 * delete/insert row/column buttons
 * automatically expanding table
-* copy/paste cells
 * built-in invisible Google reCAPTCHA
 * clean material-ish design
 
@@ -59,12 +59,12 @@ http://localhost:3000/spreadsheet should display landing page.
 
 * doesn't work with touch devices
 * may be slow on really large spreadsheets (>100x100)
+* clicking on cell sometimes (rarely) doesn't triggers pointed cell update immediately, little pointer nudge is required
 
 ## TODO (random order)
 
 * mobile clients support
-* undo/redo (`Ctrl+Z` and `Ctrl+Y`)
-* cut/copy/paste (`Ctrl+X`, `Ctrl+C` and `Ctrl+V`) multiple cells
+* cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
 * sort
 * lists (in form of just links to other spreadsheets)

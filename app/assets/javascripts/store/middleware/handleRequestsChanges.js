@@ -1,4 +1,4 @@
-// TODO: save batched changes periodically.
+// TODO: save batched changes periodically instead.
 
 import {
   popRequestId,
