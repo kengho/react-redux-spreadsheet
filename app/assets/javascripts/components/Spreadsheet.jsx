@@ -60,7 +60,6 @@ class Spreadsheet extends React.Component {
 
   documentKeyDownHandler(evt) {
     const pointer = { ...this.table.session.pointer };
-    const clipboard = this.table.session.clipboard;
     const cells = this.table.data.cells;
 
     const action = findKeyAction(evt, [
@@ -97,9 +96,12 @@ class Spreadsheet extends React.Component {
           // Prevents native scrollbar movement.
           evt.preventDefault();
 
+          const rows = this.table.data.rows;
+          const columns = this.table.data.columns;
+
           // REVIEW: 'querySelector' is probably not React-way.
+
           // Save previous pointed Cell's on-page visibility.
-          // TODO: scroll to the very left when archiving it from right, etc.
           const pointedCellBefore = document.querySelector('.pointed'); // eslint-disable-line no-undef
           let isScrolledIntoViewBefore;
           if (pointedCellBefore) {
@@ -116,6 +118,12 @@ class Spreadsheet extends React.Component {
           const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
           const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
 
+          // -2 is because of fictive rows/columns.
+          const pointedCellAfterPos = [
+            rows.indexOf(getRowId(pointedCellAfter.id)) - 2,
+            columns.indexOf(getColumnId(pointedCellAfter.id)) - 2,
+          ];
+
           // REVIEW: '4' (extra) is .table's border-spacing x2.
           //   Figure out how to sync those values.
           // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.
@@ -123,7 +131,7 @@ class Spreadsheet extends React.Component {
             (isScrolledIntoViewBefore.x && !isScrolledIntoViewAfter.x) ||
             (isScrolledIntoViewBefore.y && !isScrolledIntoViewAfter.y)
           ) {
-            scrollbarShift(evt.key, pointedCellAfter, 4);
+            scrollbarShift(evt.key, pointedCellAfter, pointedCellAfterPos, 4);
           }
         },
       },
@@ -202,6 +210,8 @@ class Spreadsheet extends React.Component {
         action: () => {
           // Prevents native pasting into cell.
           evt.preventDefault();
+
+          const clipboard = this.table.session.clipboard;
 
           // TODO: handle many selected cells.
           const srcCellsIds = Object.keys(clipboard.cells);

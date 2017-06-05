@@ -1,16 +1,30 @@
 /* eslint-disable no-undef */
-const scrollbarShift = (key, pointedCellAfter, extra) => {
+import {
+  getColumnNumber,
+  getRowNumber,
+} from '../core';
+
+const scrollbarShift = (key, pointedCellAfter, pointedCellAfterPos, extra) => {
   let relShift;
   let absShift;
   switch (key) {
     case 'ArrowUp':
-      relShift = { y: -(pointedCellAfter.scrollHeight + extra) };
+      // Make absolute jump if pointedCellAfter is on first row/column.
+      if (getRowNumber(pointedCellAfterPos) === 0) {
+        absShift = { y: 0 };
+      } else {
+        relShift = { y: -(pointedCellAfter.scrollHeight + extra) };
+      }
       break;
     case 'ArrowDown':
       relShift = { y: pointedCellAfter.scrollHeight + extra };
       break;
     case 'ArrowLeft':
-      relShift = { x: -(pointedCellAfter.scrollWidth + extra) };
+      if (getColumnNumber(pointedCellAfterPos) === 0) {
+        absShift = { x: 0 };
+      } else {
+        relShift = { x: -(pointedCellAfter.scrollWidth + extra) };
+      }
       break;
     case 'ArrowRight':
       relShift = { x: pointedCellAfter.scrollWidth + extra };
