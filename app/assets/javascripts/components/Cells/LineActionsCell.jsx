@@ -31,11 +31,11 @@ class LineActionsCell extends React.Component {
   render() {
     const cellsButtonId = `line-actions-button-${this.props.id}`;
     const {
-      pos,
-      isHover,
       actions,
       id,
+      isHover,
       isOnly,
+      pos,
     } = this.props;
     const lineRef = getLineRef(pos);
 
@@ -91,6 +91,7 @@ class LineActionsCell extends React.Component {
         onMouseOver={() => { actions.setHover(id); }}
       >
         <Menu
+          actions={actions}
           buttonIcon="more_vert"
           buttonId={cellsButtonId}
           isOnly={isOnly}

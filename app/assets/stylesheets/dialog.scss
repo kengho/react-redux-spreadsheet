@@ -31,3 +31,15 @@ dialog.fixed {
   top: 50%;
   transform: translate(0, -50%);
 }
+
+.mdl-dialog {
+  width: 384px;
+
+  & .mdl-list__item {
+    padding: 4px;
+  }
+
+  & .mdl-list__item--two-line {
+    height: 48px;
+  }
+}

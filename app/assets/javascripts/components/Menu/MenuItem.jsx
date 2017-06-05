@@ -1,17 +1,18 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import confirmAction from '../../lib/confirmAction';
+import showDialogAndBindAction from '../../lib/showDialogAndBindAction';
 
 const propTypes = {
   action: PropTypes.func.isRequired,
-  confirm: PropTypes.bool,
+  actions: PropTypes.object.isRequired,
+  dialogVariant: PropTypes.string,
   icon: PropTypes.string,
   label: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
-  confirm: false,
+  dialogVariant: '',
   icon: '',
 };
 
@@ -20,16 +21,23 @@ const DELAY_BEFORE_ACTION = 200;
 const MenuItem = (props) => {
   const {
     action,
-    confirm,
+    actions,
+    dialogVariant,
     icon,
     label,
   } = props;
 
   let effectiveAction;
-  if (!confirm) {
-    effectiveAction = action;
+  if (dialogVariant) {
+    effectiveAction = () => {
+      actions.setDialogVariant(dialogVariant);
+
+      // TODO: make dialog completely in React-way.
+      //   Caveat: dialog.showModal() and dialog.close() throws exceptions.
+      showDialogAndBindAction(action);
+    };
   } else {
-    effectiveAction = () => confirmAction(action);
+    effectiveAction = action;
   }
 
   // Delay action until ripple animation isn't finished.

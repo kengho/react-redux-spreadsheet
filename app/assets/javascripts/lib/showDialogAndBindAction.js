@@ -1,4 +1,4 @@
-const confirmAction = (action) => {
+const showDialogAndBindAction = (action) => {
   const dialog = document.querySelector('dialog'); // eslint-disable-line no-undef
   if (dialog && dialog.showModal) {
     dialog.showModal();
@@ -12,4 +12,4 @@ const confirmAction = (action) => {
   }
 };
 
-export default confirmAction;
+export default showDialogAndBindAction;

@@ -1,11 +1,13 @@
 import { combineReducers } from 'redux-immutable';
 import undoable from 'redux-undo';
 
+import dialog from './dialog';
 import meta from './meta';
 import requests from './requests';
 import table from './table';
 
 const rootReducer = combineReducers({
+  dialog,
   meta,
   requests,
   table: undoable(table, {

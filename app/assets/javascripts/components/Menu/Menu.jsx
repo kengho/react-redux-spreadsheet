@@ -5,6 +5,7 @@ import { arePropsEqual } from '../../core';
 import MenuItem from './MenuItem';
 
 const propTypes = {
+  actions: PropTypes.object.isRequired,
   buttonIcon: PropTypes.string,
   buttonId: PropTypes.string.isRequired,
   hideOnMouseLeave: PropTypes.bool,
@@ -80,6 +81,7 @@ class Menu extends React.Component {
 
   render() {
     const {
+      actions,
       buttonIcon,
       buttonId,
       hideOnMouseLeave,
@@ -91,7 +93,8 @@ class Menu extends React.Component {
       outputMenuItems.push(
         <MenuItem
           action={item.action}
-          confirm={item.confirm}
+          actions={actions}
+          dialogVariant={item.dialogVariant}
           icon={item.icon}
           key={`menu-button-${buttonId}-${item.label}`}
           label={item.label}

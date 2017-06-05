@@ -66,8 +66,14 @@ class TableActionsCell extends React.Component {
 
     const tableMenuItems = [
       {
+        action: () => {},
+        dialogVariant: 'INFO',
+        icon: 'help_outline',
+        label: 'Help',
+      },
+      {
         action: () => actions.pushRequest('DELETE'),
-        confirm: true,
+        dialogVariant: 'CONFIRM',
         icon: 'close',
         label: 'Delete spreadsheet',
       },
@@ -84,6 +90,7 @@ class TableActionsCell extends React.Component {
           buttonId="table-actions-button"
           hideOnMouseLeave={false}
           menuItems={tableMenuItems}
+          actions={actions}
         />
       </div>
     );

@@ -10,13 +10,13 @@ import TableActionsCell from './../Cells/TableActionsCell';
 
 
 const propTypes = {
-  columns: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
+  columns: PropTypes.array.isRequired,
+  firstActionsCellIsOnly: PropTypes.bool.isRequired,
+  hoverColumnId: PropTypes.string,
   requests: PropTypes.object.isRequired,
   requestsQueueSize: PropTypes.number.isRequired,
   rowId: PropTypes.string.isRequired,
-  firstActionsCellIsOnly: PropTypes.bool.isRequired,
-  hoverColumnId: PropTypes.string,
 };
 
 const defaultProps = {
@@ -35,12 +35,12 @@ class ActionsRow extends React.Component {
   render() {
     const {
       actions,
-      requests,
-      rowId,
-      hoverColumnId,
       columns,
       firstActionsCellIsOnly,
+      hoverColumnId,
+      requests,
       requestsQueueSize,
+      rowId,
     } = this.props;
 
     const getActionCellId = (columnIndex) => {
@@ -52,9 +52,9 @@ class ActionsRow extends React.Component {
     // TableActionsCell.
     outputCells.push(
       <TableActionsCell
+        actions={actions}
         id={getActionCellId(0)}
         key={getActionCellId(0)}
-        actions={actions}
         requests={requests}
         requestsQueueSize={requestsQueueSize}
       />
@@ -75,11 +75,11 @@ class ActionsRow extends React.Component {
 
       outputCells.push(
         <LineActionsCell
-          id={actionCellId}
-          key={actionCellId}
           actions={actions}
+          id={actionCellId}
           isHover={hoverColumnId === columns[columnIndex]}
           isOnly={firstActionsCellIsOnly}
+          key={actionCellId}
           pos={[-2, columnIndex - 2]}
         />
       );

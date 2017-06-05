@@ -1,4 +1,3 @@
-import dialogPolyfill from 'dialog-polyfill';
 import PropTypes from 'prop-types';
 import React from 'react';
 import uuid from 'uuid/v4';
@@ -18,6 +17,7 @@ import scrollbarShift from '../lib/scrollbarShift';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  dialog: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
   undo: PropTypes.object.isRequired,
@@ -46,11 +46,6 @@ class Spreadsheet extends React.Component {
   }
 
   componentDidMount() {
-    const dialog = document.querySelector('dialog'); // eslint-disable-line no-undef
-    if (!dialog.showModal) {
-      dialogPolyfill.registerDialog(dialog);
-    }
-
     document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
   }
 
@@ -274,6 +269,7 @@ class Spreadsheet extends React.Component {
     // D - data cell
 
     const { actions, requests } = this.props;
+    const dialog = this.props.dialog.toJS();
     const clipboard = this.table.session.clipboard;
     const columns = this.table.data.columns;
     const pointer = this.table.session.pointer;
@@ -363,7 +359,10 @@ class Spreadsheet extends React.Component {
         >
           {outputRows}
         </div>
-        <Dialog />
+        <Dialog
+          variant={dialog.variant}
+          visibility={dialog.visibility}
+        />
       </div>
     );
   }
