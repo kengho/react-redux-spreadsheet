@@ -44,6 +44,19 @@ export function setPointer(pointer) {
   };
 }
 
+export function setPointerModifiers(modifiers) {
+  return {
+    type: 'SET_POINTER_MODIFIERS',
+    modifiers,
+  };
+}
+
+export function clearPointer() {
+  return {
+    type: 'CLEAR_POINTER',
+  };
+}
+
 export function movePointer(key) {
   return {
     type: 'MOVE_POINTER',

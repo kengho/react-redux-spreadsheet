@@ -59,26 +59,36 @@ class Spreadsheet extends React.Component {
   }
 
   documentKeyDownHandler(evt) {
-    const pointer = { ...this.table.session.pointer };
-    const cells = this.table.data.cells;
-
     const action = findKeyAction(evt, [
       {
-        condition: () => evt.key.length === 1,
+        condition: () => (evt.key.length === 1 || evt.key === 'Enter' || evt.key === 'F2'),
         altKey: false,
         ctrlKey: false,
         shiftKey: false,
         action: () => {
+          if (evt.key === 'Enter') {
+            // Prevents immediately pressing Enter after focus (deletes selected text).
+            evt.preventDefault();
+          }
+
+          let modifiers;
+          if (evt.key === 'F2') {
+            modifiers = { edit: true };
+          } else {
+            modifiers = { edit: true, select_on_focus: true };
+          }
+
           // 'input' renders after 'keydown', and symbols appears after 'keyup',
           // thus after `setState` input's value is already 'evt.key'.
 
-          // Default pointer on [0, 0].
-          if (!pointer.cellId) {
-            // 2 is for fictive rows/columns.
-            pointer.cellId = getCellId(this.table.data.rows[2], this.table.data.columns[2]);
+          const pointer = this.table.session.pointer;
+          let cellId = pointer.cellId;
+          if (!cellId) {
+            // Default pointer on [0, 0].
+            // [2] is for fictive rows/columns.
+            cellId = getCellId(this.table.data.rows[2], this.table.data.columns[2]);
           }
-          pointer.modifiers = { edit: true, select_on_focus: true };
-          this.props.actions.setPointer(pointer);
+          this.props.actions.setPointer({ cellId, modifiers });
         },
       },
       {
@@ -136,39 +146,17 @@ class Spreadsheet extends React.Component {
         },
       },
       {
-        key: 'Enter',
-        action: () => {
-          // Prevents immediately pressing Enter and deletes selected text after focus.
-          evt.preventDefault();
-
-          // Default pointer on [0, 0].
-          if (!pointer.cellId) {
-            // 2 is for fictive rows/columns.
-            pointer.cellId = getCellId(this.table.data.rows[2], this.table.data.columns[2]);
-          }
-          pointer.modifiers = { edit: true, select_on_focus: true };
-          this.props.actions.setPointer(pointer);
-        },
-      },
-      {
-        key: 'F2',
-        action: () => {
-          pointer.modifiers = { edit: true };
-          this.props.actions.setPointer(pointer);
-        },
-      },
-      {
         key: 'Escape',
         action: () => {
-          pointer.cellId = null;
-          pointer.modifiers = {};
-          this.props.actions.setPointer(pointer);
+          this.props.actions.clearPointer();
           this.props.actions.clearClipboard();
         },
       },
       {
         keys: ['Delete', 'Backspace'],
         action: () => {
+          const cells = this.table.data.cells;
+          const pointer = this.table.session.pointer;
           const cell = cells[pointer.cellId];
           if (cell && cell.value) {
             // Prevents going back in history for Backspace.
@@ -196,6 +184,8 @@ class Spreadsheet extends React.Component {
 
           // TODO: handle many selected cells.
           // REVIEW: shouldn't Ctrl+X cut cell immediately?
+          const cells = this.table.data.cells;
+          const pointer = this.table.session.pointer;
           clipboardCells[pointer.cellId] = cells[pointer.cellId];
 
           this.props.actions.setClipboard({
@@ -223,6 +213,7 @@ class Spreadsheet extends React.Component {
           const value = clipboard.cells[srcCellId] && clipboard.cells[srcCellId].value;
           if (value) {
             // TODO: copy all props.
+            const pointer = this.table.session.pointer;
             this.props.actions.setProp(pointer.cellId, 'value', value);
           }
 

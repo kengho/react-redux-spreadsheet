@@ -98,11 +98,24 @@ export default function table(state = initialState().table, action) {
       );
     }
 
-    // TODO: set modifiers.
     case 'SET_POINTER': {
       return state.setIn(
         ['session', 'pointer'],
         fromJS(action.pointer)
+      );
+    }
+
+    case 'SET_POINTER_MODIFIERS': {
+      return state.setIn(
+        ['session', 'pointer', 'modifiers'],
+        fromJS(action.modifiers)
+      );
+    }
+
+    case 'CLEAR_POINTER': {
+      return state.setIn(
+        ['session', 'pointer'],
+        fromJS({ cellId: null, modifiers: {} })
       );
     }
 

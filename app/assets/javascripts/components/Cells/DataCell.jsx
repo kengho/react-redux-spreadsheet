@@ -154,9 +154,7 @@ class DataCell extends React.Component {
       {
         key: 'Escape',
         action: () => {
-          const pointer = { ...this.props.pointer };
-          delete pointer.modifiers.edit;
-          this.props.actions.setPointer(pointer);
+          this.props.actions.setPointerModifiers({});
         },
       },
     ]);

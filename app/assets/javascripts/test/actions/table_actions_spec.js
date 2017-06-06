@@ -214,6 +214,41 @@ describe('table', () => {
       expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
     });
 
+    it('set pointer modifiers', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const modifiers = { edit: true };
+
+      store.dispatch(TableActions.setPointerModifiers(modifiers));
+
+      const expectedPointerModifiers = fromJS(modifiers);
+
+      expect(
+        store.getState().get('table').present.getIn(['session', 'pointer', 'modifiers']))
+      .to.equal(
+        expectedPointerModifiers
+      );
+    });
+
+    it('clear pointer', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const pointer = {
+        cellId: 'r1,c1',
+        modifiers: { edit: true },
+      };
+
+      store.dispatch(TableActions.setPointer(pointer));
+      store.dispatch(TableActions.clearPointer());
+
+      const expectedPointer = fromJS({
+        cellId: null,
+        modifiers: {},
+      });
+
+      expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
+    });
+
     describe('movement', () => {
       it('move pointer (ArrowUp, no initial pos)', () => {
         const state = Core.initialState(...tableSize);
