@@ -32,9 +32,10 @@ TODO: automate.
 * pressing Ctrl+V while there are pointer should copy/cut value from clipboard
 * pressing Ctrl+V while there are pointer multiple times should cut multiple times even if clipboard cell is already empty
 * pressing Ctrl+V shouldn't throw errors if the source cell have no value
-* pressing Enter/Shift+Enter while there are editable cell should save cell's value and move pointer down/up (unless border)
-* pressing Tab/Shift+Tab while there are editable cell should save cell's value and move pointer right/left (unless border)
-* pressing Ctrl+Enter while there are editable cell should add new line after cursor
+* pressing Enter/Shift+Enter while editing should save cell's value and move pointer down/up (unless border)
+* pressing Tab/Shift+Tab while editing should save cell's value and move pointer right/left (unless border)
+* pressing Ctrl+Enter while editing should add new line after cursor
+* pressing Escape while editing should make cell uneditable and leave cell's value as it was before
 * clicking on other cell while there are editable cell should save content of editing cell and move pointer
 * typing text to cell should expand it to some point horizontally and to infinity vertically. never showing scrollbar
 * when data is changed table menu icon should change, and it should be visible even is not hover until data is saved and it changes back
