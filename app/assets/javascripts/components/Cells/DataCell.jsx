@@ -41,7 +41,9 @@ class DataCell extends React.Component {
     //   (Doesn't work all the times without domready.)
     //   http://stackoverflow.com/a/31373835/6376451
     domready(() => {
-      this.textarea._onChange(); // eslint-disable-line no-underscore-dangle
+      if (this.textarea) {
+        this.textarea._onChange(); // eslint-disable-line no-underscore-dangle
+      }
     });
   }
 
@@ -179,6 +181,44 @@ class DataCell extends React.Component {
     if (isEditing) { classnames.push('editing'); }
     if (isOnClipboard) { classnames.push('clipboard'); }
 
+    let textareaOutput;
+    if (value || isEditing) {
+      // HACK: key uptates textarea after changing some props.
+      //   Also it allows autoFocus to work.
+      //   http://stackoverflow.com/a/41717743/6376451
+      // HACK: onHeightChange() is workaround for Chromium Linux zoom scrollbar issue.
+      //   https://github.com/andreypopp/react-textarea-autosize/issues/147
+      textareaOutput = (
+        <TextareaAutosize
+          autoFocus={isEditing}
+          autosizeWidth
+          className="data-textarea"
+          defaultValue={value}
+          disabled={disabled}
+          inputRef={(c) => { this.textareaInput = c; }}
+          key={JSON.stringify({ id, value, isPointed, isEditing, isSelectingOnFocus })}
+          maxWidth="512px"
+          onFocus={isSelectingOnFocus && ((evt) => evt.target.select())}
+          onHeightChange={() => {
+            const heightPx = this.textareaInput.style.height;
+            const height = Number(heightPx.slice(0, -'px'.length));
+            this.textareaInput.style.height = `${height + 1}px`;
+          }}
+          ref={(c) => { this.textarea = c; }}
+        />
+    );
+    } else {
+      // '22px' is TextareaAutosize's (above) height with empty value.
+      // TODO: find a way to calculate this value (create one invisible TextareaAutosize somewhere?).
+      textareaOutput = (
+        <textarea
+          className="data-textarea"
+          disabled
+          style={{ height: '22px', width: '0' }}
+        />
+      );
+    }
+
     return (
       <div
         className={classnames.join(' ')}
@@ -188,34 +228,7 @@ class DataCell extends React.Component {
         onKeyDown={(evt) => this.keyDownHandler(evt)}
         onMouseOver={() => { actions.setHover(id); }}
       >
-        {/* HACK: key uptates textarea after changing some props. */}
-        {/*   Also it allows autoFocus to work. */}
-        {/*   http://stackoverflow.com/a/41717743/6376451 */}
-
-        {/* HACK: onHeightChange is workaround for Chromium Linux zoom scrollbar issue. */}
-        {/*   https://github.com/andreypopp/react-textarea-autosize/issues/147 */}
-
-        {/* TODO [PERF]: don't print TextareaAutosize when value is empty */}
-        {/*   Caveat: Cell's size. */}
-        <div className="data-wrapper">
-          <TextareaAutosize
-            autoFocus={isEditing}
-            autosizeWidth
-            className="data-textarea"
-            defaultValue={value}
-            disabled={disabled}
-            inputRef={(c) => { this.textareaInput = c; }}
-            key={JSON.stringify({ id, value, isPointed, isEditing, isSelectingOnFocus })}
-            maxWidth="512px"
-            onFocus={isSelectingOnFocus && ((evt) => evt.target.select())}
-            onHeightChange={() => {
-              const heightPx = this.textareaInput.style.height;
-              const height = Number(heightPx.slice(0, heightPx.length - 'px'.length));
-              this.textareaInput.style.height = `${height + 1}px`;
-            }}
-            ref={(c) => { this.textarea = c; }}
-          />
-        </div>
+        <div className="data-wrapper">{textareaOutput}</div>
       </div>
     );
   }
