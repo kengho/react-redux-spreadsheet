@@ -33,37 +33,12 @@ class Menu extends React.Component {
       evt.nativeEvent.stopImmediatePropagation();
     };
 
-    this.cellActionsMenuOnMouseLeaveHandler = (evt) => {
-      // Event may be fired at all of '.menu' children.
-      // REVIEW: is there are way to prevent firing 'onMouseLeave' at for childen?
-      //   (Excluding quering 'document' directly.)
-      let container;
-      // container = document.querySelector(`[id='${props.buttonId}'] + .mdl-menu__container`);
-      switch (evt.target.tagName) {
-        case 'DIV':
-          container = evt.target.querySelector('.mdl-menu__container');
-          break;
-        case 'BUTTON':
-          container = evt.target.parentNode.querySelector('.mdl-menu__container');
-          break;
-        case 'I':
-          container = evt.target.parentNode.parentNode.querySelector('.mdl-menu__container');
-          break;
-        case 'UL':
-          container = evt.target.parentNode;
-          break;
-        case 'LI':
-          container = evt.target.parentNode.parentNode;
-          break;
-        default:
-      }
-
+    this.cellActionsMenuOnMouseLeaveHandler = () => {
       // 'is-visible' class applies to '.mdl-menu__container', parent of '.mdl-menu'.
       // ('MaterialMenu.toggle()' causes bugs when user click on list item
       // and moves mouse fast after that.)
-      if (container) {
-        container.classList.remove('is-visible');
-      }
+      const container = this.menu.parentNode;
+      container.classList.remove('is-visible');
     };
 
     this.menu = null;
@@ -106,7 +81,7 @@ class Menu extends React.Component {
       <div
         className="menu"
         onKeyDown={(evt) => this.keyDownHandler(evt)}
-        onMouseLeave={hideOnMouseLeave && ((evt) => this.cellActionsMenuOnMouseLeaveHandler(evt))}
+        onMouseLeave={hideOnMouseLeave && (() => this.cellActionsMenuOnMouseLeaveHandler())}
       >
         <button
           className="mdl-button mdl-js-button mdl-button--icon"
