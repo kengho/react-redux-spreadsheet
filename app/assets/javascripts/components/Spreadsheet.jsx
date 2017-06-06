@@ -183,10 +183,13 @@ class Spreadsheet extends React.Component {
           const clipboardCells = {};
 
           // TODO: handle many selected cells.
-          // REVIEW: shouldn't Ctrl+X cut cell immediately?
           const cells = this.table.data.cells;
           const pointer = this.table.session.pointer;
           clipboardCells[pointer.cellId] = cells[pointer.cellId];
+
+          if (evt.which === 88) { // 'x'
+            this.props.actions.deleteProp(pointer.cellId, 'value');
+          }
 
           this.props.actions.setClipboard({
             cells: clipboardCells,
