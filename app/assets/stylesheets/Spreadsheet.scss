@@ -20,7 +20,9 @@ body {
 .table {
   display: table;
   border-collapse: separate;
-  border-spacing: 2px;
+
+  // Moved to Spreadsheet.jsx.
+  // border-spacing: 2px;
 }
 
 .tr {

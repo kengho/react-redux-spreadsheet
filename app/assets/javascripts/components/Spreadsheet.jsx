@@ -43,6 +43,10 @@ class Spreadsheet extends React.Component {
       this.table.data.columns = [...this.fictiveColumns, ...this.table.data.columns];
     };
     this.prepareTable(props);
+
+    this.css = {
+      borderSpacing: '2px',
+    };
   }
 
   componentDidMount() {
@@ -110,6 +114,11 @@ class Spreadsheet extends React.Component {
           const columns = this.table.data.columns;
 
           // REVIEW: 'querySelector' is probably not React-way.
+          //   I could define 'this.previousPointer = this.table.session.pointer'
+          //   in componentWillReceiveProps() and use it's cellId prop in getElementById,
+          //   but I don't see how it is better than current implementation
+          //   (also, it depends on id DataCell's id prop).
+          //   Should page visibility params be part of the state?
 
           // Save previous pointed Cell's on-page visibility.
           const pointedCellBefore = document.querySelector('.pointed'); // eslint-disable-line no-undef
@@ -134,14 +143,14 @@ class Spreadsheet extends React.Component {
             columns.indexOf(getColumnId(pointedCellAfter.id)) - 2,
           ];
 
-          // REVIEW: '4' (extra) is .table's border-spacing x2.
-          //   Figure out how to sync those values.
           // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.
           if (
             (isScrolledIntoViewBefore.x && !isScrolledIntoViewAfter.x) ||
             (isScrolledIntoViewBefore.y && !isScrolledIntoViewAfter.y)
           ) {
-            scrollbarShift(evt.key, pointedCellAfter, pointedCellAfterPos, 4);
+            // slice() with -2 deletes 'px'.
+            const borderSpacingNormalized = Number(this.css.borderSpacing.slice(0, -2));
+            scrollbarShift(evt.key, pointedCellAfter, pointedCellAfterPos, borderSpacingNormalized * 2);
           }
         },
       },
@@ -360,6 +369,7 @@ class Spreadsheet extends React.Component {
         <div
           className="table"
           onMouseLeave={() => { actions.setHover(null); }}
+          style={this.css}
         >
           {outputRows}
         </div>
