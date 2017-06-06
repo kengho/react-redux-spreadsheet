@@ -4,7 +4,6 @@
 /* eslint-disable no-multi-spaces */
 /* eslint-disable key-spacing */
 
-// REVIEW: rename to requests_reducer_spec?
 import { expect } from 'chai';
 import { fromJS } from 'immutable';
 import uuid from 'uuid/v4';
