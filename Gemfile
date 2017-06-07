@@ -47,4 +47,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'dotenv-rails', '~> 2'
 gem 'listen', '~> 3.0.5'
+
+# For recaptcha.
 gem 'rest-client', '~> 2'
