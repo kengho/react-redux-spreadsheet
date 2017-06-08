@@ -15,7 +15,7 @@ function mapStateToProps(state) {
     table: state.get('table').present,
     undo: {
       canRedo: state.get('table').future.length > 0,
-      canUndo: state.get('table').past.length > 0,
+      canUndo: state.get('table').past.length > 1, // omitting SET_TABLE_FROM_JSON
     },
   };
 }
