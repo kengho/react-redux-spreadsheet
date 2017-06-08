@@ -96,7 +96,7 @@ class DataRow extends React.Component {
       const isEditing = isPointed && somePointer.modifiers.edit === true;
       const isSelectingOnFocus =
         isPointed &&
-        (somePointer.modifiers.select_on_focus === true);
+        (somePointer.modifiers.selectOnFocus === true);
 
       // !!someClipboard.cells[cellId] gives false if value under key exists but is undefined.
       const isOnClipboard = Object.keys(someClipboard.cells).indexOf(cellId) !== -1;

@@ -79,7 +79,7 @@ class Spreadsheet extends React.Component {
           if (evt.key === 'F2') {
             modifiers = { edit: true };
           } else {
-            modifiers = { edit: true, select_on_focus: true };
+            modifiers = { edit: true, selectOnFocus: true };
           }
 
           // 'input' renders after 'keydown', and symbols appears after 'keyup',
