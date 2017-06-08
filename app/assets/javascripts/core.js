@@ -92,10 +92,6 @@ export function initialState(width, height) {
   const table = initialTable(width, height);
 
   let state;
-  state = fromJS({
-    table,
-  });
-
   // REVIEW: is there are way to apply redux-undo for tests automatically?
   if (process.env.NODE_ENV === 'test') {
     state = Map({
