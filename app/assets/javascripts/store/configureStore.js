@@ -1,5 +1,4 @@
 import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
 
 import handleDataChanges from './middleware/handleDataChanges';
 import handlePointerChanges from './middleware/handlePointerChanges';
@@ -8,7 +7,6 @@ import handleUndoRedo from './middleware/handleUndoRedo';
 import rootReducer from '../reducers';
 
 const middleware = [
-  thunk,
   handlePointerChanges,
 ];
 if (process.env.NODE_ENV !== 'test') {

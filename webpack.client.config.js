@@ -33,7 +33,6 @@ module.exports = (env) => {
         'react-redux',
         'redux',
         'redux-immutable',
-        'redux-thunk',
         'uuid',
       ],
     },

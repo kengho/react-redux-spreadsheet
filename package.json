@@ -46,7 +46,6 @@
     "react-redux": "^5.0.3",
     "redux": "^3.6.0",
     "redux-immutable": "^4.0.0",
-    "redux-thunk": "^2.2.0",
     "redux-undo": "^1.0.0-beta9-9",
     "sass-loader": "^6.0.3",
     "static-loader": "^0.1.8",
