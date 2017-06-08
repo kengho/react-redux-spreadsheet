@@ -1,6 +1,6 @@
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
-import { setPointer } from '../../actions/table';
+import { setPointerModifiers } from '../../actions/table';
 
 // HACK: after actions sequence SET_POINTER (edit: true), SET_PROP, (MOVE_POINTER)
 //   state with 'pointer.modifiers.edit === true' adds to history, thus pressing Ctrl+Z enters DataCell.
@@ -14,7 +14,7 @@ const handleUndoRedo = store => next => action => { // eslint-disable-line consi
     const nextAction = next(action);
     const pointer = store.getState().get('table').present.getIn(['session', 'pointer']).toJS();
     if (pointer.cellId) {
-      store.dispatch(setPointer({ cellId: pointer.cellId, modifiers: {} }));
+      store.dispatch(setPointerModifiers({}));
     }
     return nextAction;
   }
