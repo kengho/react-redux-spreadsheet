@@ -23,6 +23,7 @@ export function markRequestAsFailed(id) {
     id,
   };
 }
+
 export function incrementCounter() {
   return {
     type: 'INCREMENT_COUNTER',

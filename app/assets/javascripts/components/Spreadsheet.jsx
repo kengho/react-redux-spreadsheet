@@ -260,6 +260,16 @@ class Spreadsheet extends React.Component {
           }
         },
       },
+      // For dev.
+      // {
+      //   which: 76, // 'Ctrl+Shift+L'
+      //   ctrlKey: true,
+      //   shiftKey: true,
+      //   action: () => {
+      //     evt.preventDefault();
+      //     this.props.actions.setDialogVisibility(true);
+      //   },
+      // },
     ]);
 
     action();
@@ -374,6 +384,7 @@ class Spreadsheet extends React.Component {
           {outputRows}
         </div>
         <Dialog
+          actions={actions}
           variant={dialog.variant}
           visibility={dialog.visibility}
         />

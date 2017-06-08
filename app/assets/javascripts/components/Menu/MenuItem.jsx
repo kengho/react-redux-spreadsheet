@@ -1,10 +1,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import showDialogAndBindAction from '../../lib/showDialogAndBindAction';
-
 const propTypes = {
-  action: PropTypes.func.isRequired,
+  // REVIEW: since all our actions can be expressed as plain objects,
+  //   shouldn't we leave only PropTypes.object here?
+  //   Caveat: it requires importing actions/* into components directly, which seems not right.
+  //   Is there a way to 'unconnect' actions from dispach() (funtions back to objects)?
+  action: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.object,
+  ]),
   actions: PropTypes.object.isRequired,
   dialogVariant: PropTypes.string,
   icon: PropTypes.string,
@@ -12,6 +17,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  action: {},
   dialogVariant: '',
   icon: '',
 };
@@ -28,13 +34,13 @@ const MenuItem = (props) => {
   } = props;
 
   let effectiveAction;
-  if (dialogVariant) {
+  if (dialogVariant && typeof action === 'object') {
     effectiveAction = () => {
-      actions.setDialogVariant(dialogVariant);
-
-      // TODO: make dialog completely in React-way.
-      //   Caveat: dialog.showModal() and dialog.close() throws exceptions.
-      showDialogAndBindAction(action);
+      actions.setDialog({
+        action,
+        variant: dialogVariant,
+        visibility: true,
+      });
     };
   } else {
     effectiveAction = action;

@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 
 import handleDataChanges from './middleware/handleDataChanges';
+import handleDispachDialogAction from './middleware/handleDispachDialogAction';
 import handlePointerChanges from './middleware/handlePointerChanges';
 import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleUndoRedo from './middleware/handleUndoRedo';
@@ -11,6 +12,7 @@ const middleware = [
 ];
 if (process.env.NODE_ENV !== 'test') {
   middleware.push(
+    handleDispachDialogAction,
     handleRequestsChanges,
     handleUndoRedo,
     handleDataChanges // make sure this is the last middleware

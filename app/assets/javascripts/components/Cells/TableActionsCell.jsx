@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { arePropsEqual } from '../../core';
+import { pushRequest } from '../../actions/requests';
 import Menu from '../Menu/Menu';
 
 const propTypes = {
@@ -66,13 +67,12 @@ class TableActionsCell extends React.Component {
 
     const tableMenuItems = [
       {
-        action: () => {},
         dialogVariant: 'INFO',
         icon: 'help_outline',
         label: 'Help',
       },
       {
-        action: () => actions.pushRequest('DELETE'),
+        action: pushRequest('DELETE'),
         dialogVariant: 'CONFIRM',
         icon: 'close',
         label: 'Delete spreadsheet',

@@ -5,11 +5,14 @@ import React from 'react';
 import { arePropsEqual } from '../core';
 
 const propTypes = {
+  actions: PropTypes.object.isRequired,
   variant: PropTypes.string,
+  visibility: PropTypes.bool,
 };
 
 const defaultProps = {
   variant: 'CONFIRM',
+  visibility: false,
 };
 
 class Dialog extends React.Component {
@@ -43,6 +46,9 @@ class Dialog extends React.Component {
         case 'ArrowRight':
           this.activateDialogButton(evt.key);
           break;
+        case 'Escape':
+          this.props.actions.setDialogVisibility(false);
+          break;
         default:
       }
     };
@@ -57,11 +63,22 @@ class Dialog extends React.Component {
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
-    return !arePropsEqual(currentProps, nextProps, ['variant']);
+    return !arePropsEqual(currentProps, nextProps, ['variant', 'visibility']);
+  }
+
+  componentDidUpdate() {
+    if (this.props.visibility) {
+      this.dialog.showModal();
+    } else if (this.dialog && this.dialog.open) {
+      this.dialog.close();
+    }
   }
 
   render() {
-    const { variant } = this.props;
+    const {
+      actions,
+      variant,
+    } = this.props;
 
     let buttonsMap;
     let title;
@@ -70,10 +87,15 @@ class Dialog extends React.Component {
       case 'CONFIRM': {
         buttonsMap = [
           {
+            action: () => {
+              actions.dispatchDialogAction();
+              actions.setDialogVisibility(false);
+            },
             idSuffix: 'yes',
             label: 'Yes',
           },
           {
+            action: () => actions.setDialogVisibility(false),
             idSuffix: 'no',
             label: 'No, go back',
           },
@@ -84,6 +106,10 @@ class Dialog extends React.Component {
       }
       case 'INFO': {
         buttonsMap = [{
+          action: () => {
+            actions.dispatchDialogAction();
+            actions.setDialogVisibility(false);
+          },
           idSuffix: 'yes',
           label: 'OK',
         }];
@@ -130,12 +156,10 @@ class Dialog extends React.Component {
     const outputButtons = [];
     buttonsMap.forEach((buttonMap) => {
       outputButtons.push(
-        // id uses in lib/confirmAction.js
         <button
           className="mdl-button"
-          id={`dialog-button--${buttonMap.idSuffix}`}
           key={`dialog-button--${buttonMap.idSuffix}`}
-          onClick={(evt) => evt.target.parentNode.parentNode.close()}
+          onClick={() => buttonMap.action()}
           ref={(c) => { this.buttons[buttonMap.idSuffix] = c; }}
           type="button"
         >
