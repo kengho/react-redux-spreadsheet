@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { arePropsEqual } from '../core';
-import activateDialogButton from '../lib/activateDialogButton';
 
 const propTypes = {
   variant: PropTypes.string,
@@ -17,6 +16,24 @@ class Dialog extends React.Component {
   constructor(props) {
     super(props);
 
+    this.buttons = {};
+
+    this.activateDialogButton = (key) => {
+      // Makes no sense if there are one or less buttons ('INFO' dialog e.g.).
+      if (!(this.buttons.yes && this.buttons.no)) {
+        return;
+      }
+
+      let nextActiveButton;
+      if (key === 'ArrowLeft') {
+        nextActiveButton = this.buttons.no;
+      } else if (key === 'ArrowRight') {
+        nextActiveButton = this.buttons.yes;
+      }
+
+      nextActiveButton.focus();
+    };
+
     this.keyDownHandler = (evt) => {
       // Prevents firing documentKeyDownHandler().
       evt.nativeEvent.stopImmediatePropagation();
@@ -24,7 +41,7 @@ class Dialog extends React.Component {
       switch (evt.key) {
         case 'ArrowLeft':
         case 'ArrowRight':
-          activateDialogButton(this.dialog, evt.key);
+          this.activateDialogButton(evt.key);
           break;
         default:
       }
@@ -119,6 +136,7 @@ class Dialog extends React.Component {
           id={`dialog-button--${buttonMap.idSuffix}`}
           key={`dialog-button--${buttonMap.idSuffix}`}
           onClick={(evt) => evt.target.parentNode.parentNode.close()}
+          ref={(c) => { this.buttons[buttonMap.idSuffix] = c; }}
           type="button"
         >
           {buttonMap.label}
