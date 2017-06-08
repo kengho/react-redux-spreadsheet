@@ -12,7 +12,7 @@ import {
   initialState,
 } from '../core';
 
-export default function table(state = initialState().table, action) {
+export default function table(state = initialState().get('table'), action) {
   switch (action.type) {
     case 'SET_TABLE_FROM_JSON': {
       const serverTable = fromJS(JSON.parse(action.tableJSON));
