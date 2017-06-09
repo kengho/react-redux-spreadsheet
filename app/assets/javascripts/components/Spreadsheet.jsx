@@ -13,7 +13,7 @@ import DataRow from './Rows/DataRow';
 import Dialog from '../components/Dialog';
 import findKeyAction from '../lib/findKeyAction';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
-import scrollbarShift from '../lib/scrollbarShift';
+import shiftScrollbar from '../lib/shiftScrollbar';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -150,7 +150,7 @@ class Spreadsheet extends React.Component {
           ) {
             // slice() with -2 deletes 'px'.
             const borderSpacingNormalized = Number(this.css.borderSpacing.slice(0, -2));
-            scrollbarShift(evt.key, pointedCellAfter, pointedCellAfterPos, borderSpacingNormalized * 2);
+            shiftScrollbar(evt.key, pointedCellAfter, pointedCellAfterPos, borderSpacingNormalized * 2);
           }
         },
       },

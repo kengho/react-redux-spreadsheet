@@ -4,7 +4,7 @@ import {
   getRowNumber,
 } from '../core';
 
-const scrollbarShift = (key, pointedCellAfter, pointedCellAfterPos, extra) => {
+const shiftScrollbar = (key, pointedCellAfter, pointedCellAfterPos, extra) => {
   let relShift;
   let absShift;
   switch (key) {
@@ -61,4 +61,4 @@ const scrollbarShift = (key, pointedCellAfter, pointedCellAfterPos, extra) => {
   }
 };
 
-export default scrollbarShift;
+export default shiftScrollbar;
