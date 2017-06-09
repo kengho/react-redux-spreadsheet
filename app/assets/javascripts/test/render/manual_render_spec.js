@@ -43,5 +43,6 @@ TODO: automate.
 * when hover on cell, ones and only appropriate row/column menus should visible
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
 * expanding table with empty cells shouldn't affect history and/or server sync
+* if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
 
 */
