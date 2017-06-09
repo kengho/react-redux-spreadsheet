@@ -6,7 +6,6 @@ import mountComponents from './lib/mountComponents';
 import Landing from './components/Landing';
 import Root from './containers/Root';
 
-// TODO: use router.
 domready(() => {
   mountComponents({
     Landing,
