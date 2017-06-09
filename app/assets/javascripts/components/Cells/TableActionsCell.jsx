@@ -16,12 +16,6 @@ const defaultProps = {
 };
 
 class TableActionsCell extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.tooltip = null;
-  }
-
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
@@ -41,15 +35,16 @@ class TableActionsCell extends React.Component {
       requests,
      } = this.props;
 
+    let output;
     if (requests.queue.length > 0) {
       // Wrapper solves issue with disabled button.
       // https://github.com/angular-ui/bootstrap/issues/1025
-      return (
+      output = (
         <div>
           <div id="sync-problem-icon-wrapper">
             <button
-              disabled
               className="mdl-button mdl-js-button mdl-button--icon"
+              disabled
             >
               <i className="material-icons md-24">sync_problem</i>
             </button>
@@ -63,37 +58,39 @@ class TableActionsCell extends React.Component {
           </div>
         </div>
       );
+    } else {
+      const tableMenuItems = [
+        {
+          dialogVariant: 'INFO',
+          icon: 'help_outline',
+          label: 'Help',
+        },
+        {
+          action: pushRequest('DELETE'),
+          dialogVariant: 'CONFIRM',
+          icon: 'close',
+          label: 'Delete spreadsheet',
+        },
+      ];
+
+      output = (
+        <div
+          className="td table-actions"
+          id={id}
+          onMouseOver={() => { actions.setHover(id); }}
+        >
+          <Menu
+            actions={actions}
+            buttonIcon="more_vert"
+            buttonId="table-actions-button"
+            hideOnMouseLeave={false}
+            menuItems={tableMenuItems}
+          />
+        </div>
+      );
     }
 
-    const tableMenuItems = [
-      {
-        dialogVariant: 'INFO',
-        icon: 'help_outline',
-        label: 'Help',
-      },
-      {
-        action: pushRequest('DELETE'),
-        dialogVariant: 'CONFIRM',
-        icon: 'close',
-        label: 'Delete spreadsheet',
-      },
-    ];
-
-    return (
-      <div
-        className="td table-actions"
-        id={id}
-        onMouseOver={() => { actions.setHover(id); }}
-      >
-        <Menu
-          buttonIcon="more_vert"
-          buttonId="table-actions-button"
-          hideOnMouseLeave={false}
-          menuItems={tableMenuItems}
-          actions={actions}
-        />
-      </div>
-    );
+    return output;
   }
 }
 
