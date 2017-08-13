@@ -80,6 +80,7 @@ class DataCell extends React.Component {
       }
     }
 
+    // TODO: store pointer coordinates in URL and scroll to pointer on load.
     this.props.actions.setPointer({ cellId, modifiers: {} });
   }
 

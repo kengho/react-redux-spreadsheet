@@ -56,8 +56,8 @@ const sendRequest = (composedRequest) => {
   return responsePromise;
 };
 
-const handleResponse = (store, composedRequest, response) => {
-  if (response !== 'OK') {
+const handleResponse = (store, composedRequest, responseStatus) => {
+  if (responseStatus !== 'OK') {
     store.dispatch(markRequestAsFailed(composedRequest.params.id));
   } else if (composedRequest.method === 'DELETE') {
     location.reload(); // eslint-disable-line no-undef
@@ -68,11 +68,11 @@ const handleResponse = (store, composedRequest, response) => {
 
 const handleRequest = (store, composedRequest) => {
   sendRequest(composedRequest).then(
-    (response) => {
+    (responseStatus) => {
       handleResponse(
         store,
         composedRequest,
-        response
+        responseStatus
       );
     }
   );

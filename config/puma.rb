@@ -10,7 +10,6 @@ threads threads_count, threads_count
 
 rails_env = ENV.fetch('RAILS_ENV') { 'development' }
 environment rails_env
-port ENV.fetch('PORT') { 3000 }
 
 if rails_env == 'production'
   # https://www.digitalocean.com/community/tutorials/how-to-deploy-a-rails-app-with-puma-and-nginx-on-ubuntu-14-04
@@ -31,4 +30,6 @@ if rails_env == 'production'
     ActiveRecord::Base.connection.disconnect! rescue ActiveRecord::ConnectionNotEstablished
     ActiveRecord::Base.establish_connection(YAML.load_file("#{app_dir}/config/database.yml")[rails_env])
   end
+else
+  port ENV.fetch('PORT') { 3000 }
 end

@@ -32,6 +32,7 @@ git clone https://github.com/kengho/react-redux-spreadsheet spreadsheet
 cd spreadsheet
 bundle install
 npm insall
+cp .env.example .env
 nano .env
 # setup these variables (VARIABLE1=value1\n...):
 # SECRET_KEY_BASE,
@@ -64,6 +65,7 @@ http://localhost:3000/spreadsheet should display landing page.
 ## TODO (random order)
 
 * mobile clients support
+* retrieve history for each cell
 * cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
 * sort

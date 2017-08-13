@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import uuid from 'uuid/v4';
+// TODO: use https://github.com/callemall/material-ui.
 
 import {
   getCellId,
@@ -374,6 +375,7 @@ class Spreadsheet extends React.Component {
     // TODO: show requests queue.
     // TODO: handle click ouside table.
     // TODO: scroll to top/bottom buttons.
+    // TODO: current pointer position and view position to url.
     return (
       <div>
         <div
