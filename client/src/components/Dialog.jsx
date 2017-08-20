@@ -2,6 +2,7 @@ import dialogPolyfill from 'dialog-polyfill';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './Dialog.css';
 import { arePropsEqual } from '../core';
 
 const propTypes = {
