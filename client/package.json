@@ -1,0 +1,45 @@
+{
+  "name": "client",
+  "version": "0.9.0",
+  "homepage": "https://kengho.tech/spreadsheet",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kengho/react-redux-spreadsheet"
+  },
+  "author": "Alexander Morozov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kengho/react-redux-spreadsheet/issues"
+  },
+  "private": true,
+  "dependencies": {
+    "dialog-polyfill": "^0.4.9",
+    "domready": "^1.0.8",
+    "excel-column-name": "^1.0.0",
+    "immutable": "^3.8.1",
+    "node-sass-chokidar": "0.0.3",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-github-mark": "^1.1.1",
+    "react-google-invisible-recaptcha": "^0.1.1",
+    "react-icons": "^2.2.5",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-immutable": "^4.0.0",
+    "redux-undo": "^0.6.1",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "chai-immutable": "^1.6.0",
+    "react-scripts": "1.0.11"
+  },
+  "scripts": {
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

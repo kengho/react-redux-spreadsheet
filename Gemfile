@@ -43,10 +43,11 @@ group :development do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 gem 'dotenv-rails', '~> 2'
 gem 'listen', '~> 3.0.5'
+gem 'rack-cors', require: 'rack/cors'
 
 # For recaptcha.
 gem 'rest-client', '~> 2'

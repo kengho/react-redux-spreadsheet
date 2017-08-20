@@ -1,7 +1,0 @@
-/* ::before because of the difference between Firefox and Chrome's content param handeling */
-/* http://stackoverflow.com/a/17907900/6376451 */
-.github-mark::before {
-  content: url(GitHub-Mark-32px.png);
-  width: 24px;
-  height: 24px;
-}

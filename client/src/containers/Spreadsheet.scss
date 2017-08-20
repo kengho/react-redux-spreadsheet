@@ -1,0 +1,177 @@
+@import "./../shared.scss";
+
+$header-text-color: #222;
+$data-bgcolor: $body-bgcolor;
+$data-bgcolor: white;
+$cell-border-thickness: 1px;
+$data-border: $cell-border-thickness solid rgba(white, 0);
+$pointed-border-color: #48e;
+$pointed-border: $cell-border-thickness solid $pointed-border-color;
+$clipboard-border: $cell-border-thickness dashed #777;
+$clipboard-pointed-border: $cell-border-thickness dashed $pointed-border-color;
+$cell-height: 32px;
+$cell-padding: 8px 16px;
+$cell-font-size: 18px;
+
+body {
+  background-color: $body-bgcolor;
+}
+
+.table {
+  display: table;
+  border-collapse: separate;
+
+  // Moved to Spreadsheet.jsx.
+  // border-spacing: 2px;
+}
+
+.tr {
+  display: table-row;
+
+  &.action-cells-hover:hover .line-actions {
+    opacity: 1;
+  }
+}
+
+.td {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: $cell-font-size;
+
+  &.data {
+    // For cell borders to act like when cell is pointed.
+    border: $data-border;
+    box-sizing: border-box;
+    height: $cell-height;
+    min-width: 64px;
+
+    // Width is limited by textarea width.
+    // Return if there are will be non-textarea data cells.
+    // max-width: 512px;
+    word-wrap: break-word;
+    padding: $cell-padding;
+    background-color: $data-bgcolor;
+    cursor: pointer;
+    border-radius: 2px;
+
+    & .data-wrapper {
+      position: relative;
+
+      & .data-textarea {
+        font-size: $cell-font-size;
+        border: none;
+        resize: none;
+        min-width: 100%;
+        background-color: rgba(black, 0);
+        color: darken($main-text-color, 30%);
+
+        // Spreadsheet view style.
+        &:disabled {
+          color: $main-text-color;
+
+          // Solves bug/feature when Firefox doesn't bubble click in disabled element.
+          // http://stackoverflow.com/a/32925830/6376451
+          pointer-events: none;
+        }
+
+        // Disables outline in webkit.
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+  }
+
+  &.line-actions {
+    opacity: 0;
+
+    &.hover {
+      opacity: 1;
+    }
+
+    &.row {
+      text-align: right;
+    }
+
+    &.column {
+      text-align: center;
+    }
+  }
+
+  &.line-addressing {
+    color: $gray-text-color;
+
+
+    &.row {
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    &.column {
+      text-align: center;
+      padding-bottom: 8px;
+    }
+  }
+
+  &.empty {
+  }
+
+  &.pointed {
+    border: $pointed-border;
+  }
+
+  &.editing {
+    border: $data-border;
+  }
+
+  &.clipboard {
+    border: $clipboard-border;
+  }
+
+  &.pointed.clipboard {
+    border: $clipboard-pointed-border;
+  }
+}
+
+.table-actions {
+  visibility: hidden;
+}
+
+.table:hover {
+  & .table-actions {
+    visibility: visible;
+  }
+}
+
+.menu {
+  // This magic stretches 'mdl-menu__container' 48 px to up,
+  // preventing it disappearance when mouse leaves button to the right.
+  & .mdl-menu__container {
+    margin-top: -48px;
+    margin-bottom: 48px;
+
+    & .mdl-menu__outline {
+      position: absolute;
+      top: 48px;
+    }
+
+    & .mdl-menu {
+      position: absolute;
+      top: 48px;
+
+      & .mdl-menu__item {
+        // Icons style.
+        & svg {
+          padding-right: 8px;
+        }
+
+        &.selected {
+          // Color from here:
+          // https://github.com/google/material-design-lite/blob/88872e672e41c56af0a78a35b34373b8c4a8c49d/src/_variables.scss
+          // ($data-table-selection-color).
+          background-color: #e0e0e0;
+        }
+      }
+    }
+  }
+}

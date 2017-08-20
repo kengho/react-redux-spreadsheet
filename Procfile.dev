@@ -1,2 +1,3 @@
-rails: RAILS_ENV=development rails s -b 0.0.0.0
-webpack: npm run dev:client
+server: RAILS_ENV=development bundle exec puma -C config/puma.rb
+client: cd client && BROWSER=none npm start
+css: cd client && npm run watch-css

@@ -5,7 +5,7 @@ AllCops:
     - 'db/**/*'
     - 'bin/*'
     - 'config/**/*'
-    - 'node_modules/**/*'
+    - 'client/node_modules/**/*'
   DisplayCopNames: true
 
 # FIXME
@@ -36,4 +36,11 @@ Metrics/LineLength:
 
 # render ... and return
 Style/AndOr:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+
+# FIXME
+Layout/MultilineMethodCallBraceLayout:
   Enabled: false
