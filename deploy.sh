@@ -11,6 +11,7 @@ cd client
 npm install --production
 
 # build and replace bundle
+npm run build-css
 npm run build
 rm ../public/* -rf; cp -a build/. ../public
 
