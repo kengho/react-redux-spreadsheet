@@ -92,6 +92,15 @@ class DataCell extends React.Component {
     this.props.actions.setPointer({ cellId, modifiers: { edit: true } });
   }
 
+  onFocusHandler(evt, isSelectingOnFocus) {
+    if (isSelectingOnFocus) {
+      evt.target.select();
+    } else {
+      evt.target.selectionEnd = evt.target.value.length;
+      evt.target.selectionStart = evt.target.selectionEnd;
+    }
+  }
+
   keyDownHandler(evt) {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
@@ -185,7 +194,6 @@ class DataCell extends React.Component {
       //   http://stackoverflow.com/a/41717743/6376451
       // HACK: onHeightChange() is workaround for Chromium Linux zoom scrollbar issue.
       //   https://github.com/andreypopp/react-textarea-autosize/issues/147
-      // TODO: move onFocus to separate method.
       textareaOutput = (
         <TextareaAutosize
           autoFocus={isEditing}
@@ -196,16 +204,7 @@ class DataCell extends React.Component {
           inputRef={(c) => { this.textareaInput = c; }}
           key={JSON.stringify({ id, value, isPointed, isEditing, isSelectingOnFocus })}
           maxWidth="512px"
-          onFocus={
-            (evt) => {
-              if (isSelectingOnFocus) {
-                evt.target.select();
-              } else {
-                evt.target.selectionEnd = evt.target.value.length;
-                evt.target.selectionStart = evt.target.selectionEnd;
-              }
-            }
-          }
+          onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
           onHeightChange={() => {
             const heightPx = this.textareaInput.style.height;
             const height = Number(heightPx.slice(0, -'px'.length));
