@@ -1,5 +1,13 @@
 import { fromJS } from 'immutable';
 
+const findRequestById = (state, id) => {
+  return state.get(
+    'queue'
+  ).findIndex(
+    requestValue => requestValue.get('id') === id
+  )
+};
+
 export default function requests(state = fromJS({ queue: [], counter: 0 }), action) {
   switch (action.type) {
     case 'PUSH_REQUEST': {
@@ -21,11 +29,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
     }
 
     case 'POP_REQUEST_ID': {
-      const deleteIndex = state.get(
-        'queue'
-      ).findIndex(
-        requestValue => requestValue.get('id') === action.id
-      )
+      const deleteIndex = findRequestById(state, action.id);
 
       if (deleteIndex !== -1) {
         return state.update(
@@ -36,11 +40,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
     }
 
     case 'MARK_REQUEST_AS_FAILED': {
-      const setIndex = state.get(
-        'queue'
-      ).findIndex(
-        requestValue => requestValue.get('id') === action.id
-      )
+      const setIndex = findRequestById(state, action.id);
 
       if (setIndex !== -1) {
         return state.update(
