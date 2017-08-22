@@ -219,7 +219,8 @@ class DataCell extends React.Component {
     );
     } else {
       // '22px' is TextareaAutosize's (above) height with empty value.
-      // TODO: find a way to calculate this value (create one invisible TextareaAutosize somewhere?).
+      // TODO: find a way to calculate this value
+      //   (create one invisible TextareaAutosize somewhere?).
       textareaOutput = (
         <textarea
           className="data-textarea"
