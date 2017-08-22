@@ -12,9 +12,10 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
 
   const nextAction = next(action);
 
-  const currentRows = store.getState().get('table').present.getIn(['data', 'rows']);
-  const currentColumns = store.getState().get('table').present.getIn(['data', 'columns']);
-  const pointerCellId = store.getState().get('table').present.getIn(['session', 'pointer', 'cellId']);
+  const table = store.getState().get('table').present;
+  const currentRows = table.getIn(['data', 'rows']);
+  const currentColumns = table.getIn(['data', 'columns']);
+  const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
   const pointerRowId = getRowId(pointerCellId);
   const pointerColumnId = getColumnId(pointerCellId);
 
