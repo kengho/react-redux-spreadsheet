@@ -72,7 +72,10 @@ const handleRequest = (store, composedRequest) => {
 };
 
 const handleRequestsChanges = store => next => action => {
-  // TODO: sort out other actions before getting requests.
+  if (!action.type.match('REQUEST')) {
+    return next(action);
+  }
+
   const requests = store.getState().get('requests').get('queue').toJS();
 
   let composedRequest;
