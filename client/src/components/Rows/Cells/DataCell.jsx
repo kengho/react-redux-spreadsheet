@@ -60,28 +60,6 @@ class DataCell extends React.Component {
   }
 
   clickHandler(evt, cellId) {
-    // Save currently editing Cell's data if needed.
-    // REVIEW: this is probably not React-way.
-    //   But pointer shouldn't contain nor React element or DOM ref.
-    //   http://web.archive.org/web/20150419023006/http://facebook.github.io/react/docs/interactivity-and-dynamic-uis.html
-    //   (What Shouldn’t Go in State?)
-    //   For this to work there are 'id' props added to div,
-    //   because not every pointer movement updates DataRow and thus DataCell.
-    //   So, how to get currently editing Cell's data right?
-    //   Also, classname in DataCell should be synced with this selector.
-    // TODO: it doesn't work since this.props represents the cell you click,
-    //   not previous cell, resulting in unnecessary update.
-    const editingCell = document.querySelector('.editing'); // eslint-disable-line no-undef
-    if (editingCell) {
-      const editingTextarea = editingCell.querySelector('textarea');
-      const previousValue = this.props.value;
-      const nextValue = editingTextarea.value;
-
-      if (nextValue !== previousValue) {
-        this.props.actions.setProp(editingCell.id, 'value', nextValue);
-      }
-    }
-
     // TODO: store pointer coordinates in URL and scroll to pointer on load.
     this.props.actions.setPointer({ cellId, modifiers: {} });
   }
@@ -113,26 +91,21 @@ class DataCell extends React.Component {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    const movePointerAndSaveValueIfNeeded = (movePointerKey) => {
+    const movePointer = (movePointerKey) => {
       // Prevents pressing key immediately after changing pointer.
       evt.preventDefault();
-
-      // REVIEW: double render and sending request here.
-      if (this.textarea.value !== this.props.value) {
-        this.props.actions.setProp(this.props.id, 'value', this.textarea.value);
-      }
       this.props.actions.movePointer(movePointerKey);
     };
 
     const action = findKeyAction(evt, [
       {
         key: 'Enter',
-        action: () => movePointerAndSaveValueIfNeeded('ArrowDown'),
+        action: () => movePointer('ArrowDown'),
       },
       {
         key: 'Enter',
         shiftKey: true,
-        action: () => movePointerAndSaveValueIfNeeded('ArrowUp'),
+        action: () => movePointer('ArrowUp'),
       },
       {
         key: 'Enter',
@@ -162,12 +135,12 @@ class DataCell extends React.Component {
       },
       {
         key: 'Tab',
-        action: () => movePointerAndSaveValueIfNeeded('ArrowRight'),
+        action: () => movePointer('ArrowRight'),
       },
       {
         key: 'Tab',
         shiftKey: true,
-        action: () =>  movePointerAndSaveValueIfNeeded('ArrowLeft'),
+        action: () =>  movePointer('ArrowLeft'),
       },
       {
         key: 'Escape',
