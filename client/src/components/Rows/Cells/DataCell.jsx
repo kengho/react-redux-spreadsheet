@@ -103,6 +103,12 @@ class DataCell extends React.Component {
     }
   }
 
+  onHeightChangeHandler(textareaInput) {
+    const heightPx = textareaInput.style.height;
+    const height = Number(heightPx.slice(0, -'px'.length));
+    textareaInput.style.height = `${height + 1}px`;
+  }
+
   keyDownHandler(evt) {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
@@ -207,11 +213,7 @@ class DataCell extends React.Component {
           key={JSON.stringify({ id, value, isPointed, isEditing, isSelectingOnFocus })}
           maxWidth="512px"
           onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
-          onHeightChange={() => {
-            const heightPx = this.textareaInput.style.height;
-            const height = Number(heightPx.slice(0, -'px'.length));
-            this.textareaInput.style.height = `${height + 1}px`;
-          }}
+          onHeightChange={() => this.onHeightChangeHandler(this.textareaInput)}
           ref={(c) => { this.textarea = c; }}
         />
     );
