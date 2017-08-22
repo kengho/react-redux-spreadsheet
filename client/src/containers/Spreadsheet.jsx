@@ -57,6 +57,11 @@ class Spreadsheet extends React.Component {
   componentDidMount() {
     document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
 
+    // Don't fetch data from server in tests.
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     // Fetch data after initial render.
     // -2 because fictive rows.
     if (this.table.data.rows.length - 2 === 0) {

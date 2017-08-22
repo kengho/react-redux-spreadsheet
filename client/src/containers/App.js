@@ -9,11 +9,19 @@ import * as UndoRedoActions from '../actions/undoRedo';
 import Router from './Router';
 
 function mapStateToProps(state) {
+  // TODO: in tests table wraps into undoable twice for some reason.
+  let table;
+  if (process.env.NODE_ENV === 'test') {
+    table = state.get('table').present.present;
+  } else {
+    table = state.get('table').present;
+  }
+
   return {
     dialog: state.get('dialog'),
     meta: state.get('meta'),
     requests: state.get('requests'),
-    table: state.get('table').present,
+    table,
     undo: {
       canRedo: state.get('table').future.length > 0,
       canUndo: state.get('table').past.length > 1, // omitting SET_TABLE_FROM_JSON
