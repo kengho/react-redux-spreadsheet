@@ -36,18 +36,21 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
     }
 
     case 'MARK_REQUEST_AS_FAILED': {
-      return state.update(
-        'queue',
-        queueValue => queueValue.setIn(
-          [
-            queueValue.findIndex(
-              requestValue => requestValue.get('id') === action.id
-            ),
-            'failed',
-          ],
-          true
-        )
-      );
+      const setIndex = state.get(
+        'queue'
+      ).findIndex(
+        requestValue => requestValue.get('id') === action.id
+      )
+
+      if (setIndex !== -1) {
+        return state.update(
+          'queue',
+          queueValue => queueValue.setIn(
+            [setIndex, 'failed'],
+            true
+          )
+        );
+      }
     }
 
     default:
