@@ -5,8 +5,8 @@ import {
   arePropsEqual,
   getCellId,
 } from '../../core';
-import LineActionsCell from './../Cells/LineActionsCell';
-import TableActionsCell from './../Cells/TableActionsCell';
+import LineActionsCell from './Cells/LineActionsCell';
+import TableActionsCell from './Cells/TableActionsCell';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,

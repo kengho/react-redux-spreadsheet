@@ -7,7 +7,7 @@ import {
   getColumnNumber,
   getLineRef,
   getRowNumber,
- } from '../../core';
+} from '../../../core';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,

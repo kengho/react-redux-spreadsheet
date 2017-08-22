@@ -5,7 +5,7 @@ import {
   arePropsEqual,
   getCellId,
 } from '../../core';
-import LineAddressingCell from './../Cells/LineAddressingCell';
+import LineAddressingCell from './Cells/LineAddressingCell';
 
 
 const propTypes = {

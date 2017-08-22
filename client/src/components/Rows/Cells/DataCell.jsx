@@ -2,11 +2,11 @@ import domready from 'domready';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { arePropsEqual } from '../../core';
-import findKeyAction from '../../lib/findKeyAction';
+import { arePropsEqual } from '../../../core';
+import findKeyAction from '../../../lib/findKeyAction';
 
 // TODO: create own package or pull request to existing.
-import TextareaAutosize from '../../lib/react-textarea-autosize/TextareaAutosize';
+import TextareaAutosize from '../../../lib/react-textarea-autosize/TextareaAutosize';
 // import TextareaAutosize from 'react-textarea-autosize';
 
 const propTypes = {
@@ -69,6 +69,8 @@ class DataCell extends React.Component {
     //   because not every pointer movement updates DataRow and thus DataCell.
     //   So, how to get currently editing Cell's data right?
     //   Also, classname in DataCell should be synced with this selector.
+    // TODO: it doesn't work since this.props represents the cell you click,
+    //   not previous cell, resulting in unnecessary update.
     const editingCell = document.querySelector('.editing'); // eslint-disable-line no-undef
     if (editingCell) {
       const editingTextarea = editingCell.querySelector('textarea');

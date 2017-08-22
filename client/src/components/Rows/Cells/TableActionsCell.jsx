@@ -2,9 +2,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import SyncProblem from 'react-icons/lib/md/sync-problem';
 
-import { arePropsEqual } from '../../core';
-import { pushRequest } from '../../actions/requests';
-import Menu from '../Menu/Menu';
+import { arePropsEqual } from '../../../core';
+import { pushRequest } from '../../../actions/requests';
+import Menu from '../../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,

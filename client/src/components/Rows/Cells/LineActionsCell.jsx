@@ -6,8 +6,8 @@ import {
   getColumnNumber,
   getLineRef,
   getRowNumber,
-} from '../../core';
-import Menu from '../Menu/Menu';
+} from '../../../core';
+import Menu from '../../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,

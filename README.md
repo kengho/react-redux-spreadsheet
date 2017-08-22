@@ -8,7 +8,7 @@
 
 ## Live
 
-[https://kengho.tech/spreadsheet](https://kengho.tech/spreadsheet)
+[https://kengho.tech/spreadsheet](https://kengho.tech/spreadsheet/)
 
 ## Features
 
@@ -71,6 +71,7 @@ http://localhost:3000/spreadsheet should display landing page.
 * sort
 * lists (in form of just links to other spreadsheets)
 * consider users' auth
+* private spreadsheets
 * block/clone/crop spreadsheet
 * export/import (CSV, ...)
 * multiple users collaboration
