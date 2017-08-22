@@ -21,14 +21,18 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
     }
 
     case 'POP_REQUEST_ID': {
-      return state.update(
-        'queue',
-        queueValue => queueValue.delete(
-          queueValue.findIndex(
-            requestValue => requestValue.get('id') === action.id
-          )
-        )
-      );
+      const deleteIndex = state.get(
+        'queue'
+      ).findIndex(
+        queueValue => queueValue.get('id') === action.id
+      )
+
+      if (deleteIndex !== -1) {
+        return state.update(
+          'queue',
+          queueValue => queueValue.delete(deleteIndex)
+        );
+      }
     }
 
     case 'MARK_REQUEST_AS_FAILED': {
