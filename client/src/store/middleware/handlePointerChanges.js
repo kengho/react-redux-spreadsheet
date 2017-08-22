@@ -12,18 +12,18 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
 
   const nextAction = next(action);
 
-  const table = store.getState().get('table').present;
-  const currentRows = table.getIn(['data', 'rows']);
-  const currentColumns = table.getIn(['data', 'columns']);
-  const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
-  const pointerRowId = getRowId(pointerCellId);
-  const pointerColumnId = getColumnId(pointerCellId);
+  const nextTable = store.getState().get('table').present;
+  const nextRows = nextTable.getIn(['data', 'rows']);
+  const nextColumns = nextTable.getIn(['data', 'columns']);
+  const nextPointerCellId = nextTable.getIn(['session', 'pointer', 'cellId']);
+  const nextPointerRowId = getRowId(nextPointerCellId);
+  const nextPointerColumnId = getColumnId(nextPointerCellId);
 
-  if (currentRows.indexOf(pointerRowId) === -1) {
+  if (nextRows.indexOf(nextPointerRowId) === -1) {
     // slice deletes 'r' and 'c' prefixes from ids, because expand() adds them by itself.
-    store.dispatch(expand([currentRows.size, -1], pointerRowId.slice(1)));
-  } else if (currentColumns.indexOf(pointerColumnId) === -1) {
-    store.dispatch(expand([-1, currentColumns.size, -1], pointerColumnId.slice(1)));
+    store.dispatch(expand([nextRows.size, -1], nextPointerRowId.slice(1)));
+  } else if (nextColumns.indexOf(nextPointerColumnId) === -1) {
+    store.dispatch(expand([-1, nextColumns.size, -1], nextPointerColumnId.slice(1)));
   }
 
   return nextAction;
