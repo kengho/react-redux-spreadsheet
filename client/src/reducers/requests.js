@@ -24,13 +24,13 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
       const deleteIndex = state.get(
         'queue'
       ).findIndex(
-        queueValue => queueValue.get('id') === action.id
+        requestValue => requestValue.get('id') === action.id
       )
 
       if (deleteIndex !== -1) {
         return state.update(
           'queue',
-          queueValue => queueValue.delete(deleteIndex)
+          requestValue => requestValue.delete(deleteIndex)
         );
       }
     }
