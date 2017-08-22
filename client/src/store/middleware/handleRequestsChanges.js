@@ -29,7 +29,7 @@ const composeRequest = (store, action) => {
     method: data.method,
     params: {
       ...data.params,
-      ...{ id: data.id },
+      ...{ request_uuid: data.id },
       ...{ updates_counter: counter },
       ...{ short_id: shortId },
     },
@@ -37,41 +37,42 @@ const composeRequest = (store, action) => {
 };
 
 const sendRequest = (composedRequest) => {
+  // TODO: handle errors.
   let responsePromise;
   responsePromise = fetchServer(
     composedRequest.method,
     composedRequest.action,
     composedRequest.params
-  )
-    .then((json) => json.data.status);
+  );
 
   return responsePromise;
 };
 
-const handleResponse = (store, composedRequest, responseStatus) => {
-  if (responseStatus !== 'OK') {
-    store.dispatch(markRequestAsFailed(composedRequest.params.id));
+const handleResponse = (store, composedRequest, response) => {
+  if (response.data.status !== 'OK') {
+    store.dispatch(markRequestAsFailed(response.request_uuid));
   } else if (composedRequest.method === 'DELETE') {
     const rootPath = getRootPath();
     window.location.replace(rootPath); // eslint-disable-line no-undef
   } else {
-    store.dispatch(popRequestId(composedRequest.params.id));
+    store.dispatch(popRequestId(response.request_uuid));
   }
 };
 
 const handleRequest = (store, composedRequest) => {
   sendRequest(composedRequest).then(
-    (responseStatus) => {
+    (response) => {
       handleResponse(
         store,
         composedRequest,
-        responseStatus
+        response
       );
     }
   );
 };
 
 const handleRequestsChanges = store => next => action => {
+  // TODO: sort out other actions before getting requests.
   const requests = store.getState().get('requests').get('queue').toJS();
 
   let composedRequest;
