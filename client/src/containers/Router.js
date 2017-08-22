@@ -17,7 +17,7 @@ const propTypes = {
 const defaultProps = {
 };
 
-class App extends Component {
+class Router extends Component {
   render() {
     const rootPath = getRootPath();
 
@@ -25,6 +25,7 @@ class App extends Component {
     if (pathname.slice(pathname.length - 1) !== '/') {
       pathname += '/';
     }
+
     let Component;
     if (pathname === rootPath) {
       Component = <Landing actions={this.props.actions} />;
@@ -44,7 +45,7 @@ class App extends Component {
   }
 }
 
-App.propTypes = propTypes;
-App.defaultProps = defaultProps;
+Router.propTypes = propTypes;
+Router.defaultProps = defaultProps;
 
-export default App;
+export default Router;
