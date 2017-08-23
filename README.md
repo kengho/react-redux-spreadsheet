@@ -31,7 +31,6 @@
 git clone https://github.com/kengho/react-redux-spreadsheet spreadsheet
 cd spreadsheet
 bundle install
-npm insall
 cp .env.example .env
 nano .env
 # setup these variables (VARIABLE1=value1\n...):
@@ -40,12 +39,24 @@ nano .env
 # DB_PASSWORD,
 # DB_HOST (default 'localhost'),
 # DB_PORT (default '5432'),
-# PORT (default '3000')
-# RECAPTCHA_SITE_KEY (add for reCAPTCHA support)
+# PORT (default '4000')
+# RAILS_RELATIVE_URL_ROOT (g.e. "/spreadsheet")
 # RECAPTCHA_SECRET_KEY (add for reCAPTCHA support)
 rake db:setup
+
+cd client
+npm insall
+cp .env.example .env
+nano .env
+# setup these variables:
+# REACT_APP_SERVER_PORT (default '4000')
+# REACT_APP_RELATIVE_URL_ROOT (g.e. "/spreadsheet")
+# REACT_APP_RECAPTCHA_SITE_KEY (add for reCAPTCHA support)
+
+cd ..
 foreman start -f Procfile.dev
 ```
+
 http://localhost:3000/spreadsheet should display landing page.
 
 ### Production

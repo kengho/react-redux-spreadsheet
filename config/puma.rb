@@ -31,5 +31,5 @@ if rails_env == 'production'
     ActiveRecord::Base.establish_connection(YAML.load_file("#{app_dir}/config/database.yml")[rails_env])
   end
 else
-  port ENV.fetch('PORT') { 3000 }
+  port ENV.fetch('PORT') { 4000 }
 end

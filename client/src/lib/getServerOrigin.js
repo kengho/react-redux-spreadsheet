@@ -4,11 +4,12 @@ const getServerOrigin = () => {
   const serverOriginSplitted = [...clientOriginSplitted];
   const probablyPort = serverOriginSplitted[serverOriginSplitted.length - 1];
 
+  const serverPort = process.env.REACT_APP_SERVER_PORT || 4000;
+
   // serverOriginSplitted
   // => ['http', '//localhost', '5100']
   if (serverOriginSplitted.length === 3 && probablyPort.match(/^\d+$/)) {
-    serverOriginSplitted[serverOriginSplitted.length - 1] =
-      process.env.REACT_APP_SERVER_PORT;
+    serverOriginSplitted[serverOriginSplitted.length - 1] = serverPort;
   }
 
   let serverOrigin = serverOriginSplitted.join(':');
