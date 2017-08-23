@@ -314,6 +314,8 @@ class Spreadsheet extends React.Component {
       return <div />;
     }
 
+    // TODO: add optional header row without number.
+
     // Table map:
     //
     // TECCCC...A // actions row (fictive)
@@ -412,7 +414,7 @@ class Spreadsheet extends React.Component {
     // TODO: show requests queue.
     // TODO: handle click ouside table.
     // TODO: scroll to top/bottom buttons.
-    // TODO: current pointer position and view position to url.
+    // TODO: store pointer coordinates in URL and scroll to pointer on load.
     return (
       <div>
         <div

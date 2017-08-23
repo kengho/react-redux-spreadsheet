@@ -60,7 +60,6 @@ class DataCell extends React.Component {
   }
 
   clickHandler(evt, cellId) {
-    // TODO: store pointer coordinates in URL and scroll to pointer on load.
     this.props.actions.setPointer({ cellId, modifiers: {} });
   }
 
