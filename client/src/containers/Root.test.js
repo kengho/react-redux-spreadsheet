@@ -6,6 +6,7 @@ import Root from './Root';
 require('./../test_helper');
 
 it('renders without crashing', () => {
+  // TODO: draw Root with non-empty data.
   const div = document.createElement('div');
   ReactDOM.render(<Root />, div);
 });

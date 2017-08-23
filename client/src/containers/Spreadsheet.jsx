@@ -7,6 +7,7 @@ import {
   getCellId,
   getColumnId,
   getRowId,
+  initialState,
 } from '../core';
 import './Spreadsheet.css';
 import ActionsRow from './../components/Rows/ActionsRow';
@@ -65,6 +66,14 @@ class Spreadsheet extends React.Component {
 
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
+      // FIXME: causes undo-redo-related problems.
+      //   Need to totally review initialState().
+      // 
+      // this.props.actions.setShortId('1');
+      //
+      // const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
+      // this.props.actions.setTableFromJSON(initialJSONTable);
+
       return;
     }
 

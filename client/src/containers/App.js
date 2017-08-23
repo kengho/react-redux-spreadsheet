@@ -9,7 +9,9 @@ import * as UndoRedoActions from '../actions/undoRedo';
 import Router from './Router';
 
 function mapStateToProps(state) {
-  // TODO: in tests table wraps into undoable twice for some reason.
+  // FIXME: in tests table wraps into undoable twice
+  //   because of environment condition in initialState().
+  //   Cannot test Root render with non-empty data because if this.
   let table;
   if (process.env.NODE_ENV === 'test') {
     table = state.get('table').present.present;
