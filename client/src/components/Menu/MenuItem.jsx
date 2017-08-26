@@ -12,6 +12,7 @@ const propTypes = {
   ]),
   actions: PropTypes.object.isRequired,
   dialogVariant: PropTypes.string,
+  dialogDisableYesButton: PropTypes.bool,
   icon: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
 };
@@ -19,6 +20,7 @@ const propTypes = {
 const defaultProps = {
   action: {},
   dialogVariant: '',
+  dialogDisableYesButton: false,
 };
 
 const DELAY_BEFORE_ACTION = 200;
@@ -27,6 +29,7 @@ const MenuItem = (props) => {
   const {
     action,
     actions,
+    dialogDisableYesButton,
     dialogVariant,
     icon,
     label,
@@ -37,6 +40,7 @@ const MenuItem = (props) => {
     effectiveAction = () => {
       actions.setDialog({
         action,
+        disableYesButton: dialogDisableYesButton,
         variant: dialogVariant,
         visibility: true,
       });

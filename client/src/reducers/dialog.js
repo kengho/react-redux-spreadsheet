@@ -5,6 +5,8 @@ import {
 export default function meta(state = fromJS(
   {
     action: undefined,
+    disableYesButton: undefined,
+    errors: undefined,
     variant: undefined,
     visibility: undefined,
   }

@@ -13,6 +13,7 @@
 ## Features
 
 * automatic sync with server with requests queue
+* export/import to/from CSV
 * basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Home`, `End`, `Delete`)
 * copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`)
 * [redux-undo](https://github.com/omnidan/redux-undo)-powered undo/redo (`Ctrl+Z`, `Ctrl+Y`)
@@ -84,7 +85,6 @@ http://localhost:3000/spreadsheet should display landing page.
 * consider users' auth
 * private spreadsheets
 * block/clone/crop spreadsheet
-* export/import (CSV, ...)
 * multiple users collaboration
 * cells' styling
 * sync user session (pointer and stuff) with server

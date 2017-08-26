@@ -4,6 +4,7 @@ const handleDispachDialogAction = store => next => action => { // eslint-disable
   }
 
   const dialogAction = store.getState().getIn(['dialog', 'action']).toJS();
+
   // Second condition filters empty action spawned by Dialog with variant: 'INFO'.
   if (dialogAction && Object.keys(dialogAction).length > 0) {
     store.dispatch(dialogAction);

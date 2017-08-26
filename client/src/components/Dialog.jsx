@@ -4,14 +4,21 @@ import React from 'react';
 
 import './Dialog.css';
 import { arePropsEqual } from '../core';
+import { convert } from '../core';
+import { setDialog } from '../actions/dialog';
+import { setTableFromJSON } from '../actions/table';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  disableYesButton: PropTypes.bool,
+  errors: PropTypes.array,
   variant: PropTypes.string,
   visibility: PropTypes.bool,
 };
 
 const defaultProps = {
+  disableYesButton: false,
+  errors: [],
   variant: 'CONFIRM',
   visibility: false,
 };
@@ -38,6 +45,9 @@ class Dialog extends React.Component {
       nextActiveButton.focus();
     };
 
+    // TODO: keyHandler doesn't work after click on document,
+    //   and correct focus never returns.
+    //   Most notable in IMPORT.
     this.keyDownHandler = (evt) => {
       // Prevents firing documentKeyDownHandler().
       evt.nativeEvent.stopImmediatePropagation();
@@ -53,31 +63,85 @@ class Dialog extends React.Component {
         default:
       }
     };
+
+    this.handleCSVFileImport = this.handleCSVFileImport.bind(this);
   }
 
   componentDidMount() {
     if (!this.dialog.showModal) {
       dialogPolyfill.registerDialog(this.dialog);
     }
+
+    if (this.fileInputLabel) {
+      componentHandler.upgradeElement(this.fileInputLabel); // eslint-disable-line no-undef
+    }
   }
 
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
-    return !arePropsEqual(currentProps, nextProps, ['variant', 'visibility']);
+    return !arePropsEqual(currentProps, nextProps, [
+      'disableYesButton',
+      'errors',
+      'variant',
+      'visibility',
+    ]);
   }
 
   componentDidUpdate() {
-    if (this.props.visibility) {
+    if (this.dialog && !this.dialog.open && this.props.visibility) {
       this.dialog.showModal();
-    } else if (this.dialog && this.dialog.open) {
+    } else if (this.dialog && this.dialog.open && !this.props.visibility) {
       this.dialog.close();
     }
+
+    if (this.fileInputLabel) {
+      componentHandler.upgradeElement(this.fileInputLabel); // eslint-disable-line no-undef
+    }
+  }
+
+  handleCSVFileImport(evt) {
+    const input = evt.target;
+    const reader = new FileReader();
+
+    reader.onload = (file) => {
+      const csv = reader.result;
+      const data = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
+
+      if (data.errors) {
+        this.fileFakeInput.value = '';
+
+        this.props.actions.setDialog({
+          disableYesButton: true,
+          errors: data.errors,
+          variant: 'IMPORT',
+          visibility: true,
+        });
+      } else {
+        this.fileFakeInput.value = input.files[0].name;
+
+        const importAction = setTableFromJSON(JSON.stringify({ data }), true);
+        this.props.actions.setDialog({
+          action: importAction,
+          disableYesButton: false,
+          variant: 'IMPORT',
+          visibility: true,
+        });
+      }
+
+      // Fixind error
+      // "Failed to execute 'readAsText' on 'FileReader': parameter 1 is not of type 'Blob'."
+      input.value = null;
+    };
+
+    reader.readAsText(input.files[0]);
   }
 
   render() {
     const {
       actions,
+      disableYesButton,
+      errors,
       variant,
     } = this.props;
 
@@ -92,6 +156,7 @@ class Dialog extends React.Component {
               actions.dispatchDialogAction();
               actions.setDialogVisibility(false);
             },
+            disabled: disableYesButton,
             idSuffix: 'yes',
             label: 'Yes',
           },
@@ -105,12 +170,14 @@ class Dialog extends React.Component {
         content = <p>Are you sure?</p>;
         break;
       }
+
       case 'INFO': {
         buttonsMap = [{
           action: () => {
             actions.dispatchDialogAction();
             actions.setDialogVisibility(false);
           },
+          disabled: disableYesButton,
           idSuffix: 'yes',
           label: 'OK',
         }];
@@ -151,6 +218,50 @@ class Dialog extends React.Component {
         );
         break;
       }
+
+      case 'IMPORT': {
+        buttonsMap = [
+          {
+            action: () => {
+              actions.dispatchDialogAction();
+              actions.setDialogVisibility(false);
+            },
+            disabled: disableYesButton,
+            idSuffix: 'yes',
+            label: 'Import',
+          },
+          {
+            action: () => {
+              actions.setDialogVisibility(false);
+              this.fileFakeInput.value = '';
+            },
+            idSuffix: 'no',
+            label: 'Cancel',
+          },
+        ];
+        title = 'Select CSV file';
+        content = (
+          <div className="dialog-import">
+            <label
+              className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
+              ref={(c) => { this.fileInputLabel = c; }}
+            >
+              Choose file
+              <input
+                type='file'
+                onChange={this.handleCSVFileImport}
+              />
+            </label>
+            <input
+              className="fake-input"
+              disabled
+              ref={(c) => { this.fileFakeInput = c; }}
+            />
+          </div>
+        );
+        break;
+      }
+
       default:
     }
 
@@ -159,6 +270,7 @@ class Dialog extends React.Component {
       outputButtons.push(
         <button
           className="mdl-button"
+          disabled={buttonMap.disabled}
           key={`dialog-button--${buttonMap.idSuffix}`}
           onClick={() => buttonMap.action()}
           ref={(c) => { this.buttons[buttonMap.idSuffix] = c; }}
@@ -167,6 +279,11 @@ class Dialog extends React.Component {
           {buttonMap.label}
         </button>
       );
+    });
+
+    const outputErrors = [];
+    errors.forEach((error) => {
+      outputErrors.push(<li key={error.code}>{error.message}</li>);
     });
 
     return (
@@ -181,6 +298,14 @@ class Dialog extends React.Component {
           </h4>
           <div className="mdl-dialog__content">
             {content}
+            {errors.length > 0 &&
+              <div className="dialog-errors">
+                <span>Errors occurred:</span>
+                <ul>
+                  {outputErrors}
+                </ul>
+              </div>
+            }
           </div>
           <div className="mdl-dialog__actions">
             {outputButtons}

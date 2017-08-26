@@ -16,6 +16,7 @@ const handleUndoRedo = store => next => action => { // eslint-disable-line consi
     if (pointer.cellId) {
       store.dispatch(setPointerModifiers({}));
     }
+
     return nextAction;
   }
 

@@ -1,14 +1,21 @@
+import FileSaver from 'file-saver';
 import PropTypes from 'prop-types';
 import React from 'react';
 import SyncProblem from 'react-icons/lib/md/sync-problem';
 
-import { arePropsEqual } from '../../../core';
+import {
+  arePropsEqual,
+  convert,
+} from '../../../core';
 import { pushRequest } from '../../../actions/requests';
+import datetime from '../../../lib/datetime';
 import Menu from '../../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
+  shortId: PropTypes.string,
   requests: PropTypes.object.isRequired,
   requestsQueueSize: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
 };
@@ -27,6 +34,17 @@ class TableActionsCell extends React.Component {
     if (this.tooltip) {
       componentHandler.upgradeElement(this.tooltip); // eslint-disable-line no-undef
     }
+  }
+
+  exportToCSV() {
+    const formattedDate = datetime();
+    const csv = convert(this.props.data, {
+      inputFormat: 'object',
+      outputFormat: 'csv',
+    });
+
+    const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' });
+    FileSaver.saveAs(blob, `${formattedDate} ${this.props.shortId}.csv`);
   }
 
   render() {
@@ -67,10 +85,21 @@ class TableActionsCell extends React.Component {
           label: 'Help',
         },
         {
+          action: () => this.exportToCSV(),
+          icon: 'file-upload',
+          label: 'Export to CSV',
+        },
+        {
+          dialogDisableYesButton: true,
+          dialogVariant: 'IMPORT',
+          icon: 'file-download',
+          label: 'Import from CSV',
+        },
+        {
           action: pushRequest('DELETE', 'destroy'),
           dialogVariant: 'CONFIRM',
           icon: 'close',
-          label: 'Delete spreadsheet',
+          label: 'Delete',
         },
       ];
 

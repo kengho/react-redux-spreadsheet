@@ -58,4 +58,11 @@ Run in all browsers:
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
 * expanding table with empty cells shouldn't affect history and/or server sync
 * if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
+* export button should save CSV file
+* import button should show dialog with 'Choose file' button and inactive 'Import' button
+* when user selects correct CSV file, 'Import button' should become active and file name should appear at the right
+* when user selects incorrect CSV file, errors should appear
+* when import dialog closes and opens again, it should look exactly the same, regardles of previous actions
+* when user selects any file in import dialog, then opens 'Choose file' dialog again and presses Escape, no errors sohuld occur
+* when data is imported, spreadsheet should sync data with server immediately
 */

@@ -1,3 +1,28 @@
 .mdl-dialog {
   width: 400px !important;
+
+  & .dialog-import {
+    & input[type="file"] {
+      display: none;
+    }
+
+    & .fake-input {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      background-color: white;
+      padding: 8px;
+      border: none;
+    }
+  }
+
+  & .dialog-errors {
+    padding-top: 16px;
+    color: #990000;
+
+    & ul {
+      padding-left: 0;
+      margin-top: 8px;
+    }
+  }
 }

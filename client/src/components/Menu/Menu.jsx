@@ -71,6 +71,7 @@ class Menu extends React.Component {
         <MenuItem
           action={item.action}
           actions={actions}
+          dialogDisableYesButton={item.dialogDisableYesButton}
           dialogVariant={item.dialogVariant}
           icon={item.icon}
           key={`menu-button-${buttonId}-${item.label}`}

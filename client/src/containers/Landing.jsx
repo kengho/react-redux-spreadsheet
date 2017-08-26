@@ -63,6 +63,8 @@ class Landing extends React.Component {
     const { message } = this.props;
     const recaptchaSitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
+    // TODO: add ripple to button, then disable it after 200ms timeout
+    //   (upgrade code in Dialog).
     return (
       <div className="landing">
         <div className="message">

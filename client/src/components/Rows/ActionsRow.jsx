@@ -11,11 +11,13 @@ import TableActionsCell from './Cells/TableActionsCell';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
+  data: PropTypes.object.isRequired,
   firstActionsCellIsOnly: PropTypes.bool.isRequired,
   hoverColumnId: PropTypes.string,
   requests: PropTypes.object.isRequired,
   requestsQueueSize: PropTypes.number.isRequired,
   rowId: PropTypes.string.isRequired,
+  shortId: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
@@ -35,11 +37,13 @@ class ActionsRow extends React.Component {
     const {
       actions,
       columns,
+      data,
       firstActionsCellIsOnly,
       hoverColumnId,
       requests,
       requestsQueueSize,
       rowId,
+      shortId,
     } = this.props;
 
     const getActionCellId = (columnIndex) => {
@@ -52,10 +56,12 @@ class ActionsRow extends React.Component {
     outputCells.push(
       <TableActionsCell
         actions={actions}
+        data={data}
         id={getActionCellId(0)}
         key={getActionCellId(0)}
         requests={requests}
         requestsQueueSize={requestsQueueSize}
+        shortId={shortId}
       />
     );
 

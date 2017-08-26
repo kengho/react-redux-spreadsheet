@@ -1,5 +1,6 @@
 import { fromJS, Map } from 'immutable';
 import uuid from 'uuid/v4';
+import Baby from 'babyparse';
 
 if (process.env.NODE_ENV !== 'test') {
   // eslint-disable-next-line no-undef, no-console
@@ -242,4 +243,152 @@ export function arePropsEqual(currentProps, nextProps, props) {
 
     return propsArentEqual;
   });
+}
+
+export function getCroppedSize(data) {
+  // Cropped size search algorithm.
+  //
+  // [B] - beginning point
+  // [ ] - current point
+  // [D] - destination point
+  // [↑, ←] - search directions
+  // [a-z] - cells' values
+  //
+  // TODO: decide, should we require additional data
+  //   in store to provide more optimal crop algorithms.
+  //
+  //    0  1  2  3  4
+  // 0  a  b  c  ↑  ↑
+  // 1  d  e [D] ↑  ↑
+  // 2  ←  ← [ ] ↑  ↑
+  // 3  ←  ← [ ] ↑  ↑
+  // 4  ←  ←  ← [ ] ↑
+  // 5  ←  ←  ←  ← [B]
+
+  const cells = data.cells;
+  if (Object.keys(cells).length === 0) {
+    return [0, 0];
+  }
+
+  let rows = data.rows;
+  let columns = data.columns;
+
+  const backwardVHSeach = (point, matchPoint = [null, null]) => {
+    const [rowNumber, columnNumber] = point;
+    let [rowMatch, columnMatch] = matchPoint;
+
+    if (!rowMatch) {
+      for (let rowIterator = rowNumber; rowIterator >= 0; rowIterator -= 1) {
+        const currentCellId = getCellId(rows[rowIterator], columns[columnNumber]);
+        if (cells[currentCellId]) {
+          rowMatch = rowIterator;
+          break;
+        }
+      }
+    }
+
+    if (!columnMatch) {
+      for (let columnIterator = columnNumber; columnIterator >= 0; columnIterator -= 1) {
+        const currentCellId = getCellId(rows[rowNumber], columns[columnIterator]);
+        if (cells[currentCellId]) {
+          columnMatch = columnIterator;
+          break;
+        }
+      }
+    }
+
+    return [rowMatch, columnMatch];
+  };
+
+  const currentPoint = [rows.length, columns.length];
+
+  let matchPoint;
+  while (true) {
+    const [rowMatch, columnMatch] = backwardVHSeach(currentPoint, matchPoint);
+    if (rowMatch !== null && columnMatch !== null) {
+      matchPoint = currentPoint;
+      break;
+    }
+
+    if (columnMatch === null) {
+      currentPoint[0] -= 1;
+    }
+
+    if (rowMatch === null) {
+      currentPoint[1] -= 1;
+    }
+  }
+
+  if (matchPoint) {
+    return [matchPoint[0] + 1, matchPoint[1] + 1];
+  }
+}
+
+export function convert(object, options) {
+  if (options.inputFormat === 'object', options.outputFormat === 'csv') {
+    // TODO: configure.
+    const delim = ',';
+    const valuesWrapper = '\'';
+
+    const data = object;
+    const rows = data.rows;
+    const columns = data.columns;
+    const cells = data.cells;
+    const croppedSize = getCroppedSize(data);
+
+    const CSVArray = [];
+    for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
+      const CSVRowArray = [];
+      for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
+        const currentCellId = getCellId(rows[rowIterator], columns[columnIterator]);
+        const currentCell = data.cells[currentCellId];
+
+        let value;
+        if (currentCell) {
+          value = currentCell.value;
+        } else {
+          value = '';
+        }
+
+        CSVRowArray.push(value);
+      }
+
+      CSVArray.push(CSVRowArray);
+    }
+
+    return Baby.unparse(CSVArray);
+  }
+
+  if (options.inputFormat === 'csv', options.outputFormat === 'object') {
+    const CSV = object;
+    const parsedCSV = Baby.parse(object);
+
+    if (parsedCSV.errors.length === 0) {
+      const dataArray = parsedCSV.data;
+      if (dataArray.length > 0) {
+        const dataArrayRowsNumber = dataArray.length;
+        const dataArrayColumnsNumber = dataArray[0].length;
+
+        const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
+        const rows = data.rows;
+        const columns = data.columns;
+        const cells = data.cells;
+
+        dataArray.forEach((row, rowIndex) => {
+          row.forEach((value, columnIndex) => {
+            if (value.length > 0) {
+              const cellId = getCellId(rows[rowIndex], columns[columnIndex]);
+              cells[cellId] = { value };
+            }
+          });
+        });
+
+        return data;
+      } else {
+        return initialTable().data;
+      }
+    } else {
+      return { errors: parsedCSV.errors };
+    }
+  }
 }

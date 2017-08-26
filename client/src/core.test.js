@@ -11,6 +11,7 @@ import { expect } from 'chai';
 import * as Core from './core';
 
 describe('core', () => {
+  // TODO: rename its ('it should return/be able to/...').
   it('get rowId and columnId by cellId', () => {
     expect(Core.getRowId('r1,c1')).to.equal('r1');
     expect(Core.getColumnId('r1,c1')).to.equal('c1');
@@ -142,5 +143,61 @@ describe('core', () => {
     const props = ['a', 'b'];
 
     expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(false);
+  });
+
+  describe('should crop, export and import', () => {
+    it('cropping should not fail on empty data', () => {
+      const emptyData = Core.initialTable(4, 4).data;
+
+      expect(Core.getCroppedSize(emptyData)).to.deep.equal([0, 0]);
+    });
+
+    const data = Core.initialTable(6, 5).data;
+
+    // -- 01 02 -- --
+    // 10 11 -- -- --
+    // -- -- 22 -- --
+    // -- -- -- -- --
+    // 40 -- -- -- --
+    // -- -- -- -- --
+    data.cells = {
+      'r0,c1': { value: '01' },
+      'r0,c2': { value: '02' },
+      'r1,c0': { value: '10' },
+      'r1,c1': { value: '11' },
+      'r2,c2': { value: '22' },
+      'r4,c0': { value: '40' },
+    };
+
+    it('should return size of cropped table data', () => {
+      expect(Core.getCroppedSize(data)).to.deep.equal([5, 3]);
+    });
+
+    it('should return CSV out of table data', () => {
+      const convertOptions = {
+        inputFormat: 'object',
+        outputFormat: 'csv',
+      };
+      const expectedCSV = ',01,02\r\n10,11,\r\n,,22\r\n,,\r\n40,,';
+
+      expect(Core.convert(data, convertOptions)).to.equal(expectedCSV);
+    });
+
+    it('should convert CSV back to data object (fictive lines)', () => {
+      const toCSVConvertOptions = {
+        inputFormat: 'object',
+        outputFormat: 'csv',
+      };
+      const CSV = Core.convert(data, toCSVConvertOptions);
+
+      const toObjectConvertOptions = {
+        inputFormat: 'csv',
+        outputFormat: 'object',
+      };
+      const croppedData = Core.initialTable(5, 3).data;
+      croppedData.cells = data.cells;
+
+      expect(Core.convert(CSV, toObjectConvertOptions)).to.deep.equal(croppedData);
+    });
   });
 });

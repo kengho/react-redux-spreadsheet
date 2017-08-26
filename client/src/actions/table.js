@@ -1,11 +1,11 @@
 import uuid from 'uuid/v4';
 
-// In this context data comes from server,
-// so we doesn't need to sync it.
-export function setTableFromJSON(tableJSON) {
+// changesData should be true for import and false for initial data load.
+export function setTableFromJSON(tableJSON, changesData: false) {
   return {
     type: 'SET_TABLE_FROM_JSON',
     tableJSON,
+    changesData,
   };
 }
 

@@ -23,6 +23,7 @@ import shiftScrollbar from '../lib/shiftScrollbar';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   dialog: PropTypes.object.isRequired,
+  meta: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
   rootPath: PropTypes.string.isRequired,
   table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
@@ -68,7 +69,7 @@ class Spreadsheet extends React.Component {
     if (process.env.NODE_ENV === 'test') {
       // FIXME: causes undo-redo-related problems.
       //   Need to totally review initialState().
-      // 
+      //
       // this.props.actions.setShortId('1');
       //
       // const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
@@ -342,6 +343,7 @@ class Spreadsheet extends React.Component {
 
     const { actions, requests } = this.props;
     const dialog = this.props.dialog.toJS();
+    const meta = this.props.meta.toJS();
     const clipboard = this.table.session.clipboard;
     const columns = this.table.data.columns;
     const pointer = this.table.session.pointer;
@@ -351,10 +353,13 @@ class Spreadsheet extends React.Component {
     const outputRows = [];
 
     // ActionsRow.
+    // Passing data without fictive lines for proper export.
     outputRows.push(
       <ActionsRow
         actions={actions}
         columns={columns}
+        shortId={meta.shortId}
+        data={this.props.table.toJS().data}
         firstActionsCellIsOnly={columns.length - 2 === 1}
         hoverColumnId={this.table.session.hover && getColumnId(this.table.session.hover)}
         key={rows[0]}
@@ -435,8 +440,7 @@ class Spreadsheet extends React.Component {
         </div>
         <Dialog
           actions={actions}
-          variant={dialog.variant}
-          visibility={dialog.visibility}
+          {...dialog}
         />
       </div>
     );
