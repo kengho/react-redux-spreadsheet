@@ -65,4 +65,7 @@ Run in all browsers:
 * when import dialog closes and opens again, it should look exactly the same, regardles of previous actions
 * when user selects any file in import dialog, then opens 'Choose file' dialog again and presses Escape, no errors sohuld occur
 * when data is imported, spreadsheet should sync data with server immediately
+* on landing, when errors while creating spreadsheet occurs, they should be shown near 'create' button
+* on landing, when error messages occurs, 'create' button should become enabled
+* on landing, error messages appearing shouldn't lead to moving 'create' button on-screen position
 */

@@ -9,11 +9,10 @@ import getRootPath from './../lib/getRootPath';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  message: PropTypes.string,
+  landing: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
-  message: '',
 };
 
 const DELAY_BEFORE_ACTION = 200;
@@ -27,7 +26,7 @@ class Landing extends React.Component {
     this.onRecaptchaResolved = this.onRecaptchaResolved.bind(this);
   }
 
-  onRecaptchaResolved() {
+  onRecaptchaResolved(evt) {
     const table = initialState().toJS().table;
 
     // TODO: consider storage session data.
@@ -43,7 +42,9 @@ class Landing extends React.Component {
     fetchServer('POST', 'create', fetchParams)
       .then((json) => {
         if (json.errors) {
-          // TODO: show error message.
+          const errors = json.errors.map((error) => error.detail);
+          this.props.actions.setMessages(errors);
+          this.button.disabled = false; // eslint-disable-line no-param-reassign
         } else {
           const rootPath = getRootPath();
           window.location.replace(`${rootPath}${json.data.short_id}`); // eslint-disable-line no-undef
@@ -80,14 +81,16 @@ class Landing extends React.Component {
   }
 
   render() {
-    const { message } = this.props;
+    const messages = this.props.landing.get('messages');
     const recaptchaSitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+
+    const outputMessages = [];
+    messages.forEach((message) => {
+      outputMessages.push(<li key={message}>{message}</li>);
+    });
 
     return (
       <div className="landing">
-        <div className="message">
-          {message}
-        </div>
         <button
           className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
           onClick={this.onButtonClickHandler}
@@ -95,6 +98,11 @@ class Landing extends React.Component {
         >
           create spreadsheet
         </button>
+        <div className="messages">
+          <ul>
+            {outputMessages}
+          </ul>
+        </div>
         {recaptchaSitekey &&
           <Recaptcha
             ref={(c) => { this.recaptcha = c; }}

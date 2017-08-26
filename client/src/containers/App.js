@@ -2,6 +2,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import * as DialogActions from '../actions/dialog';
+import * as LandingActions from '../actions/landing';
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
 import * as TableActions from '../actions/table';
@@ -21,6 +22,7 @@ function mapStateToProps(state) {
 
   return {
     dialog: state.get('dialog'),
+    landing: state.get('landing'),
     meta: state.get('meta'),
     requests: state.get('requests'),
     table,
@@ -36,6 +38,7 @@ function mapDispatchToProps(dispatch) {
     actions: {
       ...bindActionCreators({
         ...DialogActions,
+        ...LandingActions,
         ...MetaActions,
         ...RequestsActions,
         ...TableActions,

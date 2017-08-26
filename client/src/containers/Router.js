@@ -8,6 +8,7 @@ import Spreadsheet from './Spreadsheet';
 
 const propTypes = {
   dialog: PropTypes.object.isRequired,
+  landing: PropTypes.object.isRequired,
   meta: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
@@ -28,7 +29,7 @@ class Router extends Component {
 
     let Component;
     if (pathname === rootPath) {
-      Component = <Landing actions={this.props.actions} />;
+      Component = <Landing {...this.props } />;
     } else {
       Component = <Spreadsheet {...this.props } rootPath={rootPath} />;
     }

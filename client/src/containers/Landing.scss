@@ -8,9 +8,21 @@
   align-items: center;
   height: 100vh;
 
-  & .message {
+  & .messages {
     color: $main-text-color;
-    padding: 8px;
+    text-align: center;
+
+    & ul {
+      list-style-type: none;
+      padding: 8px 0 0 0;
+      margin: 0;
+
+      // Fixed height stops button jumping when messages appears.
+      // 32px should be enough to fit 1 message.
+      // If number of messages will increase, we will have to find another way,
+      // since more height leads to more and more uncentered button block.
+      height: 32px;
+    }
   }
 
   & .button {
