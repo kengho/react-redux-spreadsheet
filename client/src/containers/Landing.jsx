@@ -16,11 +16,14 @@ const defaultProps = {
   message: '',
 };
 
+const DELAY_BEFORE_ACTION = 200;
+
 class Landing extends React.Component {
   constructor(props) {
     super(props);
 
     this.recaptcha = null;
+    this.onButtonClickHandler = this.onButtonClickHandler.bind(this);
     this.onRecaptchaResolved = this.onRecaptchaResolved.bind(this);
   }
 
@@ -48,31 +51,47 @@ class Landing extends React.Component {
       });
   }
 
-  onButtonClickHandler(evt) {
-    // TODO: add some kind of spinner.
-    evt.target.disabled = true; // eslint-disable-line no-param-reassign
+  componentDidMount() {
+    componentHandler.upgradeElement(this.button); // eslint-disable-line no-undef
+  }
 
-    if (this.recaptcha) {
-      this.recaptcha.execute();
-    } else {
-      this.onRecaptchaResolved();
-    }
+  onButtonClickHandler(evt) {
+    // Fixes error
+    // 'Uncaught TypeError: Cannot read property 'parentNode' of null'
+    // and warning
+    // 'Warning: This synthetic event is reused for performance reasons ...'.
+    evt.persist();
+
+    setTimeout(
+      () => {
+        // TODO: add some kind of spinner.
+        // After upgradeElement() in componentDidMount() ripple container added to DOM,
+        // so button itself becomes parent of what you click.
+        evt.target.parentNode.disabled = true; // eslint-disable-line no-param-reassign
+
+        if (this.recaptcha) {
+          this.recaptcha.execute();
+        } else {
+          this.onRecaptchaResolved();
+        }
+      },
+      DELAY_BEFORE_ACTION
+    );
   }
 
   render() {
     const { message } = this.props;
     const recaptchaSitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
-    // TODO: add ripple to button, then disable it after 200ms timeout
-    //   (upgrade code in Dialog).
     return (
       <div className="landing">
         <div className="message">
           {message}
         </div>
         <button
-          className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-          onClick={(evt) => this.onButtonClickHandler(evt)}
+          className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
+          onClick={this.onButtonClickHandler}
+          ref={(c) => { this.button = c; }}
         >
           create spreadsheet
         </button>
