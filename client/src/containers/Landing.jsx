@@ -47,6 +47,8 @@ class Landing extends React.Component {
           this.button.disabled = false; // eslint-disable-line no-param-reassign
         } else {
           const rootPath = getRootPath();
+
+          // TODO: back button should lead to Landing.
           window.location.replace(`${rootPath}${json.data.short_id}`); // eslint-disable-line no-undef
         }
       });
@@ -56,19 +58,11 @@ class Landing extends React.Component {
     componentHandler.upgradeElement(this.button); // eslint-disable-line no-undef
   }
 
-  onButtonClickHandler(evt) {
-    // Fixes error
-    // 'Uncaught TypeError: Cannot read property 'parentNode' of null'
-    // and warning
-    // 'Warning: This synthetic event is reused for performance reasons ...'.
-    evt.persist();
-
+  onButtonClickHandler() {
     setTimeout(
       () => {
         // TODO: add some kind of spinner.
-        // After upgradeElement() in componentDidMount() ripple container added to DOM,
-        // so button itself becomes parent of what you click.
-        evt.target.parentNode.disabled = true; // eslint-disable-line no-param-reassign
+        this.button.disabled = true; // eslint-disable-line no-param-reassign
 
         if (this.recaptcha) {
           this.recaptcha.execute();
