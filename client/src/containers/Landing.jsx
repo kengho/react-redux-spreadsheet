@@ -47,9 +47,7 @@ class Landing extends React.Component {
           this.button.disabled = false; // eslint-disable-line no-param-reassign
         } else {
           const rootPath = getRootPath();
-
-          // TODO: back button should lead to Landing.
-          window.location.replace(`${rootPath}${json.data.short_id}`); // eslint-disable-line no-undef
+          window.location.href = `${rootPath}${json.data.short_id}`; // eslint-disable-line no-undef
         }
       });
   }
