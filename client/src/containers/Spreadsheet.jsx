@@ -57,7 +57,6 @@ class Spreadsheet extends React.Component {
   }
 
   componentDidMount() {
-    // TODO: add removeEventListener on componentWillUnmount.
     // NOTE: don't use document.addEventListener here, it fires
     //   whenever stopImmediatePropagation is set in childs or not.
     //   Wrapping addEventListener in setTimeout helps,
@@ -104,6 +103,10 @@ class Spreadsheet extends React.Component {
   shouldComponentUpdate(nextProps, nextState) { // eslint-disable-line no-unused-vars
     // TODO: handle double rerenders.
     return true;
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.windowKeyDownHandler); // eslint-disable-line no-undef
   }
 
   windowKeyDownHandler(evt) {
