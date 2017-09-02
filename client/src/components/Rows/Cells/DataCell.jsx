@@ -186,6 +186,7 @@ class DataCell extends React.Component {
           maxWidth="512px"
           onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
           onHeightChange={() => this.onHeightChangeHandler(this.textareaInput)}
+          onKeyDown={(evt) => this.keyDownHandler(evt)}
           ref={(c) => { this.textarea = c; }}
         />
     );
@@ -208,7 +209,6 @@ class DataCell extends React.Component {
         id={id}
         onClick={disabled && ((evt) => this.clickHandler(evt, id))}
         onDoubleClick={(evt) => this.doubleClickHandler(evt, id)}
-        onKeyDown={(evt) => this.keyDownHandler(evt)}
         onMouseOver={() => { actions.setHover(id); }}
       >
         <div className="data-wrapper">{textareaOutput}</div>

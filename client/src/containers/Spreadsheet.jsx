@@ -64,7 +64,7 @@ class Spreadsheet extends React.Component {
   constructor(props) {
     super(props);
 
-    this.windowKeyDownHandler = this.windowKeyDownHandler.bind(this);
+    this.documentKeyDownHandler = this.documentKeyDownHandler.bind(this);
 
     this.fictiveRows = [`r${uuid()}`, `r${uuid()}`];
     this.fictiveColumns = [`c${uuid()}`, `c${uuid()}`];
@@ -84,12 +84,7 @@ class Spreadsheet extends React.Component {
   }
 
   componentDidMount() {
-    // NOTE: don't use document.addEventListener here, it fires
-    //   whenever stopImmediatePropagation is set in childs or not.
-    //   Wrapping addEventListener in setTimeout helps,
-    //   but it looks like ugly hack.
-    // TODO: figure out why this happens.
-    window.addEventListener('keydown', this.windowKeyDownHandler); // eslint-disable-line no-undef
+    document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
 
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
@@ -136,10 +131,10 @@ class Spreadsheet extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.windowKeyDownHandler); // eslint-disable-line no-undef
+    document.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
   }
 
-  windowKeyDownHandler(evt) {
+  documentKeyDownHandler(evt) {
     const action = findKeyAction(evt, [
       {
         condition: () => (evt.key.length === 1 || evt.key === 'Enter' || evt.key === 'F2'),
