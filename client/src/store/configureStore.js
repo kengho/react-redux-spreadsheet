@@ -1,4 +1,6 @@
-import { createStore, applyMiddleware } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
+import { createBrowserHistory } from 'history';
+import { routerMiddleware, connectRouter } from 'connected-react-router/immutable';
 
 import handleDataChanges from './middleware/handleDataChanges';
 import handleDispachDialogAction from './middleware/handleDispachDialogAction';
@@ -7,11 +9,16 @@ import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleUndoRedo from './middleware/handleUndoRedo';
 import rootReducer from '../reducers';
 
+const composeEnhancer = compose;
+
+export const history = createBrowserHistory();
+
 const middleware = [
   handlePointerChanges,
 ];
 if (process.env.NODE_ENV !== 'test') {
   middleware.push(
+    routerMiddleware(history),
     handleDispachDialogAction,
     handleRequestsChanges,
     handleUndoRedo,
@@ -19,8 +26,13 @@ if (process.env.NODE_ENV !== 'test') {
   );
 }
 
-const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
+const createStoreWithMiddleware = composeEnhancer(
+  applyMiddleware(...middleware)(createStore)
+);
 
-export default function configureStore(initialState) {
-  return createStoreWithMiddleware(rootReducer, initialState);
+export function configureStore(initialState) {
+  return createStoreWithMiddleware(
+    connectRouter(history)(rootReducer),
+    initialState
+  );
 }

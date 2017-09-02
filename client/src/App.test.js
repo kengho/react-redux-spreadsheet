@@ -68,4 +68,7 @@ Run in all browsers:
 * on landing, when errors while creating spreadsheet occurs, they should be shown near 'create' button
 * on landing, when error messages occurs, 'create' button should become enabled
 * on landing, error messages appearing shouldn't lead to moving 'create' button on-screen position
+* if there are errors occurs while loading spreadsheet in Spreadsheet, user should be redirected to Landing with messages
+* back and forward history movements between Landing and Spreadsheet should work
+* after deleting spreadsheet user should be redirected to Landing
 */

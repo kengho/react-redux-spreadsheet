@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux-immutable';
 import undoable from 'redux-undo';
+import { routerReducer } from 'react-router-redux';
 
 import dialog from './dialog';
 import landing from './landing';
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
       return (action.changesData || action.type === 'SET_TABLE_FROM_JSON');
     },
   }),
+  router: routerReducer,
 });
 
 export default rootReducer;

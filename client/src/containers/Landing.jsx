@@ -1,19 +1,38 @@
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Recaptcha from 'react-google-invisible-recaptcha';
 
 import './Landing.css';
 import { initialState } from '../core';
+import * as LandingActions from '../actions/landing';
+import * as MetaActions from '../actions/meta';
+import * as TableActions from '../actions/table';
 import fetchServer from './../lib/fetchServer';
 import getRootPath from './../lib/getRootPath';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  landing: PropTypes.object.isRequired,
+  messages: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
 };
+
+const mapStateToProps = (state) => ({
+  messages: state.getIn(['landing', 'messages']),
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  actions: {
+    ...bindActionCreators({
+      ...LandingActions,
+      ...MetaActions,
+      ...TableActions,
+    }, dispatch),
+  },
+});
 
 const DELAY_BEFORE_ACTION = 200;
 
@@ -32,13 +51,14 @@ class Landing extends React.Component {
     // TODO: consider storage session data.
     delete table.session;
 
-    let fetchParams = { table: JSON.stringify(table) };
+    // Without JSON.stringify Rails tries to parse the whole table,
+    // but we only want it to store JSON we sent.
+    const JSONTable = JSON.stringify(table);
+    let fetchParams = { table: JSONTable };
     if (this.recaptcha) {
       fetchParams['g-recaptcha-response'] = this.recaptcha.getResponse();
     }
 
-    // Without JSON.stringify Rails tries to parse the whole table,
-    // but we only want it to store JSON we sent.
     fetchServer('POST', 'create', fetchParams)
       .then((json) => {
         if (json.errors) {
@@ -46,8 +66,13 @@ class Landing extends React.Component {
           this.props.actions.setMessages(errors);
           this.button.disabled = false; // eslint-disable-line no-param-reassign
         } else {
-          const rootPath = getRootPath();
-          window.location.href = `${rootPath}${json.data.short_id}`; // eslint-disable-line no-undef
+          const shortId = json.data.short_id;
+          const spreadsheetPath = `${getRootPath()}${shortId}`;
+
+          // store's shortId used in handleRequestsChanges().
+          this.props.actions.setShortId(shortId);
+          this.props.actions.setTableFromJSON(JSONTable);
+          this.props.history.push(spreadsheetPath);
         }
       });
   }
@@ -73,7 +98,7 @@ class Landing extends React.Component {
   }
 
   render() {
-    const messages = this.props.landing.get('messages');
+    const messages = this.props.messages.toJS();
     const recaptchaSitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
     const outputMessages = [];
@@ -110,4 +135,4 @@ class Landing extends React.Component {
 Landing.propTypes = propTypes;
 Landing.defaultProps = defaultProps;
 
-export default Landing;
+export default connect(mapStateToProps, mapDispatchToProps)(Landing);

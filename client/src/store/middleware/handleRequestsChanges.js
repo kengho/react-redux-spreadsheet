@@ -1,5 +1,7 @@
 // TODO: save batched changes periodically instead.
 
+import { push } from 'react-router-redux';
+
 import {
   popRequestId,
   markRequestAsFailed,
@@ -10,7 +12,6 @@ import getRootPath from './../../lib/getRootPath';
 const REQUEST_RETRY_TIMEOUT = 60 * 1000; // 1 min
 
 const composeRequest = (store, action) => {
-
   let data;
   if (action.type === 'POP_REQUEST_ID') {
     // 0-th request is popping, so we should handle 1-th now.
@@ -51,11 +52,12 @@ const sendRequest = (composedRequest) => {
 const handleResponse = (store, composedRequest, response) => {
   if (response.data.status !== 'OK') {
     store.dispatch(markRequestAsFailed(response.request_uuid));
-  } else if (composedRequest.method === 'DELETE') {
-    const rootPath = getRootPath();
-    window.location.replace(rootPath); // eslint-disable-line no-undef
   } else {
     store.dispatch(popRequestId(response.request_uuid));
+  }
+
+  if (composedRequest.method === 'DELETE') {
+    store.dispatch(push(getRootPath()));
   }
 };
 

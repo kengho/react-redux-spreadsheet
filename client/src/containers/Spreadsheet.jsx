@@ -1,3 +1,5 @@
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
 import uuid from 'uuid/v4';
@@ -7,9 +9,14 @@ import {
   getCellId,
   getColumnId,
   getRowId,
-  initialState,
 } from '../core';
 import './Spreadsheet.css';
+import * as DialogActions from '../actions/dialog';
+import * as LandingActions from '../actions/landing'; // setMessages()
+import * as MetaActions from '../actions/meta';
+import * as RequestsActions from '../actions/requests';
+import * as TableActions from '../actions/table';
+import * as UndoRedoActions from '../actions/undoRedo';
 import ActionsRow from './../components/Rows/ActionsRow';
 import AddressingRow from './../components/Rows/AddressingRow';
 import DataRow from './../components/Rows/DataRow';
@@ -23,15 +30,49 @@ import shiftScrollbar from '../lib/shiftScrollbar';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   dialog: PropTypes.object.isRequired,
-  meta: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
-  rootPath: PropTypes.string.isRequired,
   table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
   undo: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
 };
+
+const mapStateToProps = (state) => {
+  // FIXME: in tests table wraps into undoable twice
+  //   because of environment condition in initialState().
+  //   Cannot test Root render with non-empty data because if this.
+  let table;
+  if (process.env.NODE_ENV === 'test') {
+    table = state.get('table').present.present;
+  } else {
+    table = state.get('table').present;
+  }
+
+  // TODO: move Dialog to different comtainer.
+  return {
+    dialog: state.get('dialog'),
+    requests: state.get('requests'),
+    table,
+    undo: {
+      canRedo: state.get('table').future.length > 0,
+      canUndo: state.get('table').past.length > 1, // omitting SET_TABLE_FROM_JSON
+    },
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  actions: {
+    ...bindActionCreators({
+      ...DialogActions,
+      ...LandingActions,
+      ...MetaActions,
+      ...RequestsActions,
+      ...TableActions,
+      ...UndoRedoActions,
+    }, dispatch),
+  },
+});
 
 class Spreadsheet extends React.Component {
   constructor(props) {
@@ -80,15 +121,18 @@ class Spreadsheet extends React.Component {
     // Fetch data after initial render.
     // -2 because fictive rows.
     if (this.table.data.rows.length - 2 === 0) {
-      const pathname = document.location.pathname;
-      const shortId = pathname.slice(this.props.rootPath.length);
+      const shortId = this.props.match.params.shortId;
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
           if (json.errors) {
             // TODO: set Landing message somehow.
             const rootPath = getRootPath();
-            window.location.replace(rootPath); // eslint-disable-line no-undef
+            const errors = json.errors.map((error) => error.detail);
+
+            this.props.actions.setMessages(errors);
+            this.props.history.push(getRootPath());
           } else {
+            // store's shortId used in handleRequestsChanges().
             this.props.actions.setShortId(shortId);
             this.props.actions.setTableFromJSON(json.data.table);
           }
@@ -346,7 +390,6 @@ class Spreadsheet extends React.Component {
 
     const { actions, requests } = this.props;
     const dialog = this.props.dialog.toJS();
-    const meta = this.props.meta.toJS();
     const clipboard = this.table.session.clipboard;
     const columns = this.table.data.columns;
     const pointer = this.table.session.pointer;
@@ -361,8 +404,8 @@ class Spreadsheet extends React.Component {
       <ActionsRow
         actions={actions}
         columns={columns}
-        shortId={meta.shortId}
         data={this.props.table.toJS().data}
+        shortId={this.props.match.params.shortId}
         firstActionsCellIsOnly={columns.length - 2 === 1}
         hoverColumnId={this.table.session.hover && getColumnId(this.table.session.hover)}
         key={rows[0]}
@@ -453,4 +496,4 @@ class Spreadsheet extends React.Component {
 Spreadsheet.propTypes = propTypes;
 Spreadsheet.defaultProps = defaultProps;
 
-export default Spreadsheet;
+export default connect(mapStateToProps, mapDispatchToProps)(Spreadsheet);
