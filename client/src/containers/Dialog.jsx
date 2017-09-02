@@ -53,9 +53,6 @@ class Dialog extends React.Component {
       nextActiveButton.focus();
     };
 
-    // TODO: keyHandler doesn't work after click on document,
-    //   and correct focus never returns.
-    //   Most notable in IMPORT.
     this.keyDownHandler = (evt) => {
       // Prevents firing documentKeyDownHandler().
       evt.nativeEvent.stopImmediatePropagation();
@@ -289,9 +286,11 @@ class Dialog extends React.Component {
       });
     }
 
+    // tabIndex solves keydown focusing issues.
     return (
       <div className="dialog">
         <dialog
+          tabIndex="-1"
           className="mdl-dialog"
           onKeyDown={(evt) => this.keyDownHandler(evt)}
           ref={(c) => { this.dialog = c; }}
