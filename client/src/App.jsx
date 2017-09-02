@@ -1,5 +1,3 @@
-// TODO: rename to .jsx.
-
 import { ConnectedRouter } from 'connected-react-router/immutable';
 import { Route } from 'react-router';
 import GithubMark from 'react-github-mark';
