@@ -64,7 +64,6 @@ const MenuItem = (props) => {
       className="mdl-menu__item"
       onClick={delayedAction}
     >
-      {/* Emply icon works just fine, occupying the same space as regular one. */}
       <Icon size={24} />
       {label}
     </li>
