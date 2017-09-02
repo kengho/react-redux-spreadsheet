@@ -4,30 +4,30 @@ import {
   getRowNumber,
 } from '../core';
 
-const shiftScrollbar = (key, pointedCellAfter, pointedCellAfterPos, extra) => {
+const shiftScrollbar = (key, cellElem, cellPos, extra) => {
   let relShift;
   let absShift;
   switch (key) {
     case 'ArrowUp':
-      // Make absolute jump if pointedCellAfter is on first row/column.
-      if (getRowNumber(pointedCellAfterPos) === 0) {
+      // Make absolute jump if cellElem is on first row/column.
+      if (getRowNumber(cellPos) === 0) {
         absShift = { y: 0 };
       } else {
-        relShift = { y: -(pointedCellAfter.scrollHeight + extra) };
+        relShift = { y: -(cellElem.scrollHeight + extra) };
       }
       break;
     case 'ArrowDown':
-      relShift = { y: pointedCellAfter.scrollHeight + extra };
+      relShift = { y: cellElem.scrollHeight + extra };
       break;
     case 'ArrowLeft':
-      if (getColumnNumber(pointedCellAfterPos) === 0) {
+      if (getColumnNumber(cellPos) === 0) {
         absShift = { x: 0 };
       } else {
-        relShift = { x: -(pointedCellAfter.scrollWidth + extra) };
+        relShift = { x: -(cellElem.scrollWidth + extra) };
       }
       break;
     case 'ArrowRight':
-      relShift = { x: pointedCellAfter.scrollWidth + extra };
+      relShift = { x: cellElem.scrollWidth + extra };
       break;
     case 'PageUp':
       absShift = { y: 0 };
