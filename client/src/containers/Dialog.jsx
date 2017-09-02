@@ -1,26 +1,35 @@
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import dialogPolyfill from 'dialog-polyfill';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 import './Dialog.css';
 import { arePropsEqual } from '../core';
 import { convert } from '../core';
 import { setTableFromJSON } from '../actions/table';
+import * as DialogActions from '../actions/dialog';
 
-const propTypes = {
-  actions: PropTypes.object.isRequired,
-  disableYesButton: PropTypes.bool,
-  errors: PropTypes.array,
-  variant: PropTypes.string,
-  visibility: PropTypes.bool,
+const mapStateToProps = (state) => {
+  let errors = state.getIn(['dialog', 'errors']);
+  if (errors) {
+    errors = errors.toJS();
+  }
+
+  return {
+    disableYesButton: state.getIn(['dialog', 'disableYesButton']),
+    errors,
+    variant: state.getIn(['dialog', 'variant']),
+    visibility: state.getIn(['dialog', 'visibility']),
+  }
 };
 
-const defaultProps = {
-  disableYesButton: false,
-  errors: [],
-  variant: 'CONFIRM',
-  visibility: false,
-};
+const mapDispatchToProps = (dispatch) => ({
+  actions: {
+    ...bindActionCreators({
+      ...DialogActions,
+    }, dispatch),
+  },
+});
 
 class Dialog extends React.Component {
   constructor(props) {
@@ -108,6 +117,7 @@ class Dialog extends React.Component {
       const csv = reader.result;
       const data = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
 
+      // TODO: solve issue with "UndetectableDelimiter" error, but correct data.
       if (data.errors) {
         // TODO: use state.
         this.fileFakeInput.value = '';
@@ -267,25 +277,29 @@ class Dialog extends React.Component {
     }
 
     const outputButtons = [];
-    buttonsMap.forEach((buttonMap) => {
-      outputButtons.push(
-        <button
-          className="mdl-button"
-          disabled={buttonMap.disabled}
-          key={`dialog-button--${buttonMap.idSuffix}`}
-          onClick={() => buttonMap.action()}
-          ref={(c) => { this.buttons[buttonMap.idSuffix] = c; }}
-          type="button"
-        >
-          {buttonMap.label}
-        </button>
-      );
-    });
+    if (buttonsMap) {
+      buttonsMap.forEach((buttonMap) => {
+        outputButtons.push(
+          <button
+            className="mdl-button"
+            disabled={buttonMap.disabled}
+            key={`dialog-button--${buttonMap.idSuffix}`}
+            onClick={() => buttonMap.action()}
+            ref={(c) => { this.buttons[buttonMap.idSuffix] = c; }}
+            type="button"
+            >
+            {buttonMap.label}
+          </button>
+        );
+      });
+    }
 
     const outputErrors = [];
-    errors.forEach((error) => {
-      outputErrors.push(<li key={error.code}>{error.message}</li>);
-    });
+    if (errors) {
+      errors.forEach((error) => {
+        outputErrors.push(<li key={error.code}>{error.message}</li>);
+      });
+    }
 
     return (
       <div className="dialog">
@@ -299,7 +313,7 @@ class Dialog extends React.Component {
           </h4>
           <div className="mdl-dialog__content">
             {content}
-            {errors.length > 0 &&
+            {errors && errors.length > 0 &&
               <div className="dialog-errors">
                 <span>Errors occurred:</span>
                 <ul>
@@ -317,7 +331,4 @@ class Dialog extends React.Component {
   }
 }
 
-Dialog.propTypes = propTypes;
-Dialog.defaultProps = defaultProps;
-
-export default Dialog;
+export default connect(mapStateToProps, mapDispatchToProps)(Dialog);

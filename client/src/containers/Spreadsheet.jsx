@@ -20,16 +20,15 @@ import * as UndoRedoActions from '../actions/undoRedo';
 import ActionsRow from './../components/Rows/ActionsRow';
 import AddressingRow from './../components/Rows/AddressingRow';
 import DataRow from './../components/Rows/DataRow';
-import Dialog from '../components/Dialog';
 import fetchServer from './../lib/fetchServer';
 import findKeyAction from '../lib/findKeyAction';
 import getRootPath from './../lib/getRootPath';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
 import shiftScrollbar from '../lib/shiftScrollbar';
 
+// TODO: remove.
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  dialog: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
   undo: PropTypes.object.isRequired,
@@ -51,7 +50,6 @@ const mapStateToProps = (state) => {
 
   // TODO: move Dialog to different comtainer.
   return {
-    dialog: state.get('dialog'),
     requests: state.get('requests'),
     table,
     undo: {
@@ -389,7 +387,6 @@ class Spreadsheet extends React.Component {
     // D - data cell
 
     const { actions, requests } = this.props;
-    const dialog = this.props.dialog.toJS();
     const clipboard = this.table.session.clipboard;
     const columns = this.table.data.columns;
     const pointer = this.table.session.pointer;
@@ -484,10 +481,6 @@ class Spreadsheet extends React.Component {
         >
           {outputRows}
         </div>
-        <Dialog
-          actions={actions}
-          {...dialog}
-        />
       </div>
     );
   }

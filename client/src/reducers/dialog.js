@@ -1,16 +1,8 @@
-import {
-  fromJS,
-} from 'immutable';
+import { fromJS } from 'immutable';
 
-export default function meta(state = fromJS(
-  {
-    action: undefined,
-    disableYesButton: undefined,
-    errors: undefined,
-    variant: undefined,
-    visibility: undefined,
-  }
-), action) {
+const defaultState = fromJS({});
+
+export default function meta(state = defaultState, action) {
   switch (action.type) {
     case 'SET_DIALOG':
       return fromJS(action.dialog);
