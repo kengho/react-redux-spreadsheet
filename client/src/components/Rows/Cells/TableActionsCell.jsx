@@ -1,7 +1,8 @@
 import FileSaver from 'file-saver';
+import IconButton from 'material-ui/Button';
 import PropTypes from 'prop-types';
 import React from 'react';
-import SyncProblem from 'react-icons/lib/md/sync-problem';
+import SyncProblem from 'material-ui-icons/SyncProblem';
 
 import {
   arePropsEqual,
@@ -56,25 +57,16 @@ class TableActionsCell extends React.Component {
 
     let output;
     if (requests.queue.length > 0) {
+      // TODO: return tooltip.
+      // tooltip="Data sync error. Please don't close tab until data is saved"
       // Wrapper solves issue with disabled button.
       // https://github.com/angular-ui/bootstrap/issues/1025
+      // className="mdl-button mdl-js-button mdl-button--icon"
       output = (
         <div>
-          <div id="sync-problem-icon-wrapper">
-            <button
-              className="mdl-button mdl-js-button mdl-button--icon"
-              disabled
-            >
-              <SyncProblem />
-            </button>
-          </div>
-          <div
-            className="mdl-tooltip mdl-tooltip--large"
-            htmlFor="sync-problem-icon-wrapper"
-            ref={(c) => { this.tooltip = c; }}
-          >
-            {'Data sync error. Please don\'t close tab until data is saved.'}
-          </div>
+          <IconButton disabled>
+            <SyncProblem />
+          </IconButton>
         </div>
       );
     } else {
