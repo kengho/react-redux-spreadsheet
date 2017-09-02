@@ -186,7 +186,7 @@ class DataCell extends React.Component {
           maxWidth="512px"
           onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
           onHeightChange={() => this.onHeightChangeHandler(this.textareaInput)}
-          onKeyDown={(evt) => this.keyDownHandler(evt)}
+          onKeyDown={this.keyDownHandler}
           ref={(c) => { this.textarea = c; }}
         />
     );

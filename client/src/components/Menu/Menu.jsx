@@ -83,7 +83,7 @@ class Menu extends React.Component {
     return (
       <div
         className="menu"
-        onKeyDown={(evt) => this.keyDownHandler(evt)}
+        onKeyDown={this.keyDownHandler}
         onMouseLeave={hideOnMouseLeave && (() => this.cellActionsMenuOnMouseLeaveHandler())}
       >
         <button

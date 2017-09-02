@@ -292,7 +292,7 @@ class Dialog extends React.Component {
         <dialog
           tabIndex="-1"
           className="mdl-dialog"
-          onKeyDown={(evt) => this.keyDownHandler(evt)}
+          onKeyDown={this.keyDownHandler}
           ref={(c) => { this.dialog = c; }}
         >
           <h4 className="mdl-dialog__title">
