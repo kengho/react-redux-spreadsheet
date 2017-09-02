@@ -325,11 +325,7 @@ export function getCroppedSize(data) {
 }
 
 export function convert(object, options) {
-  if (options.inputFormat === 'object', options.outputFormat === 'csv') {
-    // TODO: configure.
-    const delim = ',';
-    const valuesWrapper = '\'';
-
+  if (options.inputFormat === 'object' && options.outputFormat === 'csv') {
     const data = object;
     const rows = data.rows;
     const columns = data.columns;
@@ -341,7 +337,7 @@ export function convert(object, options) {
       const CSVRowArray = [];
       for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
         const currentCellId = getCellId(rows[rowIterator], columns[columnIterator]);
-        const currentCell = data.cells[currentCellId];
+        const currentCell = cells[currentCellId];
 
         let value;
         if (currentCell) {
@@ -359,9 +355,9 @@ export function convert(object, options) {
     return Baby.unparse(CSVArray);
   }
 
-  if (options.inputFormat === 'csv', options.outputFormat === 'object') {
+  if (options.inputFormat === 'csv' && options.outputFormat === 'object') {
     const CSV = object;
-    const parsedCSV = Baby.parse(object);
+    const parsedCSV = Baby.parse(CSV);
 
     if (parsedCSV.errors.length === 0) {
       const dataArray = parsedCSV.data;

@@ -5,7 +5,6 @@ import React from 'react';
 import './Dialog.css';
 import { arePropsEqual } from '../core';
 import { convert } from '../core';
-import { setDialog } from '../actions/dialog';
 import { setTableFromJSON } from '../actions/table';
 
 const propTypes = {
@@ -101,6 +100,7 @@ class Dialog extends React.Component {
   }
 
   handleCSVFileImport(evt) {
+    // TODO: drag-and-drop.
     const input = evt.target;
     const reader = new FileReader();
 
@@ -109,6 +109,7 @@ class Dialog extends React.Component {
       const data = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
 
       if (data.errors) {
+        // TODO: use state.
         this.fileFakeInput.value = '';
 
         this.props.actions.setDialog({
@@ -195,7 +196,7 @@ class Dialog extends React.Component {
           ['Arrow keys, Home, End, PgUp, PgDn', 'move cursor'],
           ['Ctrl+Enter (while editing)', 'insert new line'],
         ];
-        const hotkeysOutput = hotkeysMap.map((hotkey) => {
+        const outputHotkeys = hotkeysMap.map((hotkey) => {
           return (
             <li
               className="mdl-list__item mdl-list__item--two-line"
@@ -212,7 +213,7 @@ class Dialog extends React.Component {
         content = (
           <div className="info">
             <ul className="mdl-list">
-              {hotkeysOutput}
+              {outputHotkeys}
             </ul>
           </div>
         );

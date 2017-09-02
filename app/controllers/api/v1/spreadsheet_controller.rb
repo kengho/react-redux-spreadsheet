@@ -76,7 +76,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
       @spreadsheet = Spreadsheet.find_by(id: id)
       unless @spreadsheet
         throw_error(
-          'external', 'Spreadsheet doesn\'t exist yet.'
+          'external', 'Spreadsheet doesn\'t exist.'
         ) and return
       end
 

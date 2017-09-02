@@ -37,6 +37,8 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
           requestValue => requestValue.delete(deleteIndex)
         );
       }
+
+      break;
     }
 
     case 'MARK_REQUEST_AS_FAILED': {
@@ -51,6 +53,8 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
           )
         );
       }
+
+      break;
     }
 
     default:
