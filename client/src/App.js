@@ -1,5 +1,6 @@
 import { ConnectedRouter } from 'connected-react-router/immutable';
 import { Route } from 'react-router';
+import GithubMark from 'react-github-mark';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -22,6 +23,10 @@ const App = ({ history }) => {
       <div>
         <Route exact path={rootPath} component={Landing} />
         <Route exact path={`${rootPath}:shortId`} component={Spreadsheet} />
+        <GithubMark
+          href="https://github.com/kengho/react-redux-spreadsheet"
+          position="bottom-right"
+        />
       </div>
     </ConnectedRouter>
   )
