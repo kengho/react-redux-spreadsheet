@@ -1,8 +1,6 @@
-import {
-  fromJS,
-} from 'immutable';
+import { fromJS } from 'immutable';
 
-export default function meta(state = fromJS({ shortId: undefined }), action) {
+export default function meta(state = fromJS({}), action) {
   switch (action.type) {
     case 'SET_SHORT_ID':
       return state.set(

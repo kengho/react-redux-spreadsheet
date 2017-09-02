@@ -36,7 +36,6 @@ const mapStateToProps = (state) => {
     table = state.get('table').present;
   }
 
-  // TODO: move Dialog to different comtainer.
   return {
     requests: state.get('requests'),
     table,
@@ -66,6 +65,7 @@ class Spreadsheet extends React.Component {
 
     this.documentKeyDownHandler = this.documentKeyDownHandler.bind(this);
 
+    this.fictiveLinesSize = 2;
     this.fictiveRows = [`r${uuid()}`, `r${uuid()}`];
     this.fictiveColumns = [`c${uuid()}`, `c${uuid()}`];
     this.prepareTable = (somePops) => {
@@ -100,14 +100,11 @@ class Spreadsheet extends React.Component {
     }
 
     // Fetch data after initial render.
-    // -2 because fictive rows.
-    if (this.table.data.rows.length - 2 === 0) {
+    if (this.table.data.rows.length - this.fictiveLinesSize === 0) {
       const shortId = this.props.match.params.shortId;
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
           if (json.errors) {
-            // TODO: set Landing message somehow.
-            const rootPath = getRootPath();
             const errors = json.errors.map((error) => error.detail);
 
             this.props.actions.setMessages(errors);
@@ -159,8 +156,10 @@ class Spreadsheet extends React.Component {
           let cellId = pointer.cellId;
           if (!cellId) {
             // Default pointer on [0, 0].
-            // [2] is for fictive rows/columns.
-            cellId = getCellId(this.table.data.rows[2], this.table.data.columns[2]);
+            cellId = getCellId(
+              this.table.data.rows[this.fictiveLinesSize],
+              this.table.data.columns[this.fictiveLinesSize]
+            );
           }
           this.props.actions.setPointer({ cellId, modifiers });
         },
@@ -207,10 +206,9 @@ class Spreadsheet extends React.Component {
           const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
           const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
 
-          // -2 is because of fictive rows/columns.
           const pointedCellAfterPos = [
-            rows.indexOf(getRowId(pointedCellAfter.id)) - 2,
-            columns.indexOf(getColumnId(pointedCellAfter.id)) - 2,
+            rows.indexOf(getRowId(pointedCellAfter.id)) - this.fictiveLinesSize,
+            columns.indexOf(getColumnId(pointedCellAfter.id)) - this.fictiveLinesSize,
           ];
 
           // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.
@@ -218,8 +216,7 @@ class Spreadsheet extends React.Component {
             (isScrolledIntoViewBefore.x && !isScrolledIntoViewAfter.x) ||
             (isScrolledIntoViewBefore.y && !isScrolledIntoViewAfter.y)
           ) {
-            // slice() with -2 deletes 'px'.
-            const borderSpacingNormalized = Number(this.css.borderSpacing.slice(0, -2));
+            const borderSpacingNormalized = Number(this.css.borderSpacing.slice(0, -'px'.length));
             shiftScrollbar(evt.key, pointedCellAfter, pointedCellAfterPos, borderSpacingNormalized * 2);
           }
         },
@@ -347,8 +344,7 @@ class Spreadsheet extends React.Component {
 
   render() {
     // TODO: draw some kind of spinner if table is empty.
-    // -2 because fictive rows.
-    if (this.table.data.rows.length - 2 === 0) {
+    if (this.table.data.rows.length - this.fictiveLinesSize === 0) {
       return <div />;
     }
 
@@ -386,7 +382,7 @@ class Spreadsheet extends React.Component {
         columns={columns}
         data={this.props.table.toJS().data}
         shortId={this.props.match.params.shortId}
-        firstActionsCellIsOnly={columns.length - 2 === 1}
+        firstActionsCellIsOnly={columns.length - this.fictiveLinesSize === 1}
         hoverColumnId={this.table.session.hover && getColumnId(this.table.session.hover)}
         key={rows[0]}
         requests={requests.toJS()}
@@ -407,7 +403,7 @@ class Spreadsheet extends React.Component {
 
     // The rest.
     const cells = this.table.data.cells;
-    for (let rowIndex = 2; rowIndex < rows.length; rowIndex += 1) {
+    for (let rowIndex = this.fictiveLinesSize; rowIndex < rows.length; rowIndex += 1) {
       const rowId = rows[rowIndex];
 
       // Uses in shouldComponentUpdate().
@@ -437,13 +433,13 @@ class Spreadsheet extends React.Component {
           cells={cells}
           clipboard={clipboard}
           columns={columns}
-          firstActionsCellIsOnly={rows.length - 2 === 1}
+          firstActionsCellIsOnly={rows.length - this.fictiveLinesSize === 1}
           isPointerOnRow={isPointerOnRow}
           isRowInClipboard={isRowInClipboard}
           key={rowId}
           localPointerColumnId={localPointerColumnId}
           localPointerModifiers={localPointerModifiers}
-          originalRowIndex={rowIndex - 2}
+          originalRowIndex={rowIndex - this.fictiveLinesSize}
           pointer={pointer}
           rowId={rowId}
           rowUpdateTrigger={updateTriggers.data.rows[rowId]}
