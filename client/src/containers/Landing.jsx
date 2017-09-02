@@ -1,5 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Button from 'material-ui/Button';
 import React from 'react';
 import Recaptcha from 'react-google-invisible-recaptcha';
 
@@ -13,6 +14,7 @@ import getRootPath from './../lib/getRootPath';
 
 const mapStateToProps = (state) => ({
   messages: state.getIn(['landing', 'messages']),
+  buttonIsDisabled: state.getIn(['landing', 'buttonIsDisabled']),
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -55,7 +57,6 @@ class Landing extends React.Component {
         if (json.errors) {
           const errors = json.errors.map((error) => error.detail);
           this.props.actions.setMessages(errors);
-          this.button.disabled = false; // eslint-disable-line no-param-reassign
         } else {
           const shortId = json.data.short_id;
           const spreadsheetPath = `${getRootPath()}${shortId}`;
@@ -65,18 +66,16 @@ class Landing extends React.Component {
           this.props.actions.setTableFromJSON(JSONTable);
           this.props.history.push(spreadsheetPath);
         }
-      });
-  }
 
-  componentDidMount() {
-    componentHandler.upgradeElement(this.button); // eslint-disable-line no-undef
+        this.props.actions.disableLandingButton(false);
+      });
   }
 
   onButtonClickHandler() {
     setTimeout(
       () => {
         // TODO: add some kind of spinner.
-        this.button.disabled = true; // eslint-disable-line no-param-reassign
+        this.props.actions.disableLandingButton(true);
 
         if (this.recaptcha) {
           this.recaptcha.execute();
@@ -90,6 +89,8 @@ class Landing extends React.Component {
 
   render() {
     const messages = this.props.messages.toJS();
+    const buttonIsDisabled = this.props.buttonIsDisabled;
+
     const recaptchaSitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
     const outputMessages = [];
@@ -99,13 +100,14 @@ class Landing extends React.Component {
 
     return (
       <div className="landing">
-        <button
-          className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
+        <Button
+          color="primary"
+          disabled={buttonIsDisabled}
           onClick={this.onButtonClickHandler}
-          ref={(c) => { this.button = c; }}
+          raised
         >
           create spreadsheet
-        </button>
+        </Button>
         <div className="messages">
           <ul>
             {outputMessages}
