@@ -197,7 +197,7 @@ describe('core', () => {
       const croppedData = Core.initialTable(5, 3).data;
       croppedData.cells = data.cells;
 
-      expect(Core.convert(CSV, toObjectConvertOptions)).to.deep.equal(croppedData);
+      expect(Core.convert(CSV, toObjectConvertOptions).data).to.deep.equal(croppedData);
     });
   });
 });

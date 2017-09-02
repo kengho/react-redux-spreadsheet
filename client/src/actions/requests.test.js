@@ -15,7 +15,7 @@ import {
   popRequestId,
   pushRequest,
 } from './requests';
-import configureStore from '../store/configureStore';
+import { configureStore } from '../store/configureStore';
 
 describe('requests', () => {
   it('should be able to push request', () => {

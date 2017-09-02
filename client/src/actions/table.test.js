@@ -11,7 +11,7 @@ import { fromJS } from 'immutable';
 
 import * as Core from '../core';
 import * as TableActions from './table';
-import configureStore from '../store/configureStore';
+import { configureStore } from '../store/configureStore';
 
 const tableSize = [3, 4];
 

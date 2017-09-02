@@ -1,14 +1,23 @@
+import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Root from './Root';
+import { configureStore, history } from './store/configureStore';
+import App from './App';
 
-require('./../test_helper');
+require('./test_helper');
 
 it('renders without crashing', () => {
   // TODO: draw Root with non-empty data.
   const div = document.createElement('div');
-  ReactDOM.render(<Root />, div);
+
+  const store = configureStore();
+  ReactDOM.render(
+    <Provider store={store}>
+      <App history={history} />
+    </Provider>,
+    div
+  );
 });
 
 /*
