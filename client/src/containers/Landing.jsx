@@ -1,6 +1,5 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import React from 'react';
 import Recaptcha from 'react-google-invisible-recaptcha';
 
@@ -11,14 +10,6 @@ import * as MetaActions from '../actions/meta';
 import * as TableActions from '../actions/table';
 import fetchServer from './../lib/fetchServer';
 import getRootPath from './../lib/getRootPath';
-
-const propTypes = {
-  actions: PropTypes.object.isRequired,
-  messages: PropTypes.object.isRequired,
-};
-
-const defaultProps = {
-};
 
 const mapStateToProps = (state) => ({
   messages: state.getIn(['landing', 'messages']),
@@ -131,8 +122,5 @@ class Landing extends React.Component {
     );
   }
 }
-
-Landing.propTypes = propTypes;
-Landing.defaultProps = defaultProps;
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);

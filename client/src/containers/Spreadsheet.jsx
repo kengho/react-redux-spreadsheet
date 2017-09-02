@@ -1,6 +1,5 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import React from 'react';
 import uuid from 'uuid/v4';
 // TODO: use https://github.com/callemall/material-ui.
@@ -25,17 +24,6 @@ import findKeyAction from '../lib/findKeyAction';
 import getRootPath from './../lib/getRootPath';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
 import shiftScrollbar from '../lib/shiftScrollbar';
-
-// TODO: remove.
-const propTypes = {
-  actions: PropTypes.object.isRequired,
-  requests: PropTypes.object.isRequired,
-  table: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
-  undo: PropTypes.object.isRequired,
-};
-
-const defaultProps = {
-};
 
 const mapStateToProps = (state) => {
   // FIXME: in tests table wraps into undoable twice
@@ -485,8 +473,5 @@ class Spreadsheet extends React.Component {
     );
   }
 }
-
-Spreadsheet.propTypes = propTypes;
-Spreadsheet.defaultProps = defaultProps;
 
 export default connect(mapStateToProps, mapDispatchToProps)(Spreadsheet);
