@@ -115,30 +115,18 @@ class Dialog extends React.Component {
 
     reader.onload = (file) => {
       const csv = reader.result;
-      const data = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
+      const tableData = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
 
-      // TODO: solve issue with "UndetectableDelimiter" error, but correct data.
-      if (data.errors) {
-        // TODO: use state.
-        this.fileFakeInput.value = '';
+      this.fileFakeInput.value = input.files[0].name;
 
-        this.props.actions.setDialog({
-          disableYesButton: true,
-          errors: data.errors,
-          variant: 'IMPORT',
-          visibility: true,
-        });
-      } else {
-        this.fileFakeInput.value = input.files[0].name;
-
-        const importAction = setTableFromJSON(JSON.stringify({ data }), true);
-        this.props.actions.setDialog({
-          action: importAction,
-          disableYesButton: false,
-          variant: 'IMPORT',
-          visibility: true,
-        });
-      }
+      const importAction = setTableFromJSON(JSON.stringify({ data: tableData.data }), true);
+      this.props.actions.setDialog({
+        action: importAction,
+        disableYesButton: false,
+        errors: tableData.errors,
+        variant: 'IMPORT',
+        visibility: true,
+      });
 
       // Fixind error
       // "Failed to execute 'readAsText' on 'FileReader': parameter 1 is not of type 'Blob'."

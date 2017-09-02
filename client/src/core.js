@@ -359,32 +359,34 @@ export function convert(object, options) {
     const CSV = object;
     const parsedCSV = Baby.parse(CSV);
 
-    if (parsedCSV.errors.length === 0) {
-      const dataArray = parsedCSV.data;
-      if (dataArray.length > 0) {
-        const dataArrayRowsNumber = dataArray.length;
-        const dataArrayColumnsNumber = dataArray[0].length;
+    const parsedCSVArray = parsedCSV.data;
+    const tableData = {
+      errors: parsedCSV.errors,
+    };
 
-        const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
-        const rows = data.rows;
-        const columns = data.columns;
-        const cells = data.cells;
+    if (parsedCSVArray.length > 0) {
+      const dataArrayRowsNumber = parsedCSVArray.length;
+      const dataArrayColumnsNumber = parsedCSVArray[0].length;
 
-        dataArray.forEach((row, rowIndex) => {
-          row.forEach((value, columnIndex) => {
-            if (value.length > 0) {
-              const cellId = getCellId(rows[rowIndex], columns[columnIndex]);
-              cells[cellId] = { value };
-            }
-          });
+      const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
+      const rows = data.rows;
+      const columns = data.columns;
+      const cells = data.cells;
+
+      parsedCSVArray.forEach((row, rowIndex) => {
+        row.forEach((value, columnIndex) => {
+          if (value.length > 0) {
+            const cellId = getCellId(rows[rowIndex], columns[columnIndex]);
+            cells[cellId] = { value };
+          }
         });
+      });
 
-        return data;
-      } else {
-        return initialTable().data;
-      }
+      tableData.data = data;
     } else {
-      return { errors: parsedCSV.errors };
+      tableData.data = initialTable().data;
     }
+
+    return tableData;
   }
 }
