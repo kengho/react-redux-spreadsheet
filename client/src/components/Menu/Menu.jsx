@@ -37,6 +37,9 @@ class Menu extends React.Component {
   }
 
   onClickHandler(evt) {
+    // Prevents firing documentClickHandler().
+    evt.nativeEvent.stopImmediatePropagation();
+
     this.anchorEl = evt.currentTarget;
     this.props.actions.closeAllMenus();
     this.props.actions.openMenu(this.props.cellId);
@@ -81,22 +84,21 @@ class Menu extends React.Component {
           onKeyDown={this.keyDownHandler}
           open={menuVisibility}
         >
-          {menuItems.map(item => {
+          {menuItems.map((item) => {
             const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
             return (
               <MenuItem
                 {...this.props}
                 {...item}
-                key={item.label}
                 closeMenu={this.closeMenu}
+                key={item.label}
               >
                 <ItemIcon size={24} />
                 {item.label}
               </MenuItem>
             );
-          })
-        }
+          })}
         </MaterialMenu>
       </div>
     );
