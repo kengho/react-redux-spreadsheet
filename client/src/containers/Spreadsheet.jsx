@@ -87,8 +87,8 @@ class Spreadsheet extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
-    document.addEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
+    window.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
+    window.addEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
 
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
@@ -132,8 +132,9 @@ class Spreadsheet extends React.Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
-    document.removeEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
+    // TODO: window or document?
+    window.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
+    window.removeEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
   }
 
   documentClickHandler(evt) {
