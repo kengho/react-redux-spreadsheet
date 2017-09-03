@@ -1,32 +1,38 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import dialogPolyfill from 'dialog-polyfill';
+import Button from 'material-ui/Button';
+import MaterialDialog, {
+  DialogActions as MaterialDialogActions,
+  DialogContent as MaterialDialogContent,
+  DialogTitle as MaterialDialogTitle,
+} from 'material-ui/Dialog';
 import React from 'react';
+import List, { ListItem, ListItemText } from 'material-ui/List';
 
 import './Dialog.css';
 import { arePropsEqual } from '../core';
 import { convert } from '../core';
 import { setTableFromJSON } from '../actions/table';
-import * as DialogActions from '../actions/dialog';
+import * as UiActions from '../actions/ui';
 
 const mapStateToProps = (state) => {
-  let errors = state.getIn(['dialog', 'errors']);
+  let errors = state.getIn(['ui', 'dialog', 'errors']);
   if (errors) {
     errors = errors.toJS();
   }
 
   return {
-    disableYesButton: state.getIn(['dialog', 'disableYesButton']),
+    disableYesButton: state.getIn(['ui', 'dialog', 'disableYesButton']),
     errors,
-    variant: state.getIn(['dialog', 'variant']),
-    visibility: state.getIn(['dialog', 'visibility']),
+    variant: state.getIn(['ui', 'dialog', 'variant']),
+    open: state.getIn(['ui', 'dialog', 'open']),
   }
 };
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
-      ...DialogActions,
+      ...UiActions,
     }, dispatch),
   },
 });
@@ -63,23 +69,13 @@ class Dialog extends React.Component {
           this.activateDialogButton(evt.key);
           break;
         case 'Escape':
-          this.props.actions.setDialogVisibility(false);
+          this.props.actions.closeDialog();
           break;
         default:
       }
     };
 
     this.handleCSVFileImport = this.handleCSVFileImport.bind(this);
-  }
-
-  componentDidMount() {
-    if (!this.dialog.showModal) {
-      dialogPolyfill.registerDialog(this.dialog);
-    }
-
-    if (this.fileInputLabel) {
-      componentHandler.upgradeElement(this.fileInputLabel); // eslint-disable-line no-undef
-    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -89,20 +85,8 @@ class Dialog extends React.Component {
       'disableYesButton',
       'errors',
       'variant',
-      'visibility',
+      'open',
     ]);
-  }
-
-  componentDidUpdate() {
-    if (this.dialog && !this.dialog.open && this.props.visibility) {
-      this.dialog.showModal();
-    } else if (this.dialog && this.dialog.open && !this.props.visibility) {
-      this.dialog.close();
-    }
-
-    if (this.fileInputLabel) {
-      componentHandler.upgradeElement(this.fileInputLabel); // eslint-disable-line no-undef
-    }
   }
 
   handleCSVFileImport(evt) {
@@ -122,7 +106,7 @@ class Dialog extends React.Component {
         disableYesButton: false,
         errors: tableData.errors,
         variant: 'IMPORT',
-        visibility: true,
+        open: true,
       });
 
       // Fixind error
@@ -139,6 +123,7 @@ class Dialog extends React.Component {
       disableYesButton,
       errors,
       variant,
+      open,
     } = this.props;
 
     let buttonsMap;
@@ -148,22 +133,22 @@ class Dialog extends React.Component {
       case 'CONFIRM': {
         buttonsMap = [
           {
+            action: () => actions.closeDialog(),
+            idSuffix: 'no',
+            label: 'No, go back',
+          },
+          {
             action: () => {
               actions.dispatchDialogAction();
-              actions.setDialogVisibility(false);
+              actions.closeDialog();
             },
             disabled: disableYesButton,
             idSuffix: 'yes',
             label: 'Yes',
           },
-          {
-            action: () => actions.setDialogVisibility(false),
-            idSuffix: 'no',
-            label: 'No, go back',
-          },
         ];
         title = 'Confirm action';
-        content = <p>Are you sure?</p>;
+        content = 'Are you sure?';
         break;
       }
 
@@ -171,7 +156,7 @@ class Dialog extends React.Component {
         buttonsMap = [{
           action: () => {
             actions.dispatchDialogAction();
-            actions.setDialogVisibility(false);
+            actions.closeDialog();
           },
           disabled: disableYesButton,
           idSuffix: 'yes',
@@ -191,27 +176,22 @@ class Dialog extends React.Component {
           ['Arrow keys, Home, End, PgUp, PgDn', 'move cursor'],
           ['Ctrl+Enter (while editing)', 'insert new line'],
         ];
-        const outputHotkeys = hotkeysMap.map((hotkey) => {
-          return (
-            <li
-              className="mdl-list__item mdl-list__item--two-line"
-              key={hotkey[0]}
-            >
-              <span className="mdl-list__item-primary-content">
-                <span>{hotkey[0]}</span>
-                <span className="mdl-list__item-sub-title">{hotkey[1]}</span>
-              </span>
-            </li>
-          );
-        });
 
         content = (
           <div className="info">
-            <ul className="mdl-list">
-              {outputHotkeys}
-            </ul>
+            <List>
+              {hotkeysMap.map(hotkeyMap =>
+                <ListItem key={hotkeyMap[0]}>
+                  <ListItemText
+                    primary={hotkeyMap[0]}
+                    secondary={hotkeyMap[1]}
+                  />
+                </ListItem>
+              )}
+            </List>
           </div>
         );
+
         break;
       }
 
@@ -219,34 +199,40 @@ class Dialog extends React.Component {
         buttonsMap = [
           {
             action: () => {
-              actions.dispatchDialogAction();
-              actions.setDialogVisibility(false);
-            },
-            disabled: disableYesButton,
-            idSuffix: 'yes',
-            label: 'Import',
-          },
-          {
-            action: () => {
-              actions.setDialogVisibility(false);
+              actions.closeDialog();
               this.fileFakeInput.value = '';
             },
             idSuffix: 'no',
             label: 'Cancel',
           },
+          {
+            action: () => {
+              actions.dispatchDialogAction();
+              actions.closeDialog();
+            },
+            disabled: disableYesButton,
+            idSuffix: 'yes',
+            label: 'Import',
+          },
         ];
         title = 'Select CSV file';
+
         content = (
           <div className="dialog-import">
-            <label
-              className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
-              ref={(c) => { this.fileInputLabel = c; }}
-            >
-              Choose file
-              <input
-                type='file'
-                onChange={this.handleCSVFileImport}
-              />
+            <input
+              accept="csv,CSV"
+              id="file"
+              onChange={this.handleCSVFileImport}
+              type="file"
+            />
+            <label htmlFor="file">
+              <Button
+                color="primary"
+                raised
+                component="span"
+              >
+                Choose file
+              </Button>
             </label>
             <input
               className="fake-input"
@@ -261,59 +247,43 @@ class Dialog extends React.Component {
       default:
     }
 
-    const outputButtons = [];
-    if (buttonsMap) {
-      buttonsMap.forEach((buttonMap) => {
-        outputButtons.push(
-          <button
-            className="mdl-button"
-            disabled={buttonMap.disabled}
-            key={`dialog-button--${buttonMap.idSuffix}`}
-            onClick={() => buttonMap.action()}
-            ref={(c) => { this.buttons[buttonMap.idSuffix] = c; }}
-            type="button"
-            >
-            {buttonMap.label}
-          </button>
-        );
-      });
-    }
-
-    const outputErrors = [];
+    let outputErrors;
     if (errors) {
-      errors.forEach((error) => {
-        outputErrors.push(<li key={error.code}>{error.message}</li>);
-      });
+      outputErrors = errors.map((error) =>
+        <li key={error.code}>{error.message}</li>
+      );
     }
+    outputErrors = <ul>{outputErrors}</ul>;
 
-    // tabIndex solves keydown focusing issues.
     return (
-      <div className="dialog">
-        <dialog
-          tabIndex="-1"
-          className="mdl-dialog"
-          onKeyDown={this.keyDownHandler}
-          ref={(c) => { this.dialog = c; }}
-        >
-          <h4 className="mdl-dialog__title">
-            {title}
-          </h4>
-          <div className="mdl-dialog__content">
-            {content}
-            {errors && errors.length > 0 &&
-              <div className="dialog-errors">
-                <span>Errors occurred:</span>
-                <ul>
-                  {outputErrors}
-                </ul>
-              </div>
-            }
-          </div>
-          <div className="mdl-dialog__actions">
-            {outputButtons}
-          </div>
-        </dialog>
-      </div>
+      <MaterialDialog
+        onKeyDown={this.keyDownHandler}
+        open={open}
+        className="dialog"
+      >
+        <MaterialDialogTitle>
+          {title}
+        </MaterialDialogTitle>
+        <MaterialDialogContent>
+          {content}
+          {errors && errors.length > 0 &&
+            <div className="dialog-errors">
+              {outputErrors}
+            </div>
+          }
+        </MaterialDialogContent>
+        <MaterialDialogActions className="dialog-buttons">
+          {buttonsMap && buttonsMap.map(buttonMap =>
+            <Button
+              disabled={buttonMap.disabled}
+              key={buttonMap.label}
+              onClick={buttonMap.action}
+            >
+              {buttonMap.label}
+            </Button>
+          )}
+        </MaterialDialogActions>
+      </MaterialDialog>
     );
   }
 }

@@ -10,7 +10,6 @@ import {
   getRowId,
 } from '../core';
 import './Spreadsheet.css';
-import * as DialogActions from '../actions/dialog';
 import * as LandingActions from '../actions/landing'; // setMessages()
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
@@ -53,7 +52,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
-      ...DialogActions,
       ...LandingActions,
       ...MetaActions,
       ...RequestsActions,

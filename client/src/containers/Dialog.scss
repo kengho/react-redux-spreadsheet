@@ -1,5 +1,18 @@
-.mdl-dialog {
-  width: 400px !important;
+.dialog {
+  & div[role="document"]{
+    width: 400px !important;
+    padding: 16px;
+
+    // Copied from mdl-dialog__title.
+    & h2 {
+      font-weight: 400;
+      font-size: 2.5rem;
+    }
+  }
+
+  & .dialog-buttons {
+    padding: 8px;
+  }
 
   & .dialog-import {
     & input[type="file"] {
