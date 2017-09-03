@@ -14,7 +14,6 @@ const propTypes = {
   actions: PropTypes.object.isRequired,
   dialogVariant: PropTypes.string,
   dialogDisableYesButton: PropTypes.bool,
-  icon: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
 };
 
@@ -33,7 +32,6 @@ const MenuItem = (props) => {
     children,
     dialogDisableYesButton,
     dialogVariant,
-    icon,
     closeMenu,
   } = props;
 
@@ -44,7 +42,7 @@ const MenuItem = (props) => {
         action,
         disableYesButton: dialogDisableYesButton,
         variant: dialogVariant,
-        visibility: true,
+        open: true,
       });
       closeMenu();
     };
