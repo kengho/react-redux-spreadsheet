@@ -3,7 +3,7 @@ import { createBrowserHistory } from 'history';
 import { routerMiddleware, connectRouter } from 'connected-react-router/immutable';
 
 import handleDataChanges from './middleware/handleDataChanges';
-import handleDispachDialogAction from './middleware/handleDispachDialogAction';
+import handleDispatchDialogAction from './middleware/handleDispatchDialogAction';
 import handlePointerChanges from './middleware/handlePointerChanges';
 import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleUndoRedo from './middleware/handleUndoRedo';
@@ -19,7 +19,7 @@ const middleware = [
 if (process.env.NODE_ENV !== 'test') {
   middleware.push(
     routerMiddleware(history),
-    handleDispachDialogAction,
+    handleDispatchDialogAction,
     handleRequestsChanges,
     handleUndoRedo,
     handleDataChanges // make sure this is the last middleware
