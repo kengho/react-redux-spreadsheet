@@ -5,23 +5,23 @@ import {
   arePropsEqual,
   getCellId,
 } from '../../core';
+import { FICTIVE_LINES_NUMBER } from '../../containers/Spreadsheet';
 import DataCell from './Cells/DataCell';
-import LineAddressingCell from './Cells/LineAddressingCell';
 import LineActionsCell from './Cells/LineActionsCell';
+import LineAddressingCell from './Cells/LineAddressingCell';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cells: PropTypes.object.isRequired,
   clipboard: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
-  firstActionsCellIsOnly: PropTypes.bool.isRequired,
   isPointerOnRow: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   isRowInClipboard: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   localPointerColumnId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
   localPointerModifiers: PropTypes.object, // eslint-disable-line react/no-unused-prop-types
-  originalRowIndex: PropTypes.number.isRequired,
   pointer: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
+  rowIndex: PropTypes.number.isRequired,
   rowUpdateTrigger: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
 };
 
@@ -39,26 +39,25 @@ class DataRow extends React.Component {
 
     return !arePropsEqual(currentProps, nextProps, [
       'rowUpdateTrigger', // some cells' value changed
-      'firstActionsCellIsOnly', // only one row/column left or otherwise
       'isRowInClipboard', // clipboard changes
       'isPointerOnRow', // pointer movement up/down
       'localPointerColumnId', // pointer movement left/right
       'localPointerModifiers', // edit/unedit cell
-      'originalRowIndex', // add/remove rows
+      'rowIndex', // add/remove rows
       'columns', // add/remove columns
+      'menu', // click on menu
     ]);
   }
 
   render() {
     const {
-      actions,
       cells,
       clipboard,
       columns,
-      firstActionsCellIsOnly,
-      originalRowIndex,
+      rowIndex,
       pointer,
       rowId,
+      menu,
     } = this.props;
 
     const getDataCellId = (columnIndex) => {
@@ -67,24 +66,24 @@ class DataRow extends React.Component {
 
     const outputCells = [];
 
-    // LineActionsCell.
     outputCells.push(
       <LineActionsCell
-        actions={actions}
-        id={getDataCellId(0)}
-        isOnly={firstActionsCellIsOnly}
+        {...this.props}
+        cellId={getDataCellId(0)}
+        isOnly={columns.length === FICTIVE_LINES_NUMBER + 1}
         key={getDataCellId(0)}
-        pos={[originalRowIndex, -2]}
+        menuVisibility={menu[getDataCellId(0)]}
+        pos={[rowIndex - FICTIVE_LINES_NUMBER, - FICTIVE_LINES_NUMBER]}
       />
     );
 
     // LineAddressingCell.
     outputCells.push(
       <LineAddressingCell
-        actions={actions}
+        {...this.props}
         id={getDataCellId(1)}
         key={getDataCellId(1)}
-        pos={[originalRowIndex, -1]}
+        pos={[rowIndex - FICTIVE_LINES_NUMBER, -1]}
       />
     );
 
@@ -111,7 +110,7 @@ class DataRow extends React.Component {
     };
 
     // The rest.
-    for (let columnIndex = 2; columnIndex < columns.length; columnIndex += 1) {
+    for (let columnIndex = FICTIVE_LINES_NUMBER; columnIndex < columns.length; columnIndex += 1) {
       const dataCellId = getDataCellId(columnIndex);
       const dataCellProps = getDataCellProps(
         dataCellId,
@@ -122,11 +121,10 @@ class DataRow extends React.Component {
 
       outputCells.push(
         <DataCell
+          {...this.props}
           {...dataCellProps}
-          actions={actions}
-          id={dataCellId}
+          cellId={dataCellId}
           key={dataCellId}
-          pointer={pointer}
         />
       );
     }

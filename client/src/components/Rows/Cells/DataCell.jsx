@@ -11,7 +11,7 @@ import TextareaAutosize from '../../../lib/react-textarea-autosize/TextareaAutos
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
+  cellId: PropTypes.string.isRequired,
   isEditing: PropTypes.bool.isRequired,
   isOnClipboard: PropTypes.bool.isRequired,
   isPointed: PropTypes.bool.isRequired,
@@ -60,6 +60,10 @@ class DataCell extends React.Component {
   }
 
   clickHandler(evt, cellId) {
+    // FIXME: doesn't work.
+    // // Prevents firing documentClickHandler().
+    // evt.nativeEvent.stopImmediatePropagation();
+
     this.props.actions.setPointer({ cellId, modifiers: {} });
   }
 
@@ -153,7 +157,7 @@ class DataCell extends React.Component {
   render() {
     const {
       actions,
-      id,
+      cellId,
       isEditing,
       isOnClipboard,
       isPointed,
@@ -182,7 +186,7 @@ class DataCell extends React.Component {
           defaultValue={value}
           disabled={disabled}
           inputRef={(c) => { this.textareaInput = c; }}
-          key={JSON.stringify({ id, value, isPointed, isEditing, isSelectingOnFocus })}
+          key={JSON.stringify({ cellId, value, isPointed, isEditing, isSelectingOnFocus })}
           maxWidth="512px"
           onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
           onHeightChange={() => this.onHeightChangeHandler(this.textareaInput)}
@@ -206,10 +210,10 @@ class DataCell extends React.Component {
     return (
       <div
         className={classnames.join(' ')}
-        id={id}
-        onClick={disabled && ((evt) => this.clickHandler(evt, id))}
-        onDoubleClick={(evt) => this.doubleClickHandler(evt, id)}
-        onMouseOver={() => { actions.setHover(id); }}
+        id={cellId}
+        onClick={disabled && ((evt) => this.clickHandler(evt, cellId))}
+        onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
+        onMouseOver={() => { actions.setHover(cellId); }}
       >
         <div className="data-wrapper">{textareaOutput}</div>
       </div>

@@ -11,7 +11,7 @@ import Menu from '../../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
+  cellId: PropTypes.string.isRequired,
   isHover: PropTypes.bool,
   isOnly: PropTypes.bool.isRequired,
   pos: PropTypes.array.isRequired,
@@ -25,18 +25,23 @@ class LineActionsCell extends React.Component {
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
-    return !arePropsEqual(currentProps, nextProps, ['isHover', 'isOnly', 'pos']);
+    return !arePropsEqual(currentProps, nextProps, [
+      'isHover',
+      'isOnly',
+      'pos',
+      'menu',
+    ]);
   }
 
   render() {
-    const cellsButtonId = `line-actions-button-${this.props.id}`;
     const {
       actions,
-      id,
+      cellId,
       isHover,
       isOnly,
       pos,
     } = this.props;
+
     const lineRef = getLineRef(pos);
 
     const cellsMenuItems = [];
@@ -45,7 +50,7 @@ class LineActionsCell extends React.Component {
       if (!isOnly) {
         cellsMenuItems.push({
           action: () => actions.reduce(pos),
-          icon: 'close',
+          icon: 'Close',
 
           // TODO: i18n.
           label: 'Delete row',
@@ -54,12 +59,12 @@ class LineActionsCell extends React.Component {
       cellsMenuItems.push(
         {
           action: () => actions.expand(pos),
-          icon: 'keyboard-arrow-up',
+          icon: 'KeyboardArrowUp',
           label: 'Insert row above',
         },
         {
           action: () => actions.expand([getRowNumber(pos) + 1, getColumnNumber(pos)]),
-          icon: 'keyboard-arrow-down',
+          icon: 'KeyboardArrowDown',
           label: 'Insert row below',
         }
       );
@@ -67,19 +72,19 @@ class LineActionsCell extends React.Component {
       if (!isOnly) {
         cellsMenuItems.push({
           action: () => actions.reduce(pos),
-          icon: 'close',
+          icon: 'Close',
           label: 'Delete column',
         });
       }
       cellsMenuItems.push(
         {
           action: () => actions.expand(pos),
-          icon: 'chevron-left',
+          icon: 'ChevronLeft',
           label: 'Insert column at left',
         },
         {
           action: () => actions.expand([getRowNumber(pos), getColumnNumber(pos) + 1]),
-          icon: 'chevron-right',
+          icon: 'ChevronRight',
           label: 'Insert column at right',
         }
       );
@@ -88,15 +93,12 @@ class LineActionsCell extends React.Component {
     return (
       <div
         className={`td line-actions ${lineRef.toLowerCase()} ${isHover ? 'hover' : ''}`}
-        onMouseOver={() => { actions.setHover(id); }}
+        onMouseOver={() => actions.setHover(cellId)}
       >
         <Menu
-          actions={actions}
-          buttonIcon="more-vert"
-          buttonId={cellsButtonId}
-          isOnly={isOnly}
+          {...this.props}
+          icon="MoreVert"
           menuItems={cellsMenuItems}
-          pos={pos}
         />
       </div>
     );

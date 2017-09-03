@@ -5,17 +5,14 @@ import {
   arePropsEqual,
   getCellId,
 } from '../../core';
+import { FICTIVE_LINES_NUMBER } from '../../containers/Spreadsheet';
 import LineActionsCell from './Cells/LineActionsCell';
 import TableActionsCell from './Cells/TableActionsCell';
 
 const propTypes = {
-  actions: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
-  data: PropTypes.object.isRequired,
-  firstActionsCellIsOnly: PropTypes.bool.isRequired,
   hoverColumnId: PropTypes.string,
-  requests: PropTypes.object.isRequired,
-  requestsQueueSize: PropTypes.number.isRequired,
+  menu: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
   shortId: PropTypes.string.isRequired,
 };
@@ -29,21 +26,16 @@ class ActionsRow extends React.Component {
     const currentProps = this.props;
 
     return !arePropsEqual(currentProps, nextProps,
-      ['hoverColumnId', 'firstActionsCellIsOnly', 'requestsQueueSize']
+      ['hoverColumnId', 'requests', 'columns', 'menu']
     );
   }
 
   render() {
     const {
-      actions,
       columns,
-      data,
-      firstActionsCellIsOnly,
       hoverColumnId,
-      requests,
-      requestsQueueSize,
+      menu,
       rowId,
-      shortId,
     } = this.props;
 
     const getActionCellId = (columnIndex) => {
@@ -55,13 +47,10 @@ class ActionsRow extends React.Component {
     // TableActionsCell.
     outputCells.push(
       <TableActionsCell
-        actions={actions}
-        data={data}
-        id={getActionCellId(0)}
+        {...this.props}
+        cellId={getActionCellId(0)}
         key={getActionCellId(0)}
-        requests={requests}
-        requestsQueueSize={requestsQueueSize}
-        shortId={shortId}
+        menuVisibility={menu[getActionCellId(0)]}
       />
     );
 
@@ -75,17 +64,18 @@ class ActionsRow extends React.Component {
     );
 
     // The rest.
-    for (let columnIndex = 2; columnIndex < columns.length; columnIndex += 1) {
+    for (let columnIndex = FICTIVE_LINES_NUMBER; columnIndex < columns.length; columnIndex += 1) {
       const actionCellId = getActionCellId(columnIndex);
 
       outputCells.push(
         <LineActionsCell
-          actions={actions}
-          id={actionCellId}
+          {...this.props}
+          cellId={actionCellId}
           isHover={hoverColumnId === columns[columnIndex]}
-          isOnly={firstActionsCellIsOnly}
+          isOnly={columns.length === FICTIVE_LINES_NUMBER + 1}
           key={actionCellId}
-          pos={[-2, columnIndex - 2]}
+          menuVisibility={menu[actionCellId]}
+          pos={[-FICTIVE_LINES_NUMBER, columnIndex - FICTIVE_LINES_NUMBER]}
         />
       );
     }

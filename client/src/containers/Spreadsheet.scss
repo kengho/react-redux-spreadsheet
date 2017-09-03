@@ -17,6 +17,10 @@ body {
   background-color: $body-bgcolor;
 }
 
+svg {
+  padding: 8px;
+}
+
 .table {
   display: table;
   border-collapse: separate;
@@ -140,38 +144,5 @@ body {
 .table:hover {
   & .table-actions {
     visibility: visible;
-  }
-}
-
-.menu {
-  // This magic stretches 'mdl-menu__container' 48 px to up,
-  // preventing it disappearance when mouse leaves button to the right.
-  & .mdl-menu__container {
-    margin-top: -48px;
-    margin-bottom: 48px;
-
-    & .mdl-menu__outline {
-      position: absolute;
-      top: 48px;
-    }
-
-    & .mdl-menu {
-      position: absolute;
-      top: 48px;
-
-      & .mdl-menu__item {
-        // Icons style.
-        & svg {
-          padding-right: 8px;
-        }
-
-        &.selected {
-          // Color from here:
-          // https://github.com/google/material-design-lite/blob/88872e672e41c56af0a78a35b34373b8c4a8c49d/src/_variables.scss
-          // ($data-table-selection-color).
-          background-color: #e0e0e0;
-        }
-      }
-    }
   }
 }

@@ -1,3 +1,5 @@
+import IconButton from 'material-ui/IconButton';
+import MaterialMenu from 'material-ui/Menu';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -6,116 +8,96 @@ import MenuItem from './MenuItem';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  buttonIcon: PropTypes.string,
-  buttonId: PropTypes.string.isRequired,
-  hideOnMouseLeave: PropTypes.bool,
-  isOnly: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
+  icon: PropTypes.string.isRequired,
+  cellId: PropTypes.string.isRequired,
   menuItems: PropTypes.array.isRequired,
-  pos: PropTypes.array, // eslint-disable-line react/no-unused-prop-types
+  menuVisibility: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
-  buttonIcon: '',
-  hideOnMouseLeave: true,
-
-  // Defaults for Menu in TableActionsCell.
-  isOnly: false,
-  pos: [],
+  menuVisibility: false,
 };
 
 class Menu extends React.Component {
   constructor(props) {
     super(props);
 
-    this.keyDownHandler = (evt) => {
-      // TODO: ArrowLeft and ArrowRight to jump to adjacent menu.
-      // Prevents firing documentKeyDownHandler() and lets MDL handler to work.
-      evt.nativeEvent.stopImmediatePropagation();
-    };
-
-    this.cellActionsMenuOnMouseLeaveHandler = () => {
-      // 'is-visible' class applies to '.mdl-menu__container', parent of '.mdl-menu'.
-      // ('MaterialMenu.toggle()' causes bugs when user click on list item
-      // and moves mouse fast after that.)
-      const container = this.menu.parentNode;
-      container.classList.remove('is-visible');
-    };
-
-    this.menu = null;
-  }
-
-  componentDidMount() {
-    componentHandler.upgradeElement(this.menu); // eslint-disable-line no-undef
+    this.closeMenu = this.closeMenu.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.onClickHandler = this.onClickHandler.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
-    return !arePropsEqual(currentProps, nextProps, ['isOnly', 'pos']);
+    return !arePropsEqual(currentProps, nextProps, [
+      'menuItems',
+      'menuVisibility',
+    ]);
+  }
+
+  onClickHandler(evt) {
+    this.anchorEl = evt.currentTarget;
+    this.props.actions.closeAllMenus();
+    this.props.actions.openMenu(this.props.cellId);
+  }
+
+  keyDownHandler(evt) {
+    // Prevents firing documentKeyDownHandler() and lets MDL handler to work.
+    evt.nativeEvent.stopImmediatePropagation();
+
+    // TODO: goto adjacent menu via arrows.
+    if (evt.key === 'Escape') {
+      this.props.actions.closeMenu(this.props.cellId);
+    }
+  }
+
+  closeMenu() {
+    this.props.actions.closeMenu(this.props.cellId);
   }
 
   render() {
     const {
-      actions,
-      buttonIcon,
-      buttonId,
-      hideOnMouseLeave,
+      cellId,
+      icon,
       menuItems,
+      menuVisibility,
     } = this.props;
 
-    let ButtonIcon = require(`react-icons/lib/md/${buttonIcon}`);
+    const MenuIcon = require(`material-ui-icons/${icon}`).default;
 
-    const outputMenuItems = [];
-    menuItems.forEach((item) => {
-      outputMenuItems.push(
-        <MenuItem
-          action={item.action}
-          actions={actions}
-          dialogDisableYesButton={item.dialogDisableYesButton}
-          dialogVariant={item.dialogVariant}
-          icon={item.icon}
-          key={`menu-button-${buttonId}-${item.label}`}
-          label={item.label}
-        />
-      );
-    });
-
+    // TODO: add background hover color.
     return (
       <div
         className="menu"
-        onKeyDown={this.keyDownHandler}
-        onMouseLeave={hideOnMouseLeave && (() => this.cellActionsMenuOnMouseLeaveHandler())}
       >
-        <button
-          className="mdl-button mdl-js-button mdl-button--icon"
-          id={buttonId}
-          onClick={
-            () => {
-              setTimeout(() => {
-                // REVIEW: this should be placed somewhere after this line:
-                //   https://github.com/google/material-design-lite/blob/
-                //   fd21836fd49d94270e58b252187ebe93410209e4/src/menu/menu.js#L404
-                //   But I didn't find better way to do so because of it's delays
-                //   (excluding overriding entire MaterialMenu.prototype.show).
-                //   Here we wait until animation stops and the focusing on first menu item.
-                // TODO: focus on '0-th' menu item somehow, so ArrowDown goes to 1st.
-                this.menu.querySelector('li').focus();
-              }, 100);
-            }
-          }
+        <IconButton
+          onClick={this.onClickHandler}
         >
-          <ButtonIcon size={24} />
-        </button>
+          <MenuIcon />
+        </IconButton>
+        <MaterialMenu
+          anchorEl={this.anchorEl}
+          onKeyDown={this.keyDownHandler}
+          open={menuVisibility}
+        >
+          {menuItems.map(item => {
+            const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
-        { /* blur unfocuses previously focused menu item when user uses mouse. */ }
-        <ul
-          className="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-          htmlFor={buttonId}
-          onMouseOver={(evt) => { evt.target.blur(); }}
-          ref={(c) => { this.menu = c; }}
-        >
-          {outputMenuItems}
-        </ul>
+            return (
+              <MenuItem
+                {...this.props}
+                {...item}
+                key={item.label}
+                closeMenu={this.closeMenu}
+              >
+                <ItemIcon size={24} />
+                {item.label}
+              </MenuItem>
+            );
+          })
+        }
+        </MaterialMenu>
       </div>
     );
   }

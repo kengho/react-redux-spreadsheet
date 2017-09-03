@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { MenuItem as MaterialMenuItem } from 'material-ui/Menu';
 
 const propTypes = {
   // REVIEW: since all our actions can be expressed as plain objects,
@@ -29,10 +30,11 @@ const MenuItem = (props) => {
   const {
     action,
     actions,
+    children,
     dialogDisableYesButton,
     dialogVariant,
     icon,
-    label,
+    closeMenu,
   } = props;
 
   let effectiveAction;
@@ -44,9 +46,13 @@ const MenuItem = (props) => {
         variant: dialogVariant,
         visibility: true,
       });
+      closeMenu();
     };
   } else {
-    effectiveAction = action;
+    effectiveAction = () => {
+      action();
+      closeMenu();
+    };
   }
 
   // Delay action until ripple animation isn't finished.
@@ -57,16 +63,12 @@ const MenuItem = (props) => {
     );
   };
 
-  let Icon = require(`react-icons/lib/md/${icon}`);
-
   return (
-    <li
-      className="mdl-menu__item"
+    <MaterialMenuItem
       onClick={delayedAction}
     >
-      <Icon size={24} />
-      {label}
-    </li>
+      {children}
+    </MaterialMenuItem>
   );
 };
 

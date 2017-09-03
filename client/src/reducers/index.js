@@ -1,12 +1,13 @@
 import { combineReducers } from 'redux-immutable';
-import undoable from 'redux-undo';
 import { routerReducer } from 'react-router-redux';
+import undoable from 'redux-undo';
 
 import dialog from './dialog';
 import landing from './landing';
 import meta from './meta';
 import requests from './requests';
 import table from './table';
+import ui from './ui';
 
 const rootReducer = combineReducers({
   dialog,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
     },
   }),
   router: routerReducer,
+  ui,
 });
 
 export default rootReducer;

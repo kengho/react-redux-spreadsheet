@@ -15,6 +15,7 @@ import * as LandingActions from '../actions/landing'; // setMessages()
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
 import * as TableActions from '../actions/table';
+import * as UiActions from '../actions/ui';
 import * as UndoRedoActions from '../actions/undoRedo';
 import ActionsRow from './../components/Rows/ActionsRow';
 import AddressingRow from './../components/Rows/AddressingRow';
@@ -24,6 +25,8 @@ import findKeyAction from '../lib/findKeyAction';
 import getRootPath from './../lib/getRootPath';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
 import shiftScrollbar from '../lib/shiftScrollbar';
+
+export const FICTIVE_LINES_NUMBER = 2;
 
 const mapStateToProps = (state) => {
   // FIXME: in tests table wraps into undoable twice
@@ -39,6 +42,7 @@ const mapStateToProps = (state) => {
   return {
     requests: state.get('requests'),
     table,
+    ui: state.get('ui'),
     undo: {
       canRedo: state.get('table').future.length > 0,
       canUndo: state.get('table').past.length > 1, // omitting SET_TABLE_FROM_JSON
@@ -54,6 +58,7 @@ const mapDispatchToProps = (dispatch) => ({
       ...MetaActions,
       ...RequestsActions,
       ...TableActions,
+      ...UiActions,
       ...UndoRedoActions,
     }, dispatch),
   },
@@ -64,8 +69,8 @@ class Spreadsheet extends React.Component {
     super(props);
 
     this.documentKeyDownHandler = this.documentKeyDownHandler.bind(this);
+    this.documentClickHandler = this.documentClickHandler.bind(this);
 
-    this.fictiveLinesSize = 2;
     this.fictiveRows = [`r${uuid()}`, `r${uuid()}`];
     this.fictiveColumns = [`c${uuid()}`, `c${uuid()}`];
     this.prepareTable = (somePops) => {
@@ -85,6 +90,7 @@ class Spreadsheet extends React.Component {
 
   componentDidMount() {
     document.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
+    document.addEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
 
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
@@ -100,7 +106,7 @@ class Spreadsheet extends React.Component {
     }
 
     // Fetch data after initial render.
-    if (this.table.data.rows.length - this.fictiveLinesSize === 0) {
+    if (this.table.data.rows.length - FICTIVE_LINES_NUMBER === 0) {
       const shortId = this.props.match.params.shortId;
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
@@ -129,6 +135,14 @@ class Spreadsheet extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
+    document.removeEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
+  }
+
+  documentClickHandler(evt) {
+    this.props.actions.closeAllMenus();
+
+    // FIXME: this action is messing with DataCell's click.
+    // this.props.actions.clearPointer();
   }
 
   documentKeyDownHandler(evt) {
@@ -157,8 +171,8 @@ class Spreadsheet extends React.Component {
           if (!cellId) {
             // Default pointer on [0, 0].
             cellId = getCellId(
-              this.table.data.rows[this.fictiveLinesSize],
-              this.table.data.columns[this.fictiveLinesSize]
+              this.table.data.rows[FICTIVE_LINES_NUMBER],
+              this.table.data.columns[FICTIVE_LINES_NUMBER]
             );
           }
           this.props.actions.setPointer({ cellId, modifiers });
@@ -207,8 +221,8 @@ class Spreadsheet extends React.Component {
           const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
 
           const pointedCellAfterPos = [
-            rows.indexOf(getRowId(pointedCellAfter.id)) - this.fictiveLinesSize,
-            columns.indexOf(getColumnId(pointedCellAfter.id)) - this.fictiveLinesSize,
+            rows.indexOf(getRowId(pointedCellAfter.id)) - FICTIVE_LINES_NUMBER,
+            columns.indexOf(getColumnId(pointedCellAfter.id)) - FICTIVE_LINES_NUMBER,
           ];
 
           // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.
@@ -344,7 +358,7 @@ class Spreadsheet extends React.Component {
 
   render() {
     // TODO: draw some kind of spinner if table is empty.
-    if (this.table.data.rows.length - this.fictiveLinesSize === 0) {
+    if (this.table.data.rows.length - FICTIVE_LINES_NUMBER === 0) {
       return <div />;
     }
 
@@ -365,7 +379,7 @@ class Spreadsheet extends React.Component {
     // N - line addressing
     // D - data cell
 
-    const { actions, requests } = this.props;
+    const { actions, requests, ui } = this.props;
     const clipboard = this.table.session.clipboard;
     const columns = this.table.data.columns;
     const pointer = this.table.session.pointer;
@@ -381,13 +395,12 @@ class Spreadsheet extends React.Component {
         actions={actions}
         columns={columns}
         data={this.props.table.toJS().data}
-        shortId={this.props.match.params.shortId}
-        firstActionsCellIsOnly={columns.length - this.fictiveLinesSize === 1}
         hoverColumnId={this.table.session.hover && getColumnId(this.table.session.hover)}
         key={rows[0]}
+        menu={ui.get('menu').toJS()}
         requests={requests.toJS()}
-        requestsQueueSize={requests.toJS().queue.length}
         rowId={rows[0]}
+        shortId={this.props.match.params.shortId}
       />
     );
 
@@ -403,7 +416,7 @@ class Spreadsheet extends React.Component {
 
     // The rest.
     const cells = this.table.data.cells;
-    for (let rowIndex = this.fictiveLinesSize; rowIndex < rows.length; rowIndex += 1) {
+    for (let rowIndex = FICTIVE_LINES_NUMBER; rowIndex < rows.length; rowIndex += 1) {
       const rowId = rows[rowIndex];
 
       // Uses in shouldComponentUpdate().
@@ -433,13 +446,13 @@ class Spreadsheet extends React.Component {
           cells={cells}
           clipboard={clipboard}
           columns={columns}
-          firstActionsCellIsOnly={rows.length - this.fictiveLinesSize === 1}
           isPointerOnRow={isPointerOnRow}
           isRowInClipboard={isRowInClipboard}
           key={rowId}
           localPointerColumnId={localPointerColumnId}
           localPointerModifiers={localPointerModifiers}
-          originalRowIndex={rowIndex - this.fictiveLinesSize}
+          rowIndex={rowIndex}
+          menu={ui.get('menu').toJS()}
           pointer={pointer}
           rowId={rowId}
           rowUpdateTrigger={updateTriggers.data.rows[rowId]}
@@ -448,7 +461,6 @@ class Spreadsheet extends React.Component {
     }
 
     // TODO: show requests queue.
-    // TODO: handle click ouside table.
     // TODO: scroll to top/bottom buttons.
     // TODO: store pointer coordinates in URL and scroll to pointer on load.
     return (

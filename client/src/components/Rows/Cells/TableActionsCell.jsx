@@ -1,5 +1,5 @@
 import FileSaver from 'file-saver';
-import IconButton from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
 import React from 'react';
 import SyncProblem from 'material-ui-icons/SyncProblem';
@@ -14,11 +14,10 @@ import Menu from '../../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  cellId: PropTypes.string.isRequired,
   data: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
-  shortId: PropTypes.string,
   requests: PropTypes.object.isRequired,
-  requestsQueueSize: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+  shortId: PropTypes.string,
 };
 
 const defaultProps = {
@@ -28,7 +27,7 @@ class TableActionsCell extends React.Component {
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
-    return !arePropsEqual(currentProps, nextProps, ['requestsQueueSize']);
+    return !arePropsEqual(currentProps, nextProps, ['requests', 'menu']);
   }
 
   componentDidUpdate() {
@@ -51,7 +50,7 @@ class TableActionsCell extends React.Component {
   render() {
     const {
       actions,
-      id,
+      cellId,
       requests,
      } = this.props;
 
@@ -65,7 +64,7 @@ class TableActionsCell extends React.Component {
       output = (
         <div>
           <IconButton disabled>
-            <SyncProblem />
+            <SyncProblem size={24} />
           </IconButton>
         </div>
       );
@@ -73,24 +72,24 @@ class TableActionsCell extends React.Component {
       const tableMenuItems = [
         {
           dialogVariant: 'INFO',
-          icon: 'help-outline',
+          icon: 'HelpOutline',
           label: 'Help',
         },
         {
           action: () => this.exportToCSV(),
-          icon: 'file-upload',
+          icon: 'FileUpload',
           label: 'Export to CSV',
         },
         {
           dialogDisableYesButton: true,
           dialogVariant: 'IMPORT',
-          icon: 'file-download',
+          icon: 'FileDownload',
           label: 'Import from CSV',
         },
         {
           action: pushRequest('DELETE', 'destroy'),
           dialogVariant: 'CONFIRM',
-          icon: 'close',
+          icon: 'Close',
           label: 'Delete',
         },
       ];
@@ -98,14 +97,12 @@ class TableActionsCell extends React.Component {
       output = (
         <div
           className="td table-actions"
-          id={id}
-          onMouseOver={() => { actions.setHover(id); }}
+          id={cellId}
+          onMouseOver={() => actions.setHover(cellId)}
         >
           <Menu
-            actions={actions}
-            buttonIcon="more-vert"
-            buttonId="table-actions-button"
-            hideOnMouseLeave={false}
+            {...this.props}
+            icon="MoreVert"
             menuItems={tableMenuItems}
           />
         </div>
