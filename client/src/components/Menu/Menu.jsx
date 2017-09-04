@@ -80,11 +80,9 @@ class Menu extends React.Component {
           <MenuIcon />
         </IconButton>
 
-        { /* onMouseOver ... blur() unfocuses previously focused menu item when user uses mouse. */ }
         <MaterialMenu
           anchorEl={this.anchorEl}
           onKeyDown={this.keyDownHandler}
-          onMouseOver={(evt) => evt.target.blur()}
           open={menuVisibility}
         >
           {menuItems.map((item) => {
