@@ -257,9 +257,10 @@ class Dialog extends React.Component {
 
     return (
       <MaterialDialog
-        onKeyDown={this.keyDownHandler}
-        open={open}
         className="dialog"
+        onKeyDown={this.keyDownHandler}
+        onRequestClose={actions.closeDialog}
+        open={open}
       >
         <MaterialDialogTitle>
           {title}
