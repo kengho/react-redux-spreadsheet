@@ -4,12 +4,15 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { arePropsEqual } from '../../core';
+import getDOM from '../../lib/getDOM';
 import MenuItem from './MenuItem';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  icon: PropTypes.string.isRequired,
   cellId: PropTypes.string.isRequired,
+  previousCellId: PropTypes.string,
+  nextCellId: PropTypes.string,
+  icon: PropTypes.string.isRequired,
   menuItems: PropTypes.array.isRequired,
   menuVisibility: PropTypes.bool.isRequired,
 };
@@ -25,6 +28,12 @@ class Menu extends React.Component {
     this.closeMenu = this.closeMenu.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.onClickHandler = this.onClickHandler.bind(this);
+
+    this.buttonId = `cell-${props.cellId}-menu-button`;
+    this.getButtonDOM = () => getDOM(this.buttonId);
+
+    this.menuId = `cell-${props.cellId}-menu`;
+    this.getMenuDOM = () => getDOM(this.menuId);
   }
 
   shouldComponentUpdate(nextProps) {
@@ -40,7 +49,6 @@ class Menu extends React.Component {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    this.anchorEl = evt.currentTarget;
     this.props.actions.closeAllMenus();
     this.props.actions.openMenu(this.props.cellId);
   }
@@ -49,9 +57,56 @@ class Menu extends React.Component {
     // Prevents firing documentKeyDownHandler() and lets MDL handler to work.
     evt.nativeEvent.stopImmediatePropagation();
 
-    // TODO: goto adjacent menu via arrows.
+    const {
+      actions,
+      cellId,
+      nextCellId,
+      previousCellId,
+    } = this.props;
+
     if (evt.key === 'Escape') {
-      this.props.actions.closeMenu(this.props.cellId);
+      actions.closeMenu(cellId);
+    } else if (evt.key === 'ArrowLeft' && previousCellId) {
+      actions.closeMenu(cellId);
+      actions.openMenu(previousCellId);
+    } else if (evt.key === 'ArrowRight' && nextCellId) {
+      actions.closeMenu(cellId);
+      actions.openMenu(nextCellId);
+    }
+  }
+
+  componentDidMount() {
+    // HACK: getting button DOM for menu to mount in proper place.
+    //   Official way is to get it during click:
+    //   // (event) => { this.anchorEl = event.currentTarget } // on button
+    //
+    //   But I need to open menu programmatically (for ArrowLeft/ArrowRight hotkeys)
+    //   and I couldn't find a good way to do it w/o click.
+    //
+    //   This also works, but seems like another hack of the same magnitude:
+    //   // this.menuWrapper = this.refs.IconButton._reactInternalInstance._hostParent._hostNode;
+    //   // if (this.button) {
+    //   //   this.anchorEl = this.menuWrapper.querySelector('button');
+    //   // }
+    // TODO: fix. File issue or wait for API to change.
+    // this.button = document.querySelector(`#cell-${this.queryCellId}-menu-button`);
+    this.button = this.getButtonDOM();
+  }
+
+  componentDidUpdate() {
+    // HACK: getting menu DOM for focusing <li> after ArrowLeft/ArrowRight.
+    //   It couldn't be derived from this.button, because menu mounts into
+    //   entirely separated DOM part.
+    // HACK: without setTimeout() after first time pressing
+    //   ArrowLeft/ArrowRight on menu focus is losing immediately
+    //   (domready doesn't help; 200 ms are not enough).
+    // TODO: fix.
+    const menu = this.getMenuDOM();
+    if (menu) {
+      const firstMenuItem = menu.querySelector('li');
+      if (firstMenuItem) {
+        setTimeout(() => firstMenuItem.focus(), 300);
+      }
     }
   }
 
@@ -61,7 +116,6 @@ class Menu extends React.Component {
 
   render() {
     const {
-      cellId,
       icon,
       menuItems,
       menuVisibility,
@@ -69,19 +123,21 @@ class Menu extends React.Component {
 
     const MenuIcon = require(`material-ui-icons/${icon}`).default;
 
-    // TODO: add background hover color.
+    // TODO: add button background hover color.
+    // ids for componentDidMount() and componentDidUpdate().
     return (
       <div
         className="menu"
       >
         <IconButton
+          id={this.buttonId}
           onClick={this.onClickHandler}
         >
           <MenuIcon />
         </IconButton>
-
         <MaterialMenu
-          anchorEl={this.anchorEl}
+          anchorEl={this.button}
+          id={this.menuId}
           onKeyDown={this.keyDownHandler}
           open={menuVisibility}
         >

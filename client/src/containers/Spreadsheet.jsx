@@ -399,6 +399,7 @@ class Spreadsheet extends React.Component {
         menu={ui.get('menu').toJS()}
         requests={requests.toJS()}
         rowId={rows[0]}
+        rows={rows}
         shortId={this.props.match.params.shortId}
       />
     );
@@ -450,10 +451,11 @@ class Spreadsheet extends React.Component {
           key={rowId}
           localPointerColumnId={localPointerColumnId}
           localPointerModifiers={localPointerModifiers}
-          rowIndex={rowIndex}
           menu={ui.get('menu').toJS()}
           pointer={pointer}
           rowId={rowId}
+          rowIndex={rowIndex}
+          rows={rows}
           rowUpdateTrigger={updateTriggers.data.rows[rowId]}
         />
       );

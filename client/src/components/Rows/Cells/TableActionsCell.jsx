@@ -7,7 +7,9 @@ import SyncProblem from 'material-ui-icons/SyncProblem';
 import {
   arePropsEqual,
   convert,
+  getCellId,
 } from '../../../core';
+import { FICTIVE_LINES_NUMBER } from '../../../containers/Spreadsheet';
 import { pushRequest } from '../../../actions/requests';
 import datetime from '../../../lib/datetime';
 import Menu from '../../Menu/Menu';
@@ -15,8 +17,10 @@ import Menu from '../../Menu/Menu';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
+  columns: PropTypes.array.isRequired,
   data: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
+  rows: PropTypes.array.isRequired,
   shortId: PropTypes.string,
 };
 
@@ -51,7 +55,9 @@ class TableActionsCell extends React.Component {
     const {
       actions,
       cellId,
+      columns,
       requests,
+      rows,
      } = this.props;
 
     let output;
@@ -94,6 +100,9 @@ class TableActionsCell extends React.Component {
         },
       ];
 
+      const nextCellId = getCellId(rows[0], columns[FICTIVE_LINES_NUMBER]);
+      const previousCellId = getCellId(rows[FICTIVE_LINES_NUMBER], columns[0]);
+
       output = (
         <div
           className="td table-actions"
@@ -104,6 +113,8 @@ class TableActionsCell extends React.Component {
             {...this.props}
             icon="MoreVert"
             menuItems={tableMenuItems}
+            nextCellId={nextCellId}
+            previousCellId={previousCellId}
           />
         </div>
       );

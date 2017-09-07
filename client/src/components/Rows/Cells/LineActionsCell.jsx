@@ -6,15 +6,18 @@ import {
   getColumnNumber,
   getLineRef,
   getRowNumber,
+  getCellId,
 } from '../../../core';
 import Menu from '../../Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
+  columns: PropTypes.array.isRequired,
   isHover: PropTypes.bool,
   isOnly: PropTypes.bool.isRequired,
   pos: PropTypes.array.isRequired,
+  rows: PropTypes.array.isRequired,
 };
 
 const defaultProps = {
@@ -37,9 +40,11 @@ class LineActionsCell extends React.Component {
     const {
       actions,
       cellId,
+      columns,
       isHover,
       isOnly,
       pos,
+      rows,
     } = this.props;
 
     const lineRef = getLineRef(pos);
@@ -90,6 +95,50 @@ class LineActionsCell extends React.Component {
       );
     }
 
+    // TODO: to core.js; test.
+    //   (Should accept realPos as param. skipping FICTIVE_LINES_NUMBER in core.js.)
+    //   Ending (skipping empty cells) should be here.
+    const getAdjacentCellId = (direction) => {
+      const FICTIVE_LINES_NUMBER = 2;
+      const directionMap = {
+        'ROW': 0,
+        'COLUMN': 1,
+      };
+
+      const incrementMap = {
+        'NEXT': {
+          'ROW': -1,
+          'COLUMN': 1,
+        },
+        'PREVIOUS': {
+          'ROW': 1,
+          'COLUMN': -1,
+        },
+      };
+
+      let nextPos = [...pos];
+      const incrementingLineRef = directionMap[lineRef];
+      nextPos[incrementingLineRef] += incrementMap[direction][lineRef];
+
+      const realPos = nextPos.map((lineIndex) => lineIndex + FICTIVE_LINES_NUMBER);
+      if (rows[realPos[0]] && columns[realPos[1]]) {
+        return getCellId(rows[realPos[0]], columns[realPos[1]]);
+      }
+    }
+
+    let previousCellId = getAdjacentCellId('PREVIOUS');
+    let nextCellId = getAdjacentCellId('NEXT');
+
+    // Skip empty cell...
+    if (previousCellId === getCellId(rows[0], columns[1])) {
+      // ... straight to TableActionsCell.
+      previousCellId = getCellId(rows[0], columns[0]);
+    }
+    // And do the same for nextCellId while going through columns.
+    if (nextCellId === getCellId(rows[1], columns[0])) {
+      nextCellId = getCellId(rows[0], columns[0]);
+    }
+
     return (
       <div
         className={`td line-actions ${lineRef.toLowerCase()} ${isHover ? 'hover' : ''}`}
@@ -99,6 +148,8 @@ class LineActionsCell extends React.Component {
           {...this.props}
           icon="MoreVert"
           menuItems={cellsMenuItems}
+          nextCellId={nextCellId}
+          previousCellId={previousCellId}
         />
       </div>
     );

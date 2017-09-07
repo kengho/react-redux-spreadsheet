@@ -14,6 +14,7 @@ const propTypes = {
   hoverColumnId: PropTypes.string,
   menu: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
+  rows: PropTypes.array.isRequired,
   shortId: PropTypes.string.isRequired,
 };
 
@@ -67,6 +68,10 @@ class ActionsRow extends React.Component {
     for (let columnIndex = FICTIVE_LINES_NUMBER; columnIndex < columns.length; columnIndex += 1) {
       const actionCellId = getActionCellId(columnIndex);
 
+      // TODO: use {...other} notation. Like:
+      //   const { classes, onRequestClose, selectedValue, ...other } = this.props;
+      //   ...
+      //   <Dialog {...other}>
       outputCells.push(
         <LineActionsCell
           {...this.props}

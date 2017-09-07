@@ -44,7 +44,11 @@ Run in all browsers:
 * when there are only one row/column, delete row/column button shouldn't be present
 * lines addressing should update after adding/removing rows/columns
 * after showing menu first element should be active
-* after showing menu arrow, Enter and Escape keys should work
+* after showing menu arrow, Enter and Escape keys should work (ArrowLeft/ArrowRight should lead to adjacent cells' menus as shown below)
+*   → → → → → →
+*   ↑
+*   ↑
+*   ↑
 * after dialog appearing arrow, Enter and Escape keys should work
 * pressing Enter while there are pointer should make pointed cell editable and select all it's content
 * pressing F2 while there are pointer should make pointed cell editable and move cursor to the end of cell's content
