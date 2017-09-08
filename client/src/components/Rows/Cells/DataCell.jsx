@@ -1,13 +1,10 @@
 import domready from 'domready';
 import PropTypes from 'prop-types';
 import React from 'react';
+import TextareaAutosize from '@kengho/react-textarea-autosize';
 
 import { arePropsEqual } from '../../../core';
 import findKeyAction from '../../../lib/findKeyAction';
-
-// TODO: create own package or pull request to existing.
-import TextareaAutosize from '../../../lib/react-textarea-autosize/TextareaAutosize';
-// import TextareaAutosize from 'react-textarea-autosize';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
