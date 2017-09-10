@@ -19,8 +19,8 @@ describe('table', () => {
   it('set table from JSON', () => {
     const tableJSON = `{
       "data": {
-        "rows": ["r0", "r1", "r2"],
-        "columns": ["c0", "c1", "c2", "c3"],
+        "rows": [{ "id": "r0" }, { "id": "r1" }, { "id": "r2" }],
+        "columns": [{ "id": "c0" }, { "id": "c1" }, { "id": "c2" }, { "id": "c3" }],
         "cells": {}
       },
       "session": {
@@ -49,8 +49,8 @@ describe('table', () => {
 
     const expectedTable = fromJS({
       data: {
-        rows: ['r0', 'r1', 'r2'],
-        columns: ['c0', 'c1', 'c2', 'c3'],
+        rows: [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }],
+        columns: [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }],
         cells: {},
       },
       session: {
@@ -80,8 +80,8 @@ describe('table', () => {
   it('set table from JSON (no session given)', () => {
     const tableJSON = `{
       "data": {
-        "rows": ["r0", "r1", "r2"],
-        "columns": ["c0", "c1", "c2", "c3"],
+        "rows": [{ "id": "r0" }, { "id": "r1" }, { "id": "r2" }],
+        "columns": [{ "id": "c0" }, { "id": "c1" }, { "id": "c2" }, { "id": "c3" }],
         "cells": {}
       }
     }`;
@@ -91,8 +91,8 @@ describe('table', () => {
 
     const expectedTable = fromJS({
       data: {
-        rows: ['r0', 'r1', 'r2'],
-        columns: ['c0', 'c1', 'c2', 'c3'],
+        rows: [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }],
+        columns: [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }],
         cells: {},
       },
       session: {
@@ -327,7 +327,7 @@ describe('table', () => {
         store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
         store.dispatch(TableActions.movePointer('ArrowDown'));
 
-        const expectedRows = fromJS(['r0',  'r1',  'r2',  'r3a']);
+        const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }, { id: 'r3a' }]);
         const expectedPointer = fromJS({
           cellId: 'r3,c2',
           modifiers: {},
@@ -490,7 +490,7 @@ describe('table', () => {
         store.dispatch(TableActions.setPointer({ cellId: 'r0,c3', modifiers: {} }));
         store.dispatch(TableActions.movePointer('ArrowRight'));
 
-        const expectedColumns = fromJS(['c0',  'c1',  'c2',  'c3',  'c4a']);
+        const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }, { id: 'c4a' }]);
         const expectedPointer = fromJS({
           cellId: 'r0,c4',
           modifiers: {},
@@ -662,7 +662,7 @@ describe('table', () => {
       store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
       store.dispatch(TableActions.reduce([1, -1]));
 
-      const expectedRows = fromJS(['r0', 'r2']);
+      const expectedRows = fromJS([{ id: 'r0' }, { id: 'r2' }]);
       const expectedPointer = fromJS({
         cellId: null,
         modifiers: {},
@@ -678,7 +678,7 @@ describe('table', () => {
 
       store.dispatch(TableActions.reduce([0, -1]));
 
-      const expectedRows = fromJS(['r0']);
+      const expectedRows = fromJS([{ id: 'r0' }]);
 
       expect(store.getState().get('table').present.getIn(['data', 'rows'])).to.equal(expectedRows);
     });
@@ -690,7 +690,7 @@ describe('table', () => {
       store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
       store.dispatch(TableActions.reduce([-1, 1]));
 
-      const expectedColumns = fromJS(['c0', 'c2', 'c3']);
+      const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c2' }, { id: 'c3' }]);
       const expectedPointer = fromJS({
         cellId: null,
         modifiers: {},
@@ -706,7 +706,7 @@ describe('table', () => {
 
       store.dispatch(TableActions.reduce([-1, 0]));
 
-      const expectedColumns = fromJS(['c0']);
+      const expectedColumns = fromJS([{ id: 'c0' }]);
 
       expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
     });
@@ -719,7 +719,7 @@ describe('table', () => {
 
       store.dispatch(TableActions.expand([1, -1]));
 
-      const expectedRows = fromJS(['r0', 'r1a', 'r1', 'r2']);
+      const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1a' }, { id: 'r1' }, { id: 'r2' }]);
 
       expect(store.getState().get('table').present.getIn(['data', 'rows'])).to.equal(expectedRows);
     });
@@ -730,7 +730,7 @@ describe('table', () => {
 
       store.dispatch(TableActions.expand([-1, 1]));
 
-      const expectedColumns = fromJS(['c0', 'c1a', 'c1', 'c2', 'c3']);
+      const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1a' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }]);
 
       expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
     });

@@ -28,13 +28,12 @@ describe('core', () => {
 
   it('return initial lines (rows and columns)', () => {
     const expectedInitialLines = {
-      rows: ['r0', 'r1', 'r2'],
-      columns: ['c0', 'c1', 'c2',  'c3'],
+      rows: [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }],
+      columns: [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }],
     };
 
     expect(Core.initialLines(3, 4)).to.deep.equal(expectedInitialLines);
   });
-
 
   it('return initial table', () => {
     const expectedInitialTable = {
@@ -72,15 +71,15 @@ describe('core', () => {
   });
 
   it('get maximum pos in table', () => {
-    const rows = ['r0', 'r1', 'r2'];
-    const columns = ['c0', 'c1', 'c2',  'c3'];
+    const rows = [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }];
+    const columns = [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }];
 
     expect(Core.getMaxPos(rows, columns)).to.deep.equal([2, 3]);
   });
 
   it('get position after key pressed', () => {
-    const rows = ['r0', 'r1', 'r2'];
-    const columns = ['c0', 'c1', 'c2',  'c3'];
+    const rows = [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }];
+    const columns = [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }];
 
     expect(Core.calcNewPos(rows, columns, null,   'ArrowUp')).to.deep.equal([2, 0]); // no pos
     expect(Core.calcNewPos(rows, columns, [1, 2], 'ArrowUp')).to.deep.equal([0, 2]); // OK
@@ -113,7 +112,7 @@ describe('core', () => {
     expect(Core.calcNewPos(rows, columns, [2, 3], 'End')).to.deep.equal([2, 3]); // border
   });
 
-  it('return are props equal in two objects (sting, true)', () => {
+  it('return are props equal in two objects (string, true)', () => {
     const currentProps = { a: 1, b: 2, c: 3 };
     const nextProps = { a: 1, b: 2, c: 4 };
     const props = ['a', 'b'];
@@ -121,7 +120,7 @@ describe('core', () => {
     expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(true);
   });
 
-  it('return are props equal in two objects (sting, false)', () => {
+  it('return are props equal in two objects (string, false)', () => {
     const currentProps = { a: 1, b: 2, c: 3 };
     const nextProps = { a: 1, b: 3, c: 4 };
     const props = ['a', 'b'];

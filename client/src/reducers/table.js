@@ -127,16 +127,16 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       let currentPointerPos;
       if (pointer.cellId) {
         currentPointerPos = [
-          rows.indexOf(getRowId(pointer.cellId)),
-          columns.indexOf(getColumnId(pointer.cellId)),
+          rows.findIndex((row) => row.id === getRowId(pointer.cellId)),
+          columns.findIndex((column) => column.id === getColumnId(pointer.cellId)),
         ];
       }
 
       const newPointerPos = calcNewPos(rows, columns, currentPointerPos, action.key);
       const currentMaxPos = getMaxPos(rows, columns);
 
-      let nextPointerRowId = rows[getRowNumber(newPointerPos)];
-      let nextPointerColumnId = columns[getColumnNumber(newPointerPos)];
+      let nextPointerRowId;
+      let nextPointerColumnId;
       if (getRowNumber(newPointerPos) > getRowNumber(currentMaxPos)) {
         let newRowId;
         if (process.env.NODE_ENV === 'test') {
@@ -146,6 +146,9 @@ export default function table(state = initialState(0, 0).get('table'), action) {
         }
 
         nextPointerRowId = newRowId;
+
+        // TODO: commenting next line should break tests.
+        nextPointerColumnId = columns[getColumnNumber(newPointerPos)].id;
       } else if (getColumnNumber(newPointerPos) > getColumnNumber(currentMaxPos)) {
         let newColumnId;
         if (process.env.NODE_ENV === 'test') {
@@ -154,7 +157,12 @@ export default function table(state = initialState(0, 0).get('table'), action) {
           newColumnId = `c${uuid()}`;
         }
 
+        // TODO: commenting next line should break tests.
+        nextPointerRowId = rows[getRowNumber(newPointerPos)].id;
         nextPointerColumnId = newColumnId;
+      } else {
+        nextPointerRowId = rows[getRowNumber(newPointerPos)].id;
+        nextPointerColumnId = columns[getColumnNumber(newPointerPos)].id;
       }
 
       const nextPointerCellId = getCellId(nextPointerRowId, nextPointerColumnId);
@@ -207,16 +215,16 @@ export default function table(state = initialState(0, 0).get('table'), action) {
         return state;
       }
 
-      let deletingRow;
-      let deletingColumn;
+      let deletingRowId;
+      let deletingColumnId;
       let reducedLinesState;
       if (getColumnNumber(action.pos) < 0) {
-        deletingRow = state.getIn(['data', 'rows']).get(getRowNumber(action.pos));
+        deletingRowId = state.getIn(['data', 'rows']).getIn([getRowNumber(action.pos), 'id']);
         reducedLinesState = state.deleteIn(
           ['data', 'rows', getRowNumber(action.pos)]
         );
       } else if (getRowNumber(action.pos) < 0) {
-        deletingColumn = state.getIn(['data', 'columns']).get(getColumnNumber(action.pos));
+        deletingColumnId = state.getIn(['data', 'columns']).getIn([getColumnNumber(action.pos), 'id']);
         reducedLinesState = state.deleteIn(
           ['data', 'columns', getColumnNumber(action.pos)]
         );
@@ -227,8 +235,8 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       if (
         pointerCellId &&
         (
-          getRowId(pointerCellId) === deletingRow ||
-          getColumnId(pointerCellId) === deletingColumn
+          getRowId(pointerCellId) === deletingRowId ||
+          getColumnId(pointerCellId) === deletingColumnId
         )
       ) {
         deletedPointerState = reducedLinesState.setIn(
@@ -256,7 +264,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
           ['data', 'rows'],
           value => value.insert(
             getRowNumber(action.pos),
-            newRowId
+            fromJS({ id: newRowId })
           )
         );
       } else if (getRowNumber(action.pos) < 0) {
@@ -271,7 +279,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
           ['data', 'columns'],
           value => value.insert(
             getColumnNumber(action.pos),
-            newColumnId
+            fromJS({ id: newColumnId })
           )
         );
       }

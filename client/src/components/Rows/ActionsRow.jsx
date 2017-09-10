@@ -40,7 +40,7 @@ class ActionsRow extends React.Component {
     } = this.props;
 
     const getActionCellId = (columnIndex) => {
-      return getCellId(rowId, columns[columnIndex]);
+      return getCellId(rowId, columns[columnIndex].id);
     };
 
     const outputCells = [];
@@ -76,7 +76,7 @@ class ActionsRow extends React.Component {
         <LineActionsCell
           {...this.props}
           cellId={actionCellId}
-          isHover={hoverColumnId === columns[columnIndex]}
+          isHover={hoverColumnId === columns[columnIndex].id}
           isOnly={columns.length === FICTIVE_LINES_NUMBER + 1}
           key={actionCellId}
           menuVisibility={menu[actionCellId]}

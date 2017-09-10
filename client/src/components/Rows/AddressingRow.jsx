@@ -32,7 +32,7 @@ class AddressingRow extends React.Component {
     } = this.props;
 
     const getAddressingCellId = (columnIndex) => {
-      return getCellId(rowId, columns[columnIndex]);
+      return getCellId(rowId, columns[columnIndex].id);
     };
 
     const outputCells = [];

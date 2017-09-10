@@ -61,7 +61,7 @@ class DataRow extends React.Component {
     } = this.props;
 
     const getDataCellId = (columnIndex) => {
-      return getCellId(rowId, columns[columnIndex]);
+      return getCellId(rowId, columns[columnIndex].id);
     };
 
     const outputCells = [];

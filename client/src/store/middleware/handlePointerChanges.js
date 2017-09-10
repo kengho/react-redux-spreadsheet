@@ -77,17 +77,17 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
   // Only MOVE_POINTER may trigger expand.
   if (action.type === 'MOVE_POINTER') {
     const nextTable = store.getState().get('table').present;
-    const nextRows = nextTable.getIn(['data', 'rows']);
-    const nextColumns = nextTable.getIn(['data', 'columns']);
+    const nextRows = nextTable.getIn(['data', 'rows']).toJS();
+    const nextColumns = nextTable.getIn(['data', 'columns']).toJS();
     const nextPointerCellId = nextTable.getIn(['session', 'pointer', 'cellId']);
     const nextPointerRowId = getRowId(nextPointerCellId);
     const nextPointerColumnId = getColumnId(nextPointerCellId);
 
-    if (nextRows.indexOf(nextPointerRowId) === -1) {
+    if (nextRows.findIndex((row) => row.id === nextPointerRowId) === -1) {
       // slice deletes 'r' and 'c' prefixes from ids, because expand() adds them by itself.
-      store.dispatch(expand([nextRows.size, -1], nextPointerRowId.slice(1)));
-    } else if (nextColumns.indexOf(nextPointerColumnId) === -1) {
-      store.dispatch(expand([-1, nextColumns.size, -1], nextPointerColumnId.slice(1)));
+      store.dispatch(expand([nextRows.length, -1], nextPointerRowId.slice(1)));
+    } else if (nextColumns.findIndex((column) => column.id === nextPointerColumnId) === -1) {
+      store.dispatch(expand([-1, nextColumns.length, -1], nextPointerColumnId.slice(1)));
     }
   }
 

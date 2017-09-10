@@ -42,7 +42,7 @@ export function initialLines(height = 4, width = 4) {
       rowId = `r${uuid()}`;
     }
 
-    return rowId;
+    return { id: rowId };
   });
 
   const columns = Array.from(Array(width)).map((_, columnIndex) => {
@@ -53,7 +53,7 @@ export function initialLines(height = 4, width = 4) {
       columnId = `c${uuid()}`;
     }
 
-    return columnId;
+    return { id: columnId };
   });
 
   return { rows, columns };
@@ -112,6 +112,8 @@ export function initialState(width, height) {
 }
 
 // Indicates that Cell represents some row or column (in actions and etc).
+// REVIEW: this implies existence of fictive lines,
+//   thus probably should be removed from core.js.
 export function getLineRef(pos) {
   let ref;
   if (getRowNumber(pos) >= 0) {
@@ -279,7 +281,7 @@ export function getCroppedSize(data) {
 
     if (!rowMatch) {
       for (let rowIterator = rowNumber; rowIterator >= 0; rowIterator -= 1) {
-        const currentCellId = getCellId(rows[rowIterator], columns[columnNumber]);
+        const currentCellId = getCellId(rows[rowIterator].id, columns[columnNumber].id);
         if (cells[currentCellId]) {
           rowMatch = rowIterator;
           break;
@@ -289,7 +291,7 @@ export function getCroppedSize(data) {
 
     if (!columnMatch) {
       for (let columnIterator = columnNumber; columnIterator >= 0; columnIterator -= 1) {
-        const currentCellId = getCellId(rows[rowNumber], columns[columnIterator]);
+        const currentCellId = getCellId(rows[rowNumber].id, columns[columnIterator].id);
         if (cells[currentCellId]) {
           columnMatch = columnIterator;
           break;
@@ -300,7 +302,7 @@ export function getCroppedSize(data) {
     return [rowMatch, columnMatch];
   };
 
-  const currentPoint = [rows.length, columns.length];
+  const currentPoint = [rows.length - 1, columns.length - 1];
 
   let matchPoint;
   while (true) {
@@ -336,7 +338,7 @@ export function convert(object, options) {
     for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
       const CSVRowArray = [];
       for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
-        const currentCellId = getCellId(rows[rowIterator], columns[columnIterator]);
+        const currentCellId = getCellId(rows[rowIterator].id, columns[columnIterator].id);
         const currentCell = cells[currentCellId];
 
         let value;
@@ -376,7 +378,7 @@ export function convert(object, options) {
       parsedCSVArray.forEach((row, rowIndex) => {
         row.forEach((value, columnIndex) => {
           if (value.length > 0) {
-            const cellId = getCellId(rows[rowIndex], columns[columnIndex]);
+            const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
             cells[cellId] = { value };
           }
         });

@@ -68,8 +68,8 @@ class Spreadsheet extends React.Component {
     this.documentKeyDownHandler = this.documentKeyDownHandler.bind(this);
     this.documentClickHandler = this.documentClickHandler.bind(this);
 
-    this.fictiveRows = [`r${uuid()}`, `r${uuid()}`];
-    this.fictiveColumns = [`c${uuid()}`, `c${uuid()}`];
+    this.fictiveRows = [{ id: `r${uuid()}` }, { id: `r${uuid()}` }];
+    this.fictiveColumns = [{ id: `c${uuid()}` }, { id: `c${uuid()}` }];
     this.prepareTable = (somePops) => {
       this.table = somePops.table.toJS();
 
@@ -394,10 +394,10 @@ class Spreadsheet extends React.Component {
         columns={columns}
         data={this.props.table.toJS().data}
         hoverColumnId={this.table.session.hover && getColumnId(this.table.session.hover)}
-        key={rows[0]}
+        key={rows[0].id}
         menu={ui.get('menu').toJS()}
         requests={requests.toJS()}
-        rowId={rows[0]}
+        rowId={rows[0].id}
         rows={rows}
         shortId={this.props.match.params.shortId}
       />
@@ -408,15 +408,15 @@ class Spreadsheet extends React.Component {
       <AddressingRow
         actions={actions}
         columns={columns}
-        key={rows[1]}
-        rowId={rows[1]}
+        key={rows[1].id}
+        rowId={rows[1].id}
       />
     );
 
     // The rest.
     const cells = this.table.data.cells;
     for (let rowIndex = FICTIVE_LINES_NUMBER; rowIndex < rows.length; rowIndex += 1) {
-      const rowId = rows[rowIndex];
+      const rowId = rows[rowIndex].id;
 
       // Uses in shouldComponentUpdate().
       let isPointerOnRow;
