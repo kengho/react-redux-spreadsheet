@@ -2,7 +2,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import React from 'react';
 import uuid from 'uuid/v4';
-// TODO: use https://github.com/callemall/material-ui.
 
 import {
   getCellId,
@@ -271,7 +270,7 @@ class Spreadsheet extends React.Component {
 
           const clipboardCells = {};
 
-          // TODO: handle many selected cells.
+          // TODO: handle many selected cells (also see store/middleware/handleClipboardChanges.js).
           const cells = this.table.data.cells;
           const pointer = this.table.session.pointer;
           clipboardCells[pointer.cellId] = cells[pointer.cellId];

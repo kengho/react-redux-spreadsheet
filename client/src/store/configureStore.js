@@ -2,6 +2,7 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import { createBrowserHistory } from 'history';
 import { routerMiddleware, connectRouter } from 'connected-react-router/immutable';
 
+import handleClipboardChanges from './middleware/handleClipboardChanges';
 import handleDataChanges from './middleware/handleDataChanges';
 import handleDispatchDialogAction from './middleware/handleDispatchDialogAction';
 import handlePointerChanges from './middleware/handlePointerChanges';
@@ -19,6 +20,7 @@ const middleware = [
 if (process.env.NODE_ENV !== 'test') {
   middleware.push(
     routerMiddleware(history),
+    handleClipboardChanges,
     handleDispatchDialogAction,
     handleRequestsChanges,
     handleUndoRedo,
