@@ -134,6 +134,7 @@ class LineActionsCell extends React.Component {
       // ... straight to TableActionsCell.
       previousCellId = getCellId(rows[0], columns[0]);
     }
+
     // And do the same for nextCellId while going through columns.
     if (nextCellId === getCellId(rows[1], columns[0])) {
       nextCellId = getCellId(rows[0], columns[0]);
