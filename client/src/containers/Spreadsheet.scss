@@ -143,6 +143,12 @@ svg {
   }
 }
 
+.tr:hover {
+  & .line-menu-hover {
+    opacity: 1;
+  }
+}
+
 .complement {
   position: absolute;
   display: flex;

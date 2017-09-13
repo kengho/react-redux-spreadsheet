@@ -150,9 +150,15 @@ class LineMenu extends React.Component {
     let previousMenuId = getAdjacentMenuId('PREVIOUS');
     let nextMenuId = getAdjacentMenuId('NEXT');
 
+    const classnames = ['line-menu'];
+    if (lineRef === 'COLUMN' && isHover) { classnames.push('hover'); }
+
+    // For rows we detecting hover using css.
+    if (lineRef === 'ROW') { classnames.push('line-menu-hover'); }
+
     return (
       <div
-        className={`line-menu ${isHover ? 'hover' : ''}`}
+        className={classnames.join(' ')}
         onMouseOver={() => actions.setHover(cellId)}
       >
         <Menu

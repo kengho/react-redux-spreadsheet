@@ -16,8 +16,6 @@ const propTypes = {
     PropTypes.string,
     PropTypes.bool,
   ]),
-  hoverOnRow: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
-  hoverRowId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
   isPointerOnRow: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   isRowInClipboard: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   localPointerColumnId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
@@ -30,8 +28,6 @@ const propTypes = {
 
 const defaultProps = {
   hoverColumnId: '',
-  hoverOnRow: false,
-  hoverRowId: '',
   isPointerOnRow: false,
   isRowInClipboard: false,
   localPointerColumnId: '',
@@ -52,7 +48,6 @@ class Row extends React.Component {
       'rowIndex', // add/remove rows
       'columns', // add/remove columns
       'menu', // click on menu
-      'hoverOnRow',
       'hoverColumnId',
     ]);
   }

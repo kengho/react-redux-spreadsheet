@@ -385,8 +385,6 @@ class Spreadsheet extends React.Component {
           clipboard={clipboard}
           columns={columns}
           hoverColumnId={table.session.hover && rowIndex === 0 && getColumnId(table.session.hover)}
-          hoverOnRow={table.session.hover && getRowId(table.session.hover) === rowId}
-          hoverRowId={table.session.hover && getRowId(table.session.hover)}
           isPointerOnRow={isPointerOnRow}
           isRowInClipboard={isRowInClipboard}
           key={rowId}
@@ -407,6 +405,7 @@ class Spreadsheet extends React.Component {
     // TODO: scroll to top/bottom buttons.
     // TODO: store pointer coordinates in URL and scroll to pointer on load.
     // TODO: create menu id getter.
+    // TODO: add crop option to table menu.
 
     return (
       <div>
