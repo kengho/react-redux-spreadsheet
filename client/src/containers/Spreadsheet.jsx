@@ -384,7 +384,8 @@ class Spreadsheet extends React.Component {
           cells={cells}
           clipboard={clipboard}
           columns={columns}
-          hoverColumnId={table.session.hover && getColumnId(table.session.hover)}
+          hoverColumnId={table.session.hover && rowIndex === 0 && getColumnId(table.session.hover)}
+          hoverOnRow={table.session.hover && getRowId(table.session.hover) === rowId}
           hoverRowId={table.session.hover && getRowId(table.session.hover)}
           isPointerOnRow={isPointerOnRow}
           isRowInClipboard={isRowInClipboard}
