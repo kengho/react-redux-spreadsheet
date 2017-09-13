@@ -4,8 +4,10 @@ const handleClipboardChanges = store => next => action => { // eslint-disable-li
   if (action.type === 'SET_CLIPBOARD') {
     // TODO: handle many selected cells (also see containers/Spreadsheet.jsx).
     const cellId = Object.keys(action.clipboard.cells);
-    const cellValue = action.clipboard.cells[cellId].value;
-    copy(cellValue);
+    const cell = action.clipboard.cells[cellId];
+    if (cell) {
+      copy(cell.value);
+    }
   }
 
   if (action.type === 'CLEAR_CLIPBOARD') {
