@@ -146,6 +146,14 @@ describe('core', () => {
       expect(Core.getCroppedSize(emptyData)).to.deep.equal([0, 0]);
     });
 
+    it('cropping should not fail on empty data with remaining cell', () => {
+      const emptyDataWithRemains = Core.initialTable(4, 4).data;
+
+      emptyDataWithRemains.cells = { 'r999,c999': { value: '999' } };
+
+      expect(Core.getCroppedSize(emptyDataWithRemains)).to.deep.equal([0, 0]);
+    });
+
     const data = Core.initialTable(6, 5).data;
 
     // -- 01 02 -- --

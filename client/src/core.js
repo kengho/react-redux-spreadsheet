@@ -261,7 +261,6 @@ export function getCroppedSize(data) {
 
   let rows = data.rows;
   let columns = data.columns;
-
   const backwardVHSeach = (point, matchPoint = [null, null]) => {
     const [rowNumber, columnNumber] = point;
     let [rowMatch, columnMatch] = matchPoint;
@@ -295,21 +294,20 @@ export function getCroppedSize(data) {
   while (true) {
     const [rowMatch, columnMatch] = backwardVHSeach(currentPoint, matchPoint);
     if (rowMatch !== null && columnMatch !== null) {
-      matchPoint = currentPoint;
-      break;
+      return [currentPoint[0] + 1, currentPoint[1] + 1];
     }
 
-    if (columnMatch === null) {
+    if (currentPoint[0] === 0 && currentPoint[1] === 0) {
+      return [0, 0];
+    }
+
+    if (columnMatch === null && currentPoint[0] > 0) {
       currentPoint[0] -= 1;
     }
 
-    if (rowMatch === null) {
+    if (rowMatch === null && currentPoint[1] > 0) {
       currentPoint[1] -= 1;
     }
-  }
-
-  if (matchPoint) {
-    return [matchPoint[0] + 1, matchPoint[1] + 1];
   }
 }
 
