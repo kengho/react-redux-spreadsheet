@@ -2,27 +2,27 @@ import { fromJS } from 'immutable';
 
 const defaultState = fromJS({ menu: {}, dialog: {} });
 
-const setMenuVisibility = (state, cellId, visibility) => {
+const setMenuVisibility = (state, menuId, visibility) => {
   if (visibility) {
     return state.setIn(
-      ['menu', cellId],
+      ['menu', menuId],
       true
     );
   } else {
-    return state.deleteIn(['menu', cellId]);
+    return state.deleteIn(['menu', menuId]);
   }
 }
 
 export default function ui(state = defaultState, action) {
   switch (action.type) {
     case 'OPEN_MENU':
-      return setMenuVisibility(state, action.cellId, true);
+      return setMenuVisibility(state, action.menuId, true);
 
     case 'CLOSE_MENU':
-      return setMenuVisibility(state, action.cellId, false);
+      return setMenuVisibility(state, action.menuId, false);
 
     case 'CLOSE_ALL_MENUS':
-      return state.set('menu', defaultState);
+      return state.set('menu', fromJS({}));
 
     case 'SET_DIALOG':
       return state.set(

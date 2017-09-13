@@ -9,12 +9,12 @@ import MenuItem from './MenuItem';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  cellId: PropTypes.string.isRequired,
-  previousCellId: PropTypes.string,
-  nextCellId: PropTypes.string,
+  menuId: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
   menuItems: PropTypes.array.isRequired,
   menuVisibility: PropTypes.bool.isRequired,
+  nextMenuId: PropTypes.string,
+  previousMenuId: PropTypes.string,
 };
 
 const defaultProps = {
@@ -29,10 +29,10 @@ class Menu extends React.Component {
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.onClickHandler = this.onClickHandler.bind(this);
 
-    this.buttonId = `cell-${props.cellId}-menu-button`;
+    this.buttonId = `${props.menuId}-menu-button`;
     this.getButtonDOM = () => getDOM(this.buttonId);
 
-    this.menuId = `cell-${props.cellId}-menu`;
+    this.menuId = `${props.menuId}-menu`;
     this.getMenuDOM = () => getDOM(this.menuId);
   }
 
@@ -50,7 +50,7 @@ class Menu extends React.Component {
     evt.nativeEvent.stopImmediatePropagation();
 
     this.props.actions.closeAllMenus();
-    this.props.actions.openMenu(this.props.cellId);
+    this.props.actions.openMenu(this.props.menuId);
   }
 
   keyDownHandler(evt) {
@@ -59,19 +59,19 @@ class Menu extends React.Component {
 
     const {
       actions,
-      cellId,
-      nextCellId,
-      previousCellId,
+      menuId,
+      nextMenuId,
+      previousMenuId,
     } = this.props;
 
     if (evt.key === 'Escape') {
-      actions.closeMenu(cellId);
-    } else if (evt.key === 'ArrowLeft' && previousCellId) {
-      actions.closeMenu(cellId);
-      actions.openMenu(previousCellId);
-    } else if (evt.key === 'ArrowRight' && nextCellId) {
-      actions.closeMenu(cellId);
-      actions.openMenu(nextCellId);
+      actions.closeMenu(menuId);
+    } else if (evt.key === 'ArrowLeft' && previousMenuId) {
+      actions.closeMenu(menuId);
+      actions.openMenu(previousMenuId);
+    } else if (evt.key === 'ArrowRight' && nextMenuId) {
+      actions.closeMenu(menuId);
+      actions.openMenu(nextMenuId);
     }
   }
 
@@ -89,7 +89,7 @@ class Menu extends React.Component {
     //   //   this.anchorEl = this.menuWrapper.querySelector('button');
     //   // }
     // TODO: fix. File issue or wait for API to change.
-    // this.button = document.querySelector(`#cell-${this.queryCellId}-menu-button`);
+    // this.button = document.querySelector(`#cell-${this.queryid}-menu-button`);
     this.button = this.getButtonDOM();
   }
 
@@ -111,7 +111,7 @@ class Menu extends React.Component {
   }
 
   closeMenu() {
-    this.props.actions.closeMenu(this.props.cellId);
+    this.props.actions.closeMenu(this.props.menuId);
   }
 
   render() {

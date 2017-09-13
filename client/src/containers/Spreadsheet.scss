@@ -25,6 +25,14 @@ svg {
   display: table;
   border-collapse: separate;
 
+  // For TableMenu.
+  position: relative;
+
+  // For actions and addressing cells.
+  // TODO: calculate from cells' sizes.
+  padding: 76px 0 0 76px;
+  height: 100%;
+
   // Moved to Spreadsheet.jsx.
   // border-spacing: 2px;
 }
@@ -32,117 +40,112 @@ svg {
 .tr {
   display: table-row;
 
-  &.action-cells-hover:hover .line-actions {
-    opacity: 1;
-  }
+  // TODO: return css hover for rows.
+  // &.action-cells-hover:hover .line-menu {
+  //   opacity: 1;
+  // }
 }
 
 .td {
   display: table-cell;
   vertical-align: middle;
   font-size: $cell-font-size;
+  position: relative;
+  height: 100%;
 
-  &.data {
+  & .data {
+    // For textarea vertical align.
+    display: flex;
+    align-items: center;
+
     // For cell borders to act like when cell is pointed.
     border: $data-border;
     box-sizing: border-box;
-    height: $cell-height;
     min-width: 64px;
+    height: 100%;
 
     // Width is limited by textarea width.
     // Return if there are will be non-textarea data cells.
     // max-width: 512px;
     word-wrap: break-word;
-    padding: $cell-padding;
     background-color: $data-bgcolor;
     cursor: pointer;
     border-radius: 2px;
 
-    & .data-wrapper {
-      position: relative;
+    & .textarea {
+      padding: $cell-padding;
+      font-size: $cell-font-size;
+      border: none;
+      resize: none;
+      min-width: 100%;
+      background-color: rgba(black, 0);
+      color: darken($main-text-color, 30%);
 
-      & .data-textarea {
-        font-size: $cell-font-size;
-        border: none;
-        resize: none;
-        min-width: 100%;
-        background-color: rgba(black, 0);
-        color: darken($main-text-color, 30%);
+      // Spreadsheet view style.
+      &:disabled {
+        color: $main-text-color;
 
-        // Spreadsheet view style.
-        &:disabled {
-          color: $main-text-color;
+        // Solves bug/feature when Firefox doesn't bubble click in disabled element.
+        // http://stackoverflow.com/a/32925830/6376451
+        pointer-events: none;
+      }
 
-          // Solves bug/feature when Firefox doesn't bubble click in disabled element.
-          // http://stackoverflow.com/a/32925830/6376451
-          pointer-events: none;
-        }
-
-        // Disables outline in webkit.
-        &:focus {
-          outline: none;
-        }
+      // Disables outline in webkit.
+      &:focus {
+        outline: none;
       }
     }
   }
 
-  &.line-actions {
+  & .line-menu {
     opacity: 0;
 
     &.hover {
       opacity: 1;
     }
-
-    &.row {
-      text-align: right;
-    }
-
-    &.column {
-      text-align: center;
-    }
   }
 
-  &.line-addressing {
+  & .address {
     color: $gray-text-color;
-
-
-    &.row {
-      text-align: right;
-      padding-right: 8px;
-    }
-
-    &.column {
-      text-align: center;
-      padding-bottom: 8px;
-    }
   }
 
-  &.empty {
-  }
-
-  &.pointed {
+  & .pointed {
     border: $pointed-border;
   }
 
-  &.editing {
+  & .editing {
     border: $data-border;
   }
 
-  &.clipboard {
+  & .clipboard {
     border: $clipboard-border;
   }
 
-  &.pointed.clipboard {
+  & .pointed.clipboard {
     border: $clipboard-pointed-border;
   }
 }
 
-.table-actions {
+.table-menu {
   visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.table-menu.sync-problem {
+  visibility: visible;
 }
 
 .table:hover {
-  & .table-actions {
+  & .table-menu {
     visibility: visible;
   }
+}
+
+.complement {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

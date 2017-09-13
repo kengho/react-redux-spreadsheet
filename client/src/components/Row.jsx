@@ -4,17 +4,16 @@ import React from 'react';
 import {
   arePropsEqual,
   getCellId,
-} from '../../core';
-import { FICTIVE_LINES_NUMBER } from '../../containers/Spreadsheet';
-import DataCell from './Cells/DataCell';
-import LineActionsCell from './Cells/LineActionsCell';
-import LineAddressingCell from './Cells/LineAddressingCell';
+} from '../core';
+import Cell from './Cell';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cells: PropTypes.object.isRequired,
   clipboard: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
+  hoverColumnId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
+  hoverRowId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
   isPointerOnRow: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   isRowInClipboard: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
   localPointerColumnId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
@@ -26,6 +25,8 @@ const propTypes = {
 };
 
 const defaultProps = {
+  hoverColumnId: '',
+  hoverRowId: '',
   isPointerOnRow: false,
   isRowInClipboard: false,
   localPointerColumnId: '',
@@ -33,7 +34,7 @@ const defaultProps = {
   rowUpdateTrigger: false,
 };
 
-class DataRow extends React.Component {
+class Row extends React.Component {
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
@@ -46,6 +47,8 @@ class DataRow extends React.Component {
       'rowIndex', // add/remove rows
       'columns', // add/remove columns
       'menu', // click on menu
+      'hoverColumnId',
+      'hoverRowId',
     ]);
   }
 
@@ -57,35 +60,11 @@ class DataRow extends React.Component {
       rowIndex,
       pointer,
       rowId,
-      menu,
     } = this.props;
 
     const getDataCellId = (columnIndex) => {
       return getCellId(rowId, columns[columnIndex].id);
     };
-
-    const outputCells = [];
-
-    outputCells.push(
-      <LineActionsCell
-        {...this.props}
-        cellId={getDataCellId(0)}
-        isOnly={columns.length === FICTIVE_LINES_NUMBER + 1}
-        key={getDataCellId(0)}
-        menuVisibility={menu[getDataCellId(0)]}
-        pos={[rowIndex - FICTIVE_LINES_NUMBER, - FICTIVE_LINES_NUMBER]}
-      />
-    );
-
-    // LineAddressingCell.
-    outputCells.push(
-      <LineAddressingCell
-        {...this.props}
-        id={getDataCellId(1)}
-        key={getDataCellId(1)}
-        pos={[rowIndex - FICTIVE_LINES_NUMBER, -1]}
-      />
-    );
 
     const getDataCellProps = (cellId, cell, somePointer, someClipboard) => {
       const effectiveCell = cell || {};
@@ -109,8 +88,8 @@ class DataRow extends React.Component {
       };
     };
 
-    // The rest.
-    for (let columnIndex = FICTIVE_LINES_NUMBER; columnIndex < columns.length; columnIndex += 1) {
+    const outputCells = [];
+    for (let columnIndex = 0; columnIndex < columns.length; columnIndex += 1) {
       const dataCellId = getDataCellId(columnIndex);
       const dataCellProps = getDataCellProps(
         dataCellId,
@@ -120,24 +99,26 @@ class DataRow extends React.Component {
       );
 
       outputCells.push(
-        <DataCell
+        <Cell
           {...this.props}
           {...dataCellProps}
           cellId={dataCellId}
+          columnNumber={columnIndex}
           key={dataCellId}
+          rowNumber={rowIndex}
         />
       );
     }
 
     return (
-      <div className="tr action-cells-hover">
+      <div className="tr">
         {outputCells}
       </div>
     );
   }
 }
 
-DataRow.propTypes = propTypes;
-DataRow.defaultProps = defaultProps;
+Row.propTypes = propTypes;
+Row.defaultProps = defaultProps;
 
-export default DataRow;
+export default Row;

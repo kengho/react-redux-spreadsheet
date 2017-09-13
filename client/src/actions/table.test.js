@@ -660,7 +660,7 @@ describe('table', () => {
       const store = configureStore(state);
 
       store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
-      store.dispatch(TableActions.reduce([1, -1]));
+      store.dispatch(TableActions.reduce(1, 'ROW'));
 
       const expectedRows = fromJS([{ id: 'r0' }, { id: 'r2' }]);
       const expectedPointer = fromJS({
@@ -676,7 +676,7 @@ describe('table', () => {
       const state = Core.initialState(1, 4);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.reduce([0, -1]));
+      store.dispatch(TableActions.reduce(0, 'ROW'));
 
       const expectedRows = fromJS([{ id: 'r0' }]);
 
@@ -688,7 +688,7 @@ describe('table', () => {
       const store = configureStore(state);
 
       store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
-      store.dispatch(TableActions.reduce([-1, 1]));
+      store.dispatch(TableActions.reduce(1, 'COLUMN'));
 
       const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c2' }, { id: 'c3' }]);
       const expectedPointer = fromJS({
@@ -704,7 +704,7 @@ describe('table', () => {
       const state = Core.initialState(3, 1);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.reduce([-1, 0]));
+      store.dispatch(TableActions.reduce(0, 'COLUMN'));
 
       const expectedColumns = fromJS([{ id: 'c0' }]);
 
@@ -717,7 +717,7 @@ describe('table', () => {
       const state = Core.initialState(...tableSize);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.expand([1, -1]));
+      store.dispatch(TableActions.expand(1, 'ROW'));
 
       const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1a' }, { id: 'r1' }, { id: 'r2' }]);
 
@@ -728,7 +728,7 @@ describe('table', () => {
       const state = Core.initialState(...tableSize);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.expand([-1, 1]));
+      store.dispatch(TableActions.expand(1, 'COLUMN'));
 
       const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1a' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }]);
 

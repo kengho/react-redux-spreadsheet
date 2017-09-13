@@ -25,6 +25,7 @@ export function getCellId(rowId, columnId) {
   return `${rowId},${columnId}`;
 }
 
+// TODO: get rid of pos everywhere.
 export function getRowNumber(pos) {
   return pos[0];
 }
@@ -109,20 +110,6 @@ export function initialState(width, height) {
   }
 
   return state;
-}
-
-// Indicates that Cell represents some row or column (in actions and etc).
-// REVIEW: this implies existence of fictive lines,
-//   thus probably should be removed from core.js.
-export function getLineRef(pos) {
-  let ref;
-  if (getRowNumber(pos) >= 0) {
-    ref = 'ROW';
-  } else if (getColumnNumber(pos) >= 0) {
-    ref = 'COLUMN';
-  }
-
-  return ref;
 }
 
 export function getMaxPos(rows, columns) {

@@ -97,15 +97,16 @@ export function toggleRowUpdateTrigger(rowId) {
   };
 }
 
-export function reduce(pos) {
+export function reduce(lineNumber, lineRef) {
   return {
     type: 'REDUCE',
     changesData: true,
-    pos,
+    lineNumber,
+    lineRef,
   };
 }
 
-export function expand(pos, id = uuid()) {
+export function expand(lineNumber, lineRef, id = uuid()) {
   return {
     type: 'EXPAND',
 
@@ -113,7 +114,8 @@ export function expand(pos, id = uuid()) {
     // 1) to press Ctrl+Z twice to undo SET_PROP, EXPAND actions sequence, and
     // 2) to send empty rows to server each time user presses ArrowDown.
     changesData: false,
-    pos,
+    lineNumber,
+    lineRef,
     id,
   };
 }

@@ -65,11 +65,6 @@ describe('core', () => {
     expect(Core.initialTable(3, 4)).to.deep.equal(expectedInitialTable);
   });
 
-  it('get line ref', () => {
-    expect(Core.getLineRef([-1, 2])).to.equal('COLUMN');
-    expect(Core.getLineRef([2, -1])).to.equal('ROW');
-  });
-
   it('get maximum pos in table', () => {
     const rows = [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }];
     const columns = [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }];

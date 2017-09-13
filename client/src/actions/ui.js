@@ -1,14 +1,14 @@
-export function openMenu(cellId) {
+export function openMenu(menuId) {
   return {
     type: 'OPEN_MENU',
-    cellId,
+    menuId,
   };
 }
 
-export function closeMenu(cellId) {
+export function closeMenu(menuId) {
   return {
     type: 'CLOSE_MENU',
-    cellId,
+    menuId,
   };
 }
 

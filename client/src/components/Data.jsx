@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import TextareaAutosize from '@kengho/react-textarea-autosize';
 
-import { arePropsEqual } from '../../../core';
-import findKeyAction from '../../../lib/findKeyAction';
+import { arePropsEqual } from '../core';
+import cssToNumber from '../lib/cssToNumber';
+import numberToCss from '../lib/numberToCss';
+import findKeyAction from '../lib/findKeyAction';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -21,12 +23,9 @@ const defaultProps = {
   value: '',
 };
 
-class DataCell extends React.Component {
+class Data extends React.Component {
   constructor(props) {
     super(props);
-
-    this.textarea = null;
-    this.textareaInput = null;
 
     this.clickHandler = this.clickHandler.bind(this);
     this.doubleClickHandler = this.doubleClickHandler.bind(this);
@@ -81,10 +80,9 @@ class DataCell extends React.Component {
     }
   }
 
-  onHeightChangeHandler(textareaInput) {
-    const heightPx = textareaInput.style.height;
-    const height = Number(heightPx.slice(0, -'px'.length));
-    textareaInput.style.height = `${height + 1}px`;
+  onHeightChangeHandler(textareaInputEl) {
+    const heightNumber = cssToNumber(textareaInputEl.style.height);
+    textareaInputEl.style.height = numberToCss(heightNumber + 1);
   }
 
   keyDownHandler(evt) {
@@ -163,10 +161,10 @@ class DataCell extends React.Component {
      } = this.props;
     const disabled = !isEditing;
 
-    const classnames = ['td', 'data'];
-    if (isPointed) { classnames.push('pointed'); }
-    if (isEditing) { classnames.push('editing'); }
-    if (isOnClipboard) { classnames.push('clipboard'); }
+    const textareaWrapperClassnames = ['data'];
+    if (isPointed) { textareaWrapperClassnames.push('pointed'); }
+    if (isEditing) { textareaWrapperClassnames.push('editing'); }
+    if (isOnClipboard) { textareaWrapperClassnames.push('clipboard'); }
 
     let textareaOutput;
     if (value || isEditing) {
@@ -175,50 +173,52 @@ class DataCell extends React.Component {
       //   http://stackoverflow.com/a/41717743/6376451
       // HACK: onHeightChange() is workaround for Chromium Linux zoom scrollbar issue.
       //   https://github.com/andreypopp/react-textarea-autosize/issues/147
+      // onWidthChange={this.alignComplements}
       textareaOutput = (
         <TextareaAutosize
           autoFocus={isEditing}
           autosizeWidth
-          className="data-textarea"
+          className="textarea"
           defaultValue={value}
           disabled={disabled}
-          inputRef={(c) => { this.textareaInput = c; }}
+          inputRef={(c) => { this.textareaInputEl = c; }}
           key={JSON.stringify({ cellId, value, isPointed, isEditing, isSelectingOnFocus })}
           maxWidth="512px"
           onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
-          onHeightChange={() => this.onHeightChangeHandler(this.textareaInput)}
+          onHeightChange={() => this.onHeightChangeHandler(this.textareaInputEl)}
           onKeyDown={this.keyDownHandler}
           ref={(c) => { this.textarea = c; }}
         />
     );
     } else {
       // '22px' is TextareaAutosize's (above) height with empty value.
-      // TODO: find a way to calculate this value
-      //   (create one invisible TextareaAutosize somewhere?).
+      // TODO: find a way to calculate this value.
+      //   (Create one invisible TextareaAutosize somewhere?)
       textareaOutput = (
         <textarea
-          className="data-textarea"
+          className="textarea"
           disabled
           style={{ height: '22px', width: '0' }}
+          ref={(c) => { this.textareaInputEl = c; }}
         />
       );
     }
 
     return (
       <div
-        className={classnames.join(' ')}
+        className={textareaWrapperClassnames.join(' ')}
         id={cellId}
         onClick={disabled && ((evt) => this.clickHandler(evt, cellId))}
         onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
         onMouseOver={() => { actions.setHover(cellId); }}
       >
-        <div className="data-wrapper">{textareaOutput}</div>
+        {textareaOutput}
       </div>
     );
   }
 }
 
-DataCell.propTypes = propTypes;
-DataCell.defaultProps = defaultProps;
+Data.propTypes = propTypes;
+Data.defaultProps = defaultProps;
 
-export default DataCell;
+export default Data;

@@ -206,11 +206,12 @@ export default function table(state = initialState(0, 0).get('table'), action) {
 
     // TODO: reducing leaves cells object untouched,
     //   so it should be cleaned afterwards somehow.
+    // TODO: DRY refactor (with EXPAND).
     case 'REDUCE': {
       // Don't allow to delete first row/column if there are only one row/column left.
       if (
-        (getColumnNumber(action.pos) < 0 && state.getIn(['data', 'rows']).size === 1) ||
-        (getRowNumber(action.pos) < 0 && state.getIn(['data', 'columns']).size === 1)
+        (action.lineRef === 'ROW' && state.getIn(['data', 'rows']).size === 1) ||
+        (action.lineRef === 'COLUMN' && state.getIn(['data', 'columns']).size === 1)
       ) {
         return state;
       }
@@ -218,16 +219,18 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       let deletingRowId;
       let deletingColumnId;
       let reducedLinesState;
-      if (getColumnNumber(action.pos) < 0) {
-        deletingRowId = state.getIn(['data', 'rows']).getIn([getRowNumber(action.pos), 'id']);
+      if (action.lineRef === 'ROW') {
+        deletingRowId = state.getIn(['data', 'rows']).getIn([action.lineNumber, 'id']);
         reducedLinesState = state.deleteIn(
-          ['data', 'rows', getRowNumber(action.pos)]
+          ['data', 'rows', action.lineNumber]
         );
-      } else if (getRowNumber(action.pos) < 0) {
-        deletingColumnId = state.getIn(['data', 'columns']).getIn([getColumnNumber(action.pos), 'id']);
+      } else if (action.lineRef === 'COLUMN') {
+        deletingColumnId = state.getIn(['data', 'columns']).getIn([action.lineNumber, 'id']);
         reducedLinesState = state.deleteIn(
-          ['data', 'columns', getColumnNumber(action.pos)]
+          ['data', 'columns', action.lineNumber]
         );
+      } else {
+        reducedLinesState = state;
       }
 
       const pointerCellId = state.getIn(['session', 'pointer', 'cellId']);
@@ -252,10 +255,10 @@ export default function table(state = initialState(0, 0).get('table'), action) {
 
     case 'EXPAND': {
       let expandedLinesState;
-      if (getColumnNumber(action.pos) < 0) {
+      if (action.lineRef === 'ROW') {
         let newRowId;
         if (process.env.NODE_ENV === 'test') {
-          newRowId = `r${getRowNumber(action.pos)}a`;
+          newRowId = `r${action.lineNumber}a`;
         } else {
           newRowId = `r${action.id}`;
         }
@@ -263,14 +266,14 @@ export default function table(state = initialState(0, 0).get('table'), action) {
         expandedLinesState = state.updateIn(
           ['data', 'rows'],
           value => value.insert(
-            getRowNumber(action.pos),
+            action.lineNumber,
             fromJS({ id: newRowId })
           )
         );
-      } else if (getRowNumber(action.pos) < 0) {
+      } else if (action.lineRef === 'COLUMN') {
         let newColumnId;
         if (process.env.NODE_ENV === 'test') {
-          newColumnId = `c${getColumnNumber(action.pos)}a`;
+          newColumnId = `c${action.lineNumber}a`;
         } else {
           newColumnId = `c${action.id}`;
         }
@@ -278,7 +281,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
         expandedLinesState = state.updateIn(
           ['data', 'columns'],
           value => value.insert(
-            getColumnNumber(action.pos),
+            action.lineNumber,
             fromJS({ id: newColumnId })
           )
         );
