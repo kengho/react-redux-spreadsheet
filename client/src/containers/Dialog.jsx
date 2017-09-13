@@ -115,7 +115,9 @@ class Dialog extends React.Component {
       const csv = reader.result;
       const tableData = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
 
-      this.fileFakeInput.value = input.files[0].name;
+      const fileName = input.files[0].name
+      this.fileFakeInput.value = fileName;
+      this.fileFakeInput.title = fileName;
 
       const importAction = setTableFromJSON(JSON.stringify({ data: tableData.data }), true);
       this.props.actions.setDialog({
