@@ -228,13 +228,14 @@ class Cell extends React.Component {
 
       const addressComplement = this.complements.lines[lineRef]['ADDRESS'];
       const menuComplement = this.complements.lines[lineRef]['MENU'];
+      const complementClassname = `complement ${lineRef.toLowerCase()}`;
 
       if (lineNumber >= 0) {
         complements.push(
           <div key={`${cellId}-complement-${lineRef.toLowerCase()}`}>
             <div
               style={menuComplement.style}
-              className="complement"
+              className={complementClassname}
               ref={(c) => { menuComplement.ref = c; }}
             >
               <LineMenu
@@ -248,7 +249,7 @@ class Cell extends React.Component {
             </div>
             <div
               style={addressComplement.style}
-              className="complement"
+              className={complementClassname}
               ref={(c) => { addressComplement.ref = c; }}
             >
               <Address

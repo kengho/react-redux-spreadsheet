@@ -21,6 +21,12 @@ svg {
   padding: 8px;
 }
 
+// For dev.
+// * {
+//   opacity: 1 !important;
+//   visibility: visible !important;
+// }
+
 .table {
   display: table;
   border-collapse: separate;
@@ -30,7 +36,8 @@ svg {
 
   // For actions and addressing cells.
   // TODO: calculate from cells' sizes.
-  padding: 76px 0 0 76px;
+  //   address_width + menu_width + complement_padding
+  padding: 84px 0 0 84px;
   height: 100%;
 
   // Moved to Spreadsheet.jsx.
@@ -152,6 +159,18 @@ svg {
 .complement {
   position: absolute;
   display: flex;
-  align-items: center;
-  justify-content: center;
+
+  &.row {
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  &.column {
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  & > div {
+    padding: 8px;
+  }
 }
