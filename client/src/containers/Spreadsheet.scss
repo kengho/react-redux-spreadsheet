@@ -15,6 +15,10 @@ $cell-font-size: 18px;
 
 body {
   background-color: $body-bgcolor;
+
+  // Fonts from html > body
+  // https://getmdl.io/
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
 }
 
 svg {
@@ -55,11 +59,6 @@ button {
 
 .tr {
   display: table-row;
-
-  // TODO: return css hover for rows.
-  // &.action-cells-hover:hover .line-menu {
-  //   opacity: 1;
-  // }
 }
 
 .td {
