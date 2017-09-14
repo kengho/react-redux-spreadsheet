@@ -21,6 +21,15 @@ svg {
   padding: 8px;
 }
 
+button {
+  & svg:hover {
+    // Color from "mdl-button"
+    // https://getmdl.io/components/index.html#buttons-section
+    background-color: rgba(158, 158, 158, .2);
+    border-radius: 50%;
+  }
+}
+
 // For dev.
 // * {
 //   opacity: 1 !important;

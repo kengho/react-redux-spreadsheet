@@ -123,7 +123,6 @@ class Menu extends React.Component {
 
     const MenuIcon = require(`material-ui-icons/${icon}`).default;
 
-    // TODO: add button background hover color.
     // ids for componentDidMount() and componentDidUpdate().
     return (
       <div
