@@ -291,15 +291,28 @@ export default function table(state = initialState(0, 0).get('table'), action) {
     }
 
     case 'TOGGLE_ROW_UPDATE_TRIGGER': {
-      const rowUpdateTriggerPath = ['updateTriggers', 'data', 'rows', action.rowId];
-      const currentRowUpdateTrigger = state.getIn(rowUpdateTriggerPath);
-
-      let nextState;
-      if (currentRowUpdateTrigger) {
-        nextState = state.deleteIn(rowUpdateTriggerPath);
+      let rowIds;
+      if (Array.isArray(action.rowId)) {
+        rowIds = action.rowId;
       } else {
-        nextState = state.setIn(rowUpdateTriggerPath, true);
+        rowIds = [action.rowId]
       }
+
+      let nextState = state;
+      rowIds.forEach((rowId) => {
+        if (!rowId) {
+          return;
+        }
+
+        const rowUpdateTriggerPath = ['updateTriggers', 'data', 'rows', rowId];
+        const currentRowUpdateTrigger = state.getIn(rowUpdateTriggerPath);
+
+        if (currentRowUpdateTrigger) {
+          nextState = nextState.deleteIn(rowUpdateTriggerPath);
+        } else {
+          nextState = nextState.setIn(rowUpdateTriggerPath, true);
+        }
+      });
 
       return nextState;
     }

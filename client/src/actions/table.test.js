@@ -652,6 +652,26 @@ describe('table', () => {
 
       expect(store.getState().get('table').present.get('updateTriggers')).to.equal(expectedUpdateTriggers);
     });
+
+    it('toggle row update trigger (array)', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const rowId = 'r1';
+      const rowIds = ['r1', 'r2', undefined];
+
+      store.dispatch(TableActions.toggleRowUpdateTrigger(rowId));
+      store.dispatch(TableActions.toggleRowUpdateTrigger(rowIds));
+
+      const expectedUpdateTriggers = fromJS({
+        data: {
+          rows: {
+            'r2': true,
+          },
+        },
+      });
+
+      expect(store.getState().get('table').present.get('updateTriggers')).to.equal(expectedUpdateTriggers);
+    });
   });
 
   describe('reduce', () => {
