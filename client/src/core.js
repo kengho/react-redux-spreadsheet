@@ -8,21 +8,27 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export function getRowId(cellId) {
-  return cellId.slice(
-    0,
-    Math.floor(cellId.length / 2)
-  );
+  if (cellId) {
+    return cellId.slice(
+      0,
+      Math.floor(cellId.length / 2)
+    );
+  }
 }
 
 export function getColumnId(cellId) {
-  return cellId.slice(
-    Math.ceil(cellId.length / 2),
-    cellId.length
-  );
+  if (cellId) {
+    return cellId.slice(
+      Math.ceil(cellId.length / 2),
+      cellId.length
+    );
+  }
 }
 
 export function getCellId(rowId, columnId) {
-  return `${rowId},${columnId}`;
+  if (rowId && columnId) {
+    return `${rowId},${columnId}`;
+  }
 }
 
 // TODO: get rid of pos everywhere.

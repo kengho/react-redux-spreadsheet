@@ -14,11 +14,14 @@ describe('core', () => {
   // TODO: rename its ('it should return/be able to/...').
   it('get rowId and columnId by cellId', () => {
     expect(Core.getRowId('r1,c1')).to.equal('r1');
+    expect(Core.getRowId()).to.equal(undefined);
     expect(Core.getColumnId('r1,c1')).to.equal('c1');
+    expect(Core.getColumnId()).to.equal(undefined);
   });
 
   it('get cellId by rowId and columnId', () => {
     expect(Core.getCellId('r1', 'c1')).to.equal('r1,c1');
+    expect(Core.getCellId()).to.equal(undefined);
   });
 
   it('get rowNumber and columnNumber', () => {
