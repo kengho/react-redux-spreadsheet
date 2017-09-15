@@ -296,11 +296,12 @@ class Spreadsheet extends React.Component {
           }
 
           const srcCellId = srcCellsIds[0];
+          const pinterCellId = table.session.pointer.cellId;
           const value = clipboard.cells[srcCellId] && clipboard.cells[srcCellId].value;
+
           if (value) {
             // TODO: copy all props.
-            const pointer = table.session.pointer;
-            this.props.actions.tableSetProp(pointer.cellId, 'value', value);
+            this.props.actions.tableSetProp(pinterCellId, 'value', value);
           }
 
           switch (clipboard.operation) {
@@ -309,7 +310,9 @@ class Spreadsheet extends React.Component {
             }
             case 'CUT': {
               // TODO: cut all props.
-              this.props.actions.tableDeleteProp(srcCellId, 'value');
+              if (srcCellId !== pinterCellId) {
+                this.props.actions.tableDeleteProp(srcCellId, 'value');
+              }
               break;
             }
             default:
