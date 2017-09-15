@@ -142,7 +142,10 @@ class Data extends React.Component {
       },
       {
         key: 'Escape',
-        action: () => this.props.actions.tableSetPointer({ modifiers: {} }),
+        action: () => {
+          this.textareaInputEl.value = this.props.value;
+          this.props.actions.tableSetPointer({ modifiers: {} });
+        },
       },
     ]);
 
