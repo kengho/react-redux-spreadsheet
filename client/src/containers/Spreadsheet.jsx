@@ -297,12 +297,13 @@ class Spreadsheet extends React.Component {
 
           const srcCellId = srcCellsIds[0];
           const pinterCellId = table.session.pointer.cellId;
-          const value = clipboard.cells[srcCellId] && clipboard.cells[srcCellId].value;
-
-          if (value) {
-            // TODO: copy all props.
-            this.props.actions.tableSetProp(pinterCellId, 'value', value);
+          let value = clipboard.cells[srcCellId] && clipboard.cells[srcCellId].value;
+          if (!value) {
+            value = '';
           }
+
+          // TODO: copy all props.
+          this.props.actions.tableSetProp(pinterCellId, 'value', value);
 
           switch (clipboard.operation) {
             case 'COPY': {

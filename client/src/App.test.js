@@ -64,6 +64,8 @@ Run in all browsers:
 * pressing Ctrl+V while there are pointer should copy/cut value from clipboard
 * pressing Ctrl+V while there are pointer multiple times should cut multiple times even if clipboard cell is already empty
 * pressing Ctrl+V shouldn't throw errors if the source cell have no value
+* pressing Ctrl+X and then Ctrl+C on the same cell should do nothing to the cell's value
+* pressing Ctrl+V should copy/cut empty cell's values too
 * pressing Enter/Shift+Enter while editing should save cell's value and move pointer down/up (unless top border; at bottom table should expand)
 * pressing Tab/Shift+Tab while editing should save cell's value and move pointer right/left (unless left border; at right table should expand)
 * pressing Ctrl+Enter while editing should add new line after cursor
