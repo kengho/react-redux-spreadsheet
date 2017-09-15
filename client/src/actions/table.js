@@ -1,116 +1,133 @@
 import uuid from 'uuid/v4';
 
+// TODO: more docs.
+// changesData prop triggers server sync.
+// triggersRowUpdate prop triggers row update (your K.O.).
+
+// TODO: rename other actions' types the same way as table's.
+
 // changesData should be true for import and false for initial data load.
-export function setTableFromJSON(tableJSON, changesData: false) {
+export function tableSetFromJSON(tableJSON, changesData: false) {
   return {
-    type: 'SET_TABLE_FROM_JSON',
+    type: 'TABLE/SET_TABLE_FROM_JSON',
     tableJSON,
     changesData,
   };
 }
 
-export function setProp(cellId, prop, value) {
+// If triggersRowUpdate is set and some cellId changes should be tracked,
+// cellId, cellIdPath or cellIdGetter should be set.
+// If triggersRowUpdate is set and some other props changes should be tracked,
+// propsComparePaths should be set.
+// See client/src/store/middleware/detectRowUpdatesNeed.js.
+export function tableSetProp(cellId, prop, value) {
   return {
-    type: 'SET_PROP',
+    type: 'TABLE/SET_PROP',
     changesData: true,
     triggersRowUpdate: true,
+    propsComparePaths : [['data', 'cells', cellId, prop]],
     cellId,
     prop,
     value,
   };
 }
 
-export function deleteProp(cellId, prop) {
+export function tableDeleteProp(cellId, prop) {
   return {
-    type: 'DELETE_PROP',
+    type: 'TABLE/DELETE_PROP',
     changesData: true,
     triggersRowUpdate: true,
+    propsComparePaths : [['data', 'cells', cellId, prop]],
     cellId,
     prop,
   };
 }
 
-export function setHover(cellId) {
+export function tableSetHover(cellId) {
   return {
-    type: 'SET_HOVER',
+    type: 'TABLE/SET_HOVER',
     cellId,
   };
 }
 
-export function setPointer(pointer) {
+export function tableSetPointer(pointer) {
   return {
-    type: 'SET_POINTER',
-    pointer,
+    type: 'TABLE/SET_POINTER',
+    triggersRowUpdate: true,
+    cellIdPath : ['session', 'pointer', 'cellId'],
+    propsComparePaths : [['session', 'pointer', 'modifiers']],
+    cellId: pointer.cellId,
+    modifiers: pointer.modifiers,
   };
 }
 
-export function setPointerModifiers(modifiers) {
+export function tableMovePointer(key) {
   return {
-    type: 'SET_POINTER_MODIFIERS',
-    modifiers,
-  };
-}
-
-export function clearPointer() {
-  return {
-    type: 'CLEAR_POINTER',
-  };
-}
-
-export function movePointer(key) {
-  return {
-    type: 'MOVE_POINTER',
+    type: 'TABLE/MOVE_POINTER',
+    triggersRowUpdate: true,
+    cellIdPath : ['session', 'pointer', 'cellId'],
     key,
   };
 }
 
-export function setSelection(selection) {
-  return {
-    type: 'SET_SELECTION',
-    selection,
-  };
-}
+// TODO: handle multiple clipboard cells.
+// NOTE: this action looks like a mess until
+//   there are only one cell in clipboard at max.
+export function tableSetClipboard(clipboard) {
+  let cellId;
+  if (Object.keys(clipboard.cells).length > 0) {
+    cellId = Object.keys(clipboard.cells)[0];
+  }
 
-export function clearSelection() {
-  return {
-    type: 'CLEAR_SELECTION',
-  };
-}
+  const cellIdGetter = (table) => {
+    const cellsKeyes = table.getIn(['session', 'clipboard', 'cells']).keySeq().toArray();
+    if (cellsKeyes.length > 0) {
+      return cellsKeyes[0];
+    }
+  }
 
-export function setClipboard(clipboard) {
   return {
-    type: 'SET_CLIPBOARD',
+    type: 'TABLE/SET_CLIPBOARD',
+    triggersRowUpdate: true,
+    cellId,
+    cellIdGetter,
     clipboard,
   };
 }
 
-export function clearClipboard() {
+export function tableSetRowUpdateTrigger(rowId, ids) {
+  let rowIds;
+  if (Array.isArray(rowId)) {
+    rowIds = rowId;
+  } else {
+    rowIds = [rowId]
+  }
+
+  if (typeof ids === 'undefined') {
+    ids = rowIds.map(() => uuid());
+  }
+
   return {
-    type: 'CLEAR_CLIPBOARD',
+    type: 'TABLE/SET_ROW_UPDATE_TRIGGER',
+    rowIds,
+    ids,
   };
 }
 
-export function toggleRowUpdateTrigger(rowId) {
+export function tableReduce(lineNumber, lineRef) {
   return {
-    type: 'TOGGLE_ROW_UPDATE_TRIGGER',
-    rowId,
-  };
-}
-
-export function reduce(lineNumber, lineRef) {
-  return {
-    type: 'REDUCE',
+    type: 'TABLE/REDUCE',
     changesData: true,
     lineNumber,
     lineRef,
   };
 }
 
-export function expand(lineNumber, lineRef, id = uuid()) {
+export function tableExpand(lineNumber, lineRef, id = uuid()) {
   return {
-    type: 'EXPAND',
+    type: 'TABLE/EXPAND',
 
-    // Even though expand() changes data, we don't want
+    // Even though tableExpand() changes data, we don't want
     // 1) to press Ctrl+Z twice to undo SET_PROP, EXPAND actions sequence, and
     // 2) to send empty rows to server each time user presses ArrowDown.
     changesData: false,

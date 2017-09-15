@@ -53,7 +53,7 @@ class LineMenu extends React.Component {
       // Don't allow to delete first row/column if there are only one row/column left.
       if (!isOnly) {
         cellsMenuItems.push({
-          action: () => actions.reduce(lineNumber, lineRef),
+          action: () => actions.tableReduce(lineNumber, lineRef),
           icon: 'Close',
 
           // TODO: i18n.
@@ -62,12 +62,12 @@ class LineMenu extends React.Component {
       }
       cellsMenuItems.push(
         {
-          action: () => actions.expand(lineNumber, lineRef),
+          action: () => actions.tableExpand(lineNumber, lineRef),
           icon: 'KeyboardArrowUp',
           label: 'Insert row above',
         },
         {
-          action: () => actions.expand(lineNumber + 1, lineRef),
+          action: () => actions.tableExpand(lineNumber + 1, lineRef),
           icon: 'KeyboardArrowDown',
           label: 'Insert row below',
         }
@@ -75,19 +75,19 @@ class LineMenu extends React.Component {
     } else if (lineRef === 'COLUMN') {
       if (!isOnly) {
         cellsMenuItems.push({
-          action: () => actions.reduce(lineNumber, lineRef),
+          action: () => actions.tableReduce(lineNumber, lineRef),
           icon: 'Close',
           label: 'Delete column',
         });
       }
       cellsMenuItems.push(
         {
-          action: () => actions.expand(lineNumber, lineRef),
+          action: () => actions.tableExpand(lineNumber, lineRef),
           icon: 'ChevronLeft',
           label: 'Insert column at left',
         },
         {
-          action: () => actions.expand(lineNumber + 1, lineRef),
+          action: () => actions.tableExpand(lineNumber + 1, lineRef),
           icon: 'ChevronRight',
           label: 'Insert column at right',
         }
@@ -159,7 +159,7 @@ class LineMenu extends React.Component {
     return (
       <div
         className={classnames.join(' ')}
-        onMouseOver={() => actions.setHover(cellId)}
+        onMouseOver={() => actions.tableSetHover(cellId)}
       >
         <Menu
           {...this.props}

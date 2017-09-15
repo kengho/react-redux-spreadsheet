@@ -1,6 +1,4 @@
-import { getRowId } from '../../core';
 import { pushRequest } from '../../actions/requests';
-import { toggleRowUpdateTrigger } from '../../actions/table';
 
 const handleDataChanges = store => next => action => { // eslint-disable-line consistent-return
   // Don't fire before server data populates state.
@@ -32,15 +30,6 @@ const handleDataChanges = store => next => action => { // eslint-disable-line co
   //   (hashdiff? dispatcher on server?).
   const params = { table: JSON.stringify(nextTable) };
   store.dispatch(pushRequest('PATCH', 'update', params));
-
-  // Mark row as update-needed because we don't want
-  // to calculate all row's props on each Spreadsheet render().
-  // REVIEW: since we've come so far, wouldn't be better to apply
-  //   this stategy to all actions with cellId prop in it?
-  //   (Implies some refactoring though.)
-  if (action.triggersRowUpdate && action.cellId) {
-    store.dispatch(toggleRowUpdateTrigger(getRowId(action.cellId)));
-  }
 
   return nextAction;
 };

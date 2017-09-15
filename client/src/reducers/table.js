@@ -14,7 +14,7 @@ import {
 
 export default function table(state = initialState(0, 0).get('table'), action) {
   switch (action.type) {
-    case 'SET_TABLE_FROM_JSON': {
+    case 'TABLE/SET_TABLE_FROM_JSON': {
       const serverTable = fromJS(JSON.parse(action.tableJSON));
 
       // TODO: consider storage session data.
@@ -53,7 +53,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       return nextState;
     }
 
-    case 'SET_PROP': {
+    case 'TABLE/SET_PROP': {
       let nextState;
       if (action.cellId) {
         nextState = state.setIn(
@@ -67,7 +67,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       return nextState;
     }
 
-    case 'DELETE_PROP': {
+    case 'TABLE/DELETE_PROP': {
       return state.updateIn(
         ['data', 'cells'],
         value => {
@@ -91,25 +91,45 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       );
     }
 
-    case 'SET_HOVER': {
+    case 'TABLE/SET_HOVER': {
       return state.setIn(
         ['session', 'hover'],
         action.cellId
       );
     }
 
-    case 'SET_POINTER': {
-      return state.setIn(
-        ['session', 'pointer'],
-        fromJS(action.pointer)
-      );
-    }
+    case 'TABLE/SET_POINTER': {
+      let nextState = state;
 
-    case 'SET_POINTER_MODIFIERS': {
-      return state.setIn(
-        ['session', 'pointer', 'modifiers'],
-        fromJS(action.modifiers)
-      );
+      // null is valid value for cellId, uses when you want to clear pointer.
+      if (action.cellId !== undefined) {
+        nextState = nextState.setIn(
+          ['session', 'pointer', 'cellId'],
+          action.cellId
+        );
+      }
+
+      if (action.modifiers) {
+        // Preventing unnecessary mutations to prevent unnecessary re-renders.
+        // TODO: do it everywhere, for example in TABLE/SET_CLIPBOARD.
+        const currentModifiers = nextState.getIn(
+          ['session', 'pointer', 'modifiers'],
+        );
+        const allKeys = [
+          ...Object.keys(action.modifiers),
+          ...currentModifiers.keySeq().toArray(),
+        ];
+        const allKeysUniq = [...new Set(allKeys)];
+
+        allKeysUniq.forEach((modifier) => {
+          nextState = nextState.setIn(
+            ['session', 'pointer', 'modifiers', modifier],
+            action.modifiers[modifier]
+          );
+        });
+      }
+
+      return nextState;
     }
 
     case 'CLEAR_POINTER': {
@@ -119,7 +139,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       );
     }
 
-    case 'MOVE_POINTER': {
+    case 'TABLE/MOVE_POINTER': {
       const rows = state.getIn(['data', 'rows']).toJS();
       const columns = state.getIn(['data', 'columns']).toJS();
       const pointer = state.getIn(['session', 'pointer']).toJS();
@@ -173,41 +193,17 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       );
     }
 
-    case 'SET_SELECTION': {
-      return state.setIn(
-        ['session', 'selection'],
-        fromJS(action.selection)
-      );
-    }
-
-    case 'CLEAR_SELECTION': {
-      return state.setIn(
-        ['session', 'selection'],
-        fromJS({ cellsIds: [] })
-      );
-    }
-
-    case 'SET_CLIPBOARD': {
+    case 'TABLE/SET_CLIPBOARD': {
       return state.setIn(
         ['session', 'clipboard'],
         fromJS(action.clipboard)
       );
     }
 
-    case 'CLEAR_CLIPBOARD': {
-      return state.setIn(
-        ['session', 'clipboard'],
-        fromJS({
-          cells: [],
-          operation: null,
-        })
-      );
-    }
-
     // TODO: reducing leaves cells object untouched,
     //   so it should be cleaned afterwards somehow.
     // TODO: DRY refactor (with EXPAND).
-    case 'REDUCE': {
+    case 'TABLE/REDUCE': {
       // Don't allow to delete first row/column if there are only one row/column left.
       if (
         (action.lineRef === 'ROW' && state.getIn(['data', 'rows']).size === 1) ||
@@ -253,7 +249,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       return deletedPointerState;
     }
 
-    case 'EXPAND': {
+    case 'TABLE/EXPAND': {
       let expandedLinesState;
       if (action.lineRef === 'ROW') {
         let newRowId;
@@ -290,28 +286,20 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       return expandedLinesState;
     }
 
-    case 'TOGGLE_ROW_UPDATE_TRIGGER': {
-      let rowIds;
-      if (Array.isArray(action.rowId)) {
-        rowIds = action.rowId;
-      } else {
-        rowIds = [action.rowId]
-      }
-
+    case 'TABLE/SET_ROW_UPDATE_TRIGGER': {
       let nextState = state;
-      rowIds.forEach((rowId) => {
+      action.rowIds.forEach((rowId, index) => {
         if (!rowId) {
           return;
         }
 
-        const rowUpdateTriggerPath = ['updateTriggers', 'data', 'rows', rowId];
-        const currentRowUpdateTrigger = state.getIn(rowUpdateTriggerPath);
-
-        if (currentRowUpdateTrigger) {
-          nextState = nextState.deleteIn(rowUpdateTriggerPath);
-        } else {
-          nextState = nextState.setIn(rowUpdateTriggerPath, true);
-        }
+        // Using uuid() ensures that after n sequential updates
+        // resulting state will be different. This behaviour may be useful if
+        // some middleware toggles triggers too.
+        nextState = nextState.setIn(
+          ['updateTriggers', 'data', 'rows', rowId],
+          action.ids[index]
+        );
       });
 
       return nextState;

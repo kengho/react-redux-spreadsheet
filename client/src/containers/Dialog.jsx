@@ -12,7 +12,7 @@ import List, { ListItem, ListItemText } from 'material-ui/List';
 import './Dialog.css';
 import { arePropsEqual } from '../core';
 import { convert } from '../core';
-import { setTableFromJSON } from '../actions/table';
+import { tableSetFromJSON } from '../actions/table';
 import * as UiActions from '../actions/ui';
 import getDOM from '../lib/getDOM';
 
@@ -119,7 +119,7 @@ class Dialog extends React.Component {
       this.fileFakeInput.value = fileName;
       this.fileFakeInput.title = fileName;
 
-      const importAction = setTableFromJSON(JSON.stringify({ data: tableData.data }), true);
+      const importAction = tableSetFromJSON(JSON.stringify({ data: tableData.data }), true);
       this.props.actions.setDialog({
         action: importAction,
         disableYesButton: false,

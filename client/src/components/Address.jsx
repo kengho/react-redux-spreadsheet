@@ -36,7 +36,7 @@ class Address extends React.Component {
     return (
       <div
         className="address"
-        onMouseOver={() => { actions.setHover(cellId); }}
+        onMouseOver={() => { actions.tableSetHover(cellId); }}
       >
         {address}
       </div>

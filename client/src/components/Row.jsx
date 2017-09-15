@@ -16,23 +16,15 @@ const propTypes = {
     PropTypes.string,
     PropTypes.bool,
   ]),
-  isPointerOnRow: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
-  isRowInClipboard: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
-  localPointerColumnId: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
-  localPointerModifiers: PropTypes.object, // eslint-disable-line react/no-unused-prop-types
   pointer: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
   rowIndex: PropTypes.number.isRequired,
-  rowUpdateTrigger: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
+  rowUpdateTrigger: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
 };
 
 const defaultProps = {
   hoverColumnId: '',
-  isPointerOnRow: false,
-  isRowInClipboard: false,
-  localPointerColumnId: '',
-  localPointerModifiers: {},
-  rowUpdateTrigger: false,
+  rowUpdateTrigger: '',
 };
 
 class Row extends React.Component {
@@ -41,10 +33,6 @@ class Row extends React.Component {
 
     return !arePropsEqual(currentProps, nextProps, [
       'rowUpdateTrigger', // some cells' value changed
-      'isRowInClipboard', // clipboard changes
-      'isPointerOnRow', // pointer movement up/down
-      'localPointerColumnId', // pointer movement left/right
-      'localPointerModifiers', // edit/unedit cell
       'rowIndex', // add/remove rows
       'columns', // add/remove columns
       'menu', // click on menu
@@ -70,8 +58,8 @@ class Row extends React.Component {
       const effectiveCell = cell || {};
 
       const value = effectiveCell.value;
-      const isPointed = cellId === somePointer.cellId;
-      const isEditing = isPointed && somePointer.modifiers.edit === true;
+      const isPointed = (cellId === somePointer.cellId);
+      const isEditing = (isPointed && somePointer.modifiers.edit === true);
       const isSelectingOnFocus =
         isPointed &&
         (somePointer.modifiers.selectOnFocus === true);

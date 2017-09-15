@@ -7,6 +7,7 @@ if (process.env.NODE_ENV !== 'test') {
   window.log = (x) => console.log(JSON.stringify(x, null, 2));
 }
 
+// TODO: add cellId format checks.
 export function getRowId(cellId) {
   if (cellId) {
     return cellId.slice(

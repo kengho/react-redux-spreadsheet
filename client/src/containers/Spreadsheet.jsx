@@ -40,7 +40,7 @@ const mapStateToProps = (state) => {
     ui: state.get('ui'),
     undo: {
       canRedo: state.get('table').future.length > 0,
-      canUndo: state.get('table').past.length > 1, // omitting SET_TABLE_FROM_JSON
+      canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
     },
   };
 };
@@ -82,7 +82,7 @@ class Spreadsheet extends React.Component {
       // this.props.actions.setShortId('1');
       //
       // const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
-      // this.props.actions.setTableFromJSON(initialJSONTable);
+      // this.props.actions.tableSetFromJSON(initialJSONTable);
 
       return;
     }
@@ -102,7 +102,7 @@ class Spreadsheet extends React.Component {
           } else {
             // store's shortId used in handleRequestsChanges().
             this.props.actions.setShortId(shortId);
-            this.props.actions.setTableFromJSON(json.data.table);
+            this.props.actions.tableSetFromJSON(json.data.table);
           }
         });
     }
@@ -154,11 +154,12 @@ class Spreadsheet extends React.Component {
           if (!cellId) {
             // Default pointer on [0, 0].
             cellId = getCellId(
-              table.data.rows[0],
-              table.data.columns[0]
+              table.data.rows[0].id,
+              table.data.columns[0].id
             );
           }
-          this.props.actions.setPointer({ cellId, modifiers });
+
+          this.props.actions.tableSetPointer({ cellId, modifiers });
         },
       },
       {
@@ -188,6 +189,10 @@ class Spreadsheet extends React.Component {
 
           // Save previous pointed Cell's on-page visibility.
           const pointedCellBefore = document.querySelector('.pointed'); // eslint-disable-line no-undef
+          if (!pointedCellBefore) {
+            return;
+          }
+
           let isScrolledIntoViewBefore;
           if (pointedCellBefore) {
             isScrolledIntoViewBefore = isScrolledIntoView(pointedCellBefore);
@@ -197,10 +202,15 @@ class Spreadsheet extends React.Component {
           }
 
           // Perform pointer movement.
-          this.props.actions.movePointer(evt.key);
+          this.props.actions.tableMovePointer(evt.key);
 
+          // TODO: move this stuff to middleware, leave only tableMovePointer() here.
           // Figure out, should we move scrollbars to align with pointer movement.
           const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
+          if (!pointedCellAfter) {
+            return;
+          }
+
           const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
 
           const pointedCellAfterPos = [
@@ -221,8 +231,8 @@ class Spreadsheet extends React.Component {
       {
         key: 'Escape',
         action: () => {
-          this.props.actions.clearPointer();
-          this.props.actions.clearClipboard();
+          this.props.actions.tableSetPointer({ cellId: null, modifiers: {} });
+          this.props.actions.tableSetClipboard({ cells: {}, operation: null});
         },
       },
       {
@@ -235,7 +245,7 @@ class Spreadsheet extends React.Component {
             // Prevents going back in history for Backspace.
             evt.preventDefault();
 
-            this.props.actions.deleteProp(pointer.cellId, 'value');
+            this.props.actions.tableDeleteProp(pointer.cellId, 'value');
           }
         },
       },
@@ -261,10 +271,10 @@ class Spreadsheet extends React.Component {
           clipboardCells[pointer.cellId] = cells[pointer.cellId];
 
           if (evt.which === 88) { // 'x'
-            this.props.actions.deleteProp(pointer.cellId, 'value');
+            this.props.actions.tableDeleteProp(pointer.cellId, 'value');
           }
 
-          this.props.actions.setClipboard({
+          this.props.actions.tableSetClipboard({
             cells: clipboardCells,
             operation,
           });
@@ -290,7 +300,7 @@ class Spreadsheet extends React.Component {
           if (value) {
             // TODO: copy all props.
             const pointer = table.session.pointer;
-            this.props.actions.setProp(pointer.cellId, 'value', value);
+            this.props.actions.tableSetProp(pointer.cellId, 'value', value);
           }
 
           switch (clipboard.operation) {
@@ -299,7 +309,7 @@ class Spreadsheet extends React.Component {
             }
             case 'CUT': {
               // TODO: cut all props.
-              this.props.actions.deleteProp(srcCellId, 'value');
+              this.props.actions.tableDeleteProp(srcCellId, 'value');
               break;
             }
             default:
@@ -361,22 +371,6 @@ class Spreadsheet extends React.Component {
     for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
       const rowId = rows[rowIndex].id;
 
-      // Uses in shouldComponentUpdate().
-      let isPointerOnRow;
-      if (pointer.cellId) {
-        isPointerOnRow = (getRowId(pointer.cellId) === rowId);
-      }
-      let localPointerColumnId;
-      let localPointerModifiers;
-      if (isPointerOnRow) {
-        localPointerColumnId = getColumnId(pointer.cellId);
-        localPointerModifiers = { ...pointer.modifiers };
-      }
-
-      const isRowInClipboard = !!Object.keys(clipboard.cells).some((cellId) => {
-        return (getRowId(cellId) === rowId);
-      });
-
       // TODO: reconcider props.
       outputRows.push(
         <Row
@@ -385,11 +379,7 @@ class Spreadsheet extends React.Component {
           clipboard={clipboard}
           columns={columns}
           hoverColumnId={table.session.hover && rowIndex === 0 && getColumnId(table.session.hover)}
-          isPointerOnRow={isPointerOnRow}
-          isRowInClipboard={isRowInClipboard}
           key={rowId}
-          localPointerColumnId={localPointerColumnId}
-          localPointerModifiers={localPointerModifiers}
           menu={menu}
           pointer={pointer}
           rowId={rowId}
@@ -411,7 +401,7 @@ class Spreadsheet extends React.Component {
       <div>
         <div
           className="table"
-          onMouseLeave={() => { actions.setHover(null); }}
+          onMouseLeave={() => { actions.tableSetHover(null); }}
           style={this.style}
         >
           <TableMenu

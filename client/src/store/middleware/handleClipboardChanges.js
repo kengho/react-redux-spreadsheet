@@ -1,7 +1,7 @@
 import copy from 'copy-to-clipboard';
 
 const handleClipboardChanges = store => next => action => { // eslint-disable-line consistent-return
-  if (action.type === 'SET_CLIPBOARD') {
+  if (action.type === 'TABLE/SET_CLIPBOARD') {
     // TODO: handle many selected cells (also see containers/Spreadsheet.jsx).
     const cellId = Object.keys(action.clipboard.cells);
     const cell = action.clipboard.cells[cellId];

@@ -63,7 +63,7 @@ class Landing extends React.Component {
 
           // store's shortId used in handleRequestsChanges().
           this.props.actions.setShortId(shortId);
-          this.props.actions.setTableFromJSON(JSONTable);
+          this.props.actions.tableSetFromJSON(JSONTable);
           this.props.history.push(spreadsheetPath);
         }
 

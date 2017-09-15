@@ -3,8 +3,8 @@ import {
   getRowId,
 } from '../../core';
 import {
-  expand,
-  setProp,
+  tableExpand,
+  tableSetProp,
 } from '../../actions/table';
 
 const handlePointerChanges = store => next => action => { // eslint-disable-line consistent-return
@@ -26,8 +26,8 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
   //   3) Pass previous pointer to every DataCell.
   //   Issue: to complex and, again, slow.
   //
-  //   Only SET_POINTER or MOVE_POINTER may trigger value changing.
-  if (action.type === 'SET_POINTER' || action.type === 'MOVE_POINTER') {
+  //   Only TABLE/SET_POINTER or TABLE/MOVE_POINTER may trigger value changing.
+  if (action.type === 'TABLE/SET_POINTER' || action.type === 'TABLE/MOVE_POINTER') {
     const previousTable = store.getState().get('table').present;
     const previousPointerCellId = previousTable.getIn(['session', 'pointer', 'cellId']);
 
@@ -61,7 +61,7 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
 
       if (previousPointerCellNextValue !== previousPointerCellPreviousValue) {
         store.dispatch(
-          setProp(
+          tableSetProp(
             previousPointerCellId,
             'value',
             previousPointerCellNextValue
@@ -74,8 +74,8 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
   const nextAction = next(action);
 
   // Expands table if pointer moves beyond it.
-  // Only MOVE_POINTER may trigger expand.
-  if (action.type === 'MOVE_POINTER') {
+  // Only MOVE_POINTER may trigger tableExpand.
+  if (action.type === 'TABLE/MOVE_POINTER') {
     const nextTable = store.getState().get('table').present;
     const nextRows = nextTable.getIn(['data', 'rows']).toJS();
     const nextColumns = nextTable.getIn(['data', 'columns']).toJS();
@@ -84,10 +84,10 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
     const nextPointerColumnId = getColumnId(nextPointerCellId);
 
     if (nextRows.findIndex((row) => row.id === nextPointerRowId) === -1) {
-      // slice deletes 'r' and 'c' prefixes from ids, because expand() adds them by itself.
-      store.dispatch(expand(nextRows.length, 'ROW', nextPointerRowId.slice(1)));
+      // slice deletes 'r' and 'c' prefixes from ids, because tableExpand() adds them by itself.
+      store.dispatch(tableExpand(nextRows.length, 'ROW', nextPointerRowId.slice(1)));
     } else if (nextColumns.findIndex((column) => column.id === nextPointerColumnId) === -1) {
-      store.dispatch(expand(nextColumns.length, 'COLUMN', nextPointerColumnId.slice(1)));
+      store.dispatch(tableExpand(nextColumns.length, 'COLUMN', nextPointerColumnId.slice(1)));
     }
   }
 

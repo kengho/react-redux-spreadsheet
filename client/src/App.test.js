@@ -53,6 +53,8 @@ Run in all browsers:
 *   ↑
 *   ↑
 * after dialog appearing arrow, Enter and Escape keys should work // TODO: Enter currently doesn't work.
+* on document, pressing regular key should start editing currently pointed cell with value equals to that key
+* on document, if regular key pressed while there are no pointed cells, [0, 0] cell should become pointed
 * pressing Enter while there are pointer should make pointed cell editable and select all it's content
 * pressing F2 while there are pointer should make pointed cell editable and move cursor to the end of cell's content
 * pressing Delete while there are pointer should delete pointed cell's value

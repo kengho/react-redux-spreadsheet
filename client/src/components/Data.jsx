@@ -60,7 +60,7 @@ class Data extends React.Component {
     // // Prevents firing documentClickHandler().
     // evt.nativeEvent.stopImmediatePropagation();
 
-    this.props.actions.setPointer({ cellId, modifiers: {} });
+    this.props.actions.tableSetPointer({ cellId, modifiers: {} });
   }
 
   doubleClickHandler(evt, cellId) {
@@ -68,7 +68,7 @@ class Data extends React.Component {
       return;
     }
 
-    this.props.actions.setPointer({ cellId, modifiers: { edit: true } });
+    this.props.actions.tableSetPointer({ cellId, modifiers: { edit: true } });
   }
 
   onFocusHandler(evt, isSelectingOnFocus) {
@@ -89,10 +89,10 @@ class Data extends React.Component {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    const movePointer = (movePointerKey) => {
+    const movePointer = (tableMovePointerKey) => {
       // Prevents pressing key immediately after changing pointer.
       evt.preventDefault();
-      this.props.actions.movePointer(movePointerKey);
+      this.props.actions.tableMovePointer(tableMovePointerKey);
     };
 
     const action = findKeyAction(evt, [
@@ -142,7 +142,7 @@ class Data extends React.Component {
       },
       {
         key: 'Escape',
-        action: () => this.props.actions.setPointerModifiers({}),
+        action: () => this.props.actions.tableSetPointer({ modifiers: {} }),
       },
     ]);
 
@@ -210,7 +210,7 @@ class Data extends React.Component {
         id={cellId}
         onClick={disabled && ((evt) => this.clickHandler(evt, cellId))}
         onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
-        onMouseOver={() => { actions.setHover(cellId); }}
+        onMouseOver={() => { actions.tableSetHover(cellId); }}
       >
         {textareaOutput}
       </div>
