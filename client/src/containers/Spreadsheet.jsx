@@ -87,10 +87,8 @@ class Spreadsheet extends React.Component {
       return;
     }
 
-    const table = this.props.table.toJS();
-
     // Fetch data after initial render.
-    if (table.data.rows.length === 0) {
+    if (this.props.table.getIn(['data', 'rows']).size === 0) {
       const shortId = this.props.match.params.shortId;
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
@@ -108,11 +106,6 @@ class Spreadsheet extends React.Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) { // eslint-disable-line no-unused-vars
-    // TODO: handle double rerenders.
-    return true;
-  }
-
   componentWillUnmount() {
     // TODO: window or document?
     window.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
@@ -127,7 +120,10 @@ class Spreadsheet extends React.Component {
   }
 
   documentKeyDownHandler(evt) {
-    const table = this.props.table.toJS();
+    const {
+      actions,
+      table,
+    } = this.props;
 
     const action = findKeyAction(evt, [
       {
@@ -149,17 +145,17 @@ class Spreadsheet extends React.Component {
           // 'input' renders after 'keydown', and symbols appears after 'keyup',
           // thus after `setState` input's value is already 'evt.key'.
 
-          const pointer = table.session.pointer;
-          let cellId = pointer.cellId;
+          const pointer = table.getIn(['session', 'pointer']);
+          let cellId = pointer.get('cellId');
           if (!cellId) {
             // Default pointer on [0, 0].
             cellId = getCellId(
-              table.data.rows[0].id,
-              table.data.columns[0].id
+              table.getIn(['data', 'rows', 0, 'id']),
+              table.getIn(['data', 'columns', 0, 'id'])
             );
           }
 
-          this.props.actions.tableSetPointer({ cellId, modifiers });
+          actions.tableSetPointer({ cellId, modifiers });
         },
       },
       {
@@ -177,9 +173,6 @@ class Spreadsheet extends React.Component {
           // Prevents native scrollbar movement.
           evt.preventDefault();
 
-          const rows = table.data.rows;
-          const columns = table.data.columns;
-
           // REVIEW: 'querySelector' is probably not React-way.
           //   I could define 'this.previousPointer = this.table.session.pointer'
           //   in componentWillReceiveProps() and use it's cellId prop in getElementById,
@@ -189,9 +182,6 @@ class Spreadsheet extends React.Component {
 
           // Save previous pointed Cell's on-page visibility.
           const pointedCellBefore = document.querySelector('.pointed'); // eslint-disable-line no-undef
-          if (!pointedCellBefore) {
-            return;
-          }
 
           let isScrolledIntoViewBefore;
           if (pointedCellBefore) {
@@ -202,17 +192,21 @@ class Spreadsheet extends React.Component {
           }
 
           // Perform pointer movement.
-          this.props.actions.tableMovePointer(evt.key);
+          actions.tableMovePointer(evt.key);
 
           // TODO: move this stuff to middleware, leave only tableMovePointer() here.
           // Figure out, should we move scrollbars to align with pointer movement.
           const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
+
+          // pointedCellAfter is ought to exist.
           if (!pointedCellAfter) {
             return;
           }
 
           const isScrolledIntoViewAfter = isScrolledIntoView(pointedCellAfter);
 
+          const rows = table.getIn(['data', 'rows']);
+          const columns = table.getIn(['data', 'columns']);
           const pointedCellAfterPos = [
             rows.indexOf(getRowId(pointedCellAfter.id)),
             columns.indexOf(getColumnId(pointedCellAfter.id)),
@@ -231,21 +225,21 @@ class Spreadsheet extends React.Component {
       {
         key: 'Escape',
         action: () => {
-          this.props.actions.tableSetPointer({ cellId: null, modifiers: {} });
-          this.props.actions.tableSetClipboard({ cells: {}, operation: null});
+          actions.tableSetPointer({ cellId: null, modifiers: {} });
+          actions.tableSetClipboard({ cells: {}, operation: null});
         },
       },
       {
         keys: ['Delete', 'Backspace'],
         action: () => {
-          const cells = table.data.cells;
-          const pointer = table.session.pointer;
-          const cell = cells[pointer.cellId];
-          if (cell && cell.value) {
+          const cells = table.getIn(['data', 'cells']);
+          const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
+          const pointedCellValue = cells.getIn([pointerCellId, 'value']);
+          if (pointedCellValue) {
             // Prevents going back in history for Backspace.
             evt.preventDefault();
 
-            this.props.actions.tableDeleteProp(pointer.cellId, 'value');
+            actions.tableDeleteProp(pointerCellId, 'value');
           }
         },
       },
@@ -256,6 +250,8 @@ class Spreadsheet extends React.Component {
           // Prevents default action.
           evt.preventDefault();
 
+          // NOTE: since we delete prop for Ctrl+X right here,
+          //   we don't really need operation prop.
           let operation;
           if (evt.which === 67) { // 'c'
             operation = 'COPY';
@@ -266,15 +262,15 @@ class Spreadsheet extends React.Component {
           const clipboardCells = {};
 
           // TODO: handle many selected cells (also see store/middleware/handleClipboardChanges.js).
-          const cells = table.data.cells;
-          const pointer = table.session.pointer;
-          clipboardCells[pointer.cellId] = cells[pointer.cellId];
+          const cells = table.getIn(['data', 'cells']);
+          const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
+          clipboardCells[pointerCellId] = cells.get(pointerCellId);
 
-          if (evt.which === 88) { // 'x'
-            this.props.actions.tableDeleteProp(pointer.cellId, 'value');
+          if (operation === 'CUT') {
+            actions.tableDeleteProp(pointerCellId, 'value');
           }
 
-          this.props.actions.tableSetClipboard({
+          actions.tableSetClipboard({
             cells: clipboardCells,
             operation,
           });
@@ -287,37 +283,20 @@ class Spreadsheet extends React.Component {
           // Prevents native pasting into cell.
           evt.preventDefault();
 
-          const clipboard = table.session.clipboard;
+          const clipboard = table.getIn(['session', 'clipboard']);
 
           // TODO: handle many selected cells.
-          const srcCellsIds = Object.keys(clipboard.cells);
-          if (srcCellsIds.length !== 1) {
+          const srcCellsIds = clipboard.get('cells').keySeq();
+          if (srcCellsIds.size !== 1) {
             return;
           }
 
-          const srcCellId = srcCellsIds[0];
-          const pinterCellId = table.session.pointer.cellId;
-          let value = clipboard.cells[srcCellId] && clipboard.cells[srcCellId].value;
-          if (!value) {
-            value = '';
-          }
+          const srcCellId = srcCellsIds.get(0);
+          const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
+          const value = clipboard.getIn(['cells', srcCellId, 'value']) || '';
 
           // TODO: copy all props.
-          this.props.actions.tableSetProp(pinterCellId, 'value', value);
-
-          switch (clipboard.operation) {
-            case 'COPY': {
-              break;
-            }
-            case 'CUT': {
-              // TODO: cut all props.
-              if (srcCellId !== pinterCellId) {
-                this.props.actions.tableDeleteProp(srcCellId, 'value');
-              }
-              break;
-            }
-            default:
-          }
+          actions.tableSetProp(pointerCellId, 'value', value);
         },
       },
       {
@@ -325,7 +304,7 @@ class Spreadsheet extends React.Component {
         ctrlKey: true,
         action: () => {
           if (this.props.undo.canUndo) {
-            this.props.actions.undo();
+            actions.undo();
           }
         },
       },
@@ -334,7 +313,7 @@ class Spreadsheet extends React.Component {
         ctrlKey: true,
         action: () => {
           if (this.props.undo.canRedo) {
-            this.props.actions.redo();
+            actions.redo();
           }
         },
       },
@@ -354,42 +333,45 @@ class Spreadsheet extends React.Component {
   }
 
   render() {
-    const table = this.props.table.toJS();
+    const {
+      actions,
+      requests,
+      table,
+      ui,
+    } = this.props;
+    const rows = table.getIn(['data', 'rows']);
 
     // TODO: draw some kind of spinner if table is empty.
-    if (table.data.rows.length === 0) {
+    if (rows.size === 0) {
       return <div />;
     }
 
-    // FIXME: this is a mess.
-    const { actions, requests, ui } = this.props;
-    const cells = table.data.cells;
-    const clipboard = table.session.clipboard;
-    const columns = table.data.columns;
-    const menu = ui.get('menu').toJS();
-    const pointer = table.session.pointer;
-    const rows = table.data.rows;
-    const updateTriggers = table.updateTriggers;
+    const cells = table.getIn(['data', 'cells']);
+    const clipboard = table.getIn(['session', 'clipboard']);
+    const columns = table.getIn(['data', 'columns']);
+    const hover = table.getIn(['session', 'hover']);
+    const menu = ui.get('menu');
+    const pointer = table.getIn(['session', 'pointer']);
+    const updateTriggers = table.getIn(['updateTriggers']);
 
     const outputRows = [];
-    for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
-      const rowId = rows[rowIndex].id;
+    for (let rowIndex = 0; rowIndex < rows.size; rowIndex += 1) {
+      const rowId = rows.getIn([rowIndex, 'id']);
 
-      // TODO: reconcider props.
       outputRows.push(
         <Row
           actions={actions}
           cells={cells}
           clipboard={clipboard}
           columns={columns}
-          hoverColumnId={table.session.hover && rowIndex === 0 && getColumnId(table.session.hover)}
+          hoverColumnId={rowIndex === 0 && getColumnId(hover)}
           key={rowId}
           menu={menu}
           pointer={pointer}
           rowId={rowId}
-          rowIndex={rowIndex}
+          rowNumber={rowIndex}
           rows={rows}
-          rowUpdateTrigger={updateTriggers.data.rows[rowId]}
+          rowUpdateTrigger={updateTriggers.getIn(['data', 'rows', rowId])}
         />
       );
     }
@@ -401,6 +383,10 @@ class Spreadsheet extends React.Component {
     // TODO: create menu id getter.
     // TODO: add crop option to table menu.
 
+    const firstCellId = getCellId(rows.getIn([0, 'id']), columns.getIn([0, 'id']));
+    const nextMenuId = `${firstCellId}-column`;
+    const previousMenuId = `${firstCellId}-row`;
+
     return (
       <div>
         <div
@@ -410,11 +396,11 @@ class Spreadsheet extends React.Component {
         >
           <TableMenu
             actions={actions}
-            data={table.data}
-            firstCellId={getCellId(rows[0].id, columns[0].id)}
-            menuVisibility={menu["table"]}
-            requests={requests.toJS()}
-            rows={rows}
+            data={this.props.table.get('data')}
+            menuVisibility={menu.get('table')}
+            nextMenuId={nextMenuId}
+            previousMenuId={previousMenuId}
+            requestsQueueLength={requests.get('queue').size}
             shortId={this.props.match.params.shortId}
           />
           {outputRows}

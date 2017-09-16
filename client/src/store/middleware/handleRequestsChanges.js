@@ -15,8 +15,7 @@ const composeRequest = (store, action) => {
   let data;
   if (action.type === 'POP_REQUEST_ID') {
     // 0-th request is popping, so we should handle 1-th now.
-    data = store.getState().get('requests').get('queue').get(1)
-      .toJS();
+    data = store.getState().get('requests').get('queue').get(1).toJS();
   } else {
     data = { ...action };
   }
@@ -78,13 +77,13 @@ const handleRequestsChanges = store => next => action => {
     return next(action);
   }
 
-  const requests = store.getState().get('requests').get('queue').toJS();
+  const requests = store.getState().get('requests').get('queue');
 
   let composedRequest;
   if (action.type === 'PUSH_REQUEST') {
     // If there are more than one request in stack,
     // there is already a request processing via 'MARK_REQUEST_AS_FAILED' branch.
-    if (requests.length > 0) {
+    if (requests.size > 0) {
       return next(action);
     }
 
@@ -94,7 +93,7 @@ const handleRequestsChanges = store => next => action => {
 
   if (action.type === 'POP_REQUEST_ID') {
     // If we popping last request in queue, there is nothing to do.
-    if (requests.length === 1) {
+    if (requests.size === 1) {
       return next(action);
     }
 
@@ -103,7 +102,7 @@ const handleRequestsChanges = store => next => action => {
   }
 
   if (action.type === 'MARK_REQUEST_AS_FAILED') {
-    const request = requests.find((someRequest) => someRequest.id === action.id);
+    const request = requests.find((someRequest) => someRequest.get('id') === action.id);
 
     if (!request) {
       return next(action);

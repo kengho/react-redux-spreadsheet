@@ -24,6 +24,7 @@ export default function ui(state = defaultState, action) {
     case 'CLOSE_ALL_MENUS':
       return state.set('menu', fromJS({}));
 
+    // TODO: optimize.
     case 'SET_DIALOG':
       return state.set(
         'dialog',

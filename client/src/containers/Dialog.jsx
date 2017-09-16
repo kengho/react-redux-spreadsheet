@@ -10,25 +10,17 @@ import React from 'react';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 
 import './Dialog.css';
-import { arePropsEqual } from '../core';
 import { convert } from '../core';
 import { tableSetFromJSON } from '../actions/table';
 import * as UiActions from '../actions/ui';
 import getDOM from '../lib/getDOM';
 
-const mapStateToProps = (state) => {
-  let errors = state.getIn(['ui', 'dialog', 'errors']);
-  if (errors) {
-    errors = errors.toJS();
-  }
-
-  return {
-    disableYesButton: state.getIn(['ui', 'dialog', 'disableYesButton']),
-    errors,
-    variant: state.getIn(['ui', 'dialog', 'variant']),
-    open: state.getIn(['ui', 'dialog', 'open']),
-  }
-};
+const mapStateToProps = (state) => ({
+  disableYesButton: state.getIn(['ui', 'dialog', 'disableYesButton']),
+  errors: state.getIn(['ui', 'dialog', 'errors']),
+  variant: state.getIn(['ui', 'dialog', 'variant']),
+  open: state.getIn(['ui', 'dialog', 'open']),
+});
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
@@ -52,17 +44,6 @@ class Dialog extends React.Component {
     this.buttons = {};
     this.getButtonId = (type) => `dialog-button-${type}`;
     this.getButtonDOM = (type) => getDOM(this.getButtonId(type));
-  }
-
-  shouldComponentUpdate(nextProps) {
-    const currentProps = this.props;
-
-    return !arePropsEqual(currentProps, nextProps, [
-      'disableYesButton',
-      'errors',
-      'variant',
-      'open',
-    ]);
   }
 
   componentDidUpdate() {
@@ -141,8 +122,8 @@ class Dialog extends React.Component {
       actions,
       disableYesButton,
       errors,
-      variant,
       open,
+      variant,
     } = this.props;
 
     let buttonsMap;
@@ -269,7 +250,7 @@ class Dialog extends React.Component {
     let outputErrors;
     if (errors) {
       outputErrors = errors.map((error) =>
-        <li key={error.code}>{error.message}</li>
+        <li key={error.get('code')}>{error.get('message')}</li>
       );
     }
     outputErrors = <ul>{outputErrors}</ul>;
@@ -286,7 +267,7 @@ class Dialog extends React.Component {
         </MaterialDialogTitle>
         <MaterialDialogContent>
           {content}
-          {errors && errors.length > 0 &&
+          {errors && errors.size > 0 &&
             <div className="dialog-errors">
               {outputErrors}
             </div>

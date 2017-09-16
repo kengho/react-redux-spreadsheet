@@ -10,20 +10,14 @@ const handleDataChanges = store => next => action => { // eslint-disable-line co
     return next(action);
   }
 
-  const getTable = (someStore) => {
-    const table = someStore.getState().get('table').present.toJS();
-
-    // TODO: consider storage session data.
-    delete table.session;
-
-    return table;
-  };
-
   // Middleware should apply after dispatcher changes state.
   const nextAction = next(action);
 
   // Get new data.
-  const nextTable = getTable(store);
+  const nextTable = store.getState().get('table').present.toJS();
+
+  // TODO: consider storage session data.
+  delete nextTable.session;
 
   // Send new data to server.
   // TODO: reduce traffic amount

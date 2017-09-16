@@ -1,51 +1,37 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import {
-  arePropsEqual,
-  getCellId,
-} from '../core';
 import Menu from './Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  cellId: PropTypes.string.isRequired,
-  columns: PropTypes.array.isRequired,
   isHover: PropTypes.bool,
   isOnly: PropTypes.bool.isRequired,
   lineNumber: PropTypes.number.isRequired,
   lineRef: PropTypes.string.isRequired,
+  menuId: PropTypes.string.isRequired,
   menuVisibility: PropTypes.bool,
-  rows: PropTypes.array.isRequired,
+  nextMenuId: PropTypes.string,
+  previousMenuId: PropTypes.string,
 };
+
 
 const defaultProps = {
   isHover: false,
   menuVisibility: false,
 };
 
-class LineMenu extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    const currentProps = this.props;
-
-    return !arePropsEqual(currentProps, nextProps, [
-      'isHover',
-      'isOnly',
-      'menuVisibility',
-      'lineNumber',
-    ]);
-  }
-
+class LineMenu extends React.PureComponent {
   render() {
     const {
-      actions,
-      cellId,
-      columns,
+      actions, // uses in both LineMenu and Menu
       isHover,
       isOnly,
       lineNumber,
       lineRef,
-      rows,
+      nextMenuId,
+      previousMenuId,
+      ...other,
     } = this.props;
 
     const cellsMenuItems = [];
@@ -94,62 +80,6 @@ class LineMenu extends React.Component {
       );
     }
 
-    // REVIEW: could it be simplified? Should it be tested?
-    const getAdjacentMenuId = (direction) => {
-      switch (lineRef) {
-        case 'COLUMN': {
-          switch (direction) {
-            case 'NEXT': {
-              if (columns[lineNumber + 1]) {
-                return `${getCellId(rows[0].id, columns[lineNumber + 1].id)}-column`;
-              }
-              return;
-            }
-            case 'PREVIOUS': {
-              if (columns[lineNumber - 1]) {
-                return `${getCellId(rows[0].id, columns[lineNumber - 1].id)}-column`;
-              } else {
-                // TableMenu
-                return 'table';
-              }
-            }
-
-            default:
-          }
-
-          break;
-        }
-
-        case 'ROW': {
-          switch (direction) {
-            case 'NEXT': {
-              if (rows[lineNumber - 1]) {
-                return `${getCellId(rows[lineNumber - 1].id, columns[0].id)}-row`;
-              } else {
-                // TableMenu
-                return 'table';
-              }
-            }
-            case 'PREVIOUS': {
-              if (rows[lineNumber + 1]) {
-                return `${getCellId(rows[lineNumber + 1].id, columns[0].id)}-row`;
-              }
-              return;
-            }
-
-            default:
-          }
-
-          break;
-        }
-
-        default:
-      }
-    }
-
-    let previousMenuId = getAdjacentMenuId('PREVIOUS');
-    let nextMenuId = getAdjacentMenuId('NEXT');
-
     const classnames = ['line-menu'];
     if (lineRef === 'COLUMN' && isHover) { classnames.push('hover'); }
 
@@ -157,14 +87,11 @@ class LineMenu extends React.Component {
     if (lineRef === 'ROW') { classnames.push('line-menu-hover'); }
 
     return (
-      <div
-        className={classnames.join(' ')}
-        onMouseOver={() => actions.tableSetHover(cellId)}
-      >
+      <div className={classnames.join(' ')}>
         <Menu
-          {...this.props}
+          {...other}
+          actions={actions}
           icon="MoreVert"
-          menuId={`${cellId}-${lineRef.toLowerCase()}`}
           menuItems={cellsMenuItems}
           nextMenuId={nextMenuId}
           previousMenuId={previousMenuId}

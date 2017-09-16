@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import TextareaAutosize from '@kengho/react-textarea-autosize';
 
-import { arePropsEqual } from '../core';
 import cssToNumber from '../lib/cssToNumber';
-import numberToCss from '../lib/numberToCss';
 import findKeyAction from '../lib/findKeyAction';
+import numberToCss from '../lib/numberToCss';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -15,7 +14,6 @@ const propTypes = {
   isOnClipboard: PropTypes.bool.isRequired,
   isPointed: PropTypes.bool.isRequired,
   isSelectingOnFocus: PropTypes.bool.isRequired,
-  pointer: PropTypes.object.isRequired,
   value: PropTypes.string,
 };
 
@@ -23,7 +21,7 @@ const defaultProps = {
   value: '',
 };
 
-class Data extends React.Component {
+class Data extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -43,18 +41,6 @@ class Data extends React.Component {
     });
   }
 
-  shouldComponentUpdate(nextProps) {
-    const currentProps = this.props;
-
-    return !arePropsEqual(currentProps, nextProps, [
-      'value',
-      'isEditing',
-      'isPointed',
-      'isSelectingOnFocus',
-      'isOnClipboard',
-    ]);
-  }
-
   clickHandler(evt, cellId) {
     // FIXME: doesn't work.
     // // Prevents firing documentClickHandler().
@@ -64,7 +50,7 @@ class Data extends React.Component {
   }
 
   doubleClickHandler(evt, cellId) {
-    if (this.props.pointer.modifiers.edit === true) {
+    if (this.props.isEditing === true) {
       return;
     }
 
@@ -154,7 +140,6 @@ class Data extends React.Component {
 
   render() {
     const {
-      actions,
       cellId,
       isEditing,
       isOnClipboard,
@@ -213,7 +198,6 @@ class Data extends React.Component {
         id={cellId}
         onClick={disabled && ((evt) => this.clickHandler(evt, cellId))}
         onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
-        onMouseOver={() => { actions.tableSetHover(cellId); }}
       >
         {textareaOutput}
       </div>

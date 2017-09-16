@@ -88,13 +88,12 @@ class Landing extends React.Component {
   }
 
   render() {
-    const messages = this.props.messages.toJS();
     const buttonIsDisabled = this.props.buttonIsDisabled;
 
     const recaptchaSitekey = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
     const outputMessages = [];
-    messages.forEach((message) => {
+    this.props.messages.forEach((message) => {
       outputMessages.push(<li key={message}>{message}</li>);
     });
 

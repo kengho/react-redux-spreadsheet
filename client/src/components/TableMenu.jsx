@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import SyncProblem from 'material-ui-icons/SyncProblem';
 
-import {
-  arePropsEqual,
-  convert,
-} from '../core';
+import { convert } from '../core';
 import { pushRequest } from '../actions/requests';
 import datetime from '../lib/datetime';
 import Menu from './Menu/Menu';
@@ -15,9 +12,8 @@ import Menu from './Menu/Menu';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
-  firstCellId: PropTypes.string.isRequired,
   menuVisibility: PropTypes.bool,
-  requests: PropTypes.object.isRequired,
+  requestsQueueLength: PropTypes.number.isRequired,
   shortId: PropTypes.string.isRequired,
 };
 
@@ -25,17 +21,7 @@ const defaultProps = {
   menuVisibility: false,
 };
 
-class TableMenu extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    const currentProps = this.props;
-
-    return !arePropsEqual(currentProps, nextProps, [
-      'requests',
-      'menuVisibility',
-      'firstCellId', // for nextMenuId and previousMenuId
-    ]);
-  }
-
+class TableMenu extends React.PureComponent {
   exportToCSV() {
     const formattedDate = datetime();
     const csv = convert(this.props.data, {
@@ -49,13 +35,13 @@ class TableMenu extends React.Component {
 
   render() {
     const {
-      requests,
-      firstCellId,
+      requestsQueueLength,
+      ...other,
     } = this.props;
 
     let classnames = [];
     let output;
-    if (requests.queue.length > 0) {
+    if (requestsQueueLength > 0) {
       // TODO: return tooltip.
       // tooltip="Data sync error. Please don't close tab until data is saved"
       // Wrapper solves issue with disabled button.
@@ -93,17 +79,12 @@ class TableMenu extends React.Component {
         },
       ];
 
-      const nextMenuId = `${firstCellId}-column`;
-      const previousMenuId = `${firstCellId}-row`;
-
       output = (
         <Menu
-          {...this.props}
+          {...other}
           icon="MoreVert"
           menuId="table"
           menuItems={tableMenuItems}
-          nextMenuId={nextMenuId}
-          previousMenuId={previousMenuId}
         />
       );
     }

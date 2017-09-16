@@ -132,27 +132,20 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       return nextState;
     }
 
-    case 'CLEAR_POINTER': {
-      return state.setIn(
-        ['session', 'pointer'],
-        fromJS({ cellId: null, modifiers: {} })
-      );
-    }
-
     case 'TABLE/MOVE_POINTER': {
-      const rows = state.getIn(['data', 'rows']).toJS();
-      const columns = state.getIn(['data', 'columns']).toJS();
-      const pointer = state.getIn(['session', 'pointer']).toJS();
+      const rows = state.getIn(['data', 'rows']);
+      const columns = state.getIn(['data', 'columns']);
+      const pointerCellId = state.getIn(['session', 'pointer', 'cellId']);
 
       let currentPointerPos;
-      if (pointer.cellId) {
+      if (pointerCellId) {
         currentPointerPos = [
-          rows.findIndex((row) => row.id === getRowId(pointer.cellId)),
-          columns.findIndex((column) => column.id === getColumnId(pointer.cellId)),
+          rows.findIndex((row) => row.get('id') === getRowId(pointerCellId)),
+          columns.findIndex((column) => column.get('id') === getColumnId(pointerCellId)),
         ];
       }
 
-      const newPointerPos = calcNewPos(rows, columns, currentPointerPos, action.key);
+      const newPointerPos = calcNewPos(currentPointerPos, action.key, rows, columns);
       const currentMaxPos = getMaxPos(rows, columns);
 
       let nextPointerRowId;
@@ -160,7 +153,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       if (getRowNumber(newPointerPos) > getRowNumber(currentMaxPos)) {
         let newRowId;
         if (process.env.NODE_ENV === 'test') {
-          newRowId = `r${rows.length}`;
+          newRowId = `r${rows.size}`;
         } else {
           newRowId = `r${uuid()}`;
         }
@@ -168,21 +161,21 @@ export default function table(state = initialState(0, 0).get('table'), action) {
         nextPointerRowId = newRowId;
 
         // TODO: commenting next line should break tests.
-        nextPointerColumnId = columns[getColumnNumber(newPointerPos)].id;
+        nextPointerColumnId = columns.getIn([getColumnNumber(newPointerPos), 'id']);
       } else if (getColumnNumber(newPointerPos) > getColumnNumber(currentMaxPos)) {
         let newColumnId;
         if (process.env.NODE_ENV === 'test') {
-          newColumnId = `c${columns.length}`;
+          newColumnId = `c${columns.size}`;
         } else {
           newColumnId = `c${uuid()}`;
         }
 
         // TODO: commenting next line should break tests.
-        nextPointerRowId = rows[getRowNumber(newPointerPos)].id;
+        nextPointerRowId = rows.getIn([getRowNumber(newPointerPos), 'id']);
         nextPointerColumnId = newColumnId;
       } else {
-        nextPointerRowId = rows[getRowNumber(newPointerPos)].id;
-        nextPointerColumnId = columns[getColumnNumber(newPointerPos)].id;
+        nextPointerRowId = rows.getIn([getRowNumber(newPointerPos), 'id']);
+        nextPointerColumnId = columns.getIn([getColumnNumber(newPointerPos), 'id']);
       }
 
       const nextPointerCellId = getCellId(nextPointerRowId, nextPointerColumnId);
@@ -193,6 +186,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       );
     }
 
+    // TODO: optimize.
     case 'TABLE/SET_CLIPBOARD': {
       return state.setIn(
         ['session', 'clipboard'],

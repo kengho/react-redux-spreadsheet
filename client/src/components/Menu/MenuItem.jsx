@@ -30,9 +30,9 @@ const MenuItem = (props) => {
     action,
     actions,
     children,
+    closeMenu,
     dialogDisableYesButton,
     dialogVariant,
-    closeMenu,
   } = props;
 
   let effectiveAction;

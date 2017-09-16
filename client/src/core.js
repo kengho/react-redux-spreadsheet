@@ -1,6 +1,8 @@
 import { fromJS, Map } from 'immutable';
-import uuid from 'uuid/v4';
 import Baby from 'babyparse';
+import shallowEqualArrays from 'shallow-equal/arrays'
+import shallowEqualObjects from 'shallow-equal/objects'
+import uuid from 'uuid/v4';
 
 if (process.env.NODE_ENV !== 'test') {
   // eslint-disable-next-line no-undef, no-console
@@ -120,10 +122,10 @@ export function initialState(width, height) {
 }
 
 export function getMaxPos(rows, columns) {
-  return [rows.length - 1, columns.length - 1];
+  return [rows.size - 1, columns.size - 1];
 }
 
-export function calcNewPos(rows, columns, pos, key) {
+export function calcNewPos(pos, key, rows, columns) {
   const maxPos = getMaxPos(rows, columns);
 
   let rowNumber;
@@ -228,19 +230,29 @@ export function calcNewPos(rows, columns, pos, key) {
 
 // NOTE: order or props in array is important.
 //   Place strings in the beginning, objects in the end (more complex => closer to the end).
+// NOTE: if you will compare null with object here, propsArentEqual() will raise error,
+//   so don't do that. If you use null, use it as undefined pair for string prop,
+//   then 'typeof ... object' won't trigger.
 export function arePropsEqual(currentProps, nextProps, props) {
   return !props.some((prop) => {
     let propsArentEqual;
-    if (typeof nextProps[prop] === 'object') {
-      propsArentEqual = (JSON.stringify(nextProps[prop]) !== JSON.stringify(currentProps[prop]));
+    const currentProp = currentProps[prop];
+    const nextProp = nextProps[prop];
+    if (currentProp && currentProp.toJS && nextProp && nextProp.toJS) {
+      propsArentEqual = (nextProp !== currentProp);
+    } else if (Array.isArray(currentProp) && Array.isArray(nextProp)) {
+      propsArentEqual = !shallowEqualArrays(nextProp, currentProp);
+    } else if (typeof currentProp === 'object' && typeof nextProp === 'object') {
+      propsArentEqual = !shallowEqualObjects(nextProp, currentProp);
     } else {
-      propsArentEqual = (nextProps[prop] !== currentProps[prop]);
+      propsArentEqual = (nextProp !== currentProp);
     }
 
     return propsArentEqual;
   });
 }
 
+// NOTE: data is immutable.
 export function getCroppedSize(data) {
   // Cropped size search algorithm.
   //
@@ -261,21 +273,24 @@ export function getCroppedSize(data) {
   // 4  ←  ←  ← [ ] ↑
   // 5  ←  ←  ←  ← [B]
 
-  const cells = data.cells;
-  if (Object.keys(cells).length === 0) {
+  const cells = data.get('cells');
+  if (cells.keySeq().size === 0) {
     return [0, 0];
   }
 
-  let rows = data.rows;
-  let columns = data.columns;
+  let rows = data.get('rows');
+  let columns = data.get('columns');
   const backwardVHSeach = (point, matchPoint = [null, null]) => {
     const [rowNumber, columnNumber] = point;
     let [rowMatch, columnMatch] = matchPoint;
 
     if (!rowMatch) {
       for (let rowIterator = rowNumber; rowIterator >= 0; rowIterator -= 1) {
-        const currentCellId = getCellId(rows[rowIterator].id, columns[columnNumber].id);
-        if (cells[currentCellId]) {
+        const currentCellId = getCellId(
+          rows.getIn([rowIterator, 'id']),
+          columns.getIn([columnNumber, 'id'])
+        );
+        if (cells.get(currentCellId)) {
           rowMatch = rowIterator;
           break;
         }
@@ -284,8 +299,11 @@ export function getCroppedSize(data) {
 
     if (!columnMatch) {
       for (let columnIterator = columnNumber; columnIterator >= 0; columnIterator -= 1) {
-        const currentCellId = getCellId(rows[rowNumber].id, columns[columnIterator].id);
-        if (cells[currentCellId]) {
+        const currentCellId = getCellId(
+          rows.getIn([rowNumber, 'id']),
+          columns.getIn([columnIterator, 'id'])
+        );
+        if (cells.get(currentCellId)) {
           columnMatch = columnIterator;
           break;
         }
@@ -295,7 +313,7 @@ export function getCroppedSize(data) {
     return [rowMatch, columnMatch];
   };
 
-  const currentPoint = [rows.length - 1, columns.length - 1];
+  const currentPoint = [rows.size - 1, columns.size - 1];
 
   let matchPoint;
   while (true) {
@@ -319,23 +337,27 @@ export function getCroppedSize(data) {
 }
 
 export function convert(object, options) {
+  // Immutable to string.
   if (options.inputFormat === 'object' && options.outputFormat === 'csv') {
     const data = object;
-    const rows = data.rows;
-    const columns = data.columns;
-    const cells = data.cells;
+    const rows = data.get('rows');
+    const columns = data.get('columns');
+    const cells = data.get('cells');
     const croppedSize = getCroppedSize(data);
 
     const CSVArray = [];
     for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
       const CSVRowArray = [];
       for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
-        const currentCellId = getCellId(rows[rowIterator].id, columns[columnIterator].id);
-        const currentCell = cells[currentCellId];
+        const currentCellId = getCellId(
+          rows.getIn([rowIterator, 'id']),
+          columns.getIn([columnIterator, 'id'])
+        );
+        const currentCell = cells.get(currentCellId);
 
         let value;
         if (currentCell) {
-          value = currentCell.value;
+          value = currentCell.get('value');
         } else {
           value = '';
         }
@@ -349,6 +371,9 @@ export function convert(object, options) {
     return Baby.unparse(CSVArray);
   }
 
+  // String to object.
+  // NOTE: we don't convert it to immutable
+  //   since we are going to use tableSetFromJSON anyway.
   if (options.inputFormat === 'csv' && options.outputFormat === 'object') {
     const CSV = object;
     const parsedCSV = Baby.parse(CSV);

@@ -3,7 +3,6 @@ import elementResizeDetectorMaker from 'element-resize-detector';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { arePropsEqual } from '../core';
 import Address from './Address';
 import cssToNumber from '../lib/cssToNumber';
 import Data from './Data';
@@ -17,17 +16,25 @@ import numberToCss from '../lib/numberToCss';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
+  columnMenuVisibility: PropTypes.bool,
   columnNumber: PropTypes.number.isRequired,
-  columns: PropTypes.array.isRequired,
-  menu: PropTypes.object.isRequired,
+  isColumnHover: PropTypes.bool.isRequired,
+  isColumnOnly: PropTypes.bool.isRequired,
+  isRowOnly: PropTypes.bool.isRequired,
+  nextColumnMenuId: PropTypes.string,
+  nextRowMenuId: PropTypes.string,
+  previousColumnMenuId: PropTypes.string,
+  previousRowMenuId: PropTypes.string,
+  rowMenuVisibility: PropTypes.bool,
   rowNumber: PropTypes.number.isRequired,
-  rows: PropTypes.array.isRequired,
 };
 
 const defaultProps = {
+  columnMenuVisibility: false,
+  rowMenuVisibility: false,
 };
 
-class Cell extends React.Component {
+class Cell extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -142,23 +149,6 @@ class Cell extends React.Component {
     });
   }
 
-  shouldComponentUpdate(nextProps) {
-    const currentProps = this.props;
-
-    return !arePropsEqual(currentProps, nextProps, [
-      'value',
-      'isEditing',
-      'isPointed',
-      'isSelectingOnFocus',
-      'isOnClipboard',
-      'hoverColumnId',
-      'hoverRowId',
-      'menu',
-      'rowNumber',
-      'columnNumber',
-    ]);
-  }
-
   componentDidUpdate() {
     domready(() => {
       this.alignComplements();
@@ -200,35 +190,50 @@ class Cell extends React.Component {
 
   render() {
     const {
-      cellId,
+      actions, // uses in Cell, Data and LineMenu
+      cellId, // uses in Cell and Data
+      columnMenuVisibility,
       columnNumber,
-      columns,
-      hoverColumnId,
-      hoverRowId,
-      menu,
+      isColumnHover,
+      isColumnOnly,
+      isRowOnly,
+      nextColumnMenuId,
+      nextRowMenuId,
+      previousColumnMenuId,
+      previousRowMenuId,
+      rowMenuVisibility,
       rowNumber,
-      rows,
+      ...other,
     } = this.props;
 
     let complements = [];
     ['ROW', 'COLUMN'].forEach((lineRef) => {
-      let lineNumber;
-      let isOnly;
       let isHover;
+      let isOnly;
+      let lineNumber;
+      let menuVisibility;
+      let nextMenuId;
+      let previousMenuId;
       if (lineRef === 'COLUMN' && rowNumber === 0) {
-        isHover = (hoverColumnId === columns[columnNumber].id);
-        isOnly = (columns.length === 1);
+        isHover = isColumnHover;
+        isOnly = isColumnOnly;
         lineNumber = columnNumber;
+        menuVisibility = columnMenuVisibility;
+        previousMenuId = previousColumnMenuId;
+        nextMenuId = nextColumnMenuId;
       }
       if (lineRef === 'ROW' && columnNumber === 0) {
-        isHover = (hoverRowId === rows[rowNumber].id);
         lineNumber = rowNumber;
-        isOnly = (rows.length === 1);
+        isOnly = isRowOnly;
+        menuVisibility = rowMenuVisibility;
+        previousMenuId = previousRowMenuId;
+        nextMenuId = nextRowMenuId;
       }
 
       const addressComplement = this.complements.lines[lineRef]['ADDRESS'];
       const menuComplement = this.complements.lines[lineRef]['MENU'];
       const complementClassname = `complement ${lineRef.toLowerCase()}`;
+      const menuId = `${cellId}-${lineRef.toLowerCase()}`;
 
       if (lineNumber >= 0) {
         complements.push(
@@ -239,12 +244,16 @@ class Cell extends React.Component {
               ref={(c) => { menuComplement.ref = c; }}
             >
               <LineMenu
-                {...this.props}
+                {...other}
+                actions={actions}
                 isHover={isHover}
                 isOnly={isOnly}
                 lineNumber={lineNumber}
                 lineRef={lineRef}
-                menuVisibility={menu[`${cellId}-${lineRef.toLowerCase()}`]}
+                menuId={menuId}
+                menuVisibility={menuVisibility}
+                nextMenuId={nextMenuId}
+                previousMenuId={previousMenuId}
               />
             </div>
             <div
@@ -253,7 +262,6 @@ class Cell extends React.Component {
               ref={(c) => { addressComplement.ref = c; }}
             >
               <Address
-                {...this.props}
                 lineNumber={lineNumber}
                 lineRef={lineRef}
               />
@@ -265,12 +273,15 @@ class Cell extends React.Component {
 
     return (
       <div
-        ref={(c) => { this.cellRef = c; }}
         className="td"
+        onMouseOver={() => { actions.tableSetHover(cellId); } }
+        ref={(c) => { this.cellRef = c; }}
       >
         {complements}
         <Data
-          {...this.props}
+          {...other}
+          actions={actions}
+          cellId={cellId}
         />
       </div>
     );

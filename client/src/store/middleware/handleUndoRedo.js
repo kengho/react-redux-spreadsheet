@@ -12,8 +12,8 @@ import { tableSetPointer } from '../../actions/table';
 const handleUndoRedo = store => next => action => { // eslint-disable-line consistent-return
   if (action.type === UndoActionCreators.undo().type || action.type === UndoActionCreators.redo().type) {
     const nextAction = next(action);
-    const pointer = store.getState().get('table').present.getIn(['session', 'pointer']).toJS();
-    if (pointer.cellId) {
+    const pointerCellId = store.getState().get('table').present.getIn(['session', 'pointer', 'cellId']);
+    if (pointerCellId) {
       store.dispatch(tableSetPointer({ modifiers: {} }));
     }
 

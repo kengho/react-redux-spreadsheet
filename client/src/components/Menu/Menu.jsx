@@ -3,14 +3,13 @@ import MaterialMenu from 'material-ui/Menu';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { arePropsEqual } from '../../core';
 import getDOM from '../../lib/getDOM';
 import MenuItem from './MenuItem';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  menuId: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
+  menuId: PropTypes.string.isRequired,
   menuItems: PropTypes.array.isRequired,
   menuVisibility: PropTypes.bool.isRequired,
   nextMenuId: PropTypes.string,
@@ -21,7 +20,7 @@ const defaultProps = {
   menuVisibility: false,
 };
 
-class Menu extends React.Component {
+class Menu extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -34,15 +33,6 @@ class Menu extends React.Component {
 
     this.menuId = `${props.menuId}-menu`;
     this.getMenuDOM = () => getDOM(this.menuId);
-  }
-
-  shouldComponentUpdate(nextProps) {
-    const currentProps = this.props;
-
-    return !arePropsEqual(currentProps, nextProps, [
-      'menuItems',
-      'menuVisibility',
-    ]);
   }
 
   onClickHandler(evt) {
@@ -116,9 +106,11 @@ class Menu extends React.Component {
 
   render() {
     const {
+      actions, // uses in both Menu and MenuItem
       icon,
       menuItems,
       menuVisibility,
+      ...other,
     } = this.props;
 
     const MenuIcon = require(`material-ui-icons/${icon}`).default;
@@ -145,8 +137,9 @@ class Menu extends React.Component {
 
             return (
               <MenuItem
-                {...this.props}
+                {...other}
                 {...item}
+                actions={actions}
                 closeMenu={this.closeMenu}
                 key={item.label}
               >
