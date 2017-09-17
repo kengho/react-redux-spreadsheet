@@ -150,9 +150,7 @@ class Cell extends React.PureComponent {
   }
 
   componentDidUpdate() {
-    domready(() => {
-      this.alignComplements();
-    });
+    this.alignComplements();
   }
 
   alignComplements() {
