@@ -1,3 +1,2 @@
 server: RAILS_ENV=development bundle exec puma -C config/puma.rb
 client: cd client && BROWSER=none npm start
-css: cd client && npm run watch-css

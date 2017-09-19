@@ -1,0 +1,23 @@
+.landing {
+  background-color: #eee;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.landing .messages {
+  color: #333;
+  text-align: center; }
+
+.landing .messages ul {
+  list-style-type: none;
+  padding: 8px 0 0 0;
+  margin: 0;
+  height: 32px;
+}
+
+.grecaptcha-badge {
+  bottom: 48px !important;
+}

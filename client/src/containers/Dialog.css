@@ -1,0 +1,37 @@
+.dialog div[role="document"] {
+  width: 400px !important;
+  padding: 16px;
+}
+
+.dialog div[role="document"] h2 {
+  /* Copied from mdl-dialog__title. */
+  font-weight: 400;
+  font-size: 2.5rem;
+}
+
+.dialog .dialog-buttons {
+  padding: 8px;
+}
+
+.dialog .dialog-import input[type="file"] {
+  display: none;
+}
+
+.dialog .dialog-import .fake-input {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: white;
+  padding: 8px;
+  border: none;
+}
+
+.dialog .dialog-errors {
+  padding-top: 16px;
+  color: #900;
+}
+
+.dialog .dialog-errors ul {
+  padding-left: 0;
+  margin-top: 8px;
+}

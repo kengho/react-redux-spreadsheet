@@ -2,6 +2,8 @@ APP_PATH=/var/www/kengho.tech/spreadsheet
 cd $APP_PATH
 
 # get code
+# run this if you changed some file locally:
+# git reset --hard
 git pull origin master
 
 # prepare environment
@@ -11,7 +13,6 @@ cd client
 npm install --production
 
 # build and replace bundle
-npm run build-css
 npm run build
 rm ../public/* -rf; cp -a build/. ../public
 
