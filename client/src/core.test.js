@@ -127,38 +127,6 @@ describe('core', () => {
     expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(false);
   });
 
-  it('return are props equal in two objects (array, true)', () => {
-    const currentProps = { a: [1, 2], b: 2, c: 3 };
-    const nextProps = { a: [1, 2], b: 2, c: 4 };
-    const props = ['a', 'b'];
-
-    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(true);
-  });
-
-  it('return are props equal in two objects (array, false)', () => {
-    const currentProps = { a: [1, 2], b: 2, c: 3 };
-    const nextProps = { a: [1, 3], b: 3, c: 4 };
-    const props = ['a', 'b'];
-
-    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(false);
-  });
-
-  it('return are props equal in two objects (object, true)', () => {
-    const currentProps = { a: { a: 1 }, b: 2, c: 3 };
-    const nextProps = { a: { a: 1 }, b: 2, c: 3 };
-    const props = ['a', 'b'];
-
-    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(true);
-  });
-
-  it('return are props equal in two objects (object, false)', () => {
-    const currentProps = { a: { a: 1 }, b: 2, c: 3 };
-    const nextProps = { a: { a: 2 }, b: 2, c: 3 };
-    const props = ['a', 'b'];
-
-    expect(Core.arePropsEqual(currentProps, nextProps, props)).to.equal(false);
-  });
-
   it('return are props equal in two objects (immutable, true)', () => {
     const immutableObject = fromJS({ a: { a: 1 } });
     const currentProps = { a: immutableObject, b: 2, c: 3 };

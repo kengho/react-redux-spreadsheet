@@ -1,7 +1,5 @@
 import { fromJS, Map } from 'immutable';
 import Baby from 'babyparse';
-import shallowEqualArrays from 'shallow-equal/arrays'
-import shallowEqualObjects from 'shallow-equal/objects'
 import uuid from 'uuid/v4';
 
 if (process.env.NODE_ENV !== 'test') {
@@ -230,25 +228,13 @@ export function calcNewPos(pos, key, rows, columns) {
 
 // NOTE: order or props in array is important.
 //   Place strings in the beginning, objects in the end (more complex => closer to the end).
-// NOTE: if you will compare null with object here, propsArentEqual() will raise error,
-//   so don't do that. If you use null, use it as undefined pair for string prop,
-//   then 'typeof ... object' won't trigger.
+// NOTE: this thing doesn't compare js objects anymore, only strings and immutable.
 export function arePropsEqual(currentProps, nextProps, props) {
   return !props.some((prop) => {
-    let propsArentEqual;
     const currentProp = currentProps[prop];
     const nextProp = nextProps[prop];
-    if (currentProp && currentProp.toJS && nextProp && nextProp.toJS) {
-      propsArentEqual = (nextProp !== currentProp);
-    } else if (Array.isArray(currentProp) && Array.isArray(nextProp)) {
-      propsArentEqual = !shallowEqualArrays(nextProp, currentProp);
-    } else if (typeof currentProp === 'object' && typeof nextProp === 'object') {
-      propsArentEqual = !shallowEqualObjects(nextProp, currentProp);
-    } else {
-      propsArentEqual = (nextProp !== currentProp);
-    }
 
-    return propsArentEqual;
+    return (nextProp !== currentProp);
   });
 }
 
