@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './LineMenu.css';
 import Menu from './Menu/Menu';
 
 const propTypes = {
@@ -14,7 +15,6 @@ const propTypes = {
   nextMenuId: PropTypes.string,
   previousMenuId: PropTypes.string,
 };
-
 
 const defaultProps = {
   isHover: false,

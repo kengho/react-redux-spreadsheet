@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import SyncProblem from 'material-ui-icons/SyncProblem';
 
+import './TableMenu.css';
 import { convert } from '../core';
 import { pushRequest } from '../actions/requests';
 import datetime from '../lib/datetime';

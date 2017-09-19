@@ -5,6 +5,7 @@ import {
   arePropsEqual,
   getCellId,
 } from '../core';
+import './Row.css';
 import Cell from './Cell';
 import getAdjacentMenuId from '../lib/getAdjacentMenuId';
 

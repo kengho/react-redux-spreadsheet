@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import TextareaAutosize from '@kengho/react-textarea-autosize';
 
+import './Data.css';
 import cssToNumber from '../lib/cssToNumber';
 import findKeyAction from '../lib/findKeyAction';
 import numberToCss from '../lib/numberToCss';

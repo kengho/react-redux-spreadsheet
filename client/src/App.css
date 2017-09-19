@@ -1,0 +1,7 @@
+body {
+  background-color: #eee;
+
+  /* Fonts from html > body
+  https://getmdl.io/ */
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+}

@@ -24,7 +24,6 @@
 /shared/sockets/*
 !/shared/sockets/.keep
 
-*.css
 /dev
 .env
 .directory

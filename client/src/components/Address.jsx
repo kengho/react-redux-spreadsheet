@@ -2,6 +2,8 @@ import { intToExcelCol } from 'excel-column-name';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './Address.css'
+
 const propTypes = {
   lineNumber: PropTypes.number.isRequired,
   lineRef: PropTypes.string.isRequired,

@@ -3,6 +3,7 @@ import elementResizeDetectorMaker from 'element-resize-detector';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './Cell.css';
 import Address from './Address';
 import complementsStaticData from './complementsStaticData';
 import cssToNumber from '../lib/cssToNumber';
@@ -120,6 +121,7 @@ class Cell extends React.PureComponent {
       ...other,
     } = this.props;
 
+    // TODO: move complements to component somehow.
     let complements = [];
     ['ROW', 'COLUMN'].forEach((lineRef) => {
       let isHover;

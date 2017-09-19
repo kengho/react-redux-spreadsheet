@@ -3,6 +3,7 @@ import MaterialMenu from 'material-ui/Menu';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './Menu.css';
 import getDOM from '../../lib/getDOM';
 import MenuItem from './MenuItem';
 

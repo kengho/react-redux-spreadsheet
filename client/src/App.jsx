@@ -4,10 +4,11 @@ import GithubMark from 'react-github-mark';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './App.css';
+import Dialog from './containers/Dialog';
 import getRootPath from './lib/getRootPath';
 import Landing from './containers/Landing';
 import Spreadsheet from './containers/Spreadsheet';
-import Dialog from './containers/Dialog';
 
 const propTypes = {
   history: PropTypes.object.isRequired,
