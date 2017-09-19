@@ -4,15 +4,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import Address from './Address';
+import complementsStaticData from './complementsStaticData';
 import cssToNumber from '../lib/cssToNumber';
 import Data from './Data';
 import LineMenu from './LineMenu';
 import numberToCss from '../lib/numberToCss';
 
-// TODO: rows and columns uses only for isHover and isOnly,
-//   this props could me passed by DataRow,
-//   DataCell and other children will be pure.
-//   The same is for menu.
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
@@ -40,111 +37,25 @@ class Cell extends React.PureComponent {
 
     this.alignComplements = this.alignComplements.bind(this);
 
-    const defaultComplementPosition = {
-      top: '-9999px',
-      left: '-9999px',
+    // refs if reserved by React.
+    this.domRefs = {
+      'ROW': {},
+      'COLUMN': {},
+      'CELL': undefined,
     };
-
-    // Complements are something to be drawn along with cell.
-    // NOTE: This object could be derived just from its ROW part,
-    //   but it would look to complicated, also should be calculated for each cell.
-    //   Code for this transformation may be found below.
-    // TODO: move it somewhere, import here.
-    this.complements = {
-      lines: {
-        'ROW': {
-          'ADDRESS': {
-            style: {
-              width: '32px',
-              height: '64px',
-              ...defaultComplementPosition,
-            },
-            ref: undefined,
-          },
-          'MENU': {
-            style: {
-              width: '48px',
-              height: '64px',
-              ...defaultComplementPosition,
-            },
-            ref: undefined,
-          },
-        },
-        'COLUMN': {
-          'ADDRESS': {
-            // Values are just reverse of that for ROW.
-            style: {
-              width: '64px',
-              height: '32px',
-              ...defaultComplementPosition,
-            },
-            ref: undefined,
-          },
-          'MENU': {
-            style: {
-              width: '64px',
-              height: '48px',
-              ...defaultComplementPosition,
-            },
-            ref: undefined,
-          },
-        },
-      },
-      order: ['ADDRESS', 'MENU'],
-    };
-
-    // const getStyle = (styleNum) => {
-    //   const style = { ...styleNum };
-    //   Object.keys(style).forEach((prop) => {
-    //     if (['width', 'height'].indexOf(prop) != -1) {
-    //       style[prop] = `${styleNum[prop]}px`;
-    //     }
-    //
-    //     // Default position, will be adjusted later in alignComplements().
-    //     style.top = '-9999px';
-    //     style.left = '-9999px';
-    //   });
-    //
-    //   return style;
-    // };
-    //
-    // Add ROW using deep clone of COLUMN.
-    // https://stackoverflow.com/a/5344074/6376451
-    // this.complements.lines['ROW'] = JSON.parse(JSON.stringify(this.complements.lines['COLUMN']));
-    //
-    // // Prepare complements object.
-    // // There are up to 4 complements because of [0, 0] cell which have them all.
-    // Object.keys(this.complements.lines).forEach((lineRef) => {
-    //   this.complements.order.forEach((complementName) => {
-    //     const complement = this.complements.lines[lineRef][complementName];
-    //
-    //     // Swap width and height for ROW.
-    //     if (lineRef === 'ROW') {
-    //       const styleNum = complement.styleNum;
-    //
-    //       let tmp = styleNum.width;
-    //       styleNum.width = styleNum.height;
-    //       styleNum.height = tmp;
-    //     }
-    //
-    //     // Apply getStyle().
-    //     complement.style = getStyle(complement.styleNum);
-    //   });
-    // });
   }
 
   componentDidMount() {
-    // NOTE: w/o domready() getBoundingClientRect() in
-    //   alignComplements() returns wrong results,
-    //   probably because of bad-sized textarea
-    //   (it is wider that it should be).
-    //   Should get rid of domready() after fixing it.
+    // TODO: w/o domready() getBoundingClientRect() in
+    //   alignComplements() returns wrong results.
+    //   Figure out why, get rid of domready().
     domready(() => {
       this.alignComplements();
 
-      if (this.cellRef) {
+      const cellRef = this.domRefs['CELL'];
+      if (cellRef) {
         const erd = elementResizeDetectorMaker({ strategy: "scroll" });
-        erd.listenTo(this.cellRef, () => this.alignComplements() );
+        erd.listenTo(cellRef, () => this.alignComplements() );
       }
     });
   }
@@ -156,30 +67,33 @@ class Cell extends React.PureComponent {
   }
 
   alignComplements() {
+    const cellRef = this.domRefs['CELL'];
+
     // REVIEW: should we use guard clauses here and everywhere?
-    if (this.cellRef) {
-      Object.keys(this.complements.lines).forEach((lineRef) => {
+    if (cellRef) {
+      Object.keys(complementsStaticData.lines).forEach((lineRef) => {
         let complementShift = 0;
 
-        this.complements.order.forEach((complementName) => {
-          const complement = this.complements.lines[lineRef][complementName];
+        complementsStaticData.order.forEach((complementName) => {
+          const complementStaticData = complementsStaticData.lines[lineRef][complementName];
+          const complementRef = this.domRefs[lineRef][complementName];
 
-          if (complement.ref) {
-            const complementHeightNumber = cssToNumber(complement.style.height);
-            const complementWidthNumber = cssToNumber(complement.style.width);
+          if (complementRef) {
+            const complementHeightNumber = cssToNumber(complementStaticData.style.height);
+            const complementWidthNumber = cssToNumber(complementStaticData.style.width);
 
             // REVIEW: is it possible to DRY code with semantics?
             //   I could just run thic code twice and swap width/height
             //   and top/left the second time, but it would look meaningless IMO.
             if (lineRef === 'ROW') {
-              const cellCenterY = this.cellRef.getBoundingClientRect().height / 2;
-              complement.ref.style.top = numberToCss(cellCenterY - complementHeightNumber / 2);
-              complement.ref.style.left = numberToCss(-(complementWidthNumber + complementShift));
+              const cellCenterY = cellRef.getBoundingClientRect().height / 2;
+              complementRef.style.top = numberToCss(cellCenterY - complementHeightNumber / 2);
+              complementRef.style.left = numberToCss(-(complementWidthNumber + complementShift));
               complementShift += complementWidthNumber;
             } else if (lineRef === 'COLUMN') {
-              const cellCenterX = this.cellRef.getBoundingClientRect().width / 2;
-              complement.ref.style.left = numberToCss(cellCenterX - complementWidthNumber / 2);
-              complement.ref.style.top = numberToCss(-(complementHeightNumber + complementShift));
+              const cellCenterX = cellRef.getBoundingClientRect().width / 2;
+              complementRef.style.left = numberToCss(cellCenterX - complementWidthNumber / 2);
+              complementRef.style.top = numberToCss(-(complementHeightNumber + complementShift));
               complementShift += complementHeightNumber;
             }
           }
@@ -219,19 +133,17 @@ class Cell extends React.PureComponent {
         isOnly = isColumnOnly;
         lineNumber = columnNumber;
         menuVisibility = columnMenuVisibility;
-        previousMenuId = previousColumnMenuId;
         nextMenuId = nextColumnMenuId;
+        previousMenuId = previousColumnMenuId;
       }
       if (lineRef === 'ROW' && columnNumber === 0) {
-        lineNumber = rowNumber;
         isOnly = isRowOnly;
+        lineNumber = rowNumber;
         menuVisibility = rowMenuVisibility;
-        previousMenuId = previousRowMenuId;
         nextMenuId = nextRowMenuId;
+        previousMenuId = previousRowMenuId;
       }
 
-      const addressComplement = this.complements.lines[lineRef]['ADDRESS'];
-      const menuComplement = this.complements.lines[lineRef]['MENU'];
       const complementClassname = `complement ${lineRef.toLowerCase()}`;
       const menuId = `${cellId}-${lineRef.toLowerCase()}`;
 
@@ -239,9 +151,9 @@ class Cell extends React.PureComponent {
         complements.push(
           <div key={`${cellId}-complement-${lineRef.toLowerCase()}`}>
             <div
-              style={menuComplement.style}
+              style={complementsStaticData.lines[lineRef]['MENU'].style}
               className={complementClassname}
-              ref={(c) => { menuComplement.ref = c; }}
+              ref={(c) => { this.domRefs[lineRef]['MENU'] = c; }}
             >
               <LineMenu
                 {...other}
@@ -257,9 +169,9 @@ class Cell extends React.PureComponent {
               />
             </div>
             <div
-              style={addressComplement.style}
+              style={complementsStaticData.lines[lineRef]['ADDRESS'].style}
               className={complementClassname}
-              ref={(c) => { addressComplement.ref = c; }}
+              ref={(c) => { this.domRefs[lineRef]['ADDRESS'] = c; }}
             >
               <Address
                 lineNumber={lineNumber}
@@ -275,7 +187,7 @@ class Cell extends React.PureComponent {
       <div
         className="td"
         onMouseOver={() => { actions.tableSetHover(cellId); } }
-        ref={(c) => { this.cellRef = c; }}
+        ref={(c) => { this.domRefs['CELL'] = c; }}
       >
         {complements}
         <Data
