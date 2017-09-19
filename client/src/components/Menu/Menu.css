@@ -1,5 +1,6 @@
 li svg {
-  padding: 8px;
+  /* Space between MenuItem's icon and label. */
+  padding-right: 8px;
 }
 
 button:hover svg {
