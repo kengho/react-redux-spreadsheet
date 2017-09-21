@@ -144,7 +144,7 @@ describe('table', () => {
       expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
     });
 
-    it('delete prop (more that one prop remaining)', () => {
+    it('delete prop', () => {
       const state = Core.initialState(...tableSize);
       const store = configureStore(state);
       const cellId = 'r1,c1';
@@ -160,20 +160,7 @@ describe('table', () => {
       expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
     });
 
-    it('delete prop (no props remaining)', () => {
-      const state = Core.initialState(...tableSize);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
-      const value = 'Cell value';
-
-      store.dispatch(TableActions.tableSetProp(cellId, 'value', value));
-      store.dispatch(TableActions.tableDeleteProp(cellId, 'value'));
-
-      const expectedCells = fromJS({});
-
-      expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
-    });
-
+    // REVIEW: why do we need that?
     it('delete prop (there is no cell with such cellId)', () => {
       const state = Core.initialState(...tableSize);
       const store = configureStore(state);
@@ -687,6 +674,64 @@ describe('table', () => {
       const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1a' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }]);
 
       expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
+    });
+  });
+
+  describe('cell history', () => {
+    it('push cell history', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const cellId = 'r1,c1';
+
+      store.dispatch(TableActions.tableSetProp(cellId, 'value', 'a'));
+      store.dispatch(TableActions.tablePushCellHistory(cellId, 'b', 123));
+      store.dispatch(TableActions.tablePushCellHistory(cellId, 'c', 124));
+      store.dispatch(TableActions.tablePushCellHistory(cellId, 'd', 125));
+
+      const actualCellHistory = store.getState().get('table').present.getIn(
+        ['data', 'cells', cellId, 'history']
+      );
+      const expectedCellHistory = fromJS([
+        {
+          unixTime: 123,
+          value: 'b',
+        },
+        {
+          unixTime: 124,
+          value: 'c',
+        },
+        {
+          unixTime: 125,
+          value: 'd',
+        },
+      ]);
+
+      expect(actualCellHistory).to.equal(expectedCellHistory);
+    });
+
+    it('delete cell history', () => {
+      const state = Core.initialState(...tableSize);
+      const store = configureStore(state);
+      const cellId = 'r1,c1';
+
+      store.dispatch(TableActions.tableSetProp(cellId, 'value', 'a'));
+      store.dispatch(TableActions.tablePushCellHistory(cellId, 'b', 123));
+      store.dispatch(TableActions.tablePushCellHistory(cellId, 'c', 124));
+      store.dispatch(TableActions.tablePushCellHistory(cellId, 'd', 125));
+      store.dispatch(TableActions.tableDeleteCellHistory(cellId, 0));
+      store.dispatch(TableActions.tableDeleteCellHistory(cellId, 1)); // former [2]
+
+      const actualCellHistory = store.getState().get('table').present.getIn(
+        ['data', 'cells', cellId, 'history']
+      );
+      const expectedCellHistory = fromJS([
+        {
+          unixTime: 124,
+          value: 'c',
+        },
+      ]);
+
+      expect(actualCellHistory).to.equal(expectedCellHistory);
     });
   });
 });

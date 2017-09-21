@@ -9,6 +9,7 @@ import handleDispatchDialogAction from './middleware/handleDispatchDialogAction'
 import handlePointerChanges from './middleware/handlePointerChanges';
 import handleRequestsChanges from './middleware/handleRequestsChanges';
 import handleUndoRedo from './middleware/handleUndoRedo';
+import pushCellHistory from './middleware/pushCellHistory';
 import rootReducer from '../reducers';
 
 const composeEnhancer = compose;
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV !== 'test') {
     handleDispatchDialogAction,
     handleRequestsChanges,
     handleUndoRedo,
+    pushCellHistory,
     handleDataChanges // make sure this is the last middleware
   );
 }

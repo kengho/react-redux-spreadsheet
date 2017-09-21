@@ -75,18 +75,18 @@ export default function table(state = initialState(0, 0).get('table'), action) {
             return value;
           }
 
-          const deletedPropValue = value.deleteIn(
+          return value.deleteIn(
             [action.cellId, action.prop]
           );
 
-          let nextValue;
-          if (deletedPropValue.get(action.cellId).size === 0) {
-            nextValue = deletedPropValue.delete(action.cellId);
-          } else {
-            nextValue = deletedPropValue;
-          }
-
-          return nextValue;
+          // TODO: only Backscape should do that, not Delete.
+          //   (In another action like 'TABLE/WIPE_CELL').
+          // let nextValue;
+          // if (deletedPropValue.get(action.cellId).size === 0) {
+          //   nextValue = deletedPropValue.delete(action.cellId);
+          // } else {
+          //   nextValue = deletedPropValue;
+          // }
         }
       );
     }
@@ -297,6 +297,36 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       });
 
       return nextState;
+    }
+
+    case 'TABLE/PUSH_CELL_HISTORY': {
+      let nextState = state;
+      const historyPath = ['data', 'cells', action.cellId, 'history'];
+      if (!nextState.getIn(historyPath)) {
+        nextState = nextState.setIn(
+          historyPath,
+          fromJS([])
+        );
+      }
+
+      nextState = nextState.updateIn(
+        historyPath,
+        value => value.push(
+          fromJS({
+            unixTime: action.unixTime,
+            value: action.value,
+          })
+        )
+      );
+
+      return nextState;
+    }
+
+    case 'TABLE/DELETE_CELL_HISTORY': {
+      return state.updateIn(
+        ['data', 'cells', action.cellId, 'history'],
+        value => value.delete(action.historyIndex)
+      )
     }
 
     default:
