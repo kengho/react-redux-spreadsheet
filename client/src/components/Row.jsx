@@ -18,7 +18,7 @@ const propTypes = {
     PropTypes.string,
     PropTypes.bool,
   ]),
-  menu: PropTypes.object.isRequired,
+  menusVisibility: PropTypes.object.isRequired,
   pointer: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
   rowNumber: PropTypes.number.isRequired,
@@ -40,7 +40,7 @@ class Row extends React.Component {
       'rowNumber', // add/remove rows
       'hoverColumnId', // hover moves left/right
       'columns', // add/remove columns
-      'menu', // click on menu
+      'menusVisibility', // click on menu
     ]);
   }
 
@@ -50,7 +50,7 @@ class Row extends React.Component {
       clipboard,
       columns,
       hoverColumnId,
-      menu,
+      menusVisibility,
       pointer,
       rowId,
       rowNumber, // uses in both Row and Cell
@@ -80,8 +80,8 @@ class Row extends React.Component {
       );
       props.isOnClipboard = (clipboard.get('cells').keySeq().indexOf(props.cellId) !== -1);
 
-      props.columnMenuVisibility = menu.get(`${props.cellId}-column`);
-      props.rowMenuVisibility = menu.get(`${props.cellId}-row`);
+      props.columnMenuVisibility = menusVisibility.get(`${props.cellId}-column`);
+      props.rowMenuVisibility = menusVisibility.get(`${props.cellId}-row`);
 
       props.isColumnOnly = (columns.size === 1);
       props.isRowOnly = (rows.size === 1);

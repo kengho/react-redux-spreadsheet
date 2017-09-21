@@ -350,7 +350,7 @@ class Spreadsheet extends React.Component {
     const clipboard = table.getIn(['session', 'clipboard']);
     const columns = table.getIn(['data', 'columns']);
     const hover = table.getIn(['session', 'hover']);
-    const menu = ui.get('menu');
+    const menusVisibility = ui.getIn(['visibility', 'menu']);
     const pointer = table.getIn(['session', 'pointer']);
     const updateTriggers = table.getIn(['updateTriggers']);
 
@@ -366,7 +366,7 @@ class Spreadsheet extends React.Component {
           columns={columns}
           hoverColumnId={rowIndex === 0 && getColumnId(hover)}
           key={rowId}
-          menu={menu}
+          menusVisibility={menusVisibility}
           pointer={pointer}
           rowId={rowId}
           rowNumber={rowIndex}
@@ -397,7 +397,7 @@ class Spreadsheet extends React.Component {
           <TableMenu
             actions={actions}
             data={this.props.table.get('data')}
-            menuVisibility={menu.get('table')}
+            menuVisibility={menusVisibility.get('table')}
             nextMenuId={nextMenuId}
             previousMenuId={previousMenuId}
             requestsQueueLength={requests.get('queue').size}

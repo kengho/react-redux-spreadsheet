@@ -1,28 +1,31 @@
 import { fromJS } from 'immutable';
 
-const defaultState = fromJS({ menu: {}, dialog: {} });
+const defaultState = fromJS({
+  dialog: {},
+  visibility: {
+    menu: {},
+  },
+});
 
-const setMenuVisibility = (state, menuId, visibility) => {
+const setVisibility = (state, branchName, id, visibility) => {
+  const path = ['visibility', branchName, id];
   if (visibility) {
-    return state.setIn(
-      ['menu', menuId],
-      true
-    );
+    return state.setIn(path, true);
   } else {
-    return state.deleteIn(['menu', menuId]);
+    return state.deleteIn(path);
   }
 }
 
 export default function ui(state = defaultState, action) {
   switch (action.type) {
     case 'OPEN_MENU':
-      return setMenuVisibility(state, action.menuId, true);
+      return setVisibility(state, 'menu', action.menuId, true);
 
     case 'CLOSE_MENU':
-      return setMenuVisibility(state, action.menuId, false);
+      return setVisibility(state, 'menu', action.menuId, false);
 
     case 'CLOSE_ALL_MENUS':
-      return state.set('menu', fromJS({}));
+      return state.setIn(['visibility', 'menu'], fromJS({}));
 
     // TODO: optimize.
     case 'SET_DIALOG':
