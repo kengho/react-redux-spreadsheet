@@ -113,10 +113,13 @@ class Spreadsheet extends React.Component {
   }
 
   documentClickHandler(evt) {
-    this.props.actions.closeAllMenus();
+    const actions = this.props.actions;
 
-    // FIXME: this action is messing with DataCell's click.
-    // this.props.actions.clearPointer();
+    // TODO: this is probably good to have some meta action,
+    //   doing such similar things at once.
+    actions.closeAllMenus();
+    actions.tableSetPointer({ cellId: null, modifiers: {} });
+    actions.tableSetClipboard({ cells: {}, operation: null});
   }
 
   documentKeyDownHandler(evt) {

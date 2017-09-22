@@ -43,9 +43,8 @@ class Data extends React.PureComponent {
   }
 
   clickHandler(evt, cellId) {
-    // FIXME: doesn't work.
-    // // Prevents firing documentClickHandler().
-    // evt.nativeEvent.stopImmediatePropagation();
+    // Prevents firing documentClickHandler().
+    evt.nativeEvent.stopImmediatePropagation();
 
     this.props.actions.tableSetPointer({ cellId, modifiers: {} });
   }
