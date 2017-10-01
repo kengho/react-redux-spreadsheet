@@ -1,0 +1,21 @@
+.cell-menu {
+  position: absolute;
+  visibility: hidden;
+
+  /* HACK */
+  bottom: -4px;
+  right: -2px;
+
+  transition: 0s visibility;
+}
+
+.clipboard .cell-menu {
+  visibility: hidden !important;
+}
+
+.td:hover .cell-menu {
+  visibility: visible;
+
+  /* NOTE: transition minimises accidental menu opening. */
+  transition-delay: 0.2s;
+}

@@ -9,11 +9,16 @@ import './Row.css';
 import Cell from './Cell';
 import getAdjacentMenuId from '../lib/getAdjacentMenuId';
 
+
+// TODO: flow.
+//   https://flow.org/en/docs/react/
+
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cells: PropTypes.object.isRequired,
   clipboard: PropTypes.object.isRequired,
   columns: PropTypes.object.isRequired,
+  historiesVisibility: PropTypes.object.isRequired,
   hoverColumnId: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.bool,
@@ -35,12 +40,16 @@ class Row extends React.Component {
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
+    // TODO: PERF: anu menu click leads to all Row's re-render
+    //   (the same with history).
+    //   Possible solution: use rowUpdateTrigger.
     return !arePropsEqual(currentProps, nextProps, [
       'rowUpdateTrigger', // some cells' value changed
       'rowNumber', // add/remove rows
       'hoverColumnId', // hover moves left/right
       'columns', // add/remove columns
       'menusVisibility', // click on menu
+      'historiesVisibility', // show/hide cell's history
     ]);
   }
 
@@ -50,6 +59,7 @@ class Row extends React.Component {
       clipboard,
       columns,
       hoverColumnId,
+      historiesVisibility,
       menusVisibility,
       pointer,
       rowId,
@@ -80,8 +90,22 @@ class Row extends React.Component {
       );
       props.isOnClipboard = (clipboard.get('cells').keySeq().indexOf(props.cellId) !== -1);
 
+      props.cellMenuVisibility = menusVisibility.get(`${props.cellId}-cell`);
       props.columnMenuVisibility = menusVisibility.get(`${props.cellId}-column`);
       props.rowMenuVisibility = menusVisibility.get(`${props.cellId}-row`);
+      props.historyVisibility = historiesVisibility.get(props.cellId);
+
+      // Prevents unneeded re-renders by always passing
+      // false when history isn't visible.
+      props.history = props.historyVisibility && cell && cell.get('history');
+
+      // Passing history size separate from history for
+      // Cell to update when it changes (disables correcponding menu item).
+      props.historySize = (
+        props.cellMenuVisibility &&
+        cell &&
+        cell.get('history').size
+      ) || 0;
 
       props.isColumnOnly = (columns.size === 1);
       props.isRowOnly = (rows.size === 1);

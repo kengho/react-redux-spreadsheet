@@ -4,6 +4,7 @@ const defaultState = fromJS({
   dialog: {},
   visibility: {
     menu: {},
+    history: {},
   },
 });
 
@@ -49,6 +50,15 @@ export default function ui(state = defaultState, action) {
     case 'DISPATCH_DIALOG_ACTION':
       // See middleware.
       return state;
+
+    case 'OPEN_CELL_HISTORY':
+      return setVisibility(state, 'history', action.cellId, true);
+
+    case 'CLOSE_CELL_HISTORY':
+      return setVisibility(state, 'history', action.cellId, false);
+
+    case 'CLOSE_ALL_CELL_HISTORIES':
+      return state.setIn(['visibility', 'history'], fromJS({}));
 
     default:
       return state;

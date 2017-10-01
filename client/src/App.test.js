@@ -30,7 +30,7 @@ Run in all browsers:
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there are no pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should add new rows/columns if necessary
-* clicking on document should hide all open menus
+* clicking on document should hide all open menus and cell histories
 * pressing on table menu button should show menu
 * pressing on cell menu button should show menu
 * pressing on cell menu button after adding row/column should show menu
@@ -60,6 +60,7 @@ Run in all browsers:
 * pressing F2 while there are pointer should make pointed cell editable and move cursor to the end of cell's content
 * pressing Delete or Backspace while there are pointer should delete pointed cell's value
 * pressing Escape while there are pointer or/and clipboard should clear both
+* pressing Escape should hide all cell histories
 * pressing Ctrl+X or Ctrl+C while there are pointer should mark cell as clipboard
 * pressing Ctrl+V while there are pointer should copy/cut value from clipboard
 * pressing Ctrl+V while there are pointer multiple times should cut multiple times even if clipboard cell is already empty
@@ -89,4 +90,19 @@ Run in all browsers:
 * if there are errors occurs while loading spreadsheet in Spreadsheet, user should be redirected to Landing with messages
 * back and forward history movements between Landing and Spreadsheet should work
 * after deleting spreadsheet user should be redirected to Landing
+* each cell's value's change should be saved in cell history
+* cell menu should appear on cell hover with little delay
+* when there is clipboard, cell menu should be always invisible
+* cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
+* when cell history if empty, show cell history button should be inactive
+* when cell history is shown, document click should close it
+* when cell history is shown, opening another should close first one
+* cell history should have close button
+* each record in cell history should have delete button
+* when user deletes all cell history records, cell history should hide
+* user should be able to select/copy/paste text from cell history
+* each record in cell history should have restore button
+* if records' value equals current cell's value, restore record button should be inactive
+* cell menu should have clear cell button, which clears cell value
+* if cell's is already empty, clear cell button should be inactive
 */

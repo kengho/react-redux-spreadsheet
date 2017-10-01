@@ -118,6 +118,7 @@ class Spreadsheet extends React.Component {
     // TODO: this is probably good to have some meta action,
     //   doing such similar things at once.
     actions.closeAllMenus();
+    actions.closeAllCellHistories();
     actions.tableSetPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null});
   }
@@ -230,6 +231,9 @@ class Spreadsheet extends React.Component {
         action: () => {
           actions.tableSetPointer({ cellId: null, modifiers: {} });
           actions.tableSetClipboard({ cells: {}, operation: null});
+
+          // CellHistory doesn't have own keydown handler.
+          actions.closeAllCellHistories();
         },
       },
       {
@@ -349,11 +353,13 @@ class Spreadsheet extends React.Component {
       return <div />;
     }
 
+    // TODO: const props = {} ... // (see Row)
     const cells = table.getIn(['data', 'cells']);
     const clipboard = table.getIn(['session', 'clipboard']);
     const columns = table.getIn(['data', 'columns']);
     const hover = table.getIn(['session', 'hover']);
     const menusVisibility = ui.getIn(['visibility', 'menu']);
+    const historiesVisibility = ui.getIn(['visibility', 'history']);
     const pointer = table.getIn(['session', 'pointer']);
     const updateTriggers = table.getIn(['updateTriggers']);
 
@@ -370,6 +376,7 @@ class Spreadsheet extends React.Component {
           hoverColumnId={rowIndex === 0 && getColumnId(hover)}
           key={rowId}
           menusVisibility={menusVisibility}
+          historiesVisibility={historiesVisibility}
           pointer={pointer}
           rowId={rowId}
           rowNumber={rowIndex}
@@ -386,6 +393,8 @@ class Spreadsheet extends React.Component {
     // TODO: create menu id getter.
     // TODO: add crop option to table menu.
 
+    const thereIsClipboard = (clipboard.get('cells').size > 0);
+
     const firstCellId = getCellId(rows.getIn([0, 'id']), columns.getIn([0, 'id']));
     const nextMenuId = `${firstCellId}-column`;
     const previousMenuId = `${firstCellId}-row`;
@@ -393,7 +402,7 @@ class Spreadsheet extends React.Component {
     return (
       <div>
         <div
-          className="table"
+          className={`table ${thereIsClipboard? 'clipboard' : ''}`}
           onMouseLeave={() => { actions.tableSetHover(null); }}
           style={this.style}
         >

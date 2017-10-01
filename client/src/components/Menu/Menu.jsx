@@ -10,6 +10,7 @@ import MenuItem from './MenuItem';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   icon: PropTypes.string.isRequired,
+  iconScale: PropTypes.string,
   menuId: PropTypes.string.isRequired,
   menuItems: PropTypes.array.isRequired,
   menuVisibility: PropTypes.bool.isRequired,
@@ -19,6 +20,7 @@ const propTypes = {
 
 const defaultProps = {
   menuVisibility: false,
+  iconScale: 'big',
 };
 
 class Menu extends React.PureComponent {
@@ -109,17 +111,30 @@ class Menu extends React.PureComponent {
     const {
       actions, // uses in both Menu and MenuItem
       icon,
+      iconScale,
       menuItems,
       menuVisibility,
       ...other,
     } = this.props;
 
     const MenuIcon = require(`material-ui-icons/${icon}`).default;
+    const classnames = ['menu'];
+    switch (iconScale) {
+      case 'big':
+        classnames.push('big');
+        break;
+
+      case 'small':
+        classnames.push('small');
+        break;
+      default:
+
+    }
 
     // ids for componentDidMount() and componentDidUpdate().
     return (
       <div
-        className="menu"
+        className={classnames.join(' ')}
       >
         <IconButton
           id={this.buttonId}
@@ -142,9 +157,10 @@ class Menu extends React.PureComponent {
                 {...item}
                 actions={actions}
                 closeMenu={this.closeMenu}
+                disabled={item.disabled}
                 key={item.label}
               >
-                <ItemIcon size={24} />
+                <ItemIcon />
                 {item.label}
               </MenuItem>
             );

@@ -15,12 +15,14 @@ const propTypes = {
   dialogVariant: PropTypes.string,
   dialogDisableYesButton: PropTypes.bool,
   label: PropTypes.string.isRequired,
+  disabled: PropTypes.bool,
 };
 
 const defaultProps = {
   action: {},
-  dialogVariant: '',
   dialogDisableYesButton: false,
+  dialogVariant: '',
+  disabled: false,
 };
 
 const DELAY_BEFORE_ACTION = 200;
@@ -33,10 +35,13 @@ const MenuItem = (props) => {
     closeMenu,
     dialogDisableYesButton,
     dialogVariant,
+    disabled,
   } = props;
 
   let effectiveAction;
-  if (dialogVariant && typeof action === 'object') {
+  if (disabled) {
+    effectiveAction = () => {};
+  } else if (dialogVariant && typeof action === 'object') {
     effectiveAction = () => {
       actions.setDialog({
         action,
@@ -64,6 +69,7 @@ const MenuItem = (props) => {
   return (
     <MaterialMenuItem
       onClick={delayedAction}
+      disabled={disabled}
     >
       {children}
     </MaterialMenuItem>

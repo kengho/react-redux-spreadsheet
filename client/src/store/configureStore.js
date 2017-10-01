@@ -16,6 +16,8 @@ const composeEnhancer = compose;
 
 export const history = createBrowserHistory();
 
+// TODO: reduce amount of middleware.
+// TODO: made middleware names explicitly obvious.
 const middleware = [
   handlePointerChanges,
 ];

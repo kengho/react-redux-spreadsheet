@@ -5,6 +5,8 @@ import React from 'react';
 
 import './Cell.css';
 import Address from './Address';
+import CellHistory from './CellHistory';
+import CellMenu from './CellMenu';
 import complementsStaticData from './complementsStaticData';
 import cssToNumber from '../lib/cssToNumber';
 import Data from './Data';
@@ -14,8 +16,18 @@ import numberToCss from '../lib/numberToCss';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
+  cellMenuVisibility: PropTypes.bool,
   columnMenuVisibility: PropTypes.bool,
   columnNumber: PropTypes.number.isRequired,
+  history: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.object,
+  ]),
+  historySize: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.number,
+  ]),
+  historyVisibility: PropTypes.bool,
   isColumnHover: PropTypes.bool.isRequired,
   isColumnOnly: PropTypes.bool.isRequired,
   isRowOnly: PropTypes.bool.isRequired,
@@ -25,11 +37,18 @@ const propTypes = {
   previousRowMenuId: PropTypes.string,
   rowMenuVisibility: PropTypes.bool,
   rowNumber: PropTypes.number.isRequired,
+  value: PropTypes.string,
 };
 
 const defaultProps = {
   columnMenuVisibility: false,
   rowMenuVisibility: false,
+  historyVisibility: false,
+  history: false,
+  historySize: false,
+
+  // Prop doesn't used in Cell, but used later. Defaulting it once here.
+  value: '',
 };
 
 class Cell extends React.PureComponent {
@@ -105,10 +124,14 @@ class Cell extends React.PureComponent {
 
   render() {
     const {
-      actions, // uses in Cell, Data and LineMenu
-      cellId, // uses in Cell and Data
+      actions, // uses in Cell, Data, LineMenu and CellHistory
+      cellId, // uses in Cell, Data, CellMenu and CellHistory
+      cellMenuVisibility,
       columnMenuVisibility,
       columnNumber,
+      history,
+      historySize,
+      historyVisibility, // uses in Cell and CellHistory
       isColumnHover,
       isColumnOnly,
       isRowOnly,
@@ -118,6 +141,7 @@ class Cell extends React.PureComponent {
       previousRowMenuId,
       rowMenuVisibility,
       rowNumber,
+      value, // uses in Data, CellMenu and CellHistory
       ...other,
     } = this.props;
 
@@ -185,6 +209,9 @@ class Cell extends React.PureComponent {
       }
     });
 
+    // TODO: allow select text in disabled cell.
+    // TODO: fix mouse pointer on editing cell's borders.
+
     return (
       <div
         className="td"
@@ -196,7 +223,25 @@ class Cell extends React.PureComponent {
           {...other}
           actions={actions}
           cellId={cellId}
+          value={value}
         />
+        <CellMenu
+          actions={actions}
+          cellId={cellId}
+          cellValue={value}
+          historyVisibility={historyVisibility}
+          isHistoryAvailable={historySize > 0}
+          menuId={`${cellId}-cell`}
+          menuVisibility={cellMenuVisibility}
+        />
+        {historyVisibility && history &&
+          <CellHistory
+            actions={actions}
+            cellId={cellId}
+            cellValue={value}
+            history={history}
+          />
+        }
       </div>
     );
   }

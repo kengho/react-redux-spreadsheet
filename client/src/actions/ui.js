@@ -42,3 +42,26 @@ export function dispatchDialogAction() {
     type: 'DISPATCH_DIALOG_ACTION',
   };
 }
+
+// TODO: use menu's actions for they are practiaclly identical.
+// TODO: group somehow all popup-related actions so we can close they all at once.
+//   Bad news is that cellId !== menuId, that's inconvinient.
+export function openCellHistory(cellId) {
+  return {
+    type: 'OPEN_CELL_HISTORY',
+    cellId,
+  };
+}
+
+export function closeCellHistory(cellId) {
+  return {
+    type: 'CLOSE_CELL_HISTORY',
+    cellId,
+  };
+}
+
+export function closeAllCellHistories() {
+  return {
+    type: 'CLOSE_ALL_CELL_HISTORIES',
+  };
+}

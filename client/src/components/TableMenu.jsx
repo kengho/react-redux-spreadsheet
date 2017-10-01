@@ -40,6 +40,9 @@ class TableMenu extends React.PureComponent {
       ...other,
     } = this.props;
 
+    // TODO: add undo/redo buttons.
+    // TODO: make table menu alsays visible.
+
     let classnames = [];
     let output;
     if (requestsQueueLength > 0) {
@@ -75,7 +78,7 @@ class TableMenu extends React.PureComponent {
         {
           action: pushRequest('DELETE', 'destroy'),
           dialogVariant: 'CONFIRM',
-          icon: 'Close',
+          icon: 'Delete',
           label: 'Delete',
         },
       ];
@@ -83,7 +86,7 @@ class TableMenu extends React.PureComponent {
       output = (
         <Menu
           {...other}
-          icon="MoreVert"
+          icon="Menu"
           menuId="table"
           menuItems={tableMenuItems}
         />

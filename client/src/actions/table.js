@@ -19,6 +19,7 @@ export function tableSetFromJSON(tableJSON, changesData: false) {
 // cellId, cellIdPath or cellIdGetter should be set.
 // If triggersRowUpdate is set and some other props changes should be tracked,
 // propsComparePaths should be set.
+// If nor cellIdGetter or propsComparePaths are set, cellId should be set.
 // See client/src/store/middleware/detectRowUpdatesNeed.js.
 export function tableSetProp(cellId, prop, value) {
   return {
@@ -65,7 +66,7 @@ export function tableMovePointer(key) {
   return {
     type: 'TABLE/MOVE_POINTER',
     triggersRowUpdate: true,
-    cellIdPath : ['session', 'pointer', 'cellId'],
+    cellIdPath: ['session', 'pointer', 'cellId'],
     key,
   };
 }
@@ -149,6 +150,8 @@ export function tablePushCellHistory(cellId, value, unixTime) {
 export function tableDeleteCellHistory(cellId, historyIndex) {
   return {
     type: 'TABLE/DELETE_CELL_HISTORY',
+    triggersRowUpdate: true,
+    changesData: true,
     cellId,
     historyIndex,
   };

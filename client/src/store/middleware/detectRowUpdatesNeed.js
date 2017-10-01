@@ -13,6 +13,12 @@ const detectRowUpdatesNeed = store => next => action => { // eslint-disable-line
     return next(action);
   }
 
+  if (action.cellId && !action.propsComparePaths && !action.cellIdGetter) {
+    store.dispatch(tableSetRowUpdateTrigger(getRowId(action.cellId)));
+
+    return next(action);
+  }
+
   const stateBranchName = actionTypeMatch[regexGroups.BranchName].toLowerCase();
 
   let getBranchState;

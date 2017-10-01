@@ -15,11 +15,10 @@ const propTypes = {
   isOnClipboard: PropTypes.bool.isRequired,
   isPointed: PropTypes.bool.isRequired,
   isSelectingOnFocus: PropTypes.bool.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
-  value: '',
 };
 
 class Data extends React.PureComponent {

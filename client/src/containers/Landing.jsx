@@ -52,6 +52,10 @@ class Landing extends React.Component {
       fetchParams['g-recaptcha-response'] = this.recaptcha.getResponse();
     }
 
+    // TODO: handle errors if server not responding.
+    // TODO: consider offline mode.
+    //   Issues:
+    //   1 short_id?
     fetchServer('POST', 'create', fetchParams)
       .then((json) => {
         if (json.errors) {
