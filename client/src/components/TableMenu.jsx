@@ -41,7 +41,6 @@ class TableMenu extends React.PureComponent {
     } = this.props;
 
     // TODO: add undo/redo buttons.
-    // TODO: make table menu alsays visible.
 
     let classnames = [];
     let output;
