@@ -12,6 +12,8 @@ import Menu from './Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  canRedo: PropTypes.bool.isRequired,
+  canUndo: PropTypes.bool.isRequired,
   data: PropTypes.object.isRequired,
   menuVisibility: PropTypes.bool,
   requestsQueueLength: PropTypes.number.isRequired,
@@ -36,11 +38,12 @@ class TableMenu extends React.PureComponent {
 
   render() {
     const {
+      actions, // uses in TableMenu and Menu
+      canRedo,
+      canUndo,
       requestsQueueLength,
       ...other,
     } = this.props;
-
-    // TODO: add undo/redo buttons.
 
     let classnames = [];
     let output;
@@ -75,6 +78,18 @@ class TableMenu extends React.PureComponent {
           label: 'Import from CSV',
         },
         {
+          action: () => actions.undo(),
+          icon: 'Undo',
+          label: 'Undo (Ctrl+Z)',
+          disabled: !canUndo,
+        },
+        {
+          action: () => actions.redo(),
+          icon: 'Redo',
+          label: 'Redo (Ctrl+Y)',
+          disabled: !canRedo,
+        },
+        {
           action: pushRequest('DELETE', 'destroy'),
           dialogVariant: 'CONFIRM',
           icon: 'Delete',
@@ -85,6 +100,7 @@ class TableMenu extends React.PureComponent {
       output = (
         <Menu
           {...other}
+          actions={actions}
           icon="Menu"
           menuId="table"
           menuItems={tableMenuItems}

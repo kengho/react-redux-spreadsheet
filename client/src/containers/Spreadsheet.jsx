@@ -345,6 +345,7 @@ class Spreadsheet extends React.Component {
       requests,
       table,
       ui,
+      undo,
     } = this.props;
     const rows = table.getIn(['data', 'rows']);
 
@@ -414,6 +415,8 @@ class Spreadsheet extends React.Component {
             previousMenuId={previousMenuId}
             requestsQueueLength={requests.get('queue').size}
             shortId={this.props.match.params.shortId}
+            canUndo={undo.canUndo}
+            canRedo={undo.canRedo}
           />
           {outputRows}
         </div>
