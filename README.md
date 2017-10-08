@@ -22,6 +22,7 @@
 * delete/insert row/column buttons
 * automatically expanding table
 * built-in invisible Google reCAPTCHA
+* automatically saving cells' values history
 * clean material-ish design
 
 ## Installing
@@ -77,7 +78,6 @@ http://localhost:3000/spreadsheet should display landing page.
 ## TODO (random order)
 
 * mobile clients support
-* retrieve history for each cell
 * cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
 * sort
