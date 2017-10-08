@@ -45,14 +45,20 @@ class Data extends React.PureComponent {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    const selection = window.getSelection().toString(); // eslint-disable-line no-undef
-    if (selection.toString() === '') {
-      this.props.actions.tableSetPointer({ cellId, modifiers: {} });
+    if (this.props.isEditing) {
+      return;
     }
+
+    const selection = window.getSelection().toString(); // eslint-disable-line no-undef
+    if (selection.toString() !== '') {
+      return;
+    }
+
+    this.props.actions.tableSetPointer({ cellId, modifiers: {} });
   }
 
   doubleClickHandler(evt, cellId) {
-    if (this.props.isEditing === true) {
+    if (this.props.isEditing) {
       return;
     }
 
@@ -198,7 +204,7 @@ class Data extends React.PureComponent {
       <div
         className={textareaWrapperClassnames.join(' ')}
         id={cellId}
-        onClick={disabled && ((evt) => this.clickHandler(evt, cellId))}
+        onClick={(evt) => this.clickHandler(evt, cellId)}
         onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
       >
         {textareaOutput}

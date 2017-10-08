@@ -26,6 +26,7 @@
 
 .data.editing {
   border: 1px solid transparent;
+  cursor: inherit;
 }
 
 .data.clipboard {

@@ -209,8 +209,6 @@ class Cell extends React.PureComponent {
       }
     });
 
-    // TODO: fix mouse pointer on editing cell's borders.
-
     return (
       <div
         className="td"
