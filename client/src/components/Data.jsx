@@ -51,7 +51,12 @@ class Data extends React.PureComponent {
 
     const selection = window.getSelection().toString(); // eslint-disable-line no-undef
     if (selection.toString() !== '') {
-      return;
+      // TODO: doesn't work in firefox.
+      //   In firefox
+      //   1 you can't select text in disabled textarea
+      //   2 selection is equal to cell's value for some reason, thus
+      //   user isn't able to select cell via mouse at all
+      // return;
     }
 
     this.props.actions.tableSetPointer({ cellId, modifiers: {} });
