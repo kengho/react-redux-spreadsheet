@@ -45,7 +45,10 @@ class Data extends React.PureComponent {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    this.props.actions.tableSetPointer({ cellId, modifiers: {} });
+    const selection = window.getSelection().toString(); // eslint-disable-line no-undef
+    if (selection.toString() === '') {
+      this.props.actions.tableSetPointer({ cellId, modifiers: {} });
+    }
   }
 
   doubleClickHandler(evt, cellId) {

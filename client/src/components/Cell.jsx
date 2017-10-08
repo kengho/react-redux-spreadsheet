@@ -209,7 +209,6 @@ class Cell extends React.PureComponent {
       }
     });
 
-    // TODO: allow select text in disabled cell.
     // TODO: fix mouse pointer on editing cell's borders.
 
     return (
