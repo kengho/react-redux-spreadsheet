@@ -21,7 +21,13 @@ const defaultProps = {
 };
 
 class CellHistory extends React.PureComponent {
-  closeButtonClickHandler(historyIndex) {
+  constructor(props) {
+    super(props);
+
+    this.deleteRecordButtonClickHandler = this.deleteRecordButtonClickHandler.bind(this);
+  }
+
+  deleteRecordButtonClickHandler(historyIndex) {
     const {
       actions,
       cellId,
@@ -57,10 +63,11 @@ class CellHistory extends React.PureComponent {
         }}
       >
         <Paper>
-          <IconButton className="close-button">
-            <CloseIcon
-              onClick={() => actions.closeCellHistory(cellId)}
-            />
+          <IconButton
+            className="close-button"
+            onClick={() => actions.closeCellHistory(cellId)}
+          >
+            <CloseIcon />
           </IconButton>
           <Table>
             <TableHead>
@@ -86,19 +93,18 @@ class CellHistory extends React.PureComponent {
                     hover={true}
                   >
                     <TableCell>
-                      <IconButton>
-                        <DeleteIcon
-                          onClick={() => this.closeButtonClickHandler(historyIndex)}
-                        />
+                      <IconButton
+                        onClick={() => this.deleteRecordButtonClickHandler(historyIndex)}
+                      >
+                        <DeleteIcon />
                       </IconButton>
                     </TableCell>
                     <TableCell>
                       <IconButton
                         disabled={historyValue === cellValue}
+                        onClick={() => actions.tableSetProp(cellId, 'value', historyValue)}
                       >
-                        <RestoreIcon
-                          onClick={() => actions.tableSetProp(cellId, 'value', historyValue)}
-                        />
+                        <RestoreIcon />
                       </IconButton>
                     </TableCell>
                     <TableCell>
