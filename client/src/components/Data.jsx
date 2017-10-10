@@ -49,14 +49,14 @@ class Data extends React.PureComponent {
       return;
     }
 
-    const selection = window.getSelection().toString(); // eslint-disable-line no-undef
-    if (selection.toString() !== '') {
-      // TODO: doesn't work in firefox.
-      //   In firefox
-      //   1 you can't select text in disabled textarea
-      //   2 selection is equal to cell's value for some reason, thus
-      //   user isn't able to select cell via mouse at all
-      // return;
+    // Letting user to select disabled cell's value.
+    // Doesn't work in firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=195361).
+    // "readonly" breaks hotkeyes.
+    // TODO: make workaround for firefox (div?).
+    const cursorStart = this.textareaInputEl.selectionStart;
+    const cursorEnd = this.textareaInputEl.selectionEnd;
+    if (cursorEnd !== cursorStart) {
+      return;
     }
 
     this.props.actions.tableSetPointer({ cellId, modifiers: {} });
