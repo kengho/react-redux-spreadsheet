@@ -29,13 +29,13 @@ class CellMenu extends React.PureComponent {
     const cellMenuItems = [];
     if (historyVisibility) {
       cellMenuItems.push({
-        action: () => actions.closeCellHistory(cellId),
+        action: () => actions.close('history', cellId),
         icon: 'History',
         label: 'Hide history',
       });
     } else {
       cellMenuItems.push({
-        action: () => actions.openCellHistory(cellId),
+        action: () => actions.open('history',cellId),
         icon: 'History',
         label: 'View history',
         disabled: !isHistoryAvailable,

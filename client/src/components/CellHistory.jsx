@@ -36,7 +36,7 @@ class CellHistory extends React.PureComponent {
 
     actions.tableDeleteCellHistory(cellId, historyIndex);
     if (history.size - 1 === 0) {
-      actions.closeCellHistory(cellId);
+      actions.close('history', cellId);
     }
   }
 
@@ -65,7 +65,7 @@ class CellHistory extends React.PureComponent {
         <Paper>
           <IconButton
             className="close-button"
-            onClick={() => actions.closeCellHistory(cellId)}
+            onClick={() => actions.close('history', cellId)}
           >
             <CloseIcon />
           </IconButton>

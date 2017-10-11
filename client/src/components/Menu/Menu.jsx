@@ -42,8 +42,8 @@ class Menu extends React.PureComponent {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    this.props.actions.closeAllMenus();
-    this.props.actions.openMenu(this.props.menuId);
+    this.props.actions.closeAll('menu');
+    this.props.actions.open('menu', this.props.menuId);
   }
 
   keyDownHandler(evt) {
@@ -58,13 +58,13 @@ class Menu extends React.PureComponent {
     } = this.props;
 
     if (evt.key === 'Escape') {
-      actions.closeMenu(menuId);
+      actions.close('menu', menuId);
     } else if (evt.key === 'ArrowLeft' && previousMenuId) {
-      actions.closeMenu(menuId);
-      actions.openMenu(previousMenuId);
+      actions.close('menu', menuId);
+      actions.open('menu', previousMenuId);
     } else if (evt.key === 'ArrowRight' && nextMenuId) {
-      actions.closeMenu(menuId);
-      actions.openMenu(nextMenuId);
+      actions.close('menu', menuId);
+      actions.open('menu', nextMenuId);
     }
   }
 
@@ -104,7 +104,7 @@ class Menu extends React.PureComponent {
   }
 
   closeMenu() {
-    this.props.actions.closeMenu(this.props.menuId);
+    this.props.actions.close('menu', this.props.menuId);
   }
 
   render() {
@@ -151,6 +151,7 @@ class Menu extends React.PureComponent {
           {menuItems.map((item) => {
             const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
+            // TODO: why pass closeMenu()?
             return (
               <MenuItem
                 {...other}

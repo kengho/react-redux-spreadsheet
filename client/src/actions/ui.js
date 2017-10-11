@@ -1,23 +1,3 @@
-export function openMenu(menuId) {
-  return {
-    type: 'OPEN_MENU',
-    menuId,
-  };
-}
-
-export function closeMenu(menuId) {
-  return {
-    type: 'CLOSE_MENU',
-    menuId,
-  };
-}
-
-export function closeAllMenus() {
-  return {
-    type: 'CLOSE_ALL_MENUS',
-  };
-}
-
 export function setDialog(dialog) {
   return {
     type: 'SET_DIALOG',
@@ -43,25 +23,28 @@ export function dispatchDialogAction() {
   };
 }
 
-// TODO: use menu's actions for they are practiaclly identical.
 // TODO: group somehow all popup-related actions so we can close they all at once.
 //   Bad news is that cellId !== menuId, that's inconvinient.
-export function openCellHistory(cellId) {
+export function open(uiKind, cellId) {
   return {
-    type: 'OPEN_CELL_HISTORY',
+    type: 'OPEN',
+    uiKind,
     cellId,
   };
 }
 
-export function closeCellHistory(cellId) {
+export function close(uiKind, cellId) {
   return {
-    type: 'CLOSE_CELL_HISTORY',
+    type: 'CLOSE',
+    uiKind,
     cellId,
   };
 }
 
-export function closeAllCellHistories() {
+// TODO: allow array and use in Spreadsheet.
+export function closeAll(uiKind) {
   return {
-    type: 'CLOSE_ALL_CELL_HISTORIES',
+    type: 'CLOSE_ALL',
+    uiKind,
   };
 }

@@ -8,8 +8,8 @@ const defaultState = fromJS({
   },
 });
 
-const setVisibility = (state, branchName, id, visibility) => {
-  const path = ['visibility', branchName, id];
+const setVisibility = (state, uiKind, id, visibility) => {
+  const path = ['visibility', uiKind, id];
   if (visibility) {
     return state.setIn(path, true);
   } else {
@@ -19,15 +19,6 @@ const setVisibility = (state, branchName, id, visibility) => {
 
 export default function ui(state = defaultState, action) {
   switch (action.type) {
-    case 'OPEN_MENU':
-      return setVisibility(state, 'menu', action.menuId, true);
-
-    case 'CLOSE_MENU':
-      return setVisibility(state, 'menu', action.menuId, false);
-
-    case 'CLOSE_ALL_MENUS':
-      return state.setIn(['visibility', 'menu'], fromJS({}));
-
     // TODO: optimize.
     case 'SET_DIALOG':
       return state.set(
@@ -51,14 +42,14 @@ export default function ui(state = defaultState, action) {
       // See middleware.
       return state;
 
-    case 'OPEN_CELL_HISTORY':
-      return setVisibility(state, 'history', action.cellId, true);
+    case 'OPEN':
+      return setVisibility(state, action.uiKind, action.cellId, true);
 
-    case 'CLOSE_CELL_HISTORY':
-      return setVisibility(state, 'history', action.cellId, false);
+    case 'CLOSE':
+      return setVisibility(state, action.uiKind, action.cellId, false);
 
-    case 'CLOSE_ALL_CELL_HISTORIES':
-      return state.setIn(['visibility', 'history'], fromJS({}));
+    case 'CLOSE_ALL':
+      return state.setIn(['visibility', action.uiKind], fromJS({}));
 
     default:
       return state;

@@ -117,8 +117,8 @@ class Spreadsheet extends React.Component {
 
     // TODO: this is probably good to have some meta action,
     //   doing such similar things at once.
-    actions.closeAllMenus();
-    actions.closeAllCellHistories();
+    actions.closeAll('menu');
+    actions.closeAll('history');
     actions.tableSetPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null});
   }
@@ -233,7 +233,7 @@ class Spreadsheet extends React.Component {
           actions.tableSetClipboard({ cells: {}, operation: null});
 
           // CellHistory doesn't have own keydown handler.
-          actions.closeAllCellHistories();
+          actions.closeAll('history');
         },
       },
       {
