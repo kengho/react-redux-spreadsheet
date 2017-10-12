@@ -1,6 +1,6 @@
 import { tablePushCellHistory } from '../../actions/table';
 
-const pushCellHistory = store => next => action => { // eslint-disable-line consistent-return
+const pushCellHistoryOnValueChanges = store => next => action => { // eslint-disable-line consistent-return
   if (
     // Only cells' values are saving.
     action.prop !== 'value' &&
@@ -20,4 +20,4 @@ const pushCellHistory = store => next => action => { // eslint-disable-line cons
   return next(action);
 };
 
-export default pushCellHistory;
+export default pushCellHistoryOnValueChanges;

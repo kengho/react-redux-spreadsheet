@@ -1,4 +1,4 @@
-const handleDispatchDialogAction = store => next => action => { // eslint-disable-line consistent-return
+const dispatchDialogAction = store => next => action => { // eslint-disable-line consistent-return
   if (action.type !== 'UI/DISPATCH_DIALOG_ACTION') {
     return next(action);
   }
@@ -13,4 +13,4 @@ const handleDispatchDialogAction = store => next => action => { // eslint-disabl
   return next(action);
 };
 
-export default handleDispatchDialogAction;
+export default dispatchDialogAction;

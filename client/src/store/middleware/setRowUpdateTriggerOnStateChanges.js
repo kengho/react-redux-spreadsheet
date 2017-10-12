@@ -4,7 +4,7 @@ import { tableSetRowUpdateTrigger } from '../../actions/table';
 // This middleware analyzes action and it's consequences and
 // triggers appropriate Row re-render by dispatching tableSetRowUpdateTrigger().
 // TABLE/SET_HOVER affects only first Row, so it doesn't catched here.
-const detectRowUpdatesNeed = store => next => action => { // eslint-disable-line consistent-return
+const setRowUpdateTriggerOnStateChanges = store => next => action => { // eslint-disable-line consistent-return
   const regex = new RegExp(/([^/]*)\/([^/]*)/);
   const regexGroups = { BranchName: 1, Action: 2 };
 
@@ -105,4 +105,4 @@ const detectRowUpdatesNeed = store => next => action => { // eslint-disable-line
   return nextAction;
 };
 
-export default detectRowUpdatesNeed;
+export default setRowUpdateTriggerOnStateChanges;

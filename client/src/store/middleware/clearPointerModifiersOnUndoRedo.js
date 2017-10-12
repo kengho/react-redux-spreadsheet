@@ -9,7 +9,7 @@ import { tableSetPointer } from '../../actions/table';
 //   So, this middleware deletes 'edit: true' from pointer's modifiers after undo/redo.
 // REVIEW: could it be done by undoable() filter or groupBy?
 //   We need to insert state without pointer to history somehow.
-const handleUndoRedo = store => next => action => { // eslint-disable-line consistent-return
+const clearPointerModifiersOnUndoRedo = store => next => action => { // eslint-disable-line consistent-return
   if (action.type === UndoActionCreators.undo().type || action.type === UndoActionCreators.redo().type) {
     const nextAction = next(action);
     const pointerCellId = store.getState().get('table').present.getIn(['session', 'pointer', 'cellId']);
@@ -23,4 +23,4 @@ const handleUndoRedo = store => next => action => { // eslint-disable-line consi
   return next(action);
 };
 
-export default handleUndoRedo;
+export default clearPointerModifiersOnUndoRedo;

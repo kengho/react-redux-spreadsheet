@@ -72,7 +72,7 @@ const handleRequest = (store, composedRequest) => {
   );
 };
 
-const handleRequestsChanges = store => next => action => {
+const handleRequestsOnQueueChanges = store => next => action => {
   if (!action.type.match('REQUEST')) {
     return next(action);
   }
@@ -117,4 +117,4 @@ const handleRequestsChanges = store => next => action => {
   return next(action);
 };
 
-export default handleRequestsChanges;
+export default handleRequestsOnQueueChanges;

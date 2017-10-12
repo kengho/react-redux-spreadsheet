@@ -1,17 +1,6 @@
-import {
-  getColumnId,
-  getRowId,
-} from '../../core';
-import {
-  tableExpand,
-  tableSetProp,
-} from '../../actions/table';
+import { tableSetProp } from '../../actions/table';
 
-const handlePointerChanges = store => next => action => { // eslint-disable-line consistent-return
-  if (!action.type.match('POINTER')) {
-    return next(action);
-  }
-
+const saveEditingCellValueOnPointerMove = store => next => action => { // eslint-disable-line consistent-return
   // HACK: saving previously edited cells' value.
   //   It should be done in middleware because DataCell doesn't know
   //   about previous pointer if user clicks on another DataCell.
@@ -71,27 +60,7 @@ const handlePointerChanges = store => next => action => { // eslint-disable-line
     }
   }
 
-  const nextAction = next(action);
-
-  // Expands table if pointer moves beyond it.
-  // Only TABLE/MOVE_POINTER may trigger tableExpand.
-  if (action.type === 'TABLE/MOVE_POINTER') {
-    const nextTable = store.getState().get('table').present;
-    const nextRows = nextTable.getIn(['data', 'rows']);
-    const nextColumns = nextTable.getIn(['data', 'columns']);
-    const nextPointerCellId = nextTable.getIn(['session', 'pointer', 'cellId']);
-    const nextPointerRowId = getRowId(nextPointerCellId);
-    const nextPointerColumnId = getColumnId(nextPointerCellId);
-
-    if (nextRows.findIndex((row) => row.get('id') === nextPointerRowId) === -1) {
-      // slice deletes 'r' and 'c' prefixes from ids, because tableExpand() adds them by itself.
-      store.dispatch(tableExpand(nextRows.size, 'ROW', nextPointerRowId.slice('r'.length)));
-    } else if (nextColumns.findIndex((column) => column.get('id') === nextPointerColumnId) === -1) {
-      store.dispatch(tableExpand(nextColumns.size, 'COLUMN', nextPointerColumnId.slice('c'.length)));
-    }
-  }
-
-  return nextAction;
+  return next(action);
 };
 
-export default handlePointerChanges;
+export default saveEditingCellValueOnPointerMove;

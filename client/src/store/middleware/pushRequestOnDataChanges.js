@@ -1,6 +1,6 @@
 import { pushRequest } from '../../actions/requests';
 
-const handleDataChanges = store => next => action => { // eslint-disable-line consistent-return
+const pushRequestOnDataChanges = store => next => action => { // eslint-disable-line consistent-return
   // Don't fire before server data populates state.
   if (!store.getState().get('table').present) {
     return next(action);
@@ -28,4 +28,4 @@ const handleDataChanges = store => next => action => { // eslint-disable-line co
   return nextAction;
 };
 
-export default handleDataChanges;
+export default pushRequestOnDataChanges;

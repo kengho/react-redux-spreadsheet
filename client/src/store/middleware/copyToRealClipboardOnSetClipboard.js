@@ -1,6 +1,6 @@
 import copy from 'copy-to-clipboard';
 
-const handleClipboardChanges = store => next => action => { // eslint-disable-line consistent-return
+const copyToRealClipboardOnSetClipboard = store => next => action => { // eslint-disable-line consistent-returOnSetClipboardn
   if (action.type === 'TABLE/SET_CLIPBOARD') {
     // TODO: handle many selected cells (also see containers/Spreadsheet.jsx).
     const cellId = Object.keys(action.clipboard.cells);
@@ -10,7 +10,7 @@ const handleClipboardChanges = store => next => action => { // eslint-disable-li
     }
   }
 
-  if (action.type === 'CLEAR_CLIPBOARD') {
+  if (action.type === 'TABLE/CLEAR_CLIPBOARD') {
     // TODO: clear clipboard.
     //   This doesn't work:
     //   // copy('');
@@ -19,4 +19,4 @@ const handleClipboardChanges = store => next => action => { // eslint-disable-li
   return next(action);
 };
 
-export default handleClipboardChanges;
+export default copyToRealClipboardOnSetClipboard;
