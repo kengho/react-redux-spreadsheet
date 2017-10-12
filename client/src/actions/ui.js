@@ -41,10 +41,16 @@ export function close(uiKind, cellId) {
   };
 }
 
-// TODO: allow array and use in Spreadsheet.
 export function closeAll(uiKind) {
+  let uiKinds;
+  if (Array.isArray(uiKind)) {
+    uiKinds = uiKind;
+  } else {
+    uiKinds = [uiKind];
+  }
+
   return {
     type: 'CLOSE_ALL',
-    uiKind,
+    uiKinds,
   };
 }

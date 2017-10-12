@@ -117,8 +117,7 @@ class Spreadsheet extends React.Component {
 
     // TODO: this is probably good to have some meta action,
     //   doing such similar things at once.
-    actions.closeAll('menu');
-    actions.closeAll('history');
+    actions.closeAll(['menu', 'history']);
     actions.tableSetPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null});
   }

@@ -49,7 +49,12 @@ export default function ui(state = defaultState, action) {
       return setVisibility(state, action.uiKind, action.cellId, false);
 
     case 'CLOSE_ALL':
-      return state.setIn(['visibility', action.uiKind], fromJS({}));
+      let nextState = state;
+      action.uiKinds.forEach((uiKind) => {
+        nextState = nextState.setIn(['visibility', uiKind], fromJS({}));
+      })
+
+      return nextState;
 
     default:
       return state;
