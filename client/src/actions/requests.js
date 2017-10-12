@@ -1,8 +1,8 @@
 import uuid from 'uuid/v4';
 
-export function pushRequest(method, action, params, id = uuid()) {
+export function requestsPush(method, action, params, id = uuid()) {
   return {
-    type: 'PUSH_REQUEST',
+    type: 'REQUESTS/PUSH',
     method,
     action,
     params,
@@ -10,22 +10,16 @@ export function pushRequest(method, action, params, id = uuid()) {
   };
 }
 
-export function popRequestId(id) {
+export function requestsPopId(id) {
   return {
-    type: 'POP_REQUEST_ID',
+    type: 'REQUESTS/POP_ID',
     id,
   };
 }
 
-export function markRequestAsFailed(id) {
+export function requestsMarkAsFailed(id) {
   return {
-    type: 'MARK_REQUEST_AS_FAILED',
+    type: 'REQUESTS/MARK_AS_FAILED',
     id,
-  };
-}
-
-export function incrementCounter() {
-  return {
-    type: 'INCREMENT_COUNTER',
   };
 }

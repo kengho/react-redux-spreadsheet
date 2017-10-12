@@ -3,8 +3,8 @@
 import { push } from 'react-router-redux';
 
 import {
-  popRequestId,
-  markRequestAsFailed,
+  requestsPopId,
+  requestsMarkAsFailed,
 } from '../../actions/requests';
 import fetchServer from './../../lib/fetchServer';
 import getRootPath from './../../lib/getRootPath';
@@ -13,7 +13,7 @@ const REQUEST_RETRY_TIMEOUT = 60 * 1000; // 1 min
 
 const composeRequest = (store, action) => {
   let data;
-  if (action.type === 'POP_REQUEST_ID') {
+  if (action.type === 'REQUESTS/POP_REQUEST_ID') {
     // 0-th request is popping, so we should handle 1-th now.
     data = store.getState().get('requests').get('queue').get(1).toJS();
   } else {
@@ -50,9 +50,9 @@ const sendRequest = (composedRequest) => {
 
 const handleResponse = (store, composedRequest, response) => {
   if (response.data.status !== 'OK') {
-    store.dispatch(markRequestAsFailed(response.request_uuid));
+    store.dispatch(requestsMarkAsFailed(response.request_uuid));
   } else {
-    store.dispatch(popRequestId(response.request_uuid));
+    store.dispatch(requestsPopId(response.request_uuid));
   }
 
   if (composedRequest.method === 'DELETE') {
@@ -80,7 +80,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
   const requests = store.getState().get('requests').get('queue');
 
   let composedRequest;
-  if (action.type === 'PUSH_REQUEST') {
+  if (action.type === 'REQUESTS/PUSH') {
     // If there are more than one request in stack,
     // there is already a request processing via 'MARK_REQUEST_AS_FAILED' branch.
     if (requests.size > 0) {
@@ -91,7 +91,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
     handleRequest(store, composedRequest);
   }
 
-  if (action.type === 'POP_REQUEST_ID') {
+  if (action.type === 'REQUESTS/POP_ID') {
     // If we popping last request in queue, there is nothing to do.
     if (requests.size === 1) {
       return next(action);
@@ -101,7 +101,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
     handleRequest(store, composedRequest);
   }
 
-  if (action.type === 'MARK_REQUEST_AS_FAILED') {
+  if (action.type === 'REQUESTS/MARK_AS_FAILED') {
     const request = requests.find((someRequest) => someRequest.get('id') === action.id);
 
     if (!request) {

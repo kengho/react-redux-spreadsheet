@@ -11,9 +11,9 @@ import { fromJS } from 'immutable';
 import uuid from 'uuid/v4';
 
 import {
-  markRequestAsFailed,
-  popRequestId,
-  pushRequest,
+  requestsMarkAsFailed,
+  requestsPopId,
+  requestsPush,
 } from './requests';
 import { configureStore } from '../store/configureStore';
 
@@ -25,7 +25,7 @@ describe('requests', () => {
     const params = { data: [1, 2, 3] };
     const id = uuid();
 
-    store.dispatch(pushRequest(method, action, params, id));
+    store.dispatch(requestsPush(method, action, params, id));
 
     const nextStateExpected = fromJS({
       requests: {
@@ -48,8 +48,8 @@ describe('requests', () => {
     const params = { data: [1, 2, 3] };
     const id = uuid();
 
-    store.dispatch(pushRequest(method, action, params, id));
-    store.dispatch(popRequestId(id));
+    store.dispatch(requestsPush(method, action, params, id));
+    store.dispatch(requestsPopId(id));
 
     const nextStateExpected = fromJS({ requests: { queue: [], counter: 1 } });
     expect(store.getState().get('requests')).to.deep.equal(nextStateExpected.get('requests'));
@@ -62,8 +62,8 @@ describe('requests', () => {
     const params = { data: [1, 2, 3] };
     const id = uuid();
 
-    store.dispatch(pushRequest(method, action, params, id));
-    store.dispatch(markRequestAsFailed(id));
+    store.dispatch(requestsPush(method, action, params, id));
+    store.dispatch(requestsMarkAsFailed(id));
 
     const nextStateExpected = fromJS({
       requests: {

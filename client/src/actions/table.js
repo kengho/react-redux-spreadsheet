@@ -4,8 +4,6 @@ import uuid from 'uuid/v4';
 // changesData prop triggers server sync.
 // triggersRowUpdate prop triggers row update (your K.O.).
 
-// TODO: rename other actions' types the same way as table's.
-
 // changesData should be true for import and false for initial data load.
 export function tableSetFromJSON(tableJSON, changesData: false) {
   return {
@@ -101,7 +99,7 @@ export function tableSetRowUpdateTrigger(rowId, ids) {
   if (Array.isArray(rowId)) {
     rowIds = rowId;
   } else {
-    rowIds = [rowId]
+    rowIds = [rowId];
   }
 
   if (typeof ids === 'undefined') {

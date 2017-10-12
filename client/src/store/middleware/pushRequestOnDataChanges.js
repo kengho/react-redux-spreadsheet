@@ -1,4 +1,4 @@
-import { pushRequest } from '../../actions/requests';
+import { requestsPush } from '../../actions/requests';
 
 const pushRequestOnDataChanges = store => next => action => { // eslint-disable-line consistent-return
   // Don't fire before server data populates state.
@@ -23,7 +23,7 @@ const pushRequestOnDataChanges = store => next => action => { // eslint-disable-
   // TODO: reduce traffic amount
   //   (hashdiff? dispatcher on server?).
   const params = { table: JSON.stringify(nextTable) };
-  store.dispatch(pushRequest('PATCH', 'update', params));
+  store.dispatch(requestsPush('PATCH', 'update', params));
 
   return nextAction;
 };

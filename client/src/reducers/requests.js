@@ -10,7 +10,7 @@ const findRequestById = (state, id) => {
 
 export default function requests(state = fromJS({ queue: [], counter: 0 }), action) {
   switch (action.type) {
-    case 'PUSH_REQUEST': {
+    case 'REQUESTS/PUSH': {
       const counter = state.get('counter');
 
       const request = {};
@@ -28,7 +28,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
       );
     }
 
-    case 'POP_REQUEST_ID': {
+    case 'REQUESTS/POP_ID': {
       const deleteIndex = findRequestById(state, action.id);
 
       if (deleteIndex !== -1) {
@@ -41,7 +41,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
       break;
     }
 
-    case 'MARK_REQUEST_AS_FAILED': {
+    case 'REQUESTS/MARK_AS_FAILED': {
       const setIndex = findRequestById(state, action.id);
 
       if (setIndex !== -1) {

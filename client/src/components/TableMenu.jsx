@@ -6,7 +6,7 @@ import SyncProblem from 'material-ui-icons/SyncProblem';
 
 import './TableMenu.css';
 import { convert } from '../core';
-import { pushRequest } from '../actions/requests';
+import { requestsPush } from '../actions/requests';
 import datetime from '../lib/datetime';
 import Menu from './Menu/Menu';
 
@@ -90,7 +90,7 @@ class TableMenu extends React.PureComponent {
           disabled: !canRedo,
         },
         {
-          action: pushRequest('DELETE', 'destroy'),
+          action: requestsPush('DELETE', 'destroy'),
           dialogVariant: 'CONFIRM',
           icon: 'Delete',
           label: 'Delete',
