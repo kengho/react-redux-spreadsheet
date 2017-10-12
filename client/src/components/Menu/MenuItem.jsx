@@ -59,7 +59,10 @@ const MenuItem = (props) => {
   }
 
   // Delay action until ripple animation isn't finished.
-  const delayedAction = () => {
+  const delayedAction = (evt) => {
+    // Prevents firing documentClickHandler().
+    evt.nativeEvent.stopImmediatePropagation();
+
     setTimeout(
       effectiveAction,
       DELAY_BEFORE_ACTION

@@ -151,7 +151,8 @@ class Menu extends React.PureComponent {
           {menuItems.map((item) => {
             const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
-            // TODO: why pass closeMenu()?
+            // NOTE: passing closeMenu() instead of cellId because
+            //   MenuItem shouldn't know about cellId.
             return (
               <MenuItem
                 {...other}
