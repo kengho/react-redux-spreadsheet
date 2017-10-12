@@ -60,7 +60,7 @@ class Landing extends React.Component {
       .then((json) => {
         if (json.errors) {
           const errors = json.errors.map((error) => error.detail);
-          this.props.actions.setMessages(errors);
+          this.props.actions.landingSetMessages(errors);
         } else {
           const shortId = json.data.short_id;
           const spreadsheetPath = `${getRootPath()}${shortId}`;
@@ -71,7 +71,7 @@ class Landing extends React.Component {
           this.props.history.push(spreadsheetPath);
         }
 
-        this.props.actions.disableLandingButton(false);
+        this.props.actions.landingDisableButton(false);
       });
   }
 
@@ -79,7 +79,7 @@ class Landing extends React.Component {
     setTimeout(
       () => {
         // TODO: add some kind of spinner.
-        this.props.actions.disableLandingButton(true);
+        this.props.actions.landingDisableButton(true);
 
         if (this.recaptcha) {
           this.recaptcha.execute();

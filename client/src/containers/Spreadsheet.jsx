@@ -8,7 +8,7 @@ import {
   getRowId,
 } from '../core';
 import './Spreadsheet.css';
-import * as LandingActions from '../actions/landing'; // setMessages()
+import * as LandingActions from '../actions/landing'; // landingSetMessages()
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
 import * as TableActions from '../actions/table';
@@ -95,7 +95,7 @@ class Spreadsheet extends React.Component {
           if (json.errors) {
             const errors = json.errors.map((error) => error.detail);
 
-            this.props.actions.setMessages(errors);
+            this.props.actions.landingSetMessages(errors);
             this.props.history.push(getRootPath());
           } else {
             // store's shortId used in handleRequestsChanges().

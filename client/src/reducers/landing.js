@@ -7,13 +7,13 @@ const defaultState = fromJS({
 
 export default function meta(state = defaultState, action) {
   switch (action.type) {
-    case 'SET_MESSAGES':
+    case 'LANDING/SET_MESSAGES':
       return state.set(
         'messages',
         fromJS(action.messages)
       );
 
-    case 'DISABLE_LANDING_BUTTON':
+    case 'LANDING/DISABLE_LANDING_BUTTON':
       return state.set(
         'buttonIsDisabled',
         fromJS(action.disable)

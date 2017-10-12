@@ -1,13 +1,13 @@
-export function setMessages(messages) {
+export function landingSetMessages(messages) {
   return {
-    type: 'SET_MESSAGES',
+    type: 'LANDING/SET_MESSAGES',
     messages,
   };
 }
 
-export function disableLandingButton(disable) {
+export function landingDisableButton(disable) {
   return {
-    type: 'DISABLE_LANDING_BUTTON',
+    type: 'LANDING/DISABLE_LANDING_BUTTON',
     disable,
   };
 }
