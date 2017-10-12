@@ -42,8 +42,8 @@ class Menu extends React.PureComponent {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    this.props.actions.closeAll('menu');
-    this.props.actions.open('menu', this.props.menuId);
+    this.props.actions.uiCloseAll('menu');
+    this.props.actions.uiOpen('menu', this.props.menuId);
   }
 
   keyDownHandler(evt) {
@@ -58,13 +58,13 @@ class Menu extends React.PureComponent {
     } = this.props;
 
     if (evt.key === 'Escape') {
-      actions.close('menu', menuId);
+      actions.uiClose('menu', menuId);
     } else if (evt.key === 'ArrowLeft' && previousMenuId) {
-      actions.close('menu', menuId);
-      actions.open('menu', previousMenuId);
+      actions.uiClose('menu', menuId);
+      actions.uiOpen('menu', previousMenuId);
     } else if (evt.key === 'ArrowRight' && nextMenuId) {
-      actions.close('menu', menuId);
-      actions.open('menu', nextMenuId);
+      actions.uiClose('menu', menuId);
+      actions.uiOpen('menu', nextMenuId);
     }
   }
 
@@ -104,7 +104,7 @@ class Menu extends React.PureComponent {
   }
 
   closeMenu() {
-    this.props.actions.close('menu', this.props.menuId);
+    this.props.actions.uiClose('menu', this.props.menuId);
   }
 
   render() {

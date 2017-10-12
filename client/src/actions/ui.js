@@ -1,47 +1,41 @@
-export function setDialog(dialog) {
+export function uiSetDialog(dialog) {
   return {
-    type: 'SET_DIALOG',
+    type: 'UI/SET_DIALOG',
     dialog,
   };
 }
 
-export function openDialog() {
+export function uiCloseDialog() {
   return {
-    type: 'OPEN_DIALOG',
+    type: 'UI/CLOSE_DIALOG',
   };
 }
 
-export function closeDialog() {
+export function uiDispatchDialogAction() {
   return {
-    type: 'CLOSE_DIALOG',
-  };
-}
-
-export function dispatchDialogAction() {
-  return {
-    type: 'DISPATCH_DIALOG_ACTION',
+    type: 'UI/DISPATCH_DIALOG_ACTION',
   };
 }
 
 // TODO: group somehow all popup-related actions so we can close they all at once.
 //   Bad news is that cellId !== menuId, that's inconvinient.
-export function open(uiKind, cellId) {
+export function uiOpen(uiKind, cellId) {
   return {
-    type: 'OPEN',
+    type: 'UI/OPEN',
     uiKind,
     cellId,
   };
 }
 
-export function close(uiKind, cellId) {
+export function uiClose(uiKind, cellId) {
   return {
-    type: 'CLOSE',
+    type: 'UI/CLOSE',
     uiKind,
     cellId,
   };
 }
 
-export function closeAll(uiKind) {
+export function uiCloseAll(uiKind) {
   let uiKinds;
   if (Array.isArray(uiKind)) {
     uiKinds = uiKind;
@@ -50,7 +44,7 @@ export function closeAll(uiKind) {
   }
 
   return {
-    type: 'CLOSE_ALL',
+    type: 'UI/CLOSE_ALL',
     uiKinds,
   };
 }

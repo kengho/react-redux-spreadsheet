@@ -20,35 +20,29 @@ const setVisibility = (state, uiKind, id, visibility) => {
 export default function ui(state = defaultState, action) {
   switch (action.type) {
     // TODO: optimize.
-    case 'SET_DIALOG':
+    case 'UI/SET_DIALOG':
       return state.set(
         'dialog',
         fromJS(action.dialog)
       );
 
-    case 'OPEN_DIALOG':
-      return state.setIn(
-        ['dialog', 'open'],
-        true
-      );
-
-    case 'CLOSE_DIALOG':
+    case 'UI/CLOSE_DIALOG':
       return state.setIn(
         ['dialog', 'open'],
         false
       );
 
-    case 'DISPATCH_DIALOG_ACTION':
+    case 'UI/DISPATCH_DIALOG_ACTION':
       // See middleware.
       return state;
 
-    case 'OPEN':
+    case 'UI/OPEN':
       return setVisibility(state, action.uiKind, action.cellId, true);
 
-    case 'CLOSE':
+    case 'UI/CLOSE':
       return setVisibility(state, action.uiKind, action.cellId, false);
 
-    case 'CLOSE_ALL':
+    case 'UI/CLOSE_ALL':
       let nextState = state;
       action.uiKinds.forEach((uiKind) => {
         nextState = nextState.setIn(['visibility', uiKind], fromJS({}));

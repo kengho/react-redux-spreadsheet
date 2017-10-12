@@ -43,7 +43,7 @@ const MenuItem = (props) => {
     effectiveAction = () => {};
   } else if (dialogVariant && typeof action === 'object') {
     effectiveAction = () => {
-      actions.setDialog({
+      actions.uiSetDialog({
         action,
         disableYesButton: dialogDisableYesButton,
         variant: dialogVariant,

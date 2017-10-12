@@ -81,7 +81,7 @@ class Dialog extends React.Component {
       this.activateDialogButton(evt.key);
       break;
       case 'Escape':
-      this.props.actions.closeDialog();
+      this.props.actions.uiCloseDialog();
       break;
       default:
     }
@@ -101,7 +101,7 @@ class Dialog extends React.Component {
       this.fileFakeInput.title = fileName;
 
       const importAction = tableSetFromJSON(JSON.stringify({ data: tableData.data }), true);
-      this.props.actions.setDialog({
+      this.props.actions.uiSetDialog({
         action: importAction,
         disableYesButton: false,
         errors: tableData.errors,
@@ -133,14 +133,14 @@ class Dialog extends React.Component {
       case 'CONFIRM': {
         buttonsMap = [
           {
-            action: () => actions.closeDialog(),
+            action: () => actions.uiCloseDialog(),
             type: 'CANCEL',
             label: 'No, go back',
           },
           {
             action: () => {
-              actions.dispatchDialogAction();
-              actions.closeDialog();
+              actions.uiDispatchDialogAction();
+              actions.uiCloseDialog();
             },
             disabled: disableYesButton,
             type: 'ACTION',
@@ -155,8 +155,8 @@ class Dialog extends React.Component {
       case 'INFO': {
         buttonsMap = [{
           action: () => {
-            actions.dispatchDialogAction();
-            actions.closeDialog();
+            actions.uiDispatchDialogAction();
+            actions.uiCloseDialog();
           },
           disabled: disableYesButton,
           type: 'ACTION',
@@ -199,7 +199,7 @@ class Dialog extends React.Component {
         buttonsMap = [
           {
             action: () => {
-              actions.closeDialog();
+              actions.uiCloseDialog();
               this.fileFakeInput.value = '';
             },
             type: 'CANCEL',
@@ -207,8 +207,8 @@ class Dialog extends React.Component {
           },
           {
             action: () => {
-              actions.dispatchDialogAction();
-              actions.closeDialog();
+              actions.uiDispatchDialogAction();
+              actions.uiCloseDialog();
             },
             disabled: disableYesButton,
             type: 'ACTION',
@@ -259,7 +259,7 @@ class Dialog extends React.Component {
       <MaterialDialog
         className="dialog"
         onKeyDown={this.keyDownHandler}
-        onRequestClose={actions.closeDialog}
+        onRequestClose={actions.uiCloseDialog}
         open={open}
       >
         <MaterialDialogTitle>
