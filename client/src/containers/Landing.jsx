@@ -66,7 +66,7 @@ class Landing extends React.Component {
           const spreadsheetPath = `${getRootPath()}${shortId}`;
 
           // store's shortId used in handleRequestsChanges().
-          this.props.actions.setShortId(shortId);
+          this.props.actions.metaSetShortId(shortId);
           this.props.actions.tableSetFromJSON(JSONTable);
           this.props.history.push(spreadsheetPath);
         }

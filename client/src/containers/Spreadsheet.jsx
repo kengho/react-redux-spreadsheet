@@ -79,7 +79,7 @@ class Spreadsheet extends React.Component {
       // FIXME: causes undo-redo-related problems.
       //   Need to totally review initialState().
       //
-      // this.props.actions.setShortId('1');
+      // this.props.actions.metaSetShortId('1');
       //
       // const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
       // this.props.actions.tableSetFromJSON(initialJSONTable);
@@ -99,7 +99,7 @@ class Spreadsheet extends React.Component {
             this.props.history.push(getRootPath());
           } else {
             // store's shortId used in handleRequestsChanges().
-            this.props.actions.setShortId(shortId);
+            this.props.actions.metaSetShortId(shortId);
             this.props.actions.tableSetFromJSON(json.data.table);
           }
         });
