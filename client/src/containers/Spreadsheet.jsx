@@ -358,10 +358,12 @@ class Spreadsheet extends React.Component {
     const clipboard = table.getIn(['session', 'clipboard']);
     const columns = table.getIn(['data', 'columns']);
     const hover = table.getIn(['session', 'hover']);
-    const menusVisibility = ui.getIn(['visibility', 'menu']);
-    const historiesVisibility = ui.getIn(['visibility', 'history']);
     const pointer = table.getIn(['session', 'pointer']);
     const updateTriggers = table.getIn(['updateTriggers']);
+
+    // TODO: merge.
+    const visibleHistory = ui.get('history');
+    const visibleMenu = ui.get('menu');
 
     const outputRows = [];
     for (let rowIndex = 0; rowIndex < rows.size; rowIndex += 1) {
@@ -375,13 +377,13 @@ class Spreadsheet extends React.Component {
           columns={columns}
           hoverColumnId={rowIndex === 0 && getColumnId(hover)}
           key={rowId}
-          menusVisibility={menusVisibility}
-          historiesVisibility={historiesVisibility}
           pointer={pointer}
           rowId={rowId}
           rowNumber={rowIndex}
           rows={rows}
           rowUpdateTrigger={updateTriggers.getIn(['data', 'rows', rowId])}
+          visibleHistory={visibleHistory}
+          visibleMenu={visibleMenu}
         />
       );
     }
@@ -409,7 +411,7 @@ class Spreadsheet extends React.Component {
           <TableMenu
             actions={actions}
             data={this.props.table.get('data')}
-            menuVisibility={menusVisibility.get('table')}
+            menuVisibility={visibleMenu === 'table'}
             nextMenuId={nextMenuId}
             previousMenuId={previousMenuId}
             requestsQueueLength={requests.get('queue').size}

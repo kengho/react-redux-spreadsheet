@@ -18,22 +18,24 @@ const propTypes = {
   cells: PropTypes.object.isRequired,
   clipboard: PropTypes.object.isRequired,
   columns: PropTypes.object.isRequired,
-  historiesVisibility: PropTypes.object.isRequired,
   hoverColumnId: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.bool,
   ]),
-  menusVisibility: PropTypes.object.isRequired,
   pointer: PropTypes.object.isRequired,
   rowId: PropTypes.string.isRequired,
   rowNumber: PropTypes.number.isRequired,
   rows: PropTypes.object.isRequired,
   rowUpdateTrigger: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
+  visibleHistory: PropTypes.string,
+  visibleMenu: PropTypes.string,
 };
 
 const defaultProps = {
   hoverColumnId: '',
   rowUpdateTrigger: '',
+  visibleHistory: '',
+  visibleMenu: '',
 };
 
 class Row extends React.Component {
@@ -44,12 +46,12 @@ class Row extends React.Component {
     //   (the same with history).
     //   Possible solution: use rowUpdateTrigger.
     return !arePropsEqual(currentProps, nextProps, [
-      'rowUpdateTrigger', // some cells' value changed
-      'rowNumber', // add/remove rows
-      'hoverColumnId', // hover moves left/right
       'columns', // add/remove columns
-      'menusVisibility', // click on menu
-      'historiesVisibility', // show/hide cell's history
+      'hoverColumnId', // hover moves left/right
+      'rowNumber', // add/remove rows
+      'rowUpdateTrigger', // some cells' value changed
+      'visibleMenu', // click on menu
+      'visibleHistory', // show/hide cell's history
     ]);
   }
 
@@ -59,12 +61,12 @@ class Row extends React.Component {
       clipboard,
       columns,
       hoverColumnId,
-      historiesVisibility,
-      menusVisibility,
       pointer,
       rowId,
       rowNumber, // uses in both Row and Cell
       rows,
+      visibleHistory,
+      visibleMenu,
 
       // Extract this just for it's not passed to Cell.
       rowUpdateTrigger, // eslint-disable-line react/no-unused-prop-types
@@ -90,10 +92,10 @@ class Row extends React.Component {
       );
       props.isOnClipboard = (clipboard.get('cells').keySeq().indexOf(props.cellId) !== -1);
 
-      props.cellMenuVisibility = menusVisibility.get(`${props.cellId}-cell`);
-      props.columnMenuVisibility = menusVisibility.get(`${props.cellId}-column`);
-      props.rowMenuVisibility = menusVisibility.get(`${props.cellId}-row`);
-      props.historyVisibility = historiesVisibility.get(props.cellId);
+      props.cellMenuVisibility = (visibleMenu === `${props.cellId}-cell`);
+      props.columnMenuVisibility = (visibleMenu === `${props.cellId}-column`);
+      props.rowMenuVisibility = (visibleMenu === `${props.cellId}-row`);
+      props.historyVisibility = (visibleHistory === props.cellId);
 
       // Prevents unneeded re-renders by always passing
       // false when history isn't visible.

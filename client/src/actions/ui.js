@@ -19,19 +19,18 @@ export function uiDispatchDialogAction() {
 
 // TODO: group somehow all popup-related actions so we can close they all at once.
 //   Bad news is that cellId !== menuId, that's inconvinient.
-export function uiOpen(uiKind, cellId) {
+export function uiOpen(uiKind, id) {
   return {
     type: 'UI/OPEN',
     uiKind,
-    cellId,
+    id,
   };
 }
 
-export function uiClose(uiKind, cellId) {
+export function uiClose(uiKind) {
   return {
     type: 'UI/CLOSE',
     uiKind,
-    cellId,
   };
 }
 

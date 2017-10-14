@@ -2,20 +2,9 @@ import { fromJS } from 'immutable';
 
 const defaultState = fromJS({
   dialog: {},
-  visibility: {
-    menu: {},
-    history: {},
-  },
+  menu: null,
+  history: null,
 });
-
-const setVisibility = (state, uiKind, id, visibility) => {
-  const path = ['visibility', uiKind, id];
-  if (visibility) {
-    return state.setIn(path, true);
-  } else {
-    return state.deleteIn(path);
-  }
-}
 
 export default function ui(state = defaultState, action) {
   switch (action.type) {
@@ -37,15 +26,15 @@ export default function ui(state = defaultState, action) {
       return state;
 
     case 'UI/OPEN':
-      return setVisibility(state, action.uiKind, action.cellId, true);
+      return state.set(action.uiKind, action.id);
 
     case 'UI/CLOSE':
-      return setVisibility(state, action.uiKind, action.cellId, false);
+      return state.set(action.uiKind, null);
 
     case 'UI/CLOSE_ALL':
       let nextState = state;
       action.uiKinds.forEach((uiKind) => {
-        nextState = nextState.setIn(['visibility', uiKind], fromJS({}));
+        nextState = nextState.set(uiKind, null);
       })
 
       return nextState;

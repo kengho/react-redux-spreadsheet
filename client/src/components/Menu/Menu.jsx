@@ -42,7 +42,6 @@ class Menu extends React.PureComponent {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    this.props.actions.uiCloseAll('menu');
     this.props.actions.uiOpen('menu', this.props.menuId);
   }
 
@@ -60,10 +59,8 @@ class Menu extends React.PureComponent {
     if (evt.key === 'Escape') {
       actions.uiClose('menu', menuId);
     } else if (evt.key === 'ArrowLeft' && previousMenuId) {
-      actions.uiClose('menu', menuId);
       actions.uiOpen('menu', previousMenuId);
     } else if (evt.key === 'ArrowRight' && nextMenuId) {
-      actions.uiClose('menu', menuId);
       actions.uiOpen('menu', nextMenuId);
     }
   }
