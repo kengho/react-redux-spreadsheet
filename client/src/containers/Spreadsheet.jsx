@@ -300,10 +300,13 @@ class Spreadsheet extends React.Component {
 
           const srcCellId = srcCellsIds.get(0);
           const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
-          const value = clipboard.getIn(['cells', srcCellId, 'value']) || '';
+          const currentValue = table.getIn(['data', 'cells', srcCellId, 'value']) || '';
+          const clipboardValue = clipboard.getIn(['cells', srcCellId, 'value']) || '';
 
           // TODO: copy all props.
-          actions.tableSetProp(pointerCellId, 'value', value);
+          if (currentValue !== clipboardValue) {
+            actions.tableSetProp(pointerCellId, 'value', clipboardValue);
+          }
         },
       },
       {
