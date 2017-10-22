@@ -313,7 +313,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
         historyPath,
         value => value.push(
           fromJS({
-            unixTime: action.unixTime,
+            time: action.time,
             value: action.value,
           })
         )

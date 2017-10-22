@@ -136,12 +136,12 @@ export function tableExpand(lineNumber, lineRef, id = uuid()) {
   };
 }
 
-export function tablePushCellHistory(cellId, value, unixTime) {
+export function tablePushCellHistory(cellId, value, time) {
   return {
     type: 'TABLE/PUSH_CELL_HISTORY',
     cellId,
     value,
-    unixTime,
+    time,
   };
 }
 

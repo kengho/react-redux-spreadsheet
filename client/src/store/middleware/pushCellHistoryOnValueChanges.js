@@ -14,8 +14,8 @@ const pushCellHistoryOnValueChanges = store => next => action => { // eslint-dis
     ['data', 'cells', action.cellId, 'value']
   );
 
-  const unixTime = Math.floor(Date.now() / 1000);
-  store.dispatch(tablePushCellHistory(action.cellId, historyValue, unixTime));
+  const time = Math.floor(Date.now());
+  store.dispatch(tablePushCellHistory(action.cellId, historyValue, time));
 
   return next(action);
 };

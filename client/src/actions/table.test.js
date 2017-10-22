@@ -693,15 +693,15 @@ describe('table', () => {
       );
       const expectedCellHistory = fromJS([
         {
-          unixTime: 123,
+          time: 123,
           value: 'b',
         },
         {
-          unixTime: 124,
+          time: 124,
           value: 'c',
         },
         {
-          unixTime: 125,
+          time: 125,
           value: 'd',
         },
       ]);
@@ -726,7 +726,7 @@ describe('table', () => {
       );
       const expectedCellHistory = fromJS([
         {
-          unixTime: 124,
+          time: 124,
           value: 'c',
         },
       ]);

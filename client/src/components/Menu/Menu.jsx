@@ -79,6 +79,7 @@ class Menu extends React.PureComponent {
     if (evt.key === 'Escape') {
       actions.uiClose();
     } else if (
+      // TODO: scroll into view.
       evt.key === 'ArrowLeft' &&
       (previousMenuCellId || previousMenuPlace === 'TABLE') &&
       previousMenuPlace

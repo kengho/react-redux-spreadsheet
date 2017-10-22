@@ -88,16 +88,16 @@ class CellHistory extends React.PureComponent {
             </TableHead>
             <TableBody>
               {history.map((entry, historyIndex) => {
-                const unixTime = entry.get('unixTime');
+                const time = entry.get('time');
                 const formattedDatetime = datetime(
-                  new Date(unixTime * 1000),
+                  new Date(time),
                   { timeDelim: ':' }
                 );
                 const historyValue = entry.get('value');
 
                 return (
                   <TableRow
-                    key={`${unixTime}-${historyValue}`}
+                    key={`${time}-${historyValue}`}
                     hover={true}
                   >
                     <TableCell>
