@@ -24,7 +24,7 @@ export function tableSetProp(cellId, prop, value) {
     type: 'TABLE/SET_PROP',
     changesData: true,
     triggersRowUpdate: true,
-    propsComparePaths : [['data', 'cells', cellId, prop]],
+    propsComparePaths: [['data', 'cells', cellId, prop]],
     cellId,
     prop,
     value,
@@ -36,7 +36,7 @@ export function tableDeleteProp(cellId, prop) {
     type: 'TABLE/DELETE_PROP',
     changesData: true,
     triggersRowUpdate: true,
-    propsComparePaths : [['data', 'cells', cellId, prop]],
+    propsComparePaths: [['data', 'cells', cellId, prop]],
     cellId,
     prop,
   };
@@ -53,8 +53,8 @@ export function tableSetPointer(pointer) {
   return {
     type: 'TABLE/SET_POINTER',
     triggersRowUpdate: true,
-    cellIdPath : ['session', 'pointer', 'cellId'],
-    propsComparePaths : [['session', 'pointer', 'modifiers']],
+    cellIdPath: ['session', 'pointer', 'cellId'],
+    propsComparePaths: [['session', 'pointer', 'modifiers']],
     cellId: pointer.cellId,
     modifiers: pointer.modifiers,
   };

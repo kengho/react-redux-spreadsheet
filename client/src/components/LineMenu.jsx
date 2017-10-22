@@ -6,40 +6,35 @@ import Menu from './Menu/Menu';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  isHover: PropTypes.bool,
-  isOnly: PropTypes.bool.isRequired,
+  isLineHover: PropTypes.bool,
+  isLineOnly: PropTypes.bool.isRequired,
   lineNumber: PropTypes.number.isRequired,
-  lineRef: PropTypes.string.isRequired,
-  menuId: PropTypes.string.isRequired,
-  menuVisibility: PropTypes.bool,
   nextMenuId: PropTypes.string,
+  place: PropTypes.string.isRequired,
   previousMenuId: PropTypes.string,
 };
 
 const defaultProps = {
-  isHover: false,
-  menuVisibility: false,
+  isLineHover: false,
 };
 
 class LineMenu extends React.PureComponent {
   render() {
     const {
-      actions, // uses in both LineMenu and Menu
-      isHover,
-      isOnly,
+      actions, // uses in LineMenu and Menu
+      isLineHover,
+      isLineOnly,
       lineNumber,
-      lineRef,
-      nextMenuId,
-      previousMenuId,
+      place, // used in LineMenu and
       ...other,
     } = this.props;
 
     const cellsMenuItems = [];
-    if (lineRef === 'ROW') {
+    if (place === 'ROW') {
       // Don't allow to delete first row/column if there are only one row/column left.
-      if (!isOnly) {
+      if (!isLineOnly) {
         cellsMenuItems.push({
-          action: () => actions.tableReduce(lineNumber, lineRef),
+          action: () => actions.tableReduce(lineNumber, place),
           icon: 'Close',
 
           // TODO: i18n.
@@ -48,32 +43,32 @@ class LineMenu extends React.PureComponent {
       }
       cellsMenuItems.push(
         {
-          action: () => actions.tableExpand(lineNumber, lineRef),
+          action: () => actions.tableExpand(lineNumber, place),
           icon: 'KeyboardArrowUp',
           label: 'Insert row above',
         },
         {
-          action: () => actions.tableExpand(lineNumber + 1, lineRef),
+          action: () => actions.tableExpand(lineNumber + 1, place),
           icon: 'KeyboardArrowDown',
           label: 'Insert row below',
         }
       );
-    } else if (lineRef === 'COLUMN') {
-      if (!isOnly) {
+    } else if (place === 'COLUMN') {
+      if (!isLineOnly) {
         cellsMenuItems.push({
-          action: () => actions.tableReduce(lineNumber, lineRef),
+          action: () => actions.tableReduce(lineNumber, place),
           icon: 'Close',
           label: 'Delete column',
         });
       }
       cellsMenuItems.push(
         {
-          action: () => actions.tableExpand(lineNumber, lineRef),
+          action: () => actions.tableExpand(lineNumber, place),
           icon: 'ChevronLeft',
           label: 'Insert column at left',
         },
         {
-          action: () => actions.tableExpand(lineNumber + 1, lineRef),
+          action: () => actions.tableExpand(lineNumber + 1, place),
           icon: 'ChevronRight',
           label: 'Insert column at right',
         }
@@ -81,10 +76,10 @@ class LineMenu extends React.PureComponent {
     }
 
     const classnames = ['line-menu'];
-    if (lineRef === 'COLUMN' && isHover) { classnames.push('hover'); }
+    if (place === 'COLUMN' && isLineHover) { classnames.push('hover'); }
 
     // For rows we detecting hover using css.
-    if (lineRef === 'ROW') { classnames.push('line-menu-hover'); }
+    if (place === 'ROW') { classnames.push('line-menu-hover'); }
 
     return (
       <div className={classnames.join(' ')}>
@@ -93,8 +88,7 @@ class LineMenu extends React.PureComponent {
           actions={actions}
           icon="MoreVert"
           menuItems={cellsMenuItems}
-          nextMenuId={nextMenuId}
-          previousMenuId={previousMenuId}
+          place={place}
         />
       </div>
     );

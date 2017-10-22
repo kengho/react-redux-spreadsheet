@@ -9,17 +9,24 @@ import MenuItem from './MenuItem';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  cellId: PropTypes.string,
+  currentUi: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.object,
+  ]),
   icon: PropTypes.string.isRequired,
   iconScale: PropTypes.string,
-  menuId: PropTypes.string.isRequired,
   menuItems: PropTypes.array.isRequired,
-  menuVisibility: PropTypes.bool.isRequired,
-  nextMenuId: PropTypes.string,
-  previousMenuId: PropTypes.string,
+  nextMenuCellId: PropTypes.string,
+  nextMenuPlace: PropTypes.string,
+  place: PropTypes.string.isRequired,
+  previousMenuCellId: PropTypes.string,
+  previousMenuPlace: PropTypes.string,
 };
 
 const defaultProps = {
-  menuVisibility: false,
+  cellId: '',
+  currentUi: false,
   iconScale: 'big',
 };
 
@@ -27,14 +34,21 @@ class Menu extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.closeMenu = this.closeMenu.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.onClickHandler = this.onClickHandler.bind(this);
 
-    this.buttonId = `${props.menuId}-menu-button`;
-    this.getButtonDOM = () => getDOM(this.buttonId);
+    const {
+      cellId,
+      place,
+    } = props;
 
-    this.menuId = `${props.menuId}-menu`;
+    this.menuId = `${place.toLowerCase()}-menu`;
+    if (cellId !== '') {
+      this.menuId = `${cellId}-${this.menuId}`;
+    }
+
+    this.buttonId = `${this.menuId}-button`;
+    this.getButtonDOM = () => getDOM(this.buttonId);
     this.getMenuDOM = () => getDOM(this.menuId);
   }
 
@@ -42,7 +56,12 @@ class Menu extends React.PureComponent {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    this.props.actions.uiOpen('menu', this.props.menuId);
+    const {
+      cellId,
+      place,
+    } = this.props;
+
+    this.props.actions.uiOpen('MENU', cellId, place);
   }
 
   keyDownHandler(evt) {
@@ -51,17 +70,26 @@ class Menu extends React.PureComponent {
 
     const {
       actions,
-      menuId,
-      nextMenuId,
-      previousMenuId,
+      nextMenuCellId,
+      nextMenuPlace,
+      previousMenuCellId,
+      previousMenuPlace,
     } = this.props;
 
     if (evt.key === 'Escape') {
-      actions.uiClose('menu', menuId);
-    } else if (evt.key === 'ArrowLeft' && previousMenuId) {
-      actions.uiOpen('menu', previousMenuId);
-    } else if (evt.key === 'ArrowRight' && nextMenuId) {
-      actions.uiOpen('menu', nextMenuId);
+      actions.uiClose();
+    } else if (
+      evt.key === 'ArrowLeft' &&
+      (previousMenuCellId || previousMenuPlace === 'TABLE') &&
+      previousMenuPlace
+    ) {
+      actions.uiOpen('MENU', previousMenuCellId, previousMenuPlace);
+    } else if (
+      evt.key === 'ArrowRight' &&
+      (nextMenuCellId || nextMenuPlace === 'TABLE') &&
+      nextMenuPlace
+    ) {
+      actions.uiOpen('MENU', nextMenuCellId, nextMenuPlace);
     }
   }
 
@@ -83,34 +111,15 @@ class Menu extends React.PureComponent {
     this.button = this.getButtonDOM();
   }
 
-  componentDidUpdate() {
-    // HACK: getting menu DOM for focusing <li> after ArrowLeft/ArrowRight.
-    //   It couldn't be derived from this.button, because menu mounts into
-    //   entirely separated DOM part.
-    // HACK: without setTimeout() after first time pressing
-    //   ArrowLeft/ArrowRight on menu focus is losing immediately
-    //   (domready doesn't help; 200 ms are not enough).
-    // TODO: fix.
-    const menu = this.getMenuDOM();
-    if (menu) {
-      const firstMenuItem = menu.querySelector('li');
-      if (firstMenuItem) {
-        setTimeout(() => firstMenuItem.focus(), 300);
-      }
-    }
-  }
-
-  closeMenu() {
-    this.props.actions.uiClose('menu', this.props.menuId);
-  }
-
   render() {
     const {
       actions, // uses in both Menu and MenuItem
+      cellId,
+      currentUi,
       icon,
       iconScale,
       menuItems,
-      menuVisibility,
+      place,
       ...other,
     } = this.props;
 
@@ -125,7 +134,22 @@ class Menu extends React.PureComponent {
         classnames.push('small');
         break;
       default:
+    }
 
+    let visibility = currentUi;
+    if (typeof currentUi === 'object') {
+      const currentUiKind = currentUi.get('kind');
+      const currentUiVisibility = currentUi.get('visibility');
+      const currentUiPlace = currentUi.get('place');
+      const currentUiCellId = currentUi.get('cellId');
+
+      visibility =
+        currentUiVisibility &&
+        currentUiKind === 'MENU' &&
+        currentUiPlace === place;
+      if (cellId) {
+        visibility = visibility && (currentUiCellId === cellId);
+      }
     }
 
     // ids for componentDidMount() and componentDidUpdate().
@@ -139,32 +163,31 @@ class Menu extends React.PureComponent {
         >
           <MenuIcon />
         </IconButton>
-        <MaterialMenu
-          anchorEl={this.button}
-          id={this.menuId}
-          onKeyDown={this.keyDownHandler}
-          open={menuVisibility}
-        >
-          {menuItems.map((item) => {
-            const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
+        {visibility &&
+          <MaterialMenu
+            anchorEl={this.button}
+            id={this.menuId}
+            onKeyDown={this.keyDownHandler}
+            open={visibility}
+          >
+            {menuItems.map((item) => {
+              const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
-            // NOTE: passing closeMenu() instead of cellId because
-            //   MenuItem shouldn't know about cellId.
-            return (
-              <MenuItem
-                {...other}
-                {...item}
-                actions={actions}
-                closeMenu={this.closeMenu}
-                disabled={item.disabled}
-                key={item.label}
-              >
-                <ItemIcon />
-                {item.label}
-              </MenuItem>
-            );
-          })}
-        </MaterialMenu>
+              return (
+                <MenuItem
+                  {...other}
+                  {...item}
+                  actions={actions}
+                  disabled={item.disabled}
+                  key={item.label}
+                >
+                  <ItemIcon />
+                  {item.label}
+                </MenuItem>
+              );
+            })}
+          </MaterialMenu>
+        }
       </div>
     );
   }

@@ -13,7 +13,7 @@ const setRowUpdateTriggerOnStateChanges = store => next => action => { // eslint
     return next(action);
   }
 
-  if (action.cellId && !action.propsComparePaths && !action.cellIdGetter) {
+  if (action.cellId && !action.cellIdPath && !action.cellIdGetter && !action.propsComparePaths) {
     store.dispatch(tableSetRowUpdateTrigger(getRowId(action.cellId)));
 
     return next(action);
@@ -25,7 +25,7 @@ const setRowUpdateTriggerOnStateChanges = store => next => action => { // eslint
   if (stateBranchName === 'table') {
     getBranchState = () => store.getState().get(stateBranchName).present;
   } else {
-    // getBranchState = ...
+    getBranchState = () => store.getState().get(stateBranchName);
   }
 
   const getInPath = (path) => getBranchState().getIn(path);

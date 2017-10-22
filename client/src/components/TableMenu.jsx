@@ -15,13 +15,11 @@ const propTypes = {
   canRedo: PropTypes.bool.isRequired,
   canUndo: PropTypes.bool.isRequired,
   data: PropTypes.object.isRequired,
-  menuVisibility: PropTypes.bool,
   requestsQueueLength: PropTypes.number.isRequired,
   shortId: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
-  menuVisibility: false,
 };
 
 class TableMenu extends React.PureComponent {
@@ -49,10 +47,9 @@ class TableMenu extends React.PureComponent {
     let output;
     if (requestsQueueLength > 0) {
       // TODO: return tooltip.
-      // tooltip="Data sync error. Please don't close tab until data is saved"
-      // Wrapper solves issue with disabled button.
-      // https://github.com/angular-ui/bootstrap/issues/1025
-      // className="mdl-button mdl-js-button mdl-button--icon"
+      //   tooltip="Data sync error. Please don't close tab until data is saved"
+      //   NOTE: Use wrapper to solve issue with disabled button.
+      //     https://github.com/angular-ui/bootstrap/issues/1025
       output = (
         <IconButton disabled>
           <SyncProblem size={24} />
@@ -102,8 +99,8 @@ class TableMenu extends React.PureComponent {
           {...other}
           actions={actions}
           icon="Menu"
-          menuId="table"
           menuItems={tableMenuItems}
+          place="TABLE"
         />
       );
     }

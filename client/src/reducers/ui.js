@@ -2,8 +2,12 @@ import { fromJS } from 'immutable';
 
 const defaultState = fromJS({
   dialog: {},
-  menu: null,
-  history: null,
+  current: {
+    visibility: false,
+    kind: null,
+    place: null,
+    cellId: null,
+  },
 });
 
 export default function ui(state = defaultState, action) {
@@ -26,18 +30,14 @@ export default function ui(state = defaultState, action) {
       return state;
 
     case 'UI/OPEN':
-      return state.set(action.uiKind, action.id);
+      return state
+        .setIn(['current', 'visibility'], true)
+        .setIn(['current', 'kind'], action.kind)
+        .setIn(['current', 'place'], action.place)
+        .setIn(['current', 'cellId'], action.cellId);
 
     case 'UI/CLOSE':
-      return state.set(action.uiKind, null);
-
-    case 'UI/CLOSE_ALL':
-      let nextState = state;
-      action.uiKinds.forEach((uiKind) => {
-        nextState = nextState.set(uiKind, null);
-      })
-
-      return nextState;
+      return state.setIn(['current', 'visibility'], false);
 
     default:
       return state;

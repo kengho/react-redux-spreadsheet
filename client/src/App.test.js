@@ -33,10 +33,10 @@ Run in all browsers:
 * clicking on document should hide all open menus and cell histories
 * pressing on table menu button should show menu
 * pressing on cell menu button should show menu
-* pressing on cell menu button after adding row/column should show menu
+* pressing on new cell menu button after adding row/column should show menu
 * when hover on cell, one and only appropriate row/column menus' buttons should become visible
-* when hover on table, table menu should visible
-* when data is changed table menu icon should change, and it should be visible even is not hover until data is saved and it changes back
+* table menu should always be visible
+* when data is changed table menu icon should change
 * 'insert row above' button should insert row above
 * 'insert row below' button should insert row below
 * 'delete row' button should delete row
@@ -49,10 +49,12 @@ Run in all browsers:
 * lines addressing should update after adding/removing rows/columns
 * after showing menu first element should be active
 * after showing menu arrow, Enter and Escape keys should work (ArrowLeft/ArrowRight should lead to adjacent cells' menus as shown below)
-*   → → → → → →
+*   → → → → → → STOP
 *   ↑
 *   ↑
 *   ↑
+* STOP
+*
 * after dialog appearing arrow, Enter and Escape keys should work // TODO: Enter currently doesn't work
 * on document, pressing regular key should start editing currently pointed cell with value equals to that key
 * on document, if regular key pressed while there are no pointed cells, [0, 0] cell should become pointed
@@ -79,7 +81,7 @@ Run in all browsers:
 * if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
 * export button should save CSV file
 * import button should show dialog with 'Choose file' button and inactive 'Import' button
-* when user selects correct CSV file, 'Import button' should become active and file name should appear at the right
+* when user selects CSV file, 'Import button' should become active and file name should appear at the right
 * when user selects incorrect CSV file, errors should appear
 * when import dialog closes and opens again, it should look exactly the same, regardles of previous actions
 * when user selects any file in import dialog, then opens 'Choose file' dialog again and presses Escape, no errors should occur

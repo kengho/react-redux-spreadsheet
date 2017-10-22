@@ -67,6 +67,7 @@ class Data extends React.PureComponent {
       return;
     }
 
+    // TODO: should set correct cursor position.
     this.props.actions.tableSetPointer({ cellId, modifiers: { edit: true } });
   }
 

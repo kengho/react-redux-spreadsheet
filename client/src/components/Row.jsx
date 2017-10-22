@@ -7,7 +7,7 @@ import {
 } from '../core';
 import './Row.css';
 import Cell from './Cell';
-import getAdjacentMenuId from '../lib/getAdjacentMenuId';
+import getAdjacentMenus from '../lib/getAdjacentMenus';
 
 
 // TODO: flow.
@@ -18,6 +18,10 @@ const propTypes = {
   cells: PropTypes.object.isRequired,
   clipboard: PropTypes.object.isRequired,
   columns: PropTypes.object.isRequired,
+  currentUi: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.object,
+  ]).isRequired,
   hoverColumnId: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.bool,
@@ -27,31 +31,22 @@ const propTypes = {
   rowNumber: PropTypes.number.isRequired,
   rows: PropTypes.object.isRequired,
   rowUpdateTrigger: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
-  visibleHistory: PropTypes.string,
-  visibleMenu: PropTypes.string,
 };
 
 const defaultProps = {
   hoverColumnId: '',
   rowUpdateTrigger: '',
-  visibleHistory: '',
-  visibleMenu: '',
 };
 
 class Row extends React.Component {
   shouldComponentUpdate(nextProps) {
     const currentProps = this.props;
 
-    // TODO: PERF: anu menu click leads to all Row's re-render
-    //   (the same with history).
-    //   Possible solution: use rowUpdateTrigger.
     return !arePropsEqual(currentProps, nextProps, [
       'columns', // add/remove columns
       'hoverColumnId', // hover moves left/right
       'rowNumber', // add/remove rows
       'rowUpdateTrigger', // some cells' value changed
-      'visibleMenu', // click on menu
-      'visibleHistory', // show/hide cell's history
     ]);
   }
 
@@ -65,11 +60,10 @@ class Row extends React.Component {
       rowId,
       rowNumber, // uses in both Row and Cell
       rows,
-      visibleHistory,
-      visibleMenu,
 
-      // Extract this just for it's not passed to Cell.
+      // Extract rowUpdateTrigger just for it not to be passed to Cell.
       rowUpdateTrigger, // eslint-disable-line react/no-unused-prop-types
+      currentUi, // uses in both Row and Cell
       ...other,
     } = this.props;
 
@@ -92,19 +86,26 @@ class Row extends React.Component {
       );
       props.isOnClipboard = (clipboard.get('cells').keySeq().indexOf(props.cellId) !== -1);
 
-      props.cellMenuVisibility = (visibleMenu === `${props.cellId}-cell`);
-      props.columnMenuVisibility = (visibleMenu === `${props.cellId}-column`);
-      props.rowMenuVisibility = (visibleMenu === `${props.cellId}-row`);
-      props.historyVisibility = (visibleHistory === props.cellId);
+      props.currentUi = currentUi;
 
-      // Prevents unneeded re-renders by always passing
-      // false when history isn't visible.
+      props.historyVisibility =
+        currentUi &&
+        currentUi.get('visibility') &&
+        currentUi.get('kind') === 'HISTORY' &&
+        currentUi.get('cellId') === props.cellId;
       props.history = props.historyVisibility && cell && cell.get('history');
 
+      const cellMenuVisibility =
+        currentUi &&
+        currentUi.get('visibility') &&
+        currentUi.get('kind') === 'MENU' &&
+        currentUi.get('place') === 'CELL' &&
+        currentUi.get('cellId') === props.cellId;
+
       // Passing history size separate from history for
-      // Cell to update when it changes (disables correcponding menu item).
+      // Cell to update when it changes (disables corresponding menu item).
       props.historySize = (
-        props.cellMenuVisibility &&
+        cellMenuVisibility &&
         cell &&
         cell.get('history').size
       ) || 0;
@@ -115,20 +116,22 @@ class Row extends React.Component {
       props.isColumnHover = (hoverColumnId === columnId);
 
       if (columnNumber === 0) {
-        props.previousRowMenuId = getAdjacentMenuId(
-          'ROW', rowNumber, 'PREVIOUS', rows, columns
+        const adjacentRowMenus = getAdjacentMenus(
+          'ROW', rowNumber, rows, columns
         );
-        props.nextRowMenuId = getAdjacentMenuId(
-          'ROW', rowNumber, 'NEXT', rows, columns
-        );
+        props.nextRowMenuCellId = adjacentRowMenus.next.cellId;
+        props.nextRowMenuPlace = adjacentRowMenus.next.place;
+        props.previousRowMenuCellId = adjacentRowMenus.previous.cellId;
+        props.previousRowMenuPlace = adjacentRowMenus.previous.place;
       }
       if (rowNumber === 0) {
-        props.previousColumnMenuId = getAdjacentMenuId(
-          'COLUMN', columnNumber, 'PREVIOUS', rows, columns
+        const adjacentColumnMenus = getAdjacentMenus(
+          'COLUMN', columnNumber, rows, columns
         );
-        props.nextColumnMenuId = getAdjacentMenuId(
-          'COLUMN', columnNumber, 'NEXT', rows, columns
-        );
+        props.nextColumnMenuCellId = adjacentColumnMenus.next.cellId;
+        props.nextColumnMenuPlace = adjacentColumnMenus.next.place;
+        props.previousColumnMenuCellId = adjacentColumnMenus.previous.cellId;
+        props.previousColumnMenuPlace = adjacentColumnMenus.previous.place;
       }
 
       outputCells.push(

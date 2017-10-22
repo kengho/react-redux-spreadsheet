@@ -16,9 +16,11 @@ import numberToCss from '../lib/numberToCss';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
-  cellMenuVisibility: PropTypes.bool,
-  columnMenuVisibility: PropTypes.bool,
   columnNumber: PropTypes.number.isRequired,
+  currentUi: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.object,
+  ]).isRequired,
   history: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.object,
@@ -31,18 +33,19 @@ const propTypes = {
   isColumnHover: PropTypes.bool.isRequired,
   isColumnOnly: PropTypes.bool.isRequired,
   isRowOnly: PropTypes.bool.isRequired,
-  nextColumnMenuId: PropTypes.string,
-  nextRowMenuId: PropTypes.string,
-  previousColumnMenuId: PropTypes.string,
-  previousRowMenuId: PropTypes.string,
-  rowMenuVisibility: PropTypes.bool,
+  nextColumnMenuCellId: PropTypes.string,
+  nextColumnMenuPlace: PropTypes.string,
+  nextRowMenuCellId: PropTypes.string,
+  nextRowMenuPlace: PropTypes.string,
+  previousColumnMenuCellId: PropTypes.string,
+  previousColumnMenuPlace: PropTypes.string,
+  previousRowMenuCellId: PropTypes.string,
+  previousRowMenuPlace: PropTypes.string,
   rowNumber: PropTypes.number.isRequired,
   value: PropTypes.string,
 };
 
 const defaultProps = {
-  columnMenuVisibility: false,
-  rowMenuVisibility: false,
   historyVisibility: false,
   history: false,
   historySize: false,
@@ -57,7 +60,7 @@ class Cell extends React.PureComponent {
 
     this.alignComplements = this.alignComplements.bind(this);
 
-    // refs if reserved by React.
+    // 'refs' word if reserved by React.
     this.domRefs = {
       'ROW': {},
       'COLUMN': {},
@@ -74,7 +77,7 @@ class Cell extends React.PureComponent {
 
       const cellRef = this.domRefs['CELL'];
       if (cellRef) {
-        const erd = elementResizeDetectorMaker({ strategy: "scroll" });
+        const erd = elementResizeDetectorMaker({ strategy: 'scroll' });
         erd.listenTo(cellRef, () => this.alignComplements() );
       }
     });
@@ -87,95 +90,110 @@ class Cell extends React.PureComponent {
   }
 
   alignComplements() {
+    if (this.props.columnNumber !== 0 && this.props.rowNumber !== 0) {
+      return;
+    }
+
     const cellRef = this.domRefs['CELL'];
 
-    // REVIEW: should we use guard clauses here and everywhere?
-    if (cellRef) {
-      Object.keys(complementsStaticData.lines).forEach((lineRef) => {
-        let complementShift = 0;
-
-        complementsStaticData.order.forEach((complementName) => {
-          const complementStaticData = complementsStaticData.lines[lineRef][complementName];
-          const complementRef = this.domRefs[lineRef][complementName];
-
-          if (complementRef) {
-            const complementHeightNumber = cssToNumber(complementStaticData.style.height);
-            const complementWidthNumber = cssToNumber(complementStaticData.style.width);
-
-            // REVIEW: is it possible to DRY code with semantics?
-            //   I could just run thic code twice and swap width/height
-            //   and top/left the second time, but it would look meaningless IMO.
-            if (lineRef === 'ROW') {
-              const cellCenterY = cellRef.getBoundingClientRect().height / 2;
-              complementRef.style.top = numberToCss(cellCenterY - complementHeightNumber / 2);
-              complementRef.style.left = numberToCss(-(complementWidthNumber + complementShift));
-              complementShift += complementWidthNumber;
-            } else if (lineRef === 'COLUMN') {
-              const cellCenterX = cellRef.getBoundingClientRect().width / 2;
-              complementRef.style.left = numberToCss(cellCenterX - complementWidthNumber / 2);
-              complementRef.style.top = numberToCss(-(complementHeightNumber + complementShift));
-              complementShift += complementHeightNumber;
-            }
-          }
-        });
-      });
+    if (!cellRef) {
+      return;
     }
+
+    Object.keys(complementsStaticData.lines).forEach((lineRef) => {
+      let complementShift = 0;
+
+      complementsStaticData.order.forEach((complementName) => {
+        const complementStaticData = complementsStaticData.lines[lineRef][complementName];
+        const complementRef = this.domRefs[lineRef][complementName];
+
+        if (complementRef) {
+          const complementHeightNumber = cssToNumber(complementStaticData.style.height);
+          const complementWidthNumber = cssToNumber(complementStaticData.style.width);
+
+          // REVIEW: is it possible to DRY code preserving semantics?
+          //   I could just run this code twice and swap width/height
+          //   and top/left the second time, but it would look meaningless IMO.
+          if (lineRef === 'ROW') {
+            const cellCenterY = cellRef.getBoundingClientRect().height / 2;
+            complementRef.style.top = numberToCss(cellCenterY - complementHeightNumber / 2);
+            complementRef.style.left = numberToCss(-(complementWidthNumber + complementShift));
+            complementShift += complementWidthNumber;
+          } else if (lineRef === 'COLUMN') {
+            const cellCenterX = cellRef.getBoundingClientRect().width / 2;
+            complementRef.style.left = numberToCss(cellCenterX - complementWidthNumber / 2);
+            complementRef.style.top = numberToCss(-(complementHeightNumber + complementShift));
+            complementShift += complementHeightNumber;
+          }
+        }
+      });
+    });
   }
 
   render() {
+    // TODO: fix this mess. Split props into 2 parts, maybe.
     const {
       actions, // uses in Cell, Data, LineMenu and CellHistory
-      cellId, // uses in Cell, Data, CellMenu and CellHistory
-      cellMenuVisibility,
-      columnMenuVisibility,
       columnNumber,
+      currentUi, // used in Cell and CellMenu
       history,
       historySize,
-      historyVisibility, // uses in Cell and CellHistory
+      historyVisibility,
       isColumnHover,
       isColumnOnly,
       isRowOnly,
-      nextColumnMenuId,
-      nextRowMenuId,
-      previousColumnMenuId,
-      previousRowMenuId,
-      rowMenuVisibility,
+      nextColumnMenuCellId,
+      nextColumnMenuPlace,
+      nextRowMenuCellId,
+      nextRowMenuPlace,
+      previousColumnMenuCellId,
+      previousColumnMenuPlace,
+      previousRowMenuCellId,
+      previousRowMenuPlace,
       rowNumber,
       value, // uses in Data, CellMenu and CellHistory
       ...other,
     } = this.props;
 
-    // TODO: move complements to component somehow.
     let complements = [];
+
+    // TODO: replace lineRef to place everywhere (or vice versa).
     ['ROW', 'COLUMN'].forEach((lineRef) => {
-      let isHover;
-      let isOnly;
       let lineNumber;
-      let menuVisibility;
-      let nextMenuId;
-      let previousMenuId;
       if (lineRef === 'COLUMN' && rowNumber === 0) {
-        isHover = isColumnHover;
-        isOnly = isColumnOnly;
         lineNumber = columnNumber;
-        menuVisibility = columnMenuVisibility;
-        nextMenuId = nextColumnMenuId;
-        previousMenuId = previousColumnMenuId;
       }
       if (lineRef === 'ROW' && columnNumber === 0) {
-        isOnly = isRowOnly;
         lineNumber = rowNumber;
-        menuVisibility = rowMenuVisibility;
-        nextMenuId = nextRowMenuId;
-        previousMenuId = previousRowMenuId;
       }
 
-      const complementClassname = `complement ${lineRef.toLowerCase()}`;
-      const menuId = `${cellId}-${lineRef.toLowerCase()}`;
+      if (typeof lineNumber === 'number') {
+        let isLineHover;
+        let isLineOnly;
+        let nextMenuCellId;
+        let nextMenuPlace;
+        let previousMenuCellId;
+        let previousMenuPlace;
+        if (lineRef === 'COLUMN') {
+          isLineHover = isColumnHover;
+          isLineOnly = isColumnOnly;
+          nextMenuCellId = nextColumnMenuCellId;
+          nextMenuPlace = nextColumnMenuPlace;
+          previousMenuCellId = previousColumnMenuCellId;
+          previousMenuPlace = previousColumnMenuPlace;
+        }
+        if (lineRef === 'ROW') {
+          isLineOnly = isRowOnly;
+          nextMenuCellId = nextRowMenuCellId;
+          nextMenuPlace = nextRowMenuPlace;
+          previousMenuCellId = previousRowMenuCellId;
+          previousMenuPlace = previousRowMenuPlace;
+        }
 
-      if (lineNumber >= 0) {
+        const complementClassname = `complement ${lineRef.toLowerCase()}`;
+
         complements.push(
-          <div key={`${cellId}-complement-${lineRef.toLowerCase()}`}>
+          <div key={`${this.props.cellId}-complement-${lineRef.toLowerCase()}`}>
             <div
               style={complementsStaticData.lines[lineRef]['MENU'].style}
               className={complementClassname}
@@ -184,14 +202,15 @@ class Cell extends React.PureComponent {
               <LineMenu
                 {...other}
                 actions={actions}
-                isHover={isHover}
-                isOnly={isOnly}
+                currentUi={currentUi}
+                isLineHover={isLineHover}
+                isLineOnly={isLineOnly}
                 lineNumber={lineNumber}
-                lineRef={lineRef}
-                menuId={menuId}
-                menuVisibility={menuVisibility}
-                nextMenuId={nextMenuId}
-                previousMenuId={previousMenuId}
+                place={lineRef}
+                nextMenuCellId={nextMenuCellId}
+                nextMenuPlace={nextMenuPlace}
+                previousMenuCellId={previousMenuCellId}
+                previousMenuPlace={previousMenuPlace}
               />
             </div>
             <div
@@ -212,29 +231,27 @@ class Cell extends React.PureComponent {
     return (
       <div
         className="td"
-        onMouseOver={() => { actions.tableSetHover(cellId); } }
+        onMouseOver={() => { actions.tableSetHover(this.props.cellId); } }
         ref={(c) => { this.domRefs['CELL'] = c; }}
       >
         {complements}
         <Data
           {...other}
           actions={actions}
-          cellId={cellId}
           value={value}
         />
         <CellMenu
+          {...other}
           actions={actions}
-          cellId={cellId}
           cellValue={value}
+          currentUi={currentUi}
           historyVisibility={historyVisibility}
           isHistoryAvailable={historySize > 0}
-          menuId={`${cellId}-cell`}
-          menuVisibility={cellMenuVisibility}
         />
         {historyVisibility && history &&
           <CellHistory
+            {...other}
             actions={actions}
-            cellId={cellId}
             cellValue={value}
             history={history}
           />

@@ -1,3 +1,4 @@
+// REVIEW: should we put dialog to uiOpen/uiClose?
 export function uiSetDialog(dialog) {
   return {
     type: 'UI/SET_DIALOG',
@@ -17,33 +18,23 @@ export function uiDispatchDialogAction() {
   };
 }
 
-// TODO: group somehow all popup-related actions so we can close they all at once.
-//   Bad news is that cellId !== menuId, that's inconvinient.
-export function uiOpen(uiKind, id) {
+export function uiOpen(kind, cellId = null, place = 'CELL') {
   return {
     type: 'UI/OPEN',
-    uiKind,
-    id,
+    triggersRowUpdate: true,
+    cellIdPath: ['current', 'cellId'],
+    propsComparePaths: [['current', 'visibility']],
+    kind,
+    cellId,
+    place,
   };
 }
 
-export function uiClose(uiKind) {
+export function uiClose() {
   return {
     type: 'UI/CLOSE',
-    uiKind,
-  };
-}
-
-export function uiCloseAll(uiKind) {
-  let uiKinds;
-  if (Array.isArray(uiKind)) {
-    uiKinds = uiKind;
-  } else {
-    uiKinds = [uiKind];
-  }
-
-  return {
-    type: 'UI/CLOSE_ALL',
-    uiKinds,
+    triggersRowUpdate: true,
+    cellIdPath: ['current', 'cellId'],
+    propsComparePaths: [['current', 'visibility']],
   };
 }

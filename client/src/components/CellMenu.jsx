@@ -19,7 +19,7 @@ class CellMenu extends React.PureComponent {
   render() {
     const {
       actions, // uses in both CellMenu and Menu
-      cellId,
+      cellId, // uses in both CellMenu and Menu
       cellValue,
       historyVisibility,
       isHistoryAvailable,
@@ -29,13 +29,13 @@ class CellMenu extends React.PureComponent {
     const cellMenuItems = [];
     if (historyVisibility) {
       cellMenuItems.push({
-        action: () => actions.uiClose('history', cellId),
+        action: () => actions.uiClose(),
         icon: 'History',
         label: 'Hide history',
       });
     } else {
       cellMenuItems.push({
-        action: () => actions.uiOpen('history',cellId),
+        action: () => actions.uiOpen('HISTORY', cellId),
         icon: 'History',
         label: 'View history',
         disabled: !isHistoryAvailable,
@@ -52,9 +52,11 @@ class CellMenu extends React.PureComponent {
       <Menu
         {...other}
         actions={actions}
+        cellId={cellId}
         icon="MoreVert"
         iconScale="small"
         menuItems={cellMenuItems}
+        place="CELL"
       />
     );
 

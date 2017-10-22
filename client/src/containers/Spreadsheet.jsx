@@ -117,7 +117,7 @@ class Spreadsheet extends React.Component {
 
     // TODO: this is probably good to have some meta action,
     //   doing such similar things at once.
-    actions.uiCloseAll(['menu', 'history']);
+    actions.uiClose();
     actions.tableSetPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null});
   }
@@ -232,7 +232,7 @@ class Spreadsheet extends React.Component {
           actions.tableSetClipboard({ cells: {}, operation: null});
 
           // CellHistory doesn't have own keydown handler.
-          actions.uiCloseAll('history');
+          actions.uiClose();
         },
       },
       {
@@ -286,6 +286,7 @@ class Spreadsheet extends React.Component {
         which: 86, // 'Ctrl+V'
         ctrlKey: true,
         action: () => {
+          // TODO: paste from real clipboard.
           // Prevents native pasting into cell.
           evt.preventDefault();
 
@@ -360,10 +361,7 @@ class Spreadsheet extends React.Component {
     const hover = table.getIn(['session', 'hover']);
     const pointer = table.getIn(['session', 'pointer']);
     const updateTriggers = table.getIn(['updateTriggers']);
-
-    // TODO: merge.
-    const visibleHistory = ui.get('history');
-    const visibleMenu = ui.get('menu');
+    const currentUi = ui.getIn(['current', 'visibility']) && ui.get('current');
 
     const outputRows = [];
     for (let rowIndex = 0; rowIndex < rows.size; rowIndex += 1) {
@@ -375,6 +373,7 @@ class Spreadsheet extends React.Component {
           cells={cells}
           clipboard={clipboard}
           columns={columns}
+          currentUi={currentUi}
           hoverColumnId={rowIndex === 0 && getColumnId(hover)}
           key={rowId}
           pointer={pointer}
@@ -382,8 +381,6 @@ class Spreadsheet extends React.Component {
           rowNumber={rowIndex}
           rows={rows}
           rowUpdateTrigger={updateTriggers.getIn(['data', 'rows', rowId])}
-          visibleHistory={visibleHistory}
-          visibleMenu={visibleMenu}
         />
       );
     }
@@ -396,10 +393,7 @@ class Spreadsheet extends React.Component {
     // TODO: add crop option to table menu.
 
     const thereIsClipboard = (clipboard.get('cells').size > 0);
-
     const firstCellId = getCellId(rows.getIn([0, 'id']), columns.getIn([0, 'id']));
-    const nextMenuId = `${firstCellId}-column`;
-    const previousMenuId = `${firstCellId}-row`;
 
     return (
       <div>
@@ -410,14 +404,16 @@ class Spreadsheet extends React.Component {
         >
           <TableMenu
             actions={actions}
+            canRedo={undo.canRedo}
+            canUndo={undo.canUndo}
+            currentUi={currentUi}
             data={this.props.table.get('data')}
-            menuVisibility={visibleMenu === 'table'}
-            nextMenuId={nextMenuId}
-            previousMenuId={previousMenuId}
+            nextMenuCellId={firstCellId}
+            nextMenuPlace='COLUMN'
+            previousMenuCellId={firstCellId}
+            previousMenuPlace='ROW'
             requestsQueueLength={requests.get('queue').size}
             shortId={this.props.match.params.shortId}
-            canUndo={undo.canUndo}
-            canRedo={undo.canRedo}
           />
           {outputRows}
         </div>

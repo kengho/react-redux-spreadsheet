@@ -36,7 +36,7 @@ class CellHistory extends React.PureComponent {
 
     actions.tableDeleteCellHistory(cellId, historyIndex);
     if (history.size - 1 === 0) {
-      actions.uiClose('history', cellId);
+      actions.uiClose();
     }
   }
 
@@ -52,7 +52,7 @@ class CellHistory extends React.PureComponent {
     // TODO: "forget all" button.
     // TODO: add option to not save history somewhere (spreadsheet settings?).
     //   Think about default value.
-    // TODO: consider movable multiple cell histories like vi info.
+    // TODO: delay uiClose() until ripple animation stops.
 
     return (
       <div
@@ -65,7 +65,7 @@ class CellHistory extends React.PureComponent {
         <Paper>
           <IconButton
             className="close-button"
-            onClick={() => actions.uiClose('history', cellId)}
+            onClick={() => actions.uiClose()}
           >
             <CloseIcon />
           </IconButton>

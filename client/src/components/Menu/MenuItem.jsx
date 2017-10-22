@@ -25,6 +25,7 @@ const defaultProps = {
   disabled: false,
 };
 
+// TODO: import from somewhere and reuse in CellHistory.
 const DELAY_BEFORE_ACTION = 200;
 
 const MenuItem = (props) => {
@@ -32,7 +33,6 @@ const MenuItem = (props) => {
     action,
     actions,
     children,
-    closeMenu,
     dialogDisableYesButton,
     dialogVariant,
     disabled,
@@ -43,18 +43,20 @@ const MenuItem = (props) => {
     effectiveAction = () => {};
   } else if (dialogVariant && typeof action === 'object') {
     effectiveAction = () => {
+      actions.uiClose();
       actions.uiSetDialog({
         action,
         disableYesButton: dialogDisableYesButton,
         variant: dialogVariant,
         open: true,
       });
-      closeMenu();
     };
   } else {
     effectiveAction = () => {
+      // NOTE: order of actions is important.
+      //   If action is to open ui, it should be called after closing it.
+      actions.uiClose();
       action();
-      closeMenu();
     };
   }
 
