@@ -93,7 +93,7 @@ class CellHistory extends React.PureComponent {
                   new Date(time),
                   { timeDelim: ':' }
                 );
-                const historyValue = entry.get('value');
+                const historyValue = entry.get('value') || '';
 
                 return (
                   <TableRow
