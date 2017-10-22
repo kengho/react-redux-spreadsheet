@@ -28,8 +28,6 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 
-const DELAY_BEFORE_ACTION = 200;
-
 class Landing extends React.Component {
   constructor(props) {
     super(props);
