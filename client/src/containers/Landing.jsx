@@ -11,6 +11,7 @@ import * as MetaActions from '../actions/meta';
 import * as TableActions from '../actions/table';
 import fetchServer from './../lib/fetchServer';
 import getRootPath from './../lib/getRootPath';
+import rippleButtonAction from '../lib/rippleButtonAction';
 
 const mapStateToProps = (state) => ({
   messages: state.getIn(['landing', 'messages']),
@@ -75,20 +76,19 @@ class Landing extends React.Component {
       });
   }
 
-  onButtonClickHandler() {
-    setTimeout(
-      () => {
-        // TODO: add some kind of spinner.
-        this.props.actions.landingDisableButton(true);
+  onButtonClickHandler(evt) {
+    const action = () => {
+      // TODO: add some kind of spinner.
+      this.props.actions.landingDisableButton(true);
 
-        if (this.recaptcha) {
-          this.recaptcha.execute();
-        } else {
-          this.onRecaptchaResolved();
-        }
-      },
-      DELAY_BEFORE_ACTION
-    );
+      if (this.recaptcha) {
+        this.recaptcha.execute();
+      } else {
+        this.onRecaptchaResolved();
+      }
+    }
+
+    rippleButtonAction(action)(evt);
   }
 
   render() {

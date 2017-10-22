@@ -9,6 +9,7 @@ import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Ta
 
 import './CellHistory.css';
 import datetime from '../lib/datetime';
+import rippleButtonAction from '../lib/rippleButtonAction';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -27,16 +28,24 @@ class CellHistory extends React.PureComponent {
     this.deleteRecordButtonClickHandler = this.deleteRecordButtonClickHandler.bind(this);
   }
 
-  deleteRecordButtonClickHandler(historyIndex) {
+  deleteRecordButtonClickHandler(evt, historyIndex) {
     const {
       actions,
       cellId,
       history,
     } = this.props;
 
-    actions.tableDeleteCellHistory(cellId, historyIndex);
+    const deletePropAction = () => actions.tableDeleteCellHistory(cellId, historyIndex);
     if (history.size - 1 === 0) {
-      actions.uiClose();
+      const action = () => {
+        deletePropAction();
+        if (history.size - 1 === 0) {
+          actions.uiClose();
+        }
+      };
+      rippleButtonAction(action)(evt);
+    } else {
+      deletePropAction();
     }
   }
 
@@ -52,7 +61,6 @@ class CellHistory extends React.PureComponent {
     // TODO: "forget all" button.
     // TODO: add option to not save history somewhere (spreadsheet settings?).
     //   Think about default value.
-    // TODO: delay uiClose() until ripple animation stops.
 
     return (
       <div
@@ -65,7 +73,7 @@ class CellHistory extends React.PureComponent {
         <Paper>
           <IconButton
             className="close-button"
-            onClick={() => actions.uiClose()}
+            onClick={rippleButtonAction(() => actions.uiClose())}
           >
             <CloseIcon />
           </IconButton>
@@ -94,7 +102,7 @@ class CellHistory extends React.PureComponent {
                   >
                     <TableCell>
                       <IconButton
-                        onClick={() => this.deleteRecordButtonClickHandler(historyIndex)}
+                        onClick={(evt) => this.deleteRecordButtonClickHandler(evt, historyIndex)}
                       >
                         <DeleteIcon />
                       </IconButton>

@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { MenuItem as MaterialMenuItem } from 'material-ui/Menu';
 
+import rippleButtonAction from '../../lib/rippleButtonAction';
+
 const propTypes = {
   // REVIEW: since all our actions can be expressed as plain objects,
   //   shouldn't we leave only PropTypes.object here?
@@ -24,9 +26,6 @@ const defaultProps = {
   dialogVariant: '',
   disabled: false,
 };
-
-// TODO: import from somewhere and reuse in CellHistory.
-const DELAY_BEFORE_ACTION = 200;
 
 const MenuItem = (props) => {
   const {
@@ -60,16 +59,7 @@ const MenuItem = (props) => {
     };
   }
 
-  // Delay action until ripple animation isn't finished.
-  const delayedAction = (evt) => {
-    // Prevents firing documentClickHandler().
-    evt.nativeEvent.stopImmediatePropagation();
-
-    setTimeout(
-      effectiveAction,
-      DELAY_BEFORE_ACTION
-    );
-  };
+  const delayedAction = rippleButtonAction(effectiveAction);
 
   return (
     <MaterialMenuItem
