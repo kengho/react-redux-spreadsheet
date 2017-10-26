@@ -172,6 +172,12 @@ class Menu extends React.PureComponent {
             open={visibility}
           >
             {menuItems.map((item) => {
+              // TODO: unable to add deviders because of
+              //   broken keyboard navigation thorough them.
+              // if (React.isValidElement(item)) {
+              //   return item;
+              // }
+
               const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
               return (
