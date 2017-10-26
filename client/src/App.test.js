@@ -30,13 +30,13 @@ Run in all browsers:
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there are no pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should add new rows/columns if necessary
-* clicking on document should hide all open menus and cell histories
+* clicking on document should hide all open menus and cell histories and clear pointer and clipboard
 * pressing on table menu button should show menu
 * pressing on cell menu button should show menu
 * pressing on new cell menu button after adding row/column should show menu
 * when hover on cell, one and only appropriate row/column menus' buttons should become visible
 * table menu should always be visible
-* when data is changed table menu icon should change
+* when data is changed table menu icon should change, signalizing server sync
 * 'insert row above' button should insert row above
 * 'insert row below' button should insert row below
 * 'delete row' button should delete row
@@ -94,7 +94,7 @@ Run in all browsers:
 * after deleting spreadsheet user should be redirected to Landing
 * each cell's value's change should be saved in cell history
 * cell menu should appear on cell hover with little delay
-* when there is clipboard, cell menu should be always invisible
+* (REVIEW) when there is clipboard, cell menu should be always invisible
 * cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
 * when cell history if empty, show cell history button should be inactive
 * when cell history is shown, document click should close it

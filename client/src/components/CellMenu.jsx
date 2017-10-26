@@ -48,21 +48,17 @@ class CellMenu extends React.PureComponent {
       disabled: (cellValue === ''),
     });
 
-    const output = (
-      <Menu
-        {...other}
-        actions={actions}
-        cellId={cellId}
-        icon="MoreVert"
-        iconScale="small"
-        menuItems={cellMenuItems}
-        place="CELL"
-      />
-    );
-
     return (
       <div className="cell-menu">
-        {output}
+        <Menu
+          {...other}
+          actions={actions}
+          cellId={cellId}
+          icon="MoreVert"
+          iconScale="small"
+          menuItems={cellMenuItems}
+          place="CELL"
+        />
       </div>
     );
   }

@@ -398,6 +398,7 @@ class Spreadsheet extends React.Component {
     const thereIsClipboard = (clipboard.get('cells').size > 0);
     const firstCellId = getCellId(rows.getIn([0, 'id']), columns.getIn([0, 'id']));
 
+    // TODO: get rid of extra (?) div.
     return (
       <div>
         <div
