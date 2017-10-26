@@ -1,3 +1,5 @@
+import { List } from 'immutable';
+
 import { requestsPush } from '../../actions/requests';
 
 const pushRequestOnDataChanges = store => next => action => { // eslint-disable-line consistent-return
@@ -14,15 +16,17 @@ const pushRequestOnDataChanges = store => next => action => { // eslint-disable-
   const nextAction = next(action);
 
   // Get new data.
-  const nextTable = store.getState().get('table').present.toJS();
+  // NOTE: we don't need toJS() here until replacer is immutable list.
+  //   https://facebook.github.io/immutable-js/#converts-back-to-raw-javascript-objects-
+  const nextTable = store.getState().get('table').present;
 
-  // TODO: consider storage session data.
-  delete nextTable.session;
+  // TODO: consider storing session data.
+  const syncingStateBranches = List(['data']);
 
   // Send new data to server.
   // TODO: reduce traffic amount
   //   (hashdiff? dispatcher on server?).
-  const params = { table: JSON.stringify(nextTable) };
+  const params = { table: JSON.stringify(nextTable, syncingStateBranches) };
   store.dispatch(requestsPush('PATCH', 'update', params));
 
   return nextAction;
