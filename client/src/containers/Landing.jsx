@@ -12,6 +12,7 @@ import * as TableActions from '../actions/table';
 import fetchServer from './../lib/fetchServer';
 import getRootPath from './../lib/getRootPath';
 import rippleButtonAction from '../lib/rippleButtonAction';
+import serverSyncParams from '../lib/serverSyncParams';
 
 const mapStateToProps = (state) => ({
   messages: state.getIn(['landing', 'messages']),
@@ -38,24 +39,18 @@ class Landing extends React.Component {
   }
 
   onRecaptchaResolved(evt) {
-    const table = initialState().toJS().table;
+    const table = initialState().get('table');
 
-    // TODO: consider storage session data.
-    delete table.session;
-
-    // Without JSON.stringify Rails tries to parse the whole table,
-    // but we only want it to store JSON we sent.
-    const JSONTable = JSON.stringify(table);
-    let fetchParams = { table: JSONTable };
+    let params = serverSyncParams(table);
     if (this.recaptcha) {
-      fetchParams['g-recaptcha-response'] = this.recaptcha.getResponse();
+      params['g-recaptcha-response'] = this.recaptcha.getResponse();
     }
 
     // TODO: handle errors if server not responding.
     // TODO: consider offline mode.
     //   Issues:
     //   1 short_id?
-    fetchServer('POST', 'create', fetchParams)
+    fetchServer('POST', 'create', params)
       .then((json) => {
         if (json.errors) {
           const errors = json.errors.map((error) => error.detail);
@@ -66,7 +61,9 @@ class Landing extends React.Component {
 
           // store's shortId used in handleRequestsChanges().
           this.props.actions.metaSetShortId(shortId);
-          this.props.actions.tableSetFromJSON(JSONTable);
+
+          // TODO: set table from immutable object here, not json.
+          this.props.actions.tableSetFromJSON(JSON.stringify(table));
           this.props.history.push(spreadsheetPath);
         }
 
