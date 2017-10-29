@@ -56,11 +56,11 @@ class CellMenu extends React.PureComponent {
     return (
       <div className="cell-menu">
         <Menu
-          {...other}
           icon="MoreVert"
           iconScale="small"
           menuItems={cellMenuItems}
           place="CELL"
+          {...other}
         />
       </div>
     );

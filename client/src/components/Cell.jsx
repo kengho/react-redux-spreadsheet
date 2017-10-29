@@ -202,7 +202,6 @@ class Cell extends React.PureComponent {
               ref={(c) => { this.domRefs[lineRef]['MENU'] = c; }}
             >
               <LineMenu
-                {...other}
                 isLineHover={isLineHover}
                 isLineOnly={isLineOnly}
                 lineNumber={lineNumber}
@@ -211,6 +210,7 @@ class Cell extends React.PureComponent {
                 nextMenuPlace={nextMenuPlace}
                 previousMenuCellId={previousMenuCellId}
                 previousMenuPlace={previousMenuPlace}
+                {...other}
               />
             </div>
             <div
@@ -239,9 +239,9 @@ class Cell extends React.PureComponent {
           {...other}
         />
         <CellMenu
-          {...other}
           historyVisibility={historyVisibility}
           isHistoryAvailable={historySize > 0}
+          {...other}
         />
         {historyVisibility && history &&
           <CellHistory

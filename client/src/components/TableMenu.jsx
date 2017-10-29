@@ -101,10 +101,10 @@ class TableMenu extends React.PureComponent {
 
       output = (
         <Menu
-          {...other}
           icon="Menu"
           menuItems={tableMenuItems}
           place="TABLE"
+          {...other}
         />
       );
     }

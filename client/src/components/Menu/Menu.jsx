@@ -182,10 +182,10 @@ class Menu extends React.PureComponent {
 
               return (
                 <MenuItem
-                  {...other}
-                  {...item}
                   disabled={item.disabled}
                   key={item.label}
+                  {...item}
+                  {...other}
                 >
                   <ItemIcon />
                   {item.label}

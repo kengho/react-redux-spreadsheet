@@ -89,9 +89,9 @@ class LineMenu extends React.PureComponent {
     return (
       <div className={classnames.join(' ')}>
         <Menu
-          {...other}
           icon="MoreVert"
           menuItems={cellsMenuItems}
+          {...other}
         />
       </div>
     );

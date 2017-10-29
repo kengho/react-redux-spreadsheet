@@ -139,9 +139,9 @@ class Row extends React.Component {
 
       outputCells.push(
         <Cell
+          key={props.cellId}
           {...props}
           {...other}
-          key={props.cellId}
         />
       );
     }
