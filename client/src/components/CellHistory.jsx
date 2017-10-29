@@ -14,7 +14,7 @@ import rippleButtonAction from '../lib/rippleButtonAction';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
-  cellValue: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
   history: PropTypes.object.isRequired,
 };
 
@@ -53,8 +53,8 @@ class CellHistory extends React.PureComponent {
     const {
       actions,
       cellId,
-      cellValue,
       history,
+      value,
     } = this.props;
 
     // TODO: export to CSV.
@@ -109,7 +109,7 @@ class CellHistory extends React.PureComponent {
                     </TableCell>
                     <TableCell>
                       <IconButton
-                        disabled={historyValue === cellValue}
+                        disabled={historyValue === value}
                         onClick={() => actions.tableSetProp(cellId, 'value', historyValue)}
                       >
                         <RestoreIcon />

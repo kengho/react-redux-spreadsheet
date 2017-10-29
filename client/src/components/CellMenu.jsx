@@ -7,7 +7,7 @@ import Menu from './Menu/Menu';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   cellId: PropTypes.string.isRequired,
-  cellValue: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
   historyVisibility: PropTypes.bool.isRequired,
   isHistoryAvailable: PropTypes.bool.isRequired,
 };
@@ -17,13 +17,18 @@ const defaultProps = {
 
 class CellMenu extends React.PureComponent {
   render() {
+    // Extracting props.
     const {
-      actions, // uses in both CellMenu and Menu
-      cellId, // uses in both CellMenu and Menu
-      cellValue,
+      value,
       historyVisibility,
       isHistoryAvailable,
       ...other,
+    } = this.props;
+
+    // Non-extracting props (should be passed to children as well).
+    const {
+      actions, // used in Menu
+      cellId, // used in Menu
     } = this.props;
 
     const cellMenuItems = [];
@@ -45,15 +50,13 @@ class CellMenu extends React.PureComponent {
       action: () => actions.tableDeleteProp(cellId, 'value'),
       icon: 'Close',
       label: 'Clear',
-      disabled: (cellValue === ''),
+      disabled: (value === ''),
     });
 
     return (
       <div className="cell-menu">
         <Menu
           {...other}
-          actions={actions}
-          cellId={cellId}
           icon="MoreVert"
           iconScale="small"
           menuItems={cellMenuItems}

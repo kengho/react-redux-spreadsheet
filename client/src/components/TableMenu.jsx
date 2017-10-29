@@ -35,12 +35,17 @@ class TableMenu extends React.PureComponent {
   }
 
   render() {
+    // Extracting props.
     const {
-      actions, // uses in TableMenu and Menu
       canRedo,
       canUndo,
       requestsQueueLength,
       ...other,
+    } = this.props;
+
+    // Non-extracting props (should be passed to children as well).
+    const {
+      actions, // uses in Menu
     } = this.props;
 
     let classnames = [];
@@ -97,7 +102,6 @@ class TableMenu extends React.PureComponent {
       output = (
         <Menu
           {...other}
-          actions={actions}
           icon="Menu"
           menuItems={tableMenuItems}
           place="TABLE"

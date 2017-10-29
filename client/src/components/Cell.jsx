@@ -131,12 +131,9 @@ class Cell extends React.PureComponent {
   }
 
   render() {
-    // TODO: fix this mess. Split props into 2 parts, maybe.
+    // Extracting props.
     const {
-      actions, // uses in Cell, Data, LineMenu and CellHistory
       columnNumber,
-      currentUi, // used in Cell and CellMenu
-      history,
       historySize,
       historyVisibility,
       isColumnHover,
@@ -151,8 +148,13 @@ class Cell extends React.PureComponent {
       previousRowMenuCellId,
       previousRowMenuPlace,
       rowNumber,
-      value, // uses in Data, CellMenu and CellHistory
       ...other,
+    } = this.props;
+
+    // Non-extracting props (should be passed to children as well).
+    const {
+      actions, // uses in Data, LineMenu and CellHistory
+      history, // uses in CellHistory
     } = this.props;
 
     let complements = [];
@@ -201,8 +203,6 @@ class Cell extends React.PureComponent {
             >
               <LineMenu
                 {...other}
-                actions={actions}
-                currentUi={currentUi}
                 isLineHover={isLineHover}
                 isLineOnly={isLineOnly}
                 lineNumber={lineNumber}
@@ -237,23 +237,15 @@ class Cell extends React.PureComponent {
         {complements}
         <Data
           {...other}
-          actions={actions}
-          value={value}
         />
         <CellMenu
           {...other}
-          actions={actions}
-          cellValue={value}
-          currentUi={currentUi}
           historyVisibility={historyVisibility}
           isHistoryAvailable={historySize > 0}
         />
         {historyVisibility && history &&
           <CellHistory
             {...other}
-            actions={actions}
-            cellValue={value}
-            history={history}
           />
         }
       </div>

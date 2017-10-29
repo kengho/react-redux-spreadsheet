@@ -51,6 +51,7 @@ class Row extends React.Component {
   }
 
   render() {
+    // Extracting props.
     const {
       cells,
       clipboard,
@@ -58,23 +59,27 @@ class Row extends React.Component {
       hoverColumnId,
       pointer,
       rowId,
-      rowNumber, // uses in both Row and Cell
       rows,
 
-      // Extract rowUpdateTrigger just for it not to be passed to Cell.
+      // Extract just for it not to be passed to Cell.
       rowUpdateTrigger, // eslint-disable-line react/no-unused-prop-types
-      currentUi, // uses in both Row and Cell
       ...other,
+    } = this.props;
+
+    // Non-extracting props (should be passed to children as well).
+    const {
+      currentUi, // uses in Cell
+      rowNumber, // uses in Cell
     } = this.props;
 
     const outputCells = [];
     for (let columnNumber = 0; columnNumber < columns.size; columnNumber += 1) {
-      const columnId = columns.getIn([columnNumber, 'id']);
-
       const props = {};
-      props.cellId = getCellId(rowId, columnId);
+
       props.columnNumber = columnNumber;
-      props.rowNumber = rowNumber;
+
+      const columnId = columns.getIn([columnNumber, 'id']);
+      props.cellId = getCellId(rowId, columnId);
 
       const cell = cells.get(props.cellId);
       props.value = cell ? cell.get('value') : undefined;
@@ -85,8 +90,6 @@ class Row extends React.Component {
         props.isPointed && (pointer.getIn(['modifiers', 'selectOnFocus']) === true)
       );
       props.isOnClipboard = (clipboard.get('cells').keySeq().indexOf(props.cellId) !== -1);
-
-      props.currentUi = currentUi;
 
       props.historyVisibility =
         currentUi &&

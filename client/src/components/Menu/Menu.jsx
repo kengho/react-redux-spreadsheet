@@ -113,8 +113,8 @@ class Menu extends React.PureComponent {
   }
 
   render() {
+    // Extracting props.
     const {
-      actions, // uses in both Menu and MenuItem
       cellId,
       currentUi,
       icon,
@@ -184,7 +184,6 @@ class Menu extends React.PureComponent {
                 <MenuItem
                   {...other}
                   {...item}
-                  actions={actions}
                   disabled={item.disabled}
                   key={item.label}
                 >

@@ -20,13 +20,18 @@ const defaultProps = {
 
 class LineMenu extends React.PureComponent {
   render() {
+    // Extracting props.
     const {
-      actions, // uses in LineMenu and Menu
       isLineHover,
       isLineOnly,
       lineNumber,
-      place, // used in LineMenu and
       ...other,
+    } = this.props;
+
+    // Non-extracting props (should be passed to children as well).
+    const {
+      actions, // uses in Menu
+      place, // uses in Menu
     } = this.props;
 
     const cellsMenuItems = [];
@@ -85,10 +90,8 @@ class LineMenu extends React.PureComponent {
       <div className={classnames.join(' ')}>
         <Menu
           {...other}
-          actions={actions}
           icon="MoreVert"
           menuItems={cellsMenuItems}
-          place={place}
         />
       </div>
     );
