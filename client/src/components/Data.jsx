@@ -110,8 +110,8 @@ class Data extends React.PureComponent {
         ctrlKey: true,
         action: () => {
           // HACK: adds new line to textarea and forces it to update it's size.
-          // Some code from:
-          // http://stackoverflow.com/a/11077016/6376451
+          //   Some code from:
+          //   http://stackoverflow.com/a/11077016/6376451
           const textarea = evt.target;
           const textToInsert = '\n';
           if (textarea.selectionStart || textarea.selectionStart === 0) {
