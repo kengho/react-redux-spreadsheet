@@ -20,3 +20,9 @@
   /* Moved to Spreadsheet.jsx.
   border-spacing: 2px; */
 }
+
+.progress {
+  top: -8px;
+  left: -8px;
+  width: calc(100% + 8px * 2);
+}

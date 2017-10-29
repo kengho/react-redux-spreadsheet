@@ -1,5 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { LinearProgress } from 'material-ui/Progress';
 import React from 'react';
 
 import {
@@ -352,9 +353,8 @@ class Spreadsheet extends React.Component {
     } = this.props;
     const rows = table.getIn(['data', 'rows']);
 
-    // TODO: draw some kind of spinner if table is empty.
     if (rows.size === 0) {
-      return <div />;
+      return <LinearProgress className="progress" />;
     }
 
     // TODO: const props = {} ... // (see Row)
