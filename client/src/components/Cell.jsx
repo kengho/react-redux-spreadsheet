@@ -176,6 +176,7 @@ class Cell extends React.PureComponent {
         let nextMenuPlace;
         let previousMenuCellId;
         let previousMenuPlace;
+        const complementClassnames = ['complement'];
         if (lineRef === 'COLUMN') {
           isLineHover = isColumnHover;
           isLineOnly = isColumnOnly;
@@ -183,6 +184,7 @@ class Cell extends React.PureComponent {
           nextMenuPlace = nextColumnMenuPlace;
           previousMenuCellId = previousColumnMenuCellId;
           previousMenuPlace = previousColumnMenuPlace;
+          complementClassnames.push('column');
         }
         if (lineRef === 'ROW') {
           isLineOnly = isRowOnly;
@@ -190,15 +192,14 @@ class Cell extends React.PureComponent {
           nextMenuPlace = nextRowMenuPlace;
           previousMenuCellId = previousRowMenuCellId;
           previousMenuPlace = previousRowMenuPlace;
+          complementClassnames.push('row');
         }
-
-        const complementClassname = `complement ${lineRef.toLowerCase()}`;
 
         complements.push(
           <div key={`${this.props.cellId}-complement-${lineRef.toLowerCase()}`}>
             <div
               style={complementsStaticData.lines[lineRef]['MENU'].style}
-              className={complementClassname}
+              className={complementClassnames.join(' ')}
               ref={(c) => { this.domRefs[lineRef]['MENU'] = c; }}
             >
               <LineMenu
@@ -215,7 +216,7 @@ class Cell extends React.PureComponent {
             </div>
             <div
               style={complementsStaticData.lines[lineRef]['ADDRESS'].style}
-              className={complementClassname}
+              className={complementClassnames.join(' ')}
               ref={(c) => { this.domRefs[lineRef]['ADDRESS'] = c; }}
             >
               <Address
