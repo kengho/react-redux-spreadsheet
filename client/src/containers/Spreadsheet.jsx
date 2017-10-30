@@ -116,11 +116,11 @@ class Spreadsheet extends React.Component {
   documentClickHandler(evt) {
     const actions = this.props.actions;
 
-    // TODO: this is probably good to have some meta action,
+    // TODO: it probably would be good to have some meta action
     //   doing such similar things at once.
     actions.uiClose();
     actions.tableSetPointer({ cellId: null, modifiers: {} });
-    actions.tableSetClipboard({ cells: {}, operation: null});
+    actions.tableSetClipboard({ cells: {}, operation: null });
   }
 
   documentKeyDownHandler(evt) {
