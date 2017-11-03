@@ -7,7 +7,7 @@ import {
 } from '../core';
 import './Row.css';
 import Cell from './Cell';
-import getAdjacentMenus from '../lib/getAdjacentMenus';
+// import getAdjacentMenus from '../lib/getAdjacentMenus';
 
 
 // TODO: flow.
@@ -69,7 +69,6 @@ class Row extends React.Component {
     // Non-extracting props (should be passed to children as well).
     const {
       currentUi, // uses in Cell
-      rowNumber, // uses in Cell
     } = this.props;
 
     const outputCells = [];
@@ -118,24 +117,24 @@ class Row extends React.Component {
 
       props.isColumnHover = (hoverColumnId === columnId);
 
-      if (columnNumber === 0) {
-        const adjacentRowMenus = getAdjacentMenus(
-          'ROW', rowNumber, rows, columns
-        );
-        props.nextRowMenuCellId = adjacentRowMenus.next.cellId;
-        props.nextRowMenuPlace = adjacentRowMenus.next.place;
-        props.previousRowMenuCellId = adjacentRowMenus.previous.cellId;
-        props.previousRowMenuPlace = adjacentRowMenus.previous.place;
-      }
-      if (rowNumber === 0) {
-        const adjacentColumnMenus = getAdjacentMenus(
-          'COLUMN', columnNumber, rows, columns
-        );
-        props.nextColumnMenuCellId = adjacentColumnMenus.next.cellId;
-        props.nextColumnMenuPlace = adjacentColumnMenus.next.place;
-        props.previousColumnMenuCellId = adjacentColumnMenus.previous.cellId;
-        props.previousColumnMenuPlace = adjacentColumnMenus.previous.place;
-      }
+      // if (columnNumber === 0) {
+      //   const adjacentRowMenus = getAdjacentMenus(
+      //     'ROW', rowNumber, rows, columns
+      //   );
+      //   props.nextRowMenuCellId = adjacentRowMenus.next.cellId;
+      //   props.nextRowMenuPlace = adjacentRowMenus.next.place;
+      //   props.previousRowMenuCellId = adjacentRowMenus.previous.cellId;
+      //   props.previousRowMenuPlace = adjacentRowMenus.previous.place;
+      // }
+      // if (rowNumber === 0) {
+      //   const adjacentColumnMenus = getAdjacentMenus(
+      //     'COLUMN', columnNumber, rows, columns
+      //   );
+      //   props.nextColumnMenuCellId = adjacentColumnMenus.next.cellId;
+      //   props.nextColumnMenuPlace = adjacentColumnMenus.next.place;
+      //   props.previousColumnMenuCellId = adjacentColumnMenus.previous.cellId;
+      //   props.previousColumnMenuPlace = adjacentColumnMenus.previous.place;
+      // }
 
       outputCells.push(
         <Cell

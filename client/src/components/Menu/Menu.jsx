@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import './Menu.css';
-import getDOM from '../../lib/getDOM';
 import MenuItem from './MenuItem';
 
 const propTypes = {
@@ -17,11 +16,7 @@ const propTypes = {
   icon: PropTypes.string.isRequired,
   iconScale: PropTypes.string,
   menuItems: PropTypes.array.isRequired,
-  nextMenuCellId: PropTypes.string,
-  nextMenuPlace: PropTypes.string,
   place: PropTypes.string.isRequired,
-  previousMenuCellId: PropTypes.string,
-  previousMenuPlace: PropTypes.string,
 };
 
 const defaultProps = {
@@ -36,25 +31,13 @@ class Menu extends React.PureComponent {
 
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.onClickHandler = this.onClickHandler.bind(this);
-
-    const {
-      cellId,
-      place,
-    } = props;
-
-    this.menuId = `${place.toLowerCase()}-menu`;
-    if (cellId !== '') {
-      this.menuId = `${cellId}-${this.menuId}`;
-    }
-
-    this.buttonId = `${this.menuId}-button`;
-    this.getButtonDOM = () => getDOM(this.buttonId);
-    this.getMenuDOM = () => getDOM(this.menuId);
   }
 
   onClickHandler(evt) {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
+
+    this.anchorEl = evt.currentTarget;
 
     const {
       cellId,
@@ -68,48 +51,9 @@ class Menu extends React.PureComponent {
     // Prevents firing documentKeyDownHandler() and lets MDL handler to work.
     evt.nativeEvent.stopImmediatePropagation();
 
-    const {
-      actions,
-      nextMenuCellId,
-      nextMenuPlace,
-      previousMenuCellId,
-      previousMenuPlace,
-    } = this.props;
-
     if (evt.key === 'Escape') {
-      actions.uiClose();
-    } else if (
-      // TODO: scroll into view.
-      evt.key === 'ArrowLeft' &&
-      (previousMenuCellId || previousMenuPlace === 'TABLE') &&
-      previousMenuPlace
-    ) {
-      actions.uiOpen('MENU', previousMenuCellId, previousMenuPlace);
-    } else if (
-      evt.key === 'ArrowRight' &&
-      (nextMenuCellId || nextMenuPlace === 'TABLE') &&
-      nextMenuPlace
-    ) {
-      actions.uiOpen('MENU', nextMenuCellId, nextMenuPlace);
+      this.props.actions.uiClose();
     }
-  }
-
-  componentDidMount() {
-    // HACK: getting button DOM for menu to mount in proper place.
-    //   Official way is to get it during click:
-    //   // (event) => { this.anchorEl = event.currentTarget } // on button
-    //
-    //   But I need to open menu programmatically (for ArrowLeft/ArrowRight hotkeys)
-    //   and I couldn't find a good way to do it w/o click.
-    //
-    //   This also works, but seems like another hack of the same magnitude:
-    //   // this.menuWrapper = this.refs.IconButton._reactInternalInstance._hostParent._hostNode;
-    //   // if (this.button) {
-    //   //   this.anchorEl = this.menuWrapper.querySelector('button');
-    //   // }
-    // TODO: fix. File issue or wait for API to change.
-    // this.button = document.querySelector(`#cell-${this.queryid}-menu-button`);
-    this.button = this.getButtonDOM();
   }
 
   render() {
@@ -158,16 +102,12 @@ class Menu extends React.PureComponent {
       <div
         className={classnames.join(' ')}
       >
-        <IconButton
-          id={this.buttonId}
-          onClick={this.onClickHandler}
-        >
+        <IconButton onClick={this.onClickHandler} >
           <MenuIcon />
         </IconButton>
         {visibility &&
           <MaterialMenu
-            anchorEl={this.button}
-            id={this.menuId}
+            anchorEl={this.anchorEl}
             onKeyDown={this.keyDownHandler}
             open={visibility}
           >

@@ -396,7 +396,6 @@ class Spreadsheet extends React.Component {
     // TODO: add crop option to table menu.
 
     const thereIsClipboard = (clipboard.get('cells').size > 0);
-    const firstCellId = getCellId(rows.getIn([0, 'id']), columns.getIn([0, 'id']));
 
     // TODO: get rid of extra (?) div.
     return (
@@ -412,10 +411,6 @@ class Spreadsheet extends React.Component {
             canUndo={undo.canUndo}
             currentUi={currentUi}
             data={this.props.table.get('data')}
-            nextMenuCellId={firstCellId}
-            nextMenuPlace='COLUMN'
-            previousMenuCellId={firstCellId}
-            previousMenuPlace='ROW'
             requestsQueueLength={requests.get('queue').size}
             shortId={this.props.match.params.shortId}
           />

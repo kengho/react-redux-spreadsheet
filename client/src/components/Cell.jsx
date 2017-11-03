@@ -33,14 +33,6 @@ const propTypes = {
   isColumnHover: PropTypes.bool.isRequired,
   isColumnOnly: PropTypes.bool.isRequired,
   isRowOnly: PropTypes.bool.isRequired,
-  nextColumnMenuCellId: PropTypes.string,
-  nextColumnMenuPlace: PropTypes.string,
-  nextRowMenuCellId: PropTypes.string,
-  nextRowMenuPlace: PropTypes.string,
-  previousColumnMenuCellId: PropTypes.string,
-  previousColumnMenuPlace: PropTypes.string,
-  previousRowMenuCellId: PropTypes.string,
-  previousRowMenuPlace: PropTypes.string,
   rowNumber: PropTypes.number.isRequired,
   value: PropTypes.string,
 };
@@ -139,14 +131,6 @@ class Cell extends React.PureComponent {
       isColumnHover,
       isColumnOnly,
       isRowOnly,
-      nextColumnMenuCellId,
-      nextColumnMenuPlace,
-      nextRowMenuCellId,
-      nextRowMenuPlace,
-      previousColumnMenuCellId,
-      previousColumnMenuPlace,
-      previousRowMenuCellId,
-      previousRowMenuPlace,
       rowNumber,
       ...other,
     } = this.props;
@@ -172,26 +156,14 @@ class Cell extends React.PureComponent {
       if (typeof lineNumber === 'number') {
         let isLineHover;
         let isLineOnly;
-        let nextMenuCellId;
-        let nextMenuPlace;
-        let previousMenuCellId;
-        let previousMenuPlace;
         const complementClassnames = ['complement'];
         if (lineRef === 'COLUMN') {
           isLineHover = isColumnHover;
           isLineOnly = isColumnOnly;
-          nextMenuCellId = nextColumnMenuCellId;
-          nextMenuPlace = nextColumnMenuPlace;
-          previousMenuCellId = previousColumnMenuCellId;
-          previousMenuPlace = previousColumnMenuPlace;
           complementClassnames.push('column');
         }
         if (lineRef === 'ROW') {
           isLineOnly = isRowOnly;
-          nextMenuCellId = nextRowMenuCellId;
-          nextMenuPlace = nextRowMenuPlace;
-          previousMenuCellId = previousRowMenuCellId;
-          previousMenuPlace = previousRowMenuPlace;
           complementClassnames.push('row');
         }
 
@@ -207,10 +179,6 @@ class Cell extends React.PureComponent {
                 isLineOnly={isLineOnly}
                 lineNumber={lineNumber}
                 place={lineRef}
-                nextMenuCellId={nextMenuCellId}
-                nextMenuPlace={nextMenuPlace}
-                previousMenuCellId={previousMenuCellId}
-                previousMenuPlace={previousMenuPlace}
                 {...other}
               />
             </div>

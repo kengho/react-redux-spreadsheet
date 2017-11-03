@@ -9,9 +9,7 @@ const propTypes = {
   isLineHover: PropTypes.bool,
   isLineOnly: PropTypes.bool.isRequired,
   lineNumber: PropTypes.number.isRequired,
-  nextMenuId: PropTypes.string,
   place: PropTypes.string.isRequired,
-  previousMenuId: PropTypes.string,
 };
 
 const defaultProps = {
