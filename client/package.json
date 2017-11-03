@@ -14,7 +14,6 @@
   "private": true,
   "dependencies": {
     "@kengho/react-textarea-autosize": "^5.1.0-b",
-    "babyparse": "^0.4.6",
     "connected-react-router": "^4.2.3",
     "copy-to-clipboard": "^3.0.8",
     "domready": "^1.0.8",
@@ -25,6 +24,7 @@
     "immutable": "^3.8.1",
     "material-ui": "^1.0.0-beta.17",
     "material-ui-icons": "^1.0.0-beta.5",
+    "papaparse": "^4.3.6",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-github-mark": "^1.1.1",

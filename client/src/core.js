@@ -1,5 +1,5 @@
 import { fromJS, Map } from 'immutable';
-import Baby from 'babyparse';
+import Papa from 'papaparse';
 import uuid from 'uuid/v4';
 
 if (process.env.NODE_ENV !== 'test') {
@@ -354,7 +354,7 @@ export function convert(object, options) {
       CSVArray.push(CSVRowArray);
     }
 
-    return Baby.unparse(CSVArray);
+    return Papa.unparse(CSVArray);
   }
 
   // String to object.
@@ -362,7 +362,7 @@ export function convert(object, options) {
   //   since we are going to use tableSetFromJSON anyway.
   if (options.inputFormat === 'csv' && options.outputFormat === 'object') {
     const CSV = object;
-    const parsedCSV = Baby.parse(CSV);
+    const parsedCSV = Papa.parse(CSV);
 
     const parsedCSVArray = parsedCSV.data;
     const tableData = {
