@@ -13,7 +13,6 @@ import './Dialog.css';
 import { convert } from '../core';
 import { tableSetFromJSON } from '../actions/table';
 import * as UiActions from '../actions/ui';
-import getDOM from '../lib/getDOM';
 
 const mapStateToProps = (state) => ({
   disableYesButton: state.getIn(['ui', 'dialog', 'disableYesButton']),
@@ -34,57 +33,18 @@ class Dialog extends React.Component {
   constructor(props) {
     super(props);
 
-    this.activateDialogButton = this.activateDialogButton.bind(this);
     this.handleCSVFileImport = this.handleCSVFileImport.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
 
-    // HACK: we are trying to focus Dialog buttons using hotkeys.
+    // TODO: focus Dialog buttons using hotkeys.
     //   This doesn't work (on Button):
     //   // style={{ keyboardFocused: (buttonMap.type === 'ACTION') }}
-    this.buttons = {};
-    this.getButtonId = (type) => `dialog-button-${type}`;
-    this.getButtonDOM = (type) => getDOM(this.getButtonId(type));
-  }
-
-  componentDidUpdate() {
-    ['ACTION', 'CANCEL'].forEach((buttonType) => {
-      this.buttons[buttonType] = this.getButtonDOM(buttonType);
-    });
-
-    // TODO: make it work (now it works only after Alt+Tab; setTimeout doesn't help.)
-    this.activateDialogButton('ArrowLeft');
-  }
-
-  activateDialogButton(key) {
-    // Makes no sense if there are one or less buttons ('INFO' dialog e.g.).
-    if (!(this.buttons['CANCEL'] && this.buttons['ACTION'])) {
-      return;
-    }
-
-    let nextActiveButton;
-    if (key === 'ArrowLeft') {
-      nextActiveButton = this.buttons['CANCEL'];
-    } else if (key === 'ArrowRight') {
-      nextActiveButton = this.buttons['ACTION'];
-    }
-
-    nextActiveButton.focus();
+    //   'ref' on buttons also returns strange results.
   }
 
   keyDownHandler(evt) {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
-
-    switch (evt.key) {
-      case 'ArrowLeft':
-      case 'ArrowRight':
-      this.activateDialogButton(evt.key);
-      break;
-      case 'Escape':
-      this.props.actions.uiCloseDialog();
-      break;
-      default:
-    }
   }
 
   handleCSVFileImport(evt) {
@@ -277,7 +237,6 @@ class Dialog extends React.Component {
           {buttonsMap && buttonsMap.map(buttonMap =>
             <Button
               disabled={buttonMap.disabled}
-              id={`${this.getButtonId(buttonMap.type)}`}
               key={buttonMap.label}
               onClick={buttonMap.action}
             >
