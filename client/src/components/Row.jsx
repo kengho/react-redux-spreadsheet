@@ -7,8 +7,6 @@ import {
 } from '../core';
 import './Row.css';
 import Cell from './Cell';
-// import getAdjacentMenus from '../lib/getAdjacentMenus';
-
 
 // TODO: flow.
 //   https://flow.org/en/docs/react/
@@ -116,25 +114,6 @@ class Row extends React.Component {
       props.isRowOnly = (rows.size === 1);
 
       props.isColumnHover = (hoverColumnId === columnId);
-
-      // if (columnNumber === 0) {
-      //   const adjacentRowMenus = getAdjacentMenus(
-      //     'ROW', rowNumber, rows, columns
-      //   );
-      //   props.nextRowMenuCellId = adjacentRowMenus.next.cellId;
-      //   props.nextRowMenuPlace = adjacentRowMenus.next.place;
-      //   props.previousRowMenuCellId = adjacentRowMenus.previous.cellId;
-      //   props.previousRowMenuPlace = adjacentRowMenus.previous.place;
-      // }
-      // if (rowNumber === 0) {
-      //   const adjacentColumnMenus = getAdjacentMenus(
-      //     'COLUMN', columnNumber, rows, columns
-      //   );
-      //   props.nextColumnMenuCellId = adjacentColumnMenus.next.cellId;
-      //   props.nextColumnMenuPlace = adjacentColumnMenus.next.place;
-      //   props.previousColumnMenuCellId = adjacentColumnMenus.previous.cellId;
-      //   props.previousColumnMenuPlace = adjacentColumnMenus.previous.place;
-      // }
 
       outputCells.push(
         <Cell
