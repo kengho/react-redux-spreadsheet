@@ -399,25 +399,22 @@ class Spreadsheet extends React.Component {
 
     const thereIsClipboard = (clipboard.get('cells').size > 0);
 
-    // TODO: get rid of extra (?) div.
     return (
-      <div>
-        <div
-          className={`table ${thereIsClipboard? 'clipboard' : ''}`}
-          onMouseLeave={() => { actions.tableSetHover(null); }}
-          style={this.style}
-        >
-          <TableMenu
-            actions={actions}
-            canRedo={canRedo}
-            canUndo={canUndo}
-            currentUi={currentUi}
-            data={this.props.table.get('data')}
-            requestsQueueLength={requests.get('queue').size}
-            shortId={this.props.match.params.shortId}
-          />
-          {outputRows}
-        </div>
+      <div
+        className={`table ${thereIsClipboard? 'clipboard' : ''}`}
+        onMouseLeave={() => { actions.tableSetHover(null); }}
+        style={this.style}
+      >
+        <TableMenu
+          actions={actions}
+          canRedo={canRedo}
+          canUndo={canUndo}
+          currentUi={currentUi}
+          data={this.props.table.get('data')}
+          requestsQueueLength={requests.get('queue').size}
+          shortId={this.props.match.params.shortId}
+        />
+        {outputRows}
       </div>
     );
   }
