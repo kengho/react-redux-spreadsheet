@@ -28,6 +28,7 @@ class Data extends React.PureComponent {
     this.clickHandler = this.clickHandler.bind(this);
     this.doubleClickHandler = this.doubleClickHandler.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.onChangeHandler = this.onChangeHandler.bind(this);
   }
 
   componentDidMount() {
@@ -83,6 +84,15 @@ class Data extends React.PureComponent {
   onHeightChangeHandler(textareaInputEl) {
     const heightNumber = cssToNumber(textareaInputEl.style.height);
     textareaInputEl.style.height = numberToCss(heightNumber + 1);
+  }
+
+  onChangeHandler(evt) {
+    if (!evt) {
+      return;
+    }
+
+    const value = evt.target.value;
+    this.props.actions.detachmentsSetCurrentCellValue(value);
   }
 
   keyDownHandler(evt) {
@@ -186,6 +196,7 @@ class Data extends React.PureComponent {
           inputRef={(c) => { this.textareaInputEl = c; }}
           key={JSON.stringify({ cellId, value, isPointed, isEditing, isSelectingOnFocus })}
           maxWidth="512px"
+          onChange={this.onChangeHandler}
           onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
           onHeightChange={() => this.onHeightChangeHandler(this.textareaInputEl)}
           onKeyDown={this.keyDownHandler}
@@ -206,10 +217,10 @@ class Data extends React.PureComponent {
       );
     }
 
+    // id for saveEditingCellValueOnPointerMove().
     return (
       <div
         className={textareaWrapperClassnames.join(' ')}
-        id={cellId}
         onClick={(evt) => this.clickHandler(evt, cellId)}
         onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
       >

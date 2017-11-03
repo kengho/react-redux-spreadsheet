@@ -1,5 +1,4 @@
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { LinearProgress } from 'material-ui/Progress';
 import React from 'react';
 
@@ -9,6 +8,7 @@ import {
   getRowId,
 } from '../core';
 import './Spreadsheet.css';
+import * as DetachmentsActions from '../actions/detachments';
 import * as LandingActions from '../actions/landing'; // landingSetMessages()
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
@@ -21,6 +21,7 @@ import findKeyAction from '../lib/findKeyAction';
 import getRootPath from '../lib/getRootPath';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
 import Row from '../components/Row';
+import connectWithSkippingProps from '../lib/connectWithSkippingProps';
 import shiftScrollbar from '../lib/shiftScrollbar';
 import TableMenu from '../components/TableMenu';
 
@@ -36,17 +37,19 @@ const mapStateToProps = (state) => {
   }
 
   return {
+    canRedo: state.get('table').future.length > 0,
+    canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
+    detachments: state.get('detachments'),
     requests: state.get('requests'),
     table,
     ui: state.get('ui'),
-    canRedo: state.get('table').future.length > 0,
-    canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
   };
 };
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
+      ...DetachmentsActions,
       ...LandingActions,
       ...MetaActions,
       ...RequestsActions,
@@ -420,4 +423,10 @@ class Spreadsheet extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Spreadsheet);
+const detachmentsProps = ['detachments'];
+
+export default connectWithSkippingProps(
+  mapStateToProps,
+  mapDispatchToProps,
+  detachmentsProps
+)(Spreadsheet);
