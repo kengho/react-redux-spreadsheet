@@ -39,10 +39,8 @@ const mapStateToProps = (state) => {
     requests: state.get('requests'),
     table,
     ui: state.get('ui'),
-    undo: {
-      canRedo: state.get('table').future.length > 0,
-      canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
-    },
+    canRedo: state.get('table').future.length > 0,
+    canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
   };
 };
 
@@ -346,10 +344,11 @@ class Spreadsheet extends React.Component {
   render() {
     const {
       actions,
+      canRedo,
+      canUndo,
       requests,
       table,
       ui,
-      undo,
     } = this.props;
     const rows = table.getIn(['data', 'rows']);
 
@@ -407,8 +406,8 @@ class Spreadsheet extends React.Component {
         >
           <TableMenu
             actions={actions}
-            canRedo={undo.canRedo}
-            canUndo={undo.canUndo}
+            canRedo={canRedo}
+            canUndo={canUndo}
             currentUi={currentUi}
             data={this.props.table.get('data')}
             requestsQueueLength={requests.get('queue').size}
