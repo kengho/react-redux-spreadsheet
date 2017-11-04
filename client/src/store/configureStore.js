@@ -4,7 +4,6 @@ import { routerMiddleware, connectRouter } from 'connected-react-router/immutabl
 
 import clearPointerModifiersOnUndoRedo from './middleware/clearPointerModifiersOnUndoRedo';
 import copyToRealClipboardOnSetClipboard from './middleware/copyToRealClipboardOnSetClipboard';
-import dispatchDialogAction from './middleware/dispatchDialogAction';
 import expandTableOnPointerMove from './middleware/expandTableOnPointerMove';
 import handleRequestsOnQueueChange from './middleware/handleRequestsOnQueueChange';
 import pushCellHistoryOnValueChanges from './middleware/pushCellHistoryOnValueChanges';
@@ -25,7 +24,6 @@ if (process.env.NODE_ENV !== 'test') {
     routerMiddleware(history),
     setRowUpdateTriggerOnStateChanges,
     copyToRealClipboardOnSetClipboard,
-    dispatchDialogAction,
     handleRequestsOnQueueChange,
     clearPointerModifiersOnUndoRedo,
     pushCellHistoryOnValueChanges,

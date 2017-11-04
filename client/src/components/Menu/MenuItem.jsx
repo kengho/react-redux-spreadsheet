@@ -5,14 +5,7 @@ import { MenuItem as MaterialMenuItem } from 'material-ui/Menu';
 import rippleButtonAction from '../../lib/rippleButtonAction';
 
 const propTypes = {
-  // REVIEW: since all our actions can be expressed as plain objects,
-  //   shouldn't we leave only PropTypes.object here?
-  //   Caveat: it requires importing actions/* into components directly, which seems not right.
-  //   Is there a way to 'unconnect' actions from dispach() (funtions back to objects)?
-  action: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.object,
-  ]),
+  action: PropTypes.func,
   actions: PropTypes.object.isRequired,
   dialogVariant: PropTypes.string,
   dialogDisableYesButton: PropTypes.bool,
@@ -21,7 +14,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  action: {},
+  action: () => {},
   dialogDisableYesButton: false,
   dialogVariant: '',
   disabled: false,
@@ -40,14 +33,11 @@ const MenuItem = (props) => {
   let effectiveAction;
   if (disabled) {
     effectiveAction = () => {};
-  } else if (dialogVariant && typeof action === 'object') {
+  } else if (dialogVariant) {
     effectiveAction = () => {
-      actions.uiClose();
-      actions.uiSetDialog({
-        action,
+      actions.uiOpen('DIALOG', {
         disableYesButton: dialogDisableYesButton,
         variant: dialogVariant,
-        open: true,
       });
     };
   } else {

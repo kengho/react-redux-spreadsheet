@@ -6,7 +6,6 @@ import SyncProblem from 'material-ui-icons/SyncProblem';
 
 import './TableMenu.css';
 import { convert } from '../core';
-import { requestsPush } from '../actions/requests';
 import datetime from '../lib/datetime';
 import Menu from './Menu/Menu';
 
@@ -75,7 +74,7 @@ class TableMenu extends React.PureComponent {
         },
         {
           dialogDisableYesButton: true,
-          dialogVariant: 'IMPORT',
+          dialogVariant: 'IMPORT_FROM_CSV',
           icon: 'FileDownload',
           label: 'Import from CSV',
         },
@@ -92,8 +91,7 @@ class TableMenu extends React.PureComponent {
           disabled: !canRedo,
         },
         {
-          action: requestsPush('DELETE', 'destroy'),
-          dialogVariant: 'CONFIRM',
+          dialogVariant: 'DESTROY_SPREADSHEET',
           icon: 'Delete',
           label: 'Delete',
         },

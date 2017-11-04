@@ -44,7 +44,7 @@ class Menu extends React.PureComponent {
       place,
     } = this.props;
 
-    this.props.actions.uiOpen('MENU', cellId, place);
+    this.props.actions.uiOpen('MENU', { cellId, place });
   }
 
   keyDownHandler(evt) {

@@ -11,19 +11,23 @@ import List, { ListItem, ListItemText } from 'material-ui/List';
 
 import './Dialog.css';
 import { convert } from '../core';
-import { tableSetFromJSON } from '../actions/table';
+import * as RequestsActions from '../actions/requests';
+import * as TableActions from '../actions/table';
 import * as UiActions from '../actions/ui';
 
 const mapStateToProps = (state) => ({
-  disableYesButton: state.getIn(['ui', 'dialog', 'disableYesButton']),
-  errors: state.getIn(['ui', 'dialog', 'errors']),
-  variant: state.getIn(['ui', 'dialog', 'variant']),
-  open: state.getIn(['ui', 'dialog', 'open']),
+  disableYesButton: state.getIn(['ui', 'current', 'disableYesButton']),
+  errors: state.getIn(['ui', 'current', 'errors']),
+  variant: state.getIn(['ui', 'current', 'variant']),
+  open: state.getIn(['ui', 'current', 'kind']) === 'DIALOG' &&
+    state.getIn(['ui', 'current', 'visibility']),
 });
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
+      ...RequestsActions, // requestsPush
+      ...TableActions, // tableSetFromJSON
       ...UiActions,
     }, dispatch),
   },
@@ -34,8 +38,8 @@ class Dialog extends React.Component {
     super(props);
 
     this.handleCSVFileImport = this.handleCSVFileImport.bind(this);
-    this.keyDownHandler = this.keyDownHandler.bind(this);
 
+    this.importAction = null;
     // TODO: focus Dialog buttons using hotkeys.
     //   This doesn't work (on Button):
     //   // style={{ keyboardFocused: (buttonMap.type === 'ACTION') }}
@@ -44,6 +48,11 @@ class Dialog extends React.Component {
 
   keyDownHandler(evt) {
     // Prevents firing documentKeyDownHandler().
+    evt.nativeEvent.stopImmediatePropagation();
+  }
+
+  onClickHandler(evt) {
+    // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
   }
 
@@ -60,13 +69,16 @@ class Dialog extends React.Component {
       this.fileFakeInput.value = fileName;
       this.fileFakeInput.title = fileName;
 
-      const importAction = tableSetFromJSON(JSON.stringify({ data: tableData.data }), true);
-      this.props.actions.uiSetDialog({
-        action: importAction,
+      this.importAction = () => {
+        this.props.actions.tableSetFromJSON(
+          JSON.stringify({ data: tableData.data }), true
+        );
+      };
+
+      this.props.actions.uiOpen('DIALOG', {
         disableYesButton: false,
         errors: tableData.errors,
-        variant: 'IMPORT',
-        open: true,
+        variant: 'IMPORT_FROM_CSV',
       });
 
       // Fixind error
@@ -90,17 +102,17 @@ class Dialog extends React.Component {
     let title;
     let content;
     switch (variant) {
-      case 'CONFIRM': {
+      case 'DESTROY_SPREADSHEET': {
         buttonsMap = [
           {
-            action: () => actions.uiCloseDialog(),
+            action: () => actions.uiClose(),
             type: 'CANCEL',
             label: 'No, go back',
           },
           {
             action: () => {
-              actions.uiDispatchDialogAction();
-              actions.uiCloseDialog();
+              actions.requestsPush('DELETE', 'destroy');
+              actions.uiClose();
             },
             disabled: disableYesButton,
             type: 'ACTION',
@@ -115,8 +127,7 @@ class Dialog extends React.Component {
       case 'INFO': {
         buttonsMap = [{
           action: () => {
-            actions.uiDispatchDialogAction();
-            actions.uiCloseDialog();
+            actions.uiClose();
           },
           disabled: disableYesButton,
           type: 'ACTION',
@@ -155,11 +166,11 @@ class Dialog extends React.Component {
         break;
       }
 
-      case 'IMPORT': {
+      case 'IMPORT_FROM_CSV': {
         buttonsMap = [
           {
             action: () => {
-              actions.uiCloseDialog();
+              actions.uiClose();
               this.fileFakeInput.value = '';
             },
             type: 'CANCEL',
@@ -167,8 +178,11 @@ class Dialog extends React.Component {
           },
           {
             action: () => {
-              actions.uiDispatchDialogAction();
-              actions.uiCloseDialog();
+              // NOTE: importAction should be not null if we press yes button,
+              //   because otherwise yes button would be inactive.
+              //   See handleCSVFileImport().
+              this.importAction();
+              actions.uiClose();
             },
             disabled: disableYesButton,
             type: 'ACTION',
@@ -208,6 +222,7 @@ class Dialog extends React.Component {
     }
 
     let outputErrors;
+
     if (errors) {
       outputErrors = errors.map((error) =>
         <li key={error.get('code')}>{error.get('message')}</li>
@@ -218,8 +233,9 @@ class Dialog extends React.Component {
     return (
       <MaterialDialog
         className="dialog"
+        onClick={this.onClickHandler}
         onKeyDown={this.keyDownHandler}
-        onRequestClose={actions.uiCloseDialog}
+        onRequestClose={actions.uiClose}
         open={open}
       >
         <MaterialDialogTitle>
