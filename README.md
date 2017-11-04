@@ -12,7 +12,8 @@
 
 ## Features
 
-* automatic sync with server with requests queue
+* auto sync with server with requests queue
+* auto saving cells' values history
 * export/import to/from CSV
 * basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Home`, `End`, `Delete`)
 * copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`)
@@ -22,7 +23,6 @@
 * delete/insert row/column buttons
 * automatically expanding table
 * built-in invisible Google reCAPTCHA
-* automatically saving cells' values history
 * clean material-ish design
 
 ## Installing
@@ -73,7 +73,6 @@ http://localhost:3000/spreadsheet should display landing page.
 
 * doesn't work with touch devices
 * may be slow on really large spreadsheets (>100x100)
-* clicking on cell sometimes (rarely) doesn't triggers pointed cell update immediately, little pointer nudge is required
 
 ## TODO (random order)
 
@@ -88,7 +87,6 @@ http://localhost:3000/spreadsheet should display landing page.
 * multiple users collaboration
 * cells' styling
 * sync user session (pointer and stuff) with server
-* cell context menu (?)
 * context actions panel
 * embedding (?)
 * optimize CPU, memory and traffic usage
