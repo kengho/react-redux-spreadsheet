@@ -27,11 +27,7 @@
 }
 
 .dialog .dialog-errors {
-  padding-top: 16px;
-  color: #900;
-}
-
-.dialog .dialog-errors ul {
-  padding-left: 0;
+  padding: 16px 0 0 0;
   margin-top: 8px;
+  color: #900;
 }

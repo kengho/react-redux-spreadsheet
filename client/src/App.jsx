@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import './App.css';
-import Dialog from './containers/Dialog';
+import Dialog from './containers/Dialog/Dialog';
 import getRootPath from './lib/getRootPath';
 import Landing from './containers/Landing';
 import Spreadsheet from './containers/Spreadsheet';
