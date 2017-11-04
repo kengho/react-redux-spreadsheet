@@ -168,7 +168,8 @@ class Data extends React.PureComponent {
       {
         key: 'Escape',
         action: () => {
-          this.textareaInputEl.value = this.props.value;
+          const previousValue = this.props.value;
+          this.props.actions.detachmentsSetCurrentCellValue(previousValue);
           this.props.actions.tableSetPointer({ modifiers: {} });
         },
       },
