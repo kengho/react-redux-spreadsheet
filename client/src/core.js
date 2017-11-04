@@ -53,6 +53,8 @@ export function initialLines(height = 4, width = 4) {
     return { id: rowId };
   });
 
+  // REVIEW: maybe use 'k' for 'kolumn' instead
+  //   just not to confuse it with with UUID hex chars.
   const columns = Array.from(Array(width)).map((_, columnIndex) => {
     let columnId;
     if (process.env.NODE_ENV === 'test') {
@@ -97,12 +99,11 @@ export function initialTable(width, height) {
   };
 }
 
-export function initialState(width, height) {
+export function initialState(width, height, test = false) {
   const table = initialTable(width, height);
 
   let state;
-  // REVIEW: is there are way to apply redux-undo for tests automatically?
-  if (process.env.NODE_ENV === 'test') {
+  if (test) {
     state = Map({
       table: {
         past: [],

@@ -7,8 +7,8 @@ import App from './App';
 
 require('./test_helper');
 
+// TODO: test router.
 it('renders without crashing', () => {
-  // TODO: draw Root with non-empty data.
   const div = document.createElement('div');
 
   const store = configureStore();

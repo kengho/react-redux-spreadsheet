@@ -6,6 +6,7 @@ import {
   getCellId,
   getColumnId,
   getRowId,
+  initialState,
 } from '../core';
 import './Spreadsheet.css';
 import * as DetachmentsActions from '../actions/detachments';
@@ -25,26 +26,14 @@ import connectWithSkippingProps from '../lib/connectWithSkippingProps';
 import shiftScrollbar from '../lib/shiftScrollbar';
 import TableMenu from '../components/TableMenu';
 
-const mapStateToProps = (state) => {
-  // FIXME: in tests table wraps into undoable twice
-  //   because of environment condition in initialState().
-  //   Cannot test Root render with non-empty data because if this.
-  let table;
-  if (process.env.NODE_ENV === 'test') {
-    table = state.get('table').present.present;
-  } else {
-    table = state.get('table').present;
-  }
-
-  return {
-    canRedo: state.get('table').future.length > 0,
-    canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
-    detachments: state.get('detachments'),
-    requests: state.get('requests'),
-    table,
-    ui: state.get('ui'),
-  };
-};
+const mapStateToProps = (state) => ({
+  canRedo: state.get('table').future.length > 0,
+  canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
+  detachments: state.get('detachments'),
+  requests: state.get('requests'),
+  table: state.get('table').present,
+  ui: state.get('ui'),
+});
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
@@ -78,14 +67,10 @@ class Spreadsheet extends React.Component {
 
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
-      // FIXME: causes undo-redo-related problems.
-      //   Need to totally review initialState().
-      //
-      // this.props.actions.metaSetShortId('1');
-      //
-      // const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
-      // this.props.actions.tableSetFromJSON(initialJSONTable);
+      this.props.actions.metaSetShortId('1');
 
+      const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
+      this.props.actions.tableSetFromJSON(initialJSONTable);
       return;
     }
 
@@ -401,7 +386,7 @@ class Spreadsheet extends React.Component {
 
     return (
       <div
-        className={`table ${thereIsClipboard? 'clipboard' : ''}`}
+        className={`table ${thereIsClipboard ? 'clipboard' : ''}`}
         onMouseLeave={() => { actions.tableSetHover(null); }}
         style={this.style}
       >

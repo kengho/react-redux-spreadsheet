@@ -121,7 +121,7 @@ describe('table', () => {
 
   describe('cells', () => {
     it('set prop', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = 'r1,c1';
       const value = 'Cell value';
@@ -133,7 +133,7 @@ describe('table', () => {
     });
 
     it('set prop (undefined cellId)', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = undefined;
       const value = 'Cell value';
@@ -145,7 +145,7 @@ describe('table', () => {
     });
 
     it('delete prop', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = 'r1,c1';
       const value = 'Cell value';
@@ -162,7 +162,7 @@ describe('table', () => {
 
     // REVIEW: why do we need that?
     it('delete prop (there is no cell with such cellId)', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
@@ -176,7 +176,7 @@ describe('table', () => {
 
   describe('hover', () => {
     it('set hover', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
@@ -190,7 +190,7 @@ describe('table', () => {
 
   describe('pointer', () => {
     it('set pointer', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const pointer = {
         cellId: 'r1,c1',
@@ -206,7 +206,7 @@ describe('table', () => {
 
     describe('movement', () => {
       it('move pointer (ArrowUp, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('ArrowUp'));
@@ -220,7 +220,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowUp, OK)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r1,c2', modifiers: {} }));
@@ -235,7 +235,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowUp, border)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c2', modifiers: {} }));
@@ -250,7 +250,7 @@ describe('table', () => {
       });
 
       it('move pointer (PageUp, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('PageUp'));
@@ -264,7 +264,7 @@ describe('table', () => {
       });
 
       it('move pointer (PageUp, OK)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
@@ -279,7 +279,7 @@ describe('table', () => {
       });
 
       it('move pointer (PageUp, border)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c2', modifiers: {} }));
@@ -294,7 +294,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowDown, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('ArrowDown'));
@@ -308,7 +308,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowDown, expand)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
@@ -325,7 +325,7 @@ describe('table', () => {
       });
 
       it('move pointer (PageDown, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('PageDown'));
@@ -339,7 +339,7 @@ describe('table', () => {
       });
 
       it('move pointer (PageDown, OK)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c2', modifiers: {} }));
@@ -354,7 +354,7 @@ describe('table', () => {
       });
 
       it('move pointer (PageDown, border)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
@@ -369,7 +369,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowLeft, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('ArrowLeft'));
@@ -383,7 +383,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowLeft, OK)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
@@ -398,7 +398,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowLeft, border)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c0', modifiers: {} }));
@@ -413,7 +413,7 @@ describe('table', () => {
       });
 
       it('move pointer (Home, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('Home'));
@@ -427,7 +427,7 @@ describe('table', () => {
       });
 
       it('move pointer (Home, OK)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
@@ -442,7 +442,7 @@ describe('table', () => {
       });
 
       it('move pointer (Home, border)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c0', modifiers: {} }));
@@ -457,7 +457,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowRight, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('ArrowRight'));
@@ -471,7 +471,7 @@ describe('table', () => {
       });
 
       it('move pointer (ArrowRight, expand)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c3', modifiers: {} }));
@@ -488,7 +488,7 @@ describe('table', () => {
       });
 
       it('move pointer (End, no initial pos)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableMovePointer('End'));
@@ -502,7 +502,7 @@ describe('table', () => {
       });
 
       it('move pointer (End, OK)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c1', modifiers: {} }));
@@ -517,7 +517,7 @@ describe('table', () => {
       });
 
       it('move pointer (End, border)', () => {
-        const state = Core.initialState(...tableSize);
+        const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
         store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c3', modifiers: {} }));
@@ -535,7 +535,7 @@ describe('table', () => {
 
   describe('clipboard', () => {
     it('set clipboard', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const clipboard = {
         cells: {
@@ -556,7 +556,7 @@ describe('table', () => {
 
   describe('update triggers', () => {
     it('toggle row update trigger (set)', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const rowId = 'r1';
       const ids = ['id1'];
@@ -575,7 +575,7 @@ describe('table', () => {
     });
 
     it('toggle row update trigger (array)', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const rowIds = ['r1', 'r2', undefined];
       const ids = ['id1', 'id2'];
@@ -597,7 +597,7 @@ describe('table', () => {
 
   describe('reduce', () => {
     it('remove row', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
       store.dispatch(TableActions.tableSetPointer({ cellId: 'r1,c1', modifiers: {} }));
@@ -614,7 +614,7 @@ describe('table', () => {
     });
 
     it('remove row (only)', () => {
-      const state = Core.initialState(1, 4);
+      const state = Core.initialState(1, 4, true);
       const store = configureStore(state);
 
       store.dispatch(TableActions.tableReduce(0, 'ROW'));
@@ -625,7 +625,7 @@ describe('table', () => {
     });
 
     it('remove column', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
       store.dispatch(TableActions.tableSetPointer({ cellId: 'r1,c1', modifiers: {} }));
@@ -642,7 +642,7 @@ describe('table', () => {
     });
 
     it('remove column (only)', () => {
-      const state = Core.initialState(3, 1);
+      const state = Core.initialState(3, 1, true);
       const store = configureStore(state);
 
       store.dispatch(TableActions.tableReduce(0, 'COLUMN'));
@@ -655,7 +655,7 @@ describe('table', () => {
 
   describe('expand', () => {
     it('add row', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
       store.dispatch(TableActions.tableExpand(1, 'ROW'));
@@ -666,7 +666,7 @@ describe('table', () => {
     });
 
     it('add column', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
       store.dispatch(TableActions.tableExpand(1, 'COLUMN'));
@@ -679,7 +679,7 @@ describe('table', () => {
 
   describe('cell history', () => {
     it('push cell history', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
@@ -710,7 +710,7 @@ describe('table', () => {
     });
 
     it('delete cell history', () => {
-      const state = Core.initialState(...tableSize);
+      const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
