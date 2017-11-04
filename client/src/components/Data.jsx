@@ -27,6 +27,7 @@ class Data extends React.PureComponent {
 
     this.clickHandler = this.clickHandler.bind(this);
     this.doubleClickHandler = this.doubleClickHandler.bind(this);
+    this.onFocusHandler = this.onFocusHandler.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
   }
@@ -42,7 +43,7 @@ class Data extends React.PureComponent {
     });
   }
 
-  clickHandler(evt, cellId) {
+  clickHandler(evt) {
     // Prevents firing documentClickHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
@@ -60,20 +61,34 @@ class Data extends React.PureComponent {
       return;
     }
 
-    this.props.actions.tableSetPointer({ cellId, modifiers: {} });
+    this.props.actions.tableSetPointer({ cellId: this.props.cellId, modifiers: {} });
   }
 
-  doubleClickHandler(evt, cellId) {
+  doubleClickHandler(evt) {
     if (this.props.isEditing) {
       return;
     }
 
     // TODO: should set correct cursor position.
-    this.props.actions.tableSetPointer({ cellId, modifiers: { edit: true } });
+    //   This approach:
+    //   https://stackoverflow.com/a/17966995
+    //   with
+    //   // range = window.getSelection().getRangeAt(0),
+    //   allows to do it when you click on active textrea (duh),
+    //   but we have disabled.
+    //
+    //   Re-dispatching event also doesn't seems to work:
+    //   // const newEvent = new MouseEvent('click', { ...evt.nativeEvent, bubbles: true });
+    //   // evt.target.dispatchEvent(newEvent);
+    //
+    //   Catching 'mousedown' after 'mouseup' in 400ms interval and changind pointer
+    //   even before real doubleclick fired should work, but it seems really hacky and
+    //   ignores system doubleclick interval settings.
+    this.props.actions.tableSetPointer({ cellId: this.props.cellId, modifiers: { edit: true } });
   }
 
-  onFocusHandler(evt, isSelectingOnFocus) {
-    if (isSelectingOnFocus) {
+  onFocusHandler(evt) {
+    if (this.props.isSelectingOnFocus) {
       evt.target.select();
     } else {
       evt.target.selectionEnd = evt.target.value.length;
@@ -168,10 +183,8 @@ class Data extends React.PureComponent {
       isEditing,
       isOnClipboard,
       isPointed,
-      isSelectingOnFocus,
       value,
      } = this.props;
-    const disabled = !isEditing;
 
     const textareaWrapperClassnames = ['data'];
     if (isPointed) { textareaWrapperClassnames.push('pointed'); }
@@ -180,24 +193,22 @@ class Data extends React.PureComponent {
 
     let textareaOutput;
     if (value || isEditing) {
-      // HACK: key uptates textarea after changing some props.
-      //   Also it allows autoFocus to work.
+      // HACK: key allows autoFocus to work.
       //   http://stackoverflow.com/a/41717743/6376451
       // HACK: onHeightChange() is workaround for Chromium Linux zoom scrollbar issue.
       //   https://github.com/andreypopp/react-textarea-autosize/issues/147
-      // onWidthChange={this.alignComplements}
       textareaOutput = (
         <TextareaAutosize
           autoFocus={isEditing}
           autosizeWidth
           className="textarea"
           defaultValue={value}
-          disabled={disabled}
+          disabled={!isEditing}
           inputRef={(c) => { this.textareaInputEl = c; }}
-          key={JSON.stringify({ cellId, value, isPointed, isEditing, isSelectingOnFocus })}
+          key={JSON.stringify({ cellId, isEditing })}
           maxWidth="512px"
           onChange={this.onChangeHandler}
-          onFocus={(evt) => this.onFocusHandler(evt, isSelectingOnFocus)}
+          onFocus={this.onFocusHandler}
           onHeightChange={() => this.onHeightChangeHandler(this.textareaInputEl)}
           onKeyDown={this.keyDownHandler}
           ref={(c) => { this.textarea = c; }}
@@ -221,8 +232,8 @@ class Data extends React.PureComponent {
     return (
       <div
         className={textareaWrapperClassnames.join(' ')}
-        onClick={(evt) => this.clickHandler(evt, cellId)}
-        onDoubleClick={(evt) => this.doubleClickHandler(evt, cellId)}
+        onClick={this.clickHandler}
+        onDoubleClick={this.doubleClickHandler}
       >
         {textareaOutput}
       </div>
