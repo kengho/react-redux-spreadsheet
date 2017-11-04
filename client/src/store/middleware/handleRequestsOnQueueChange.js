@@ -13,7 +13,7 @@ const REQUEST_RETRY_TIMEOUT = 60 * 1000; // 1 min
 
 const composeRequest = (store, action) => {
   let data;
-  if (action.type === 'REQUESTS/POP_REQUEST_ID') {
+  if (action.type === 'REQUESTS/POP_ID') {
     // 0-th request is popping, so we should handle 1-th now.
     data = store.getState().get('requests').get('queue').get(1).toJS();
   } else {
