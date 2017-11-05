@@ -15,8 +15,6 @@ const pushRequestOnDataChanges = store => next => action => { // eslint-disable-
   const nextAction = next(action);
 
   // Get new data.
-  // NOTE: we don't need toJS() here until replacer is immutable list.
-    // https://facebook.github.io/immutable-js/#converts-back-to-raw-javascript-objects-
   const nextTable = store.getState().get('table').present;
 
   // Send new data to server.
