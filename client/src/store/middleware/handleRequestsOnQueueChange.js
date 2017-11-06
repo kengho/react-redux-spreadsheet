@@ -3,7 +3,7 @@
 import { push } from 'react-router-redux';
 
 import {
-  requestsPopId,
+  requestsPop,
   requestsMarkAsFailed,
 } from '../../actions/requests';
 import fetchServer from './../../lib/fetchServer';
@@ -13,7 +13,7 @@ const REQUEST_RETRY_TIMEOUT = 60 * 1000; // 1 min
 
 const composeRequest = (store, action) => {
   let data;
-  if (action.type === 'REQUESTS/POP_ID') {
+  if (action.type === 'REQUESTS/POP') {
     // 0-th request is popping, so we should handle 1-th now.
     data = store.getState().get('requests').get('queue').get(1).toJS();
   } else {
@@ -52,7 +52,7 @@ const handleResponse = (store, composedRequest, response) => {
   if (response.data.status !== 'OK') {
     store.dispatch(requestsMarkAsFailed(response.request_uuid));
   } else {
-    store.dispatch(requestsPopId(response.request_uuid));
+    store.dispatch(requestsPop(response.request_uuid));
   }
 
   if (composedRequest.method === 'DELETE') {
@@ -91,7 +91,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
     handleRequest(store, composedRequest);
   }
 
-  if (action.type === 'REQUESTS/POP_ID') {
+  if (action.type === 'REQUESTS/POP') {
     // If we popping last request in queue, there is nothing to do.
     if (requests.size === 1) {
       return next(action);

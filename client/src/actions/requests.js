@@ -10,9 +10,9 @@ export function requestsPush(method, action, params, id = uuid()) {
   };
 }
 
-export function requestsPopId(id) {
+export function requestsPop(id) {
   return {
-    type: 'REQUESTS/POP_ID',
+    type: 'REQUESTS/POP',
     id,
   };
 }

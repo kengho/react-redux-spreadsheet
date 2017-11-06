@@ -12,7 +12,7 @@ import uuid from 'uuid/v4';
 
 import {
   requestsMarkAsFailed,
-  requestsPopId,
+  requestsPop,
   requestsPush,
 } from './requests';
 import { configureStore } from '../store/configureStore';
@@ -49,7 +49,7 @@ describe('requests', () => {
     const id = uuid();
 
     store.dispatch(requestsPush(method, action, params, id));
-    store.dispatch(requestsPopId(id));
+    store.dispatch(requestsPop(id));
 
     const nextStateExpected = fromJS({ requests: { queue: [], counter: 1 } });
     expect(store.getState().get('requests')).to.deep.equal(nextStateExpected.get('requests'));

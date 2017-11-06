@@ -28,7 +28,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
       );
     }
 
-    case 'REQUESTS/POP_ID': {
+    case 'REQUESTS/POP': {
       const deleteIndex = findRequestById(state, action.id);
 
       if (deleteIndex !== -1) {
