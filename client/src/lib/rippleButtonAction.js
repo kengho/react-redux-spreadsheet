@@ -1,4 +1,4 @@
-const DELAY_BEFORE_ACTION = 200;
+const DELAY_BEFORE_ACTION = 100;
 
 // Delaying action until ripple animation isn't finished.
 const rippleButtonAction = (action) => {
