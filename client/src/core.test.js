@@ -195,7 +195,7 @@ describe('core', () => {
       expect(Core.convert(data, convertOptions)).to.equal(expectedCSV);
     });
 
-    it('should convert CSV back to data object (fictive lines)', () => {
+    it('should convert CSV back to data object', () => {
       const toCSVConvertOptions = {
         inputFormat: 'object',
         outputFormat: 'csv',

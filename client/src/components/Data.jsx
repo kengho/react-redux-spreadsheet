@@ -54,7 +54,10 @@ class Data extends React.PureComponent {
     // Letting user to select disabled cell's value.
     // Doesn't work in firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=195361).
     // "readonly" breaks hotkeyes.
-    // TODO: make workaround for firefox (div?).
+    // TODO: make workaround for firefox.
+    //   Approaches:
+    //   1. div for unediting cell
+    //   Issue: it is unreal to sync view of autowized textarea and div.
     const cursorStart = this.textareaInputEl.selectionStart;
     const cursorEnd = this.textareaInputEl.selectionEnd;
     if (cursorEnd !== cursorStart) {

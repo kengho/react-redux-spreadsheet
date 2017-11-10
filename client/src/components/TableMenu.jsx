@@ -47,7 +47,6 @@ class TableMenu extends React.PureComponent {
       actions, // uses in Menu
     } = this.props;
 
-    let classnames = [];
     let output;
     if (requestsQueueLength > 0) {
       // TODO: return tooltip.
@@ -59,7 +58,6 @@ class TableMenu extends React.PureComponent {
           <SyncProblem size={24} />
         </IconButton>
       );
-      classnames = ['sync-problem'];
     } else {
       const tableMenuItems = [
         {
@@ -108,7 +106,7 @@ class TableMenu extends React.PureComponent {
     }
 
     return (
-      <div className={`table-menu ${classnames.join(' ')}`}>
+      <div className="table-menu">
         {output}
       </div>
     );
