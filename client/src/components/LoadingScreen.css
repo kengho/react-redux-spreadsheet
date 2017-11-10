@@ -1,0 +1,5 @@
+.progress {
+  top: -8px;
+  left: -8px;
+  width: calc(100% + 8px * 2);
+}

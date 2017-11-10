@@ -1,55 +1,32 @@
-import { bindActionCreators } from 'redux';
-import { LinearProgress } from 'material-ui/Progress';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import {
   getCellId,
   getColumnId,
   getRowId,
-  initialState,
 } from '../core';
-import './Spreadsheet.css';
-import * as DetachmentsActions from '../actions/detachments';
-import * as LandingActions from '../actions/landing'; // landingSetMessages()
-import * as MetaActions from '../actions/meta';
-import * as RequestsActions from '../actions/requests';
-import * as TableActions from '../actions/table';
-import * as UiActions from '../actions/ui';
-import * as UndoRedoActions from '../actions/undoRedo';
+import './Table.css';
 import cssToNumber from '../lib/cssToNumber';
-import fetchServer from '../lib/fetchServer';
 import findKeyAction from '../lib/findKeyAction';
-import getRootPath from '../lib/getRootPath';
 import isScrolledIntoView from '../lib/isScrolledIntoView';
-import Row from '../components/Row';
-import connectWithSkippingProps from '../lib/connectWithSkippingProps';
+import Row from './Row';
 import shiftScrollbar from '../lib/shiftScrollbar';
-import TableMenu from '../components/TableMenu';
+import TableMenu from './TableMenu';
 
-const mapStateToProps = (state) => ({
-  canRedo: state.get('table').future.length > 0,
-  canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
-  detachments: state.get('detachments'),
-  requests: state.get('requests'),
-  table: state.get('table').present,
-  ui: state.get('ui'),
-});
+const propTypes = {
+  canRedo: PropTypes.bool.isRequired,
+  canUndo: PropTypes.bool.isRequired,
+  detachments: PropTypes.object.isRequired,
+  requests: PropTypes.object.isRequired,
+  table: PropTypes.object.isRequired,
+  ui: PropTypes.object.isRequired,
+};
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: {
-    ...bindActionCreators({
-      ...DetachmentsActions,
-      ...LandingActions,
-      ...MetaActions,
-      ...RequestsActions,
-      ...TableActions,
-      ...UiActions,
-      ...UndoRedoActions,
-    }, dispatch),
-  },
-});
+const defaultProps = {
+};
 
-class Spreadsheet extends React.Component {
+class Table extends React.Component {
   constructor(props) {
     super(props);
 
@@ -64,33 +41,6 @@ class Spreadsheet extends React.Component {
   componentDidMount() {
     window.addEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef
     window.addEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
-
-    // Don't fetch data from server in tests.
-    if (process.env.NODE_ENV === 'test') {
-      this.props.actions.metaSetShortId('1');
-
-      const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
-      this.props.actions.tableSetFromJSON(initialJSONTable);
-      return;
-    }
-
-    // Fetch data after initial render.
-    if (this.props.table.getIn(['data', 'rows']).size === 0) {
-      const shortId = this.props.match.params.shortId;
-      fetchServer('GET', `show?short_id=${shortId}`)
-        .then((json) => {
-          if (json.errors) {
-            const errors = json.errors.map((error) => error.detail);
-
-            this.props.actions.landingSetMessages(errors);
-            this.props.history.push(getRootPath());
-          } else {
-            // store's shortId used in handleRequestsChanges().
-            this.props.actions.metaSetShortId(shortId);
-            this.props.actions.tableSetFromJSON(json.data.table);
-          }
-        });
-    }
   }
 
   componentWillUnmount() {
@@ -340,10 +290,6 @@ class Spreadsheet extends React.Component {
     } = this.props;
     const rows = table.getIn(['data', 'rows']);
 
-    if (rows.size === 0) {
-      return <LinearProgress className="progress" />;
-    }
-
     // TODO: const props = {} ... // (see Row)
     const cells = table.getIn(['data', 'cells']);
     const clipboard = table.getIn(['session', 'clipboard']);
@@ -405,10 +351,7 @@ class Spreadsheet extends React.Component {
   }
 }
 
-const detachmentsProps = ['detachments'];
+Table.propTypes = propTypes;
+Table.defaultProps = defaultProps;
 
-export default connectWithSkippingProps(
-  mapStateToProps,
-  mapDispatchToProps,
-  detachmentsProps
-)(Spreadsheet);
+export default Table;
