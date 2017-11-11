@@ -178,7 +178,9 @@ class Data extends React.PureComponent {
       },
     ]);
 
-    action();
+    if (action) {
+      action();
+    }
   }
 
   render() {

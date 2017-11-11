@@ -276,7 +276,9 @@ class Table extends React.Component {
       // },
     ]);
 
-    action();
+    if (action) {
+      action();
+    }
   }
 
   render() {

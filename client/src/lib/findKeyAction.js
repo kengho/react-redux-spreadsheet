@@ -23,11 +23,9 @@ const findKeyAction = (evt, options) => {
     );
   });
 
-  let action;
+  let action = null;
   if (option) {
     action = option.action;
-  } else {
-    action = () => {};
   }
 
   return action;
