@@ -15,12 +15,14 @@ import connectWithSkippingProps from '../lib/connectWithSkippingProps';
 import fetchServer from '../lib/fetchServer';
 import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
+import Overlay from '../components/Overlay';
 import Table from '../components/Table';
 
 const mapStateToProps = (state) => ({
   canRedo: state.get('table').future.length > 0,
   canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
   detachments: state.get('detachments'),
+  meta: state.get('meta'),
   requests: state.get('requests'),
   table: state.get('table').present,
   ui: state.get('ui'),
@@ -71,11 +73,25 @@ class Spreadsheet extends React.Component {
   }
 
   render() {
-    const rows = this.props.table.getIn(['data', 'rows']);
+    // Extracting props.
+    const {
+      meta,
+      ...other,
+    } = this.props;
+
+    // Non-extracting props (should be passed to children as well).
+    const {
+      table, // uses in Overlay
+    } = this.props;
+
+    const rows = table.getIn(['data', 'rows']);
     if (rows.size === 0) {
       return <LoadingScreen />;
     } else {
-      return <Table {...this.props} />;
+      return [
+        <Table key="table" {...other} />,
+        <Overlay key="overlay" />
+      ];
     }
   }
 }
