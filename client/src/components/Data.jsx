@@ -6,6 +6,7 @@ import TextareaAutosize from '@kengho/react-textarea-autosize';
 import './Data.css';
 import cssToNumber from '../lib/cssToNumber';
 import findKeyAction from '../lib/findKeyAction';
+import insertText from '../lib/insertText';
 import numberToCss from '../lib/numberToCss';
 
 const propTypes = {
@@ -146,25 +147,11 @@ class Data extends React.PureComponent {
         key: 'Enter',
         ctrlKey: true,
         action: () => {
-          // HACK: adds new line to textarea and forces it to update it's size.
-          //   Some code from:
-          //   http://stackoverflow.com/a/11077016/6376451
+          // Add new line to textarea.
           const textarea = evt.target;
-          const textToInsert = '\n';
-          if (textarea.selectionStart || textarea.selectionStart === 0) {
-            const startPos = textarea.selectionStart;
-            const endPos = textarea.selectionEnd;
-            const textBeforeCursor = textarea.value.substring(0, startPos);
-            const textAfterCursor = textarea.value.substring(endPos, textarea.value.length);
-            textarea.value = `${textBeforeCursor}${textToInsert}${textAfterCursor}`;
+          insertText(textarea, '\n');
 
-            // Update cursor.
-            textarea.selectionStart = startPos + textToInsert.length;
-            textarea.selectionEnd = endPos + textToInsert.length;
-          } else {
-            textarea.value += textToInsert;
-          }
-
+          // HACK: force textarea to update it's size.
           this.textarea._onChange(); // eslint-disable-line no-underscore-dangle
         },
       },
