@@ -329,6 +329,12 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       )
     }
 
+    case 'TABLE/SAVE_EDITING_CELL_VALUE_IF_NEEDED': {
+      // See corresponding middleware.
+      // Action requires 'detachments' state branch, unavailable here.
+      return state;
+    }
+
     default:
       return state;
   }

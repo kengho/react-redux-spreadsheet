@@ -1,15 +1,11 @@
-import { tableSetProp } from '../../actions/table';
 import { detachmentsSetCurrentCellValue } from '../../actions/detachments';
+import { tableSetProp } from '../../actions/table';
 
-const saveEditingCellValueOnPointerMove = store => next => action => { // eslint-disable-line consistent-return
+const tableSaveEditingCellValueIfNeeded = store => next => action => { // eslint-disable-line consistent-return
   // Saving previously edited cells' value via detachments.
   //   It should be done in middleware because DataCell doesn't know
   //   about previous pointer if user clicks on another DataCell.
-  //   If user presses keydown - it knows, but for our convenience DataCell's
-  //   keyDownHandler also doesn't changes cells' values until this middleware is present.
-  //
-  //   Only TABLE/SET_POINTER or TABLE/MOVE_POINTER may trigger value changing.
-  if (!(action.type === 'TABLE/SET_POINTER' || action.type === 'TABLE/MOVE_POINTER')) {
+  if (action.type !== 'TABLE/SAVE_EDITING_CELL_VALUE_IF_NEEDED') {
     return next(action);
   }
 
@@ -47,4 +43,4 @@ const saveEditingCellValueOnPointerMove = store => next => action => { // eslint
   return next(action);
 };
 
-export default saveEditingCellValueOnPointerMove;
+export default tableSaveEditingCellValueIfNeeded;

@@ -64,6 +64,7 @@ class Data extends React.PureComponent {
       return;
     }
 
+    this.props.actions.tableSaveEditingCellValueIfNeeded();
     this.props.actions.tableSetPointer({ cellId: this.props.cellId, modifiers: {} });
   }
 
@@ -118,15 +119,28 @@ class Data extends React.PureComponent {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
+    const tableSetPropIfNeeded = () => {
+      const nextValue = this.textareaInputEl.value;
+      const previousValue = this.props.value;
+      if (nextValue !== previousValue) {
+        this.props.actions.tableSetProp(this.props.cellId, 'value', nextValue);
+      }
+    };
+
+    const tableSetPropIfNeededAndMovePointer = (key) => {
+      tableSetPropIfNeeded();
+      this.props.actions.tableMovePointer(key);
+    };
+
     const action = findKeyAction(evt, [
       {
         key: 'Enter',
-        action: () => this.props.actions.tableMovePointer('ArrowDown'),
+        action: () => tableSetPropIfNeededAndMovePointer('ArrowDown'),
       },
       {
         key: 'Enter',
         shiftKey: true,
-        action: () => this.props.actions.tableMovePointer('ArrowUp'),
+        action: () => tableSetPropIfNeededAndMovePointer('ArrowUp'),
       },
       {
         key: 'Enter',
@@ -156,12 +170,12 @@ class Data extends React.PureComponent {
       },
       {
         key: 'Tab',
-        action: () => this.props.actions.tableMovePointer('ArrowRight'),
+        action: () => tableSetPropIfNeededAndMovePointer('ArrowRight'),
       },
       {
         key: 'Tab',
         shiftKey: true,
-        action: () =>  this.props.actions.tableMovePointer('ArrowLeft'),
+        action: () =>  tableSetPropIfNeededAndMovePointer('ArrowLeft'),
       },
       {
         key: 'Escape',

@@ -154,3 +154,9 @@ export function tableDeleteCellHistory(cellId, historyIndex) {
     historyIndex,
   };
 }
+
+export function tableSaveEditingCellValueIfNeeded() {
+  return {
+    type: 'TABLE/SAVE_EDITING_CELL_VALUE_IF_NEEDED',
+  };
+}

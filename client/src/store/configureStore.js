@@ -8,8 +8,8 @@ import expandTableOnPointerMove from './middleware/expandTableOnPointerMove';
 import handleRequestsOnQueueChange from './middleware/handleRequestsOnQueueChange';
 import pushCellHistoryOnValueChanges from './middleware/pushCellHistoryOnValueChanges';
 import pushRequestOnDataChanges from './middleware/pushRequestOnDataChanges';
-import saveEditingCellValueOnPointerMove from './middleware/saveEditingCellValueOnPointerMove';
 import setRowUpdateTriggerOnStateChanges from './middleware/setRowUpdateTriggerOnStateChanges';
+import tableSaveEditingCellValueIfNeeded from './middleware/tableSaveEditingCellValueIfNeeded';
 import rootReducer from '../reducers';
 
 const composeEnhancer = compose;
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== 'test') {
     handleRequestsOnQueueChange,
     clearPointerModifiersOnUndoRedo,
     pushCellHistoryOnValueChanges,
-    saveEditingCellValueOnPointerMove,
+    tableSaveEditingCellValueIfNeeded,
     pushRequestOnDataChanges // make sure this is the last middleware
   );
 }
