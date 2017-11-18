@@ -11,7 +11,7 @@ const insertText = (input, text) => {
 
     // Update cursor.
     input.selectionStart = startPos + text.length;
-    input.selectionEnd = endPos + text.length;
+    input.selectionEnd = input.selectionStart;
   } else {
     input.value += text;
   }
