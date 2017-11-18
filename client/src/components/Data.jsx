@@ -94,6 +94,7 @@ class Data extends React.PureComponent {
     if (this.props.isSelectingOnFocus) {
       evt.target.select();
     } else {
+      // Move cursor to the end.
       evt.target.selectionEnd = evt.target.value.length;
       evt.target.selectionStart = evt.target.selectionEnd;
     }
@@ -117,21 +118,15 @@ class Data extends React.PureComponent {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    const movePointer = (tableMovePointerKey) => {
-      // Prevents pressing key immediately after changing pointer.
-      evt.preventDefault();
-      this.props.actions.tableMovePointer(tableMovePointerKey);
-    };
-
     const action = findKeyAction(evt, [
       {
         key: 'Enter',
-        action: () => movePointer('ArrowDown'),
+        action: () => this.props.actions.tableMovePointer('ArrowDown'),
       },
       {
         key: 'Enter',
         shiftKey: true,
-        action: () => movePointer('ArrowUp'),
+        action: () => this.props.actions.tableMovePointer('ArrowUp'),
       },
       {
         key: 'Enter',
@@ -161,12 +156,12 @@ class Data extends React.PureComponent {
       },
       {
         key: 'Tab',
-        action: () => movePointer('ArrowRight'),
+        action: () => this.props.actions.tableMovePointer('ArrowRight'),
       },
       {
         key: 'Tab',
         shiftKey: true,
-        action: () =>  movePointer('ArrowLeft'),
+        action: () =>  this.props.actions.tableMovePointer('ArrowLeft'),
       },
       {
         key: 'Escape',
@@ -179,6 +174,8 @@ class Data extends React.PureComponent {
     ]);
 
     if (action) {
+      // Prevents pressing key immediately after changing pointer.
+      evt.preventDefault();
       action();
     }
   }
@@ -234,7 +231,6 @@ class Data extends React.PureComponent {
       );
     }
 
-    // id for saveEditingCellValueOnPointerMove().
     return (
       <div
         className={textareaWrapperClassnames.join(' ')}
