@@ -1,19 +1,19 @@
-// Inserts text to input at current cursor.
-//   Some code from:
-//   http://stackoverflow.com/a/11077016/6376451
+// Inserts text to input at current cursor and deletes current selection if any.
 const insertText = (input, text) => {
-  if (input.selectionStart || input.selectionStart === 0) {
-    const startPos = input.selectionStart;
-    const endPos = input.selectionEnd;
-    const textBeforeCursor = input.value.substring(0, startPos);
-    const textAfterCursor = input.value.substring(endPos, input.value.length);
+  if (input.selectionStart === input.value.length) {
+    input.value += text;
+  } else {
+    // Save initial cursor position.
+    const selectionStart = input.selectionStart;
+    const selectionEnd = input.selectionEnd;
+
+    const textBeforeCursor = input.value.substring(0, selectionStart);
+    const textAfterCursor = input.value.substring(selectionEnd, input.value.length);
     input.value = `${textBeforeCursor}${text}${textAfterCursor}`;
 
-    // Update cursor.
-    input.selectionStart = startPos + text.length;
+    // Update cursor, considering that selection should be deleted.
+    input.selectionStart = selectionStart + text.length;
     input.selectionEnd = input.selectionStart;
-  } else {
-    input.value += text;
   }
 };
 
