@@ -1,4 +1,3 @@
-import { detachmentsSetCurrentCellValue } from '../../actions/detachments';
 import { tableSetProp } from '../../actions/table';
 
 const tableSaveEditingCellValueIfNeeded = store => next => action => { // eslint-disable-line consistent-return
@@ -34,10 +33,6 @@ const tableSaveEditingCellValueIfNeeded = store => next => action => { // eslint
         pointedCellNextValue
       )
     );
-
-    // Clear currentCellValue so this middleware won't run again after
-    // after several consecutive pointer changes without any text typing.
-    store.dispatch(detachmentsSetCurrentCellValue(null));
   }
 
   return next(action);
