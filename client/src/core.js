@@ -456,7 +456,11 @@ export function convert(object, options) {
     try {
       parsedJSON = JSON.parse(object);
     } catch(err) {
-      tableData.errors = [`${err.name}: ${err.message}`]
+      // TODO: code and message.
+      tableData.errors = [{
+        code: err.name,
+        message: `${err.name}: ${err.message}`,
+      }];
     }
 
     if (parsedJSON) {
@@ -512,5 +516,12 @@ export function convert(object, options) {
     }
 
     return tableData;
+  }
+
+  return {
+    errors: [{
+      code: 'WRONG_FORMAT',
+      message: 'Wrong format file.'
+    }],
   }
 }

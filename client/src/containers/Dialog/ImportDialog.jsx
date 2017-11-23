@@ -47,17 +47,48 @@ class ImportDialog extends React.PureComponent {
       const fileContent = reader.result;
       const tableData = convert(fileContent, { inputFormat: extention, outputFormat: 'object' });
 
-      this.importAction = () => {
-        this.props.actions.setTableFromJSON(
-          JSON.stringify({ data: tableData.data }), true
-        );
-      };
+      // TODO: DRY.
+      switch (extention) {
+        case 'csv': {
+          this.importAction = () => {
+            this.props.actions.setTableFromJSON(
+              JSON.stringify({ data: tableData.data }), true
+            );
+          };
 
-      this.props.actions.openUi('DIALOG', {
-        disableYesButton: false,
-        errors: tableData.errors,
-        variant: 'IMPORT',
-      });
+          this.props.actions.openUi('DIALOG', {
+            disableYesButton: false,
+            errors: tableData.errors,
+            variant: 'IMPORT',
+          });
+
+          break;
+        }
+
+        case 'json': {
+          if (tableData.errors) {
+            this.props.actions.openUi('DIALOG', {
+              disableYesButton: true,
+              errors: tableData.errors,
+              variant: 'IMPORT',
+            });
+          } else {
+            this.importAction = () => {
+              this.props.actions.setTableFromJSON(
+                JSON.stringify({ data: tableData.data }), true
+              );
+            };
+
+            this.props.actions.openUi('DIALOG', {
+              disableYesButton: false,
+              errors: tableData.errors,
+              variant: 'IMPORT',
+            });
+          }
+        }
+
+        default:
+      }
 
       // Fixind error
       // "Failed to execute 'readAsText' on 'FileReader': parameter 1 is not of type 'Blob'."
