@@ -74,15 +74,9 @@ const handleRequest = (store, composedRequest) => {
 };
 
 const handleRequestsOnQueueChanges = store => next => action => {
-  // TODO: explicitly list capturing actions
-  //   or use if else below instead.
-  if (!action.type.match('REQUEST')) {
-    return next(action);
-  }
-
   const requests = store.getState().get('requests').get('queue');
-
   let composedRequest;
+
   if (action.type === ActionTypes.PUSH_REQUEST) {
     // If there are more than one request in stack,
     // there is already a request processing via 'MARK_REQUEST_AS_FAILED' branch.
@@ -92,9 +86,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
 
     composedRequest = composeRequest(store, action);
     handleRequest(store, composedRequest);
-  }
-
-  if (action.type === ActionTypes.POP_REQUEST) {
+  } else if (action.type === ActionTypes.POP_REQUEST) {
     // If we popping last request in queue, there is nothing to do.
     if (requests.size === 1) {
       return next(action);
@@ -102,9 +94,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
 
     composedRequest = composeRequest(store, action);
     handleRequest(store, composedRequest);
-  }
-
-  if (action.type === ActionTypes.MARK_REQUEST_AS_FAILED) {
+  } else if (action.type === ActionTypes.MARK_REQUEST_AS_FAILED) {
     const request = requests.find((someRequest) => someRequest.get('id') === action.id);
 
     if (!request) {
