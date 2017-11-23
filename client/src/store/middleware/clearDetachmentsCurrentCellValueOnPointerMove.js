@@ -6,8 +6,7 @@ import { setCurrentCellValue } from '../../actions/detachments';
 // without any text typing (including actions sequences like
 // "Edit some text" => Enter => Enter => Click).
 const clearDetachmentsCurrentCellValueOnPointerMove = store => next => action => { // eslint-disable-line consistent-return
-  // TODO: doesn't work with SET_POINTER fsr.
-  if (action.type !== ActionTypes.MOVE_POINTER) {
+  if (![ActionTypes.MOVE_POINTER, ActionTypes.SET_POINTER].includes(action.type)) {
     return next(action);
   }
 
