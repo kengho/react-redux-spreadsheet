@@ -85,6 +85,8 @@ class ImportDialog extends React.PureComponent {
               variant: 'IMPORT',
             });
           }
+
+          break;
         }
 
         default:
