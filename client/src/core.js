@@ -443,7 +443,10 @@ export function convert(object, options) {
       JSONArray.push(JSONRowArray);
     }
 
-    return JSON.stringify(JSONArray);
+    return JSON.stringify({
+      version: '1',
+      data: JSONArray,
+    });
   }
 
   // JSON to object.
@@ -457,44 +460,53 @@ export function convert(object, options) {
     }
 
     if (parsedJSON) {
-      const dataArrayRowsNumber = parsedJSON.length;
-      const dataArrayColumnsNumber = parsedJSON[0].length;
-      const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
-      const rows = data.rows;
-      const columns = data.columns;
-      const cells = data.cells;
+      const JSONVersion = parsedJSON.version;
+      const JSONData = parsedJSON.data;
+      switch (JSONVersion) {
+        case '1': {
+          const dataArrayRowsNumber = JSONData.length;
+          const dataArrayColumnsNumber = JSONData[0].length;
+          const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
+          const rows = data.rows;
+          const columns = data.columns;
+          const cells = data.cells;
 
-      parsedJSON.forEach((row, rowIndex) => {
-        row.forEach((cell, columnIndex) => {
-          // Skip empty cells.
-          if (Object.keys(cell).length === 0) {
-            return;
-          }
+          JSONData.forEach((row, rowIndex) => {
+            row.forEach((cell, columnIndex) => {
+              // Skip empty cells.
+              if (Object.keys(cell).length === 0) {
+                return;
+              }
 
-          const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
-          const convertedCell = { ...cell };
-          if (cell.history) {
-            convertedCell.history = cell.history.map((record, recordIndex) => {
-              // 2017-12-19T01:02:03
-              // =>
-              // 1513645323000
-              // TODO: catch errors.
-              const time = new Date(record.time).getTime();
-              return {
-                time,
-                value: record.value,
-              };
+              const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
+              const convertedCell = { ...cell };
+              if (cell.history) {
+                convertedCell.history = cell.history.map((record, recordIndex) => {
+                  // 2017-12-19T01:02:03
+                  // =>
+                  // 1513645323000
+                  // TODO: catch errors.
+                  const time = new Date(record.time).getTime();
+                  return {
+                    time,
+                    value: record.value,
+                  };
+                });
+
+                // TODO: test.
+                convertedCell.history.sort((a, b) => a.time > b.time);
+              }
+
+              cells[cellId] = convertedCell;
             });
+          });
 
-            // TODO: test.
-            convertedCell.history.sort((a, b) => a.time > b.time);
-          }
+          tableData.data = data;
+          break;
+        }
 
-          cells[cellId] = convertedCell;
-        });
-      });
-
-      tableData.data = data;
+        default:
+      }
     } else {
       tableData.data = initialTable().data;
     }

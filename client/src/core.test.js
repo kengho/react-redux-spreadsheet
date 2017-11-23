@@ -252,56 +252,59 @@ describe('core', () => {
     });
 
     it('should return JSON out of table data', () => {
-      const expectedJSON = JSON.stringify([
-        [
-          {
-            history: [
-              {
-                time: '2017-12-19T01:01:01',
-                value: '00-history-1',
-              },
-            ],
-          },
-          {
-            value: '01',
-            history: [
-              {
-                time: '2017-12-19T01:02:01',
-                value: '01-history-1',
-              },
-              {
-                time: '2017-12-19T01:02:02',
-                value: '01-history-2',
-              },
-            ],
-          },
-          {
-            value: '02',
-          },
-        ],
-        [
-          {
-            value: '10',
-            history: [
-              {
-                time: '2017-12-19T01:03:01',
-                value: '10-history-1',
-              },
-              {
-                time: '2017-12-19T01:03:02',
-                value: '10-history-2',
-              },
-            ],
-          },
-          {
-            value: '11',
-          },
-          {},
-        ],
-        [{}, {}, { value: '22' }],
-        [{}, {}, {}],
-        [{ value: '40' }, {}, {}],
-      ]);
+      const expectedJSON = JSON.stringify({
+        version: '1',
+        data: [
+          [
+            {
+              history: [
+                {
+                  time: '2017-12-19T01:01:01',
+                  value: '00-history-1',
+                },
+              ],
+            },
+            {
+              value: '01',
+              history: [
+                {
+                  time: '2017-12-19T01:02:01',
+                  value: '01-history-1',
+                },
+                {
+                  time: '2017-12-19T01:02:02',
+                  value: '01-history-2',
+                },
+              ],
+            },
+            {
+              value: '02',
+            },
+          ],
+          [
+            {
+              value: '10',
+              history: [
+                {
+                  time: '2017-12-19T01:03:01',
+                  value: '10-history-1',
+                },
+                {
+                  time: '2017-12-19T01:03:02',
+                  value: '10-history-2',
+                },
+              ],
+            },
+            {
+              value: '11',
+            },
+            {},
+          ],
+          [{}, {}, { value: '22' }],
+          [{}, {}, {}],
+          [{ value: '40' }, {}, {}],
+        ]
+      });
 
       const convertOptions = {
         inputFormat: 'object',
