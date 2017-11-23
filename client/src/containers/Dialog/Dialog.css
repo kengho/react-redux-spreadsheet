@@ -1,5 +1,5 @@
 .dialog div[role="document"] {
-  width: 400px !important;
+  width: 500px !important;
   padding: 16px;
 }
 
@@ -13,8 +13,16 @@
   padding: 8px;
 }
 
+.dialog-import {
+  display: flex;
+}
+
 .dialog .dialog-import input[type="file"] {
   display: none;
+}
+
+.dialog .dialog-import label {
+  white-space: nowrap;
 }
 
 .dialog .dialog-import .fake-input {
@@ -24,6 +32,7 @@
   background-color: white;
   padding: 8px;
   border: none;
+  flex-grow: 1;
 }
 
 .dialog .dialog-errors {
