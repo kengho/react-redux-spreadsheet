@@ -20,27 +20,32 @@ const defaultProps = {
   errors: List(),
 };
 
-class ImportFromCSVDialog extends React.PureComponent {
+class ImportDialog extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.handleCSVFileImport = this.handleCSVFileImport.bind(this);
+    this.handleFileImport = this.handleFileImport.bind(this);
 
-    this.importAction = null;
+    // Just in case.
+    this.importAction = () => {};
   }
 
-  handleCSVFileImport(evt) {
+  handleFileImport(evt) {
     // TODO: drag-and-drop.
     const input = evt.target;
     const reader = new FileReader();
 
     reader.onload = (file) => {
-      const csv = reader.result;
-      const tableData = convert(csv, { inputFormat: 'csv', outputFormat: 'object' });
+      const filename = input.files[0].name
+      this.fileFakeInput.value = filename;
+      this.fileFakeInput.title = filename;
 
-      const fileName = input.files[0].name
-      this.fileFakeInput.value = fileName;
-      this.fileFakeInput.title = fileName;
+      // TODO: unsupported format excepton.
+      const extention = filename.split('.').pop();
+
+      // TODO: extention => format mapping.
+      const fileContent = reader.result;
+      const tableData = convert(fileContent, { inputFormat: extention, outputFormat: 'object' });
 
       this.importAction = () => {
         this.props.actions.tableSetFromJSON(
@@ -51,7 +56,7 @@ class ImportFromCSVDialog extends React.PureComponent {
       this.props.actions.uiOpen('DIALOG', {
         disableYesButton: false,
         errors: tableData.errors,
-        variant: 'IMPORT_FROM_CSV',
+        variant: 'IMPORT',
       });
 
       // Fixind error
@@ -69,16 +74,17 @@ class ImportFromCSVDialog extends React.PureComponent {
       errors,
     } = this.props;
 
+    // TODO: describe json format.
     return ([
       <MaterialDialogTitle key="dialog-title">
-        Select CSV file
+        Select file (CSV, JSON)
       </MaterialDialogTitle>,
       <MaterialDialogContent key="dialog-content">
         <div className="dialog-import">
           <input
-            accept="csv,CSV"
+            accept="csv,CSV,json,JSON"
             id="file"
-            onChange={this.handleCSVFileImport}
+            onChange={this.handleFileImport}
             type="file"
           />
           <label htmlFor="file">
@@ -123,7 +129,7 @@ class ImportFromCSVDialog extends React.PureComponent {
             () => {
               // NOTE: importAction should be not null if we press yes button,
               //   because otherwise yes button would be inactive.
-              //   See handleCSVFileImport().
+              //   See handleFileImport().
               this.importAction();
               actions.uiClose();
             }
@@ -136,7 +142,7 @@ class ImportFromCSVDialog extends React.PureComponent {
   }
 }
 
-ImportFromCSVDialog.propTypes = propTypes;
-ImportFromCSVDialog.defaultProps = defaultProps;
+ImportDialog.propTypes = propTypes;
+ImportDialog.defaultProps = defaultProps;
 
-export default ImportFromCSVDialog;
+export default ImportDialog;

@@ -14,7 +14,7 @@
 
 * auto sync with server with requests queue
 * auto saving cells' values history
-* export/import to/from CSV
+* export/import to/from CSV/JSON
 * basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Home`, `End`, `Delete`)
 * copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`)
 * [redux-undo](https://github.com/omnidan/redux-undo)-powered undo/redo (`Ctrl+Z`, `Ctrl+Y`)

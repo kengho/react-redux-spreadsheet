@@ -395,4 +395,110 @@ export function convert(object, options) {
 
     return tableData;
   }
+
+  // Immutable to JSON.
+  // TODO: DRY.
+  if (options.inputFormat === 'object' && options.outputFormat === 'json') {
+    const data = object;
+    const rows = data.get('rows');
+    const columns = data.get('columns');
+    const cells = data.get('cells');
+    const croppedSize = getCroppedSize(data);
+
+    const JSONArray = [];
+    for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
+      const JSONRowArray = [];
+      for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
+        const currentCellId = getCellId(
+          rows.getIn([rowIterator, 'id']),
+          columns.getIn([columnIterator, 'id'])
+        );
+        const currentCell = cells.get(currentCellId);
+
+        let cell = {};
+        if (currentCell) {
+          const currentCellValue = currentCell.get('value');
+          if (currentCellValue && currentCellValue !== '') {
+            cell.value = currentCellValue;
+          }
+          if (currentCell.get('history')) {
+            cell.history = currentCell.get('history').map((record) => {
+              // 1513645323000
+              // =>
+              // 2017-12-19T01:02:03.000Z
+              // =>
+              // 2017-12-19T01:02:03
+              // // https://stackoverflow.com/a/34053802
+              const time = (new Date(record.get('time')).toISOString()).split('.')[0];
+              return {
+                time,
+                value: record.get('value'),
+              };
+            });
+          }
+        }
+
+        JSONRowArray.push(cell);
+      }
+      JSONArray.push(JSONRowArray);
+    }
+
+    return JSON.stringify(JSONArray);
+  }
+
+  // JSON to object.
+  if (options.inputFormat === 'json' && options.outputFormat === 'object') {
+    let parsedJSON;
+    const tableData = {};
+    try {
+      parsedJSON = JSON.parse(object);
+    } catch(err) {
+      tableData.errors = [`${err.name}: ${err.message}`]
+    }
+
+    if (parsedJSON) {
+      const dataArrayRowsNumber = parsedJSON.length;
+      const dataArrayColumnsNumber = parsedJSON[0].length;
+      const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
+      const rows = data.rows;
+      const columns = data.columns;
+      const cells = data.cells;
+
+      parsedJSON.forEach((row, rowIndex) => {
+        row.forEach((cell, columnIndex) => {
+          // Skip empty cells.
+          if (Object.keys(cell).length === 0) {
+            return;
+          }
+
+          const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
+          const convertedCell = { ...cell };
+          if (cell.history) {
+            convertedCell.history = cell.history.map((record, recordIndex) => {
+              // 2017-12-19T01:02:03
+              // =>
+              // 1513645323000
+              // TODO: catch errors.
+              const time = new Date(record.time).getTime();
+              return {
+                time,
+                value: record.value,
+              };
+            });
+
+            // TODO: test.
+            convertedCell.history.sort((a, b) => a.time > b.time);
+          }
+
+          cells[cellId] = convertedCell;
+        });
+      });
+
+      tableData.data = data;
+    } else {
+      tableData.data = initialTable().data;
+    }
+
+    return tableData;
+  }
 }

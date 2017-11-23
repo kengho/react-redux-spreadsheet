@@ -22,15 +22,17 @@ const defaultProps = {
 };
 
 class TableMenu extends React.PureComponent {
-  exportToCSV() {
+  exportTo(outputFormat) {
     const formattedDate = datetime();
+
+    // TODO: uppercase constants.
     const csv = convert(this.props.data, {
       inputFormat: 'object',
-      outputFormat: 'csv',
+      outputFormat,
     });
 
     const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' });
-    FileSaver.saveAs(blob, `${formattedDate} ${this.props.shortId}.csv`);
+    FileSaver.saveAs(blob, `${formattedDate} ${this.props.shortId}.${outputFormat.toLowerCase()}`);
   }
 
   render() {
@@ -65,16 +67,23 @@ class TableMenu extends React.PureComponent {
           icon: 'HelpOutline',
           label: 'Help',
         },
+        // TODO: nested menu.
+        //   https://github.com/callemall/material-ui/issues/8152
         {
-          action: () => this.exportToCSV(),
+          action: () => this.exportTo('csv'),
           icon: 'FileUpload',
           label: 'Export to CSV',
         },
         {
+          action: () => this.exportTo('json'),
+          icon: 'FileUpload',
+          label: 'Export to JSON',
+        },
+        {
           dialogDisableYesButton: true,
-          dialogVariant: 'IMPORT_FROM_CSV',
+          dialogVariant: 'IMPORT',
           icon: 'FileDownload',
-          label: 'Import from CSV',
+          label: 'Import from file',
         },
         {
           action: () => actions.undo(),

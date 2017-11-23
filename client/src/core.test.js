@@ -147,6 +147,7 @@ describe('core', () => {
   });
 
   // TODO: return not pos, but rowNumber and columnNumber.
+  // TODO: test parsing errors.
   describe('should crop, export and import', () => {
     const emptyData = fromJS(Core.initialTable(6, 5).data);
 
@@ -181,6 +182,40 @@ describe('core', () => {
       })
     );
 
+    const historyData = data.setIn(
+      ['cells', 'r0,c0', 'history'],
+      fromJS([
+        {
+          time: Date.UTC(2017, 11, 19, 1, 1, 1),
+          value: '00-history-1',
+        },
+      ])
+    ).setIn(
+      ['cells', 'r0,c1', 'history'],
+      fromJS([
+        {
+          time: Date.UTC(2017, 11, 19, 1, 2, 1),
+          value: '01-history-1',
+        },
+        {
+          time: Date.UTC(2017, 11, 19, 1, 2, 2),
+          value: '01-history-2',
+        },
+      ])
+    ).setIn(
+      ['cells', 'r1,c0', 'history'],
+      fromJS([
+        {
+          time: Date.UTC(2017, 11, 19, 1, 3, 1),
+          value: '10-history-1',
+        },
+        {
+          time: Date.UTC(2017, 11, 19, 1, 3, 2),
+          value: '10-history-2',
+        },
+      ])
+    );
+
     it('should return size of cropped table data', () => {
       expect(Core.getCroppedSize(data)).to.deep.equal([5, 3]);
     });
@@ -195,7 +230,7 @@ describe('core', () => {
       expect(Core.convert(data, convertOptions)).to.equal(expectedCSV);
     });
 
-    it('should convert CSV back to data object', () => {
+    it('should convert CSV to data object', () => {
       const toCSVConvertOptions = {
         inputFormat: 'object',
         outputFormat: 'csv',
@@ -206,6 +241,7 @@ describe('core', () => {
         inputFormat: 'csv',
         outputFormat: 'object',
       };
+
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedData = emptyCroppedData.set(
         'cells',
@@ -213,6 +249,87 @@ describe('core', () => {
       );
 
       expect(fromJS(Core.convert(CSV, toObjectConvertOptions).data)).to.deep.equal(croppedData);
+    });
+
+    it('should return JSON out of table data', () => {
+      const expectedJSON = JSON.stringify([
+        [
+          {
+            history: [
+              {
+                time: '2017-12-19T01:01:01',
+                value: '00-history-1',
+              },
+            ],
+          },
+          {
+            value: '01',
+            history: [
+              {
+                time: '2017-12-19T01:02:01',
+                value: '01-history-1',
+              },
+              {
+                time: '2017-12-19T01:02:02',
+                value: '01-history-2',
+              },
+            ],
+          },
+          {
+            value: '02',
+          },
+        ],
+        [
+          {
+            value: '10',
+            history: [
+              {
+                time: '2017-12-19T01:03:01',
+                value: '10-history-1',
+              },
+              {
+                time: '2017-12-19T01:03:02',
+                value: '10-history-2',
+              },
+            ],
+          },
+          {
+            value: '11',
+          },
+          {},
+        ],
+        [{}, {}, { value: '22' }],
+        [{}, {}, {}],
+        [{ value: '40' }, {}, {}],
+      ]);
+
+      const convertOptions = {
+        inputFormat: 'object',
+        outputFormat: 'json',
+      };
+
+      expect(Core.convert(historyData, convertOptions)).to.deep.equal(expectedJSON);
+    });
+
+    it('should convert JSON to data object', () => {
+      const toJSONConvertOptions = {
+        inputFormat: 'object',
+        outputFormat: 'json',
+      };
+      const object = Core.convert(historyData, toJSONConvertOptions);
+
+      const toObjectConvertOptions = {
+        inputFormat: 'json',
+        outputFormat: 'object',
+      };
+
+      const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
+      const croppedHistoryData = emptyCroppedData.set(
+        'cells',
+        historyData.get('cells')
+      );
+
+      expect(fromJS(Core.convert(object, toObjectConvertOptions).data)).to.deep.equal(croppedHistoryData);
     });
   });
 });

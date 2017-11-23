@@ -8,7 +8,7 @@ import * as RequestsActions from '../../actions/requests';
 import * as TableActions from '../../actions/table';
 import * as UiActions from '../../actions/ui';
 import DestroySpreadsheetDialog from './DestroySpreadsheetDialog';
-import ImportFromCSVDialog from './ImportFromCSVDialog';
+import ImportDialog from './ImportDialog';
 import InfoDialog from './InfoDialog';
 
 const mapStateToProps = (state) => ({
@@ -52,9 +52,10 @@ class Dialog extends React.Component {
 
     // Non-extracting props (should be passed to children as well).
     const {
-      actions, // uses in DestroySpreadsheetDialog, InfoDialog and ImportFromCSVDialog
+      actions, // uses in DestroySpreadsheetDialog, InfoDialog and ImportDialog
     } = this.props;
 
+    // TODO: variants should be constants.
     let dialogBody;
     switch (variant) {
       case 'DESTROY_SPREADSHEET': {
@@ -67,8 +68,8 @@ class Dialog extends React.Component {
         break;
       }
 
-      case 'IMPORT_FROM_CSV': {
-        dialogBody = <ImportFromCSVDialog {...other} />
+      case 'IMPORT': {
+        dialogBody = <ImportDialog {...other} />
         break;
       }
 
