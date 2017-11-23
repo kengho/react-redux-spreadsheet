@@ -250,8 +250,7 @@ class Table extends React.Component {
         which: 90, // 'Ctrl+Z'
         ctrlKey: true,
         action: () => {
-          // TODO: this is broken fsr.
-          if (this.props.undo.canUndo) {
+          if (this.props.canUndo) {
             actions.undo();
           }
         },
@@ -260,7 +259,7 @@ class Table extends React.Component {
         which: 89, // 'Ctrl+Y'
         ctrlKey: true,
         action: () => {
-          if (this.props.undo.canRedo) {
+          if (this.props.canRedo) {
             actions.redo();
           }
         },
