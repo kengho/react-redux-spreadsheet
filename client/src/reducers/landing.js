@@ -1,5 +1,7 @@
 import { fromJS } from 'immutable';
 
+import * as ActionTypes from '../actionTypes';
+
 const defaultState = fromJS({
   messages: [],
   buttonIsDisabled: false,
@@ -7,13 +9,13 @@ const defaultState = fromJS({
 
 export default function meta(state = defaultState, action) {
   switch (action.type) {
-    case 'LANDING/SET_MESSAGES':
+    case ActionTypes.SET_LANDING_MESSAGES:
       return state.set(
         'messages',
         fromJS(action.messages)
       );
 
-    case 'LANDING/DISABLE_LANDING_BUTTON':
+    case ActionTypes.DISABLE_LANDING_BUTTON:
       return state.set(
         'buttonIsDisabled',
         fromJS(action.disable)

@@ -27,7 +27,7 @@ class DestroySpreadsheetDialog extends React.PureComponent {
       <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
         <Button
           key="dialog-button-no"
-          onClick={() => actions.uiClose()}
+          onClick={() => actions.closeUi()}
         >
           No, go back
         </Button>
@@ -36,7 +36,7 @@ class DestroySpreadsheetDialog extends React.PureComponent {
           onClick={
             () => {
               actions.requestsPush('DELETE', 'destroy');
-              actions.uiClose();
+              actions.closeUi();
             }
           }
         >

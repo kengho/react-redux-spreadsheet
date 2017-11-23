@@ -1,11 +1,12 @@
-import { tablePushCellHistory } from '../../actions/table';
+import * as ActionTypes from '../../actionTypes';
+import { pushCellHistory } from '../../actions/table';
 
 const pushCellHistoryOnValueChanges = store => next => action => { // eslint-disable-line consistent-return
   if (
     // Only cells' values are saving.
     action.prop !== 'value' &&
-    action.type !== 'TABLE/SET_PROP' &&
-    action.type !== 'TABLE/DELETE_PROP'
+    action.type !== ActionTypes.SET_PROP &&
+    action.type !== ActionTypes.DELETE_PROP
   ) {
     return next(action);
   }
@@ -15,7 +16,7 @@ const pushCellHistoryOnValueChanges = store => next => action => { // eslint-dis
   );
 
   const time = Date.now();
-  store.dispatch(tablePushCellHistory(action.cellId, historyValue, time));
+  store.dispatch(pushCellHistory(action.cellId, historyValue, time));
 
   return next(action);
 };

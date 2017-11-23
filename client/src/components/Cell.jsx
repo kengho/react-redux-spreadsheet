@@ -200,7 +200,7 @@ class Cell extends React.PureComponent {
     return (
       <div
         className="td"
-        onMouseOver={() => { actions.tableSetHover(this.props.cellId); } }
+        onMouseOver={() => { actions.setHover(this.props.cellId); } }
         ref={(c) => { this.domRefs['CELL'] = c; }}
       >
         {complements}

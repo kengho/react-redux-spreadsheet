@@ -1,5 +1,7 @@
 import { fromJS } from 'immutable';
 
+import * as ActionTypes from '../actionTypes';
+
 const defaultState = fromJS({
   current: {
     visibility: false,
@@ -14,7 +16,7 @@ const defaultState = fromJS({
 
 export default function ui(state = defaultState, action) {
   switch (action.type) {
-    case 'UI/OPEN':
+    case ActionTypes.OPEN_UI:
       return state
         .setIn(['current', 'visibility'], true)
         .setIn(['current', 'kind'], action.kind)
@@ -24,7 +26,7 @@ export default function ui(state = defaultState, action) {
         .setIn(['current', 'disableYesButton'], action.params.disableYesButton)
         .setIn(['current', 'errors'], fromJS(action.params.errors));
 
-    case 'UI/CLOSE':
+    case ActionTypes.CLOSE_UI:
       return state.setIn(['current', 'visibility'], false);
 
     default:

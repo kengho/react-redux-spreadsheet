@@ -5,7 +5,7 @@ import {
   initialState,
 } from '../core';
 import * as DetachmentsActions from '../actions/detachments';
-import * as LandingActions from '../actions/landing'; // landingSetMessages()
+import * as LandingActions from '../actions/landing'; // setLandingMessages()
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
 import * as TableActions from '../actions/table';
@@ -20,7 +20,7 @@ import Table from '../components/Table';
 
 const mapStateToProps = (state) => ({
   canRedo: state.get('table').future.length > 0,
-  canUndo: state.get('table').past.length > 1, // omitting TABLE/SET_TABLE_FROM_JSON
+  canUndo: state.get('table').past.length > 1, // omitting ActionTypes.SET_TABLE_FROM_JSON
   detachments: state.get('detachments'),
   meta: state.get('meta'),
   requests: state.get('requests'),
@@ -46,10 +46,10 @@ class Spreadsheet extends React.Component {
   componentDidMount() {
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
-      this.props.actions.metaSetShortId('1');
+      this.props.actions.setShortId('1');
 
       const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
-      this.props.actions.tableSetFromJSON(initialJSONTable);
+      this.props.actions.setTableFromJSON(initialJSONTable);
       return;
     }
 
@@ -61,12 +61,12 @@ class Spreadsheet extends React.Component {
           if (json.errors) {
             const errors = json.errors.map((error) => error.detail);
 
-            this.props.actions.landingSetMessages(errors);
+            this.props.actions.setLandingMessages(errors);
             this.props.history.push(getRootPath());
           } else {
             // store's shortId used in handleRequestsChanges().
-            this.props.actions.metaSetShortId(shortId);
-            this.props.actions.tableSetFromJSON(json.data.table);
+            this.props.actions.setShortId(shortId);
+            this.props.actions.setTableFromJSON(json.data.table);
           }
         });
     }

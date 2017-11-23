@@ -1,5 +1,7 @@
 import { fromJS } from 'immutable';
 
+import * as ActionTypes from '../actionTypes';
+
 const findRequestById = (state, id) => {
   return state.get(
     'queue'
@@ -10,7 +12,7 @@ const findRequestById = (state, id) => {
 
 export default function requests(state = fromJS({ queue: [], counter: 0 }), action) {
   switch (action.type) {
-    case 'REQUESTS/PUSH': {
+    case ActionTypes.PUSH_REQUEST: {
       const counter = state.get('counter');
 
       const request = {};
@@ -28,7 +30,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
       );
     }
 
-    case 'REQUESTS/POP': {
+    case ActionTypes.POP_REQUEST: {
       const deleteIndex = findRequestById(state, action.id);
 
       if (deleteIndex !== -1) {
@@ -41,7 +43,7 @@ export default function requests(state = fromJS({ queue: [], counter: 0 }), acti
       break;
     }
 
-    case 'REQUESTS/MARK_AS_FAILED': {
+    case ActionTypes.MARK_REQUEST_AS_FAILED: {
       const setIndex = findRequestById(state, action.id);
 
       if (setIndex !== -1) {

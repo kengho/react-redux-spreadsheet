@@ -1,13 +1,15 @@
 import uuid from 'uuid/v4';
 
+import * as ActionTypes from '../actionTypes';
+
 // TODO: more docs.
 // changesData prop triggers server sync.
 // triggersRowUpdate prop triggers row update (your K.O.).
 
 // changesData should be true for import and false for initial data load.
-export function tableSetFromJSON(tableJSON, changesData: false) {
+export function setTableFromJSON(tableJSON, changesData: false) {
   return {
-    type: 'TABLE/SET_TABLE_FROM_JSON',
+    type: ActionTypes.SET_TABLE_FROM_JSON,
     tableJSON,
     changesData,
   };
@@ -19,9 +21,9 @@ export function tableSetFromJSON(tableJSON, changesData: false) {
 // propsComparePaths should be set.
 // If nor cellIdGetter or propsComparePaths are set, cellId should be set.
 // See client/src/store/middleware/detectRowUpdatesNeed.js.
-export function tableSetProp(cellId, prop, value) {
+export function setProp(cellId, prop, value) {
   return {
-    type: 'TABLE/SET_PROP',
+    type: ActionTypes.SET_PROP,
     changesData: true,
     triggersRowUpdate: true,
     propsComparePaths: [['data', 'cells', cellId, prop]],
@@ -33,7 +35,7 @@ export function tableSetProp(cellId, prop, value) {
 
 export function tableDeleteProp(cellId, prop) {
   return {
-    type: 'TABLE/DELETE_PROP',
+    type: ActionTypes.DELETE_PROP,
     changesData: true,
     triggersRowUpdate: true,
     propsComparePaths: [['data', 'cells', cellId, prop]],
@@ -42,16 +44,16 @@ export function tableDeleteProp(cellId, prop) {
   };
 }
 
-export function tableSetHover(cellId) {
+export function setHover(cellId) {
   return {
-    type: 'TABLE/SET_HOVER',
+    type: ActionTypes.SET_HOVER,
     cellId,
   };
 }
 
-export function tableSetPointer(pointer) {
+export function setPointer(pointer) {
   return {
-    type: 'TABLE/SET_POINTER',
+    type: ActionTypes.SET_POINTER,
     triggersRowUpdate: true,
     cellIdPath: ['session', 'pointer', 'cellId'],
     propsComparePaths: [['session', 'pointer', 'modifiers']],
@@ -60,9 +62,9 @@ export function tableSetPointer(pointer) {
   };
 }
 
-export function tableMovePointer(key) {
+export function movePointer(key) {
   return {
-    type: 'TABLE/MOVE_POINTER',
+    type: ActionTypes.MOVE_POINTER,
     triggersRowUpdate: true,
     cellIdPath: ['session', 'pointer', 'cellId'],
     key,
@@ -86,7 +88,7 @@ export function tableSetClipboard(clipboard) {
   }
 
   return {
-    type: 'TABLE/SET_CLIPBOARD',
+    type: ActionTypes.SET_CLIPBOARD,
     triggersRowUpdate: true,
     cellId,
     cellIdGetter,
@@ -94,7 +96,7 @@ export function tableSetClipboard(clipboard) {
   };
 }
 
-export function tableSetRowUpdateTrigger(rowId, ids) {
+export function triggerRowUpdate(rowId, ids) {
   let rowIds;
   if (Array.isArray(rowId)) {
     rowIds = rowId;
@@ -107,26 +109,26 @@ export function tableSetRowUpdateTrigger(rowId, ids) {
   }
 
   return {
-    type: 'TABLE/SET_ROW_UPDATE_TRIGGER',
+    type: ActionTypes.TRIGGER_ROW_UPDATE,
     rowIds,
     ids,
   };
 }
 
-export function tableReduce(lineNumber, lineRef) {
+export function deleteLine(lineNumber, lineRef) {
   return {
-    type: 'TABLE/REDUCE',
+    type: ActionTypes.DELETE_LINE,
     changesData: true,
     lineNumber,
     lineRef,
   };
 }
 
-export function tableExpand(lineNumber, lineRef, id = uuid()) {
+export function addLine(lineNumber, lineRef, id = uuid()) {
   return {
-    type: 'TABLE/EXPAND',
+    type: ActionTypes.ADD_LINE,
 
-    // Even though tableExpand() changes data, we don't want
+    // Even though addLine() changes data, we don't want
     // 1) to press Ctrl+Z twice to undo SET_PROP, EXPAND actions sequence, and
     // 2) to send empty rows to server each time user presses ArrowDown.
     changesData: false,
@@ -136,18 +138,18 @@ export function tableExpand(lineNumber, lineRef, id = uuid()) {
   };
 }
 
-export function tablePushCellHistory(cellId, value, time) {
+export function pushCellHistory(cellId, value, time) {
   return {
-    type: 'TABLE/PUSH_CELL_HISTORY',
+    type: ActionTypes.PUSH_CELL_HISTORY,
     cellId,
     value,
     time,
   };
 }
 
-export function tableDeleteCellHistory(cellId, historyIndex) {
+export function deleteCellHistory(cellId, historyIndex) {
   return {
-    type: 'TABLE/DELETE_CELL_HISTORY',
+    type: ActionTypes.DELETE_CELL_HISTORY,
     triggersRowUpdate: true,
     changesData: true,
     cellId,
@@ -155,8 +157,8 @@ export function tableDeleteCellHistory(cellId, historyIndex) {
   };
 }
 
-export function tableSaveEditingCellValueIfNeeded() {
+export function saveEditingCellValueIfNeeded() {
   return {
-    type: 'TABLE/SAVE_EDITING_CELL_VALUE_IF_NEEDED',
+    type: ActionTypes.SAVE_EDITING_CELL_VALUE_IF_NEEDED,
   };
 }

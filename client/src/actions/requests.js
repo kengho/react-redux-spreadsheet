@@ -1,8 +1,10 @@
 import uuid from 'uuid/v4';
 
+import * as ActionTypes from '../actionTypes';
+
 export function requestsPush(method, action, params, id = uuid()) {
   return {
-    type: 'REQUESTS/PUSH',
+    type: ActionTypes.PUSH_REQUEST,
     method,
     action,
     params,
@@ -12,14 +14,14 @@ export function requestsPush(method, action, params, id = uuid()) {
 
 export function requestsPop(id) {
   return {
-    type: 'REQUESTS/POP',
+    type: ActionTypes.POP_REQUEST,
     id,
   };
 }
 
 export function requestsMarkAsFailed(id) {
   return {
-    type: 'REQUESTS/MARK_AS_FAILED',
+    type: ActionTypes.MARK_REQUEST_AS_FAILED,
     id,
   };
 }

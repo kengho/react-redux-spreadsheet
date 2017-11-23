@@ -65,8 +65,8 @@ class Data extends React.PureComponent {
       return;
     }
 
-    this.props.actions.tableSaveEditingCellValueIfNeeded();
-    this.props.actions.tableSetPointer({ cellId: this.props.cellId, modifiers: {} });
+    this.props.actions.saveEditingCellValueIfNeeded();
+    this.props.actions.setPointer({ cellId: this.props.cellId, modifiers: {} });
   }
 
   doubleClickHandler(evt) {
@@ -89,7 +89,7 @@ class Data extends React.PureComponent {
     //   Catching 'mousedown' after 'mouseup' in 400ms interval and changind pointer
     //   even before real doubleclick fired should work, but it seems really hacky and
     //   ignores system doubleclick interval settings.
-    this.props.actions.tableSetPointer({ cellId: this.props.cellId, modifiers: { edit: true } });
+    this.props.actions.setPointer({ cellId: this.props.cellId, modifiers: { edit: true } });
   }
 
   onFocusHandler(evt) {
@@ -113,35 +113,35 @@ class Data extends React.PureComponent {
     }
 
     const value = evt.target.value;
-    this.props.actions.detachmentsSetCurrentCellValue(value);
+    this.props.actions.setCurrentCellValue(value);
   }
 
   keyDownHandler(evt) {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
 
-    const tableSetPropIfNeeded = () => {
+    const setPropIfNeeded = () => {
       const nextValue = this.textareaInputEl.value;
       const previousValue = this.props.value;
       if (nextValue !== previousValue) {
-        this.props.actions.tableSetProp(this.props.cellId, 'value', nextValue);
+        this.props.actions.setProp(this.props.cellId, 'value', nextValue);
       }
     };
 
-    const tableSetPropIfNeededAndMovePointer = (key) => {
-      tableSetPropIfNeeded();
-      this.props.actions.tableMovePointer(key);
+    const setPropIfNeededAndMovePointer = (key) => {
+      setPropIfNeeded();
+      this.props.actions.movePointer(key);
     };
 
     const action = findKeyAction(evt, [
       {
         key: 'Enter',
-        action: () => tableSetPropIfNeededAndMovePointer('ArrowDown'),
+        action: () => setPropIfNeededAndMovePointer('ArrowDown'),
       },
       {
         key: 'Enter',
         shiftKey: true,
-        action: () => tableSetPropIfNeededAndMovePointer('ArrowUp'),
+        action: () => setPropIfNeededAndMovePointer('ArrowUp'),
       },
       {
         key: 'Enter',
@@ -157,19 +157,19 @@ class Data extends React.PureComponent {
       },
       {
         key: 'Tab',
-        action: () => tableSetPropIfNeededAndMovePointer('ArrowRight'),
+        action: () => setPropIfNeededAndMovePointer('ArrowRight'),
       },
       {
         key: 'Tab',
         shiftKey: true,
-        action: () =>  tableSetPropIfNeededAndMovePointer('ArrowLeft'),
+        action: () =>  setPropIfNeededAndMovePointer('ArrowLeft'),
       },
       {
         key: 'Escape',
         action: () => {
           const previousValue = this.props.value;
-          this.props.actions.detachmentsSetCurrentCellValue(previousValue);
-          this.props.actions.tableSetPointer({ modifiers: {} });
+          this.props.actions.setCurrentCellValue(previousValue);
+          this.props.actions.setPointer({ modifiers: {} });
         },
       },
     ]);

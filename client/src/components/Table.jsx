@@ -54,8 +54,8 @@ class Table extends React.Component {
 
     // TODO: it probably would be good to have some meta action
     //   doing such similar things at once.
-    actions.uiClose();
-    actions.tableSetPointer({ cellId: null, modifiers: {} });
+    actions.closeUi();
+    actions.setPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null });
   }
 
@@ -95,7 +95,7 @@ class Table extends React.Component {
             );
           }
 
-          actions.tableSetPointer({ cellId, modifiers });
+          actions.setPointer({ cellId, modifiers });
         },
       },
       {
@@ -132,9 +132,9 @@ class Table extends React.Component {
           }
 
           // Perform pointer movement.
-          actions.tableMovePointer(evt.key);
+          actions.movePointer(evt.key);
 
-          // TODO: move this stuff to middleware, leave only tableMovePointer() here.
+          // TODO: move this stuff to middleware, leave only movePointer() here.
           // Figure out, should we move scrollbars to align with pointer movement.
           const pointedCellAfter = document.querySelector('.pointed'); // eslint-disable-line no-undef
 
@@ -165,11 +165,11 @@ class Table extends React.Component {
       {
         key: 'Escape',
         action: () => {
-          actions.tableSetPointer({ cellId: null, modifiers: {} });
+          actions.setPointer({ cellId: null, modifiers: {} });
           actions.tableSetClipboard({ cells: {}, operation: null});
 
           // CellHistory doesn't have own keydown handler.
-          actions.uiClose();
+          actions.closeUi();
         },
       },
       {
@@ -242,7 +242,7 @@ class Table extends React.Component {
 
           // TODO: copy all props.
           if (currentValue !== clipboardValue) {
-            actions.tableSetProp(pointerCellId, 'value', clipboardValue);
+            actions.setProp(pointerCellId, 'value', clipboardValue);
           }
         },
       },
@@ -250,6 +250,7 @@ class Table extends React.Component {
         which: 90, // 'Ctrl+Z'
         ctrlKey: true,
         action: () => {
+          // TODO: this is broken fsr.
           if (this.props.undo.canUndo) {
             actions.undo();
           }
@@ -335,7 +336,7 @@ class Table extends React.Component {
     return (
       <div
         className={`table ${thereIsClipboard ? 'clipboard' : ''}`}
-        onMouseLeave={() => { actions.tableSetHover(null); }}
+        onMouseLeave={() => { actions.setHover(null); }}
         style={this.style}
       >
         <TableMenu

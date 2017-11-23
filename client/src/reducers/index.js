@@ -2,6 +2,7 @@ import { combineReducers } from 'redux-immutable';
 import { routerReducer } from 'react-router-redux';
 import undoable from 'redux-undo';
 
+import * as ActionTypes from '../actionTypes';
 import detachments from './detachments';
 import landing from './landing';
 import meta from './meta';
@@ -16,9 +17,9 @@ const rootReducer = combineReducers({
   requests,
   table: undoable(table, {
     filter: (action) => {
-      // Dispaching 'TABLE/SET_TABLE_FROM_JSON' saves initial state to history.
+      // Dispaching ActionTypes.SET_TABLE_FROM_JSON saves initial state to history.
       // https://github.com/omnidan/redux-undo/issues/157#issuecomment-298245650
-      return (action.changesData || action.type === 'TABLE/SET_TABLE_FROM_JSON');
+      return (action.changesData || action.type === ActionTypes.SET_TABLE_FROM_JSON);
     },
   }),
   router: routerReducer,

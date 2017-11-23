@@ -48,12 +48,12 @@ class ImportDialog extends React.PureComponent {
       const tableData = convert(fileContent, { inputFormat: extention, outputFormat: 'object' });
 
       this.importAction = () => {
-        this.props.actions.tableSetFromJSON(
+        this.props.actions.setTableFromJSON(
           JSON.stringify({ data: tableData.data }), true
         );
       };
 
-      this.props.actions.uiOpen('DIALOG', {
+      this.props.actions.openUi('DIALOG', {
         disableYesButton: false,
         errors: tableData.errors,
         variant: 'IMPORT',
@@ -115,7 +115,7 @@ class ImportDialog extends React.PureComponent {
           key="dialog-button-no"
           onClick={
             () => {
-              actions.uiClose();
+              actions.closeUi();
               this.fileFakeInput.value = '';
             }
           }
@@ -131,7 +131,7 @@ class ImportDialog extends React.PureComponent {
               //   because otherwise yes button would be inactive.
               //   See handleFileImport().
               this.importAction();
-              actions.uiClose();
+              actions.closeUi();
             }
           }
         >

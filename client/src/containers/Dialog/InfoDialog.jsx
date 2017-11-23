@@ -51,7 +51,7 @@ class InfoDialog extends React.PureComponent {
       </MaterialDialogContent>,
       <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
         <Button
-          onClick={() => actions.uiClose()}
+          onClick={() => actions.closeUi()}
         >
           OK
         </Button>

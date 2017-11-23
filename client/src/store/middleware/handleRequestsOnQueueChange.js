@@ -6,6 +6,7 @@ import {
   requestsPop,
   requestsMarkAsFailed,
 } from '../../actions/requests';
+import * as ActionTypes from '../../actionTypes';
 import fetchServer from './../../lib/fetchServer';
 import getRootPath from './../../lib/getRootPath';
 
@@ -13,7 +14,7 @@ const REQUEST_RETRY_TIMEOUT = 60 * 1000; // 1 min
 
 const composeRequest = (store, action) => {
   let data;
-  if (action.type === 'REQUESTS/POP') {
+  if (action.type === ActionTypes.POP_REQUEST) {
     // 0-th request is popping, so we should handle 1-th now.
     data = store.getState().get('requests').get('queue').get(1).toJS();
   } else {
@@ -73,6 +74,8 @@ const handleRequest = (store, composedRequest) => {
 };
 
 const handleRequestsOnQueueChanges = store => next => action => {
+  // TODO: explicitly list capturing actions
+  //   or use if else below instead.
   if (!action.type.match('REQUEST')) {
     return next(action);
   }
@@ -80,7 +83,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
   const requests = store.getState().get('requests').get('queue');
 
   let composedRequest;
-  if (action.type === 'REQUESTS/PUSH') {
+  if (action.type === ActionTypes.PUSH_REQUEST) {
     // If there are more than one request in stack,
     // there is already a request processing via 'MARK_REQUEST_AS_FAILED' branch.
     if (requests.size > 0) {
@@ -91,7 +94,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
     handleRequest(store, composedRequest);
   }
 
-  if (action.type === 'REQUESTS/POP') {
+  if (action.type === ActionTypes.POP_REQUEST) {
     // If we popping last request in queue, there is nothing to do.
     if (requests.size === 1) {
       return next(action);
@@ -101,7 +104,7 @@ const handleRequestsOnQueueChanges = store => next => action => {
     handleRequest(store, composedRequest);
   }
 
-  if (action.type === 'REQUESTS/MARK_AS_FAILED') {
+  if (action.type === ActionTypes.MARK_REQUEST_AS_FAILED) {
     const request = requests.find((someRequest) => someRequest.get('id') === action.id);
 
     if (!request) {

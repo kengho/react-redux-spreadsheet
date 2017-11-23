@@ -37,7 +37,7 @@ class LineMenu extends React.PureComponent {
       // Don't allow to delete first row/column if there are only one row/column left.
       if (!isLineOnly) {
         cellsMenuItems.push({
-          action: () => actions.tableReduce(lineNumber, place),
+          action: () => actions.deleteLine(lineNumber, place),
           icon: 'Close',
 
           // TODO: i18n.
@@ -46,12 +46,12 @@ class LineMenu extends React.PureComponent {
       }
       cellsMenuItems.push(
         {
-          action: () => actions.tableExpand(lineNumber, place),
+          action: () => actions.addLine(lineNumber, place),
           icon: 'KeyboardArrowUp',
           label: 'Insert row above',
         },
         {
-          action: () => actions.tableExpand(lineNumber + 1, place),
+          action: () => actions.addLine(lineNumber + 1, place),
           icon: 'KeyboardArrowDown',
           label: 'Insert row below',
         }
@@ -59,19 +59,19 @@ class LineMenu extends React.PureComponent {
     } else if (place === 'COLUMN') {
       if (!isLineOnly) {
         cellsMenuItems.push({
-          action: () => actions.tableReduce(lineNumber, place),
+          action: () => actions.deleteLine(lineNumber, place),
           icon: 'Close',
           label: 'Delete column',
         });
       }
       cellsMenuItems.push(
         {
-          action: () => actions.tableExpand(lineNumber, place),
+          action: () => actions.addLine(lineNumber, place),
           icon: 'ChevronLeft',
           label: 'Insert column at left',
         },
         {
-          action: () => actions.tableExpand(lineNumber + 1, place),
+          action: () => actions.addLine(lineNumber + 1, place),
           icon: 'ChevronRight',
           label: 'Insert column at right',
         }

@@ -1,10 +1,11 @@
-import { tableSetProp } from '../../actions/table';
+import * as ActionTypes from '../../actionTypes';
+import { setProp } from '../../actions/table';
 
-const tableSaveEditingCellValueIfNeeded = store => next => action => { // eslint-disable-line consistent-return
+const saveEditingCellValueIfNeeded = store => next => action => { // eslint-disable-line consistent-return
   // Saving previously edited cells' value via detachments.
   //   It should be done in middleware because DataCell doesn't know
   //   about previous pointer if user clicks on another DataCell.
-  if (action.type !== 'TABLE/SAVE_EDITING_CELL_VALUE_IF_NEEDED') {
+  if (action.type !== ActionTypes.SAVE_EDITING_CELL_VALUE_IF_NEEDED) {
     return next(action);
   }
 
@@ -27,7 +28,7 @@ const tableSaveEditingCellValueIfNeeded = store => next => action => { // eslint
 
   if (pointedCellNextValue !== pointedCellPreviousValue) {
     store.dispatch(
-      tableSetProp(
+      setProp(
         pointerCellId,
         'value',
         pointedCellNextValue
@@ -38,4 +39,4 @@ const tableSaveEditingCellValueIfNeeded = store => next => action => { // eslint
   return next(action);
 };
 
-export default tableSaveEditingCellValueIfNeeded;
+export default saveEditingCellValueIfNeeded;

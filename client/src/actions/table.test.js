@@ -45,7 +45,7 @@ describe('table', () => {
     }`;
 
     const store = configureStore();
-    store.dispatch(TableActions.tableSetFromJSON(tableJSON));
+    store.dispatch(TableActions.setTableFromJSON(tableJSON));
 
     const expectedTable = fromJS({
       data: {
@@ -87,7 +87,7 @@ describe('table', () => {
     }`;
 
     const store = configureStore();
-    store.dispatch(TableActions.tableSetFromJSON(tableJSON));
+    store.dispatch(TableActions.setTableFromJSON(tableJSON));
 
     const expectedTable = fromJS({
       data: {
@@ -126,7 +126,7 @@ describe('table', () => {
       const cellId = 'r1,c1';
       const value = 'Cell value';
 
-      store.dispatch(TableActions.tableSetProp(cellId, 'value', value));
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
       const expectedCells = fromJS({ 'r1,c1': { value } });
 
       expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
@@ -138,7 +138,7 @@ describe('table', () => {
       const cellId = undefined;
       const value = 'Cell value';
 
-      store.dispatch(TableActions.tableSetProp(cellId, 'value', value));
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
       const expectedCells = fromJS({});
 
       expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
@@ -151,8 +151,8 @@ describe('table', () => {
       const value = 'Cell value';
       const color = 'red';
 
-      store.dispatch(TableActions.tableSetProp(cellId, 'value', value));
-      store.dispatch(TableActions.tableSetProp(cellId, 'color', color));
+      store.dispatch(TableActions.setProp(cellId, 'value', value));
+      store.dispatch(TableActions.setProp(cellId, 'color', color));
       store.dispatch(TableActions.tableDeleteProp(cellId, 'color'));
 
       const expectedCells = fromJS({ 'r1,c1': { value } });
@@ -180,7 +180,7 @@ describe('table', () => {
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
-      store.dispatch(TableActions.tableSetHover(cellId));
+      store.dispatch(TableActions.setHover(cellId));
 
       const expectedHover = 'r1,c1';
 
@@ -197,7 +197,7 @@ describe('table', () => {
         modifiers: { edit: true },
       };
 
-      store.dispatch(TableActions.tableSetPointer(pointer));
+      store.dispatch(TableActions.setPointer(pointer));
 
       const expectedPointer = fromJS(pointer);
 
@@ -209,7 +209,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('ArrowUp'));
+        store.dispatch(TableActions.movePointer('ArrowUp'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c0',
@@ -223,8 +223,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r1,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('ArrowUp'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r1,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('ArrowUp'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c2',
@@ -238,8 +238,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('ArrowUp'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r0,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('ArrowUp'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c2',
@@ -253,7 +253,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('PageUp'));
+        store.dispatch(TableActions.movePointer('PageUp'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c0',
@@ -267,8 +267,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('PageUp'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('PageUp'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c2',
@@ -282,8 +282,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('PageUp'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r0,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('PageUp'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c2',
@@ -297,7 +297,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('ArrowDown'));
+        store.dispatch(TableActions.movePointer('ArrowDown'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c0',
@@ -311,8 +311,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('ArrowDown'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('ArrowDown'));
 
         const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }, { id: 'r3a' }]);
         const expectedPointer = fromJS({
@@ -328,7 +328,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('PageDown'));
+        store.dispatch(TableActions.movePointer('PageDown'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c0',
@@ -342,8 +342,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('PageDown'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r0,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('PageDown'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c2',
@@ -357,8 +357,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('PageDown'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('PageDown'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c2',
@@ -372,7 +372,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('ArrowLeft'));
+        store.dispatch(TableActions.movePointer('ArrowLeft'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c3',
@@ -386,8 +386,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('ArrowLeft'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('ArrowLeft'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c1',
@@ -401,8 +401,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c0', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('ArrowLeft'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c0', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('ArrowLeft'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c0',
@@ -416,7 +416,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('Home'));
+        store.dispatch(TableActions.movePointer('Home'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c0',
@@ -430,8 +430,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('Home'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('Home'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c0',
@@ -445,8 +445,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c0', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('Home'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c0', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('Home'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c0',
@@ -460,7 +460,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('ArrowRight'));
+        store.dispatch(TableActions.movePointer('ArrowRight'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c0',
@@ -474,8 +474,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r0,c3', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('ArrowRight'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r0,c3', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('ArrowRight'));
 
         const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }, { id: 'c4a' }]);
         const expectedPointer = fromJS({
@@ -491,7 +491,7 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableMovePointer('End'));
+        store.dispatch(TableActions.movePointer('End'));
 
         const expectedPointer = fromJS({
           cellId: 'r0,c3',
@@ -505,8 +505,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c1', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('End'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c1', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('End'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c3',
@@ -520,8 +520,8 @@ describe('table', () => {
         const state = Core.initialState(...tableSize, true);
         const store = configureStore(state);
 
-        store.dispatch(TableActions.tableSetPointer({ cellId: 'r2,c3', modifiers: {} }));
-        store.dispatch(TableActions.tableMovePointer('End'));
+        store.dispatch(TableActions.setPointer({ cellId: 'r2,c3', modifiers: {} }));
+        store.dispatch(TableActions.movePointer('End'));
 
         const expectedPointer = fromJS({
           cellId: 'r2,c3',
@@ -561,7 +561,7 @@ describe('table', () => {
       const rowId = 'r1';
       const ids = ['id1'];
 
-      store.dispatch(TableActions.tableSetRowUpdateTrigger(rowId, ids));
+      store.dispatch(TableActions.triggerRowUpdate(rowId, ids));
 
       const expectedUpdateTriggersJS = {
         data: {
@@ -580,7 +580,7 @@ describe('table', () => {
       const rowIds = ['r1', 'r2', undefined];
       const ids = ['id1', 'id2'];
 
-      store.dispatch(TableActions.tableSetRowUpdateTrigger(rowIds, ids));
+      store.dispatch(TableActions.triggerRowUpdate(rowIds, ids));
 
       const expectedUpdateTriggersJS = {
         data: {
@@ -600,8 +600,8 @@ describe('table', () => {
       const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.tableSetPointer({ cellId: 'r1,c1', modifiers: {} }));
-      store.dispatch(TableActions.tableReduce(1, 'ROW'));
+      store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
+      store.dispatch(TableActions.deleteLine(1, 'ROW'));
 
       const expectedRows = fromJS([{ id: 'r0' }, { id: 'r2' }]);
       const expectedPointer = fromJS({
@@ -617,7 +617,7 @@ describe('table', () => {
       const state = Core.initialState(1, 4, true);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.tableReduce(0, 'ROW'));
+      store.dispatch(TableActions.deleteLine(0, 'ROW'));
 
       const expectedRows = fromJS([{ id: 'r0' }]);
 
@@ -628,8 +628,8 @@ describe('table', () => {
       const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.tableSetPointer({ cellId: 'r1,c1', modifiers: {} }));
-      store.dispatch(TableActions.tableReduce(1, 'COLUMN'));
+      store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
+      store.dispatch(TableActions.deleteLine(1, 'COLUMN'));
 
       const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c2' }, { id: 'c3' }]);
       const expectedPointer = fromJS({
@@ -645,7 +645,7 @@ describe('table', () => {
       const state = Core.initialState(3, 1, true);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.tableReduce(0, 'COLUMN'));
+      store.dispatch(TableActions.deleteLine(0, 'COLUMN'));
 
       const expectedColumns = fromJS([{ id: 'c0' }]);
 
@@ -658,7 +658,7 @@ describe('table', () => {
       const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.tableExpand(1, 'ROW'));
+      store.dispatch(TableActions.addLine(1, 'ROW'));
 
       const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1a' }, { id: 'r1' }, { id: 'r2' }]);
 
@@ -669,7 +669,7 @@ describe('table', () => {
       const state = Core.initialState(...tableSize, true);
       const store = configureStore(state);
 
-      store.dispatch(TableActions.tableExpand(1, 'COLUMN'));
+      store.dispatch(TableActions.addLine(1, 'COLUMN'));
 
       const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1a' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }]);
 
@@ -683,10 +683,10 @@ describe('table', () => {
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
-      store.dispatch(TableActions.tableSetProp(cellId, 'value', 'a'));
-      store.dispatch(TableActions.tablePushCellHistory(cellId, 'b', 123));
-      store.dispatch(TableActions.tablePushCellHistory(cellId, 'c', 124));
-      store.dispatch(TableActions.tablePushCellHistory(cellId, 'd', 125));
+      store.dispatch(TableActions.setProp(cellId, 'value', 'a'));
+      store.dispatch(TableActions.pushCellHistory(cellId, 'b', 123));
+      store.dispatch(TableActions.pushCellHistory(cellId, 'c', 124));
+      store.dispatch(TableActions.pushCellHistory(cellId, 'd', 125));
 
       const actualCellHistory = store.getState().get('table').present.getIn(
         ['data', 'cells', cellId, 'history']
@@ -714,12 +714,12 @@ describe('table', () => {
       const store = configureStore(state);
       const cellId = 'r1,c1';
 
-      store.dispatch(TableActions.tableSetProp(cellId, 'value', 'a'));
-      store.dispatch(TableActions.tablePushCellHistory(cellId, 'b', 123));
-      store.dispatch(TableActions.tablePushCellHistory(cellId, 'c', 124));
-      store.dispatch(TableActions.tablePushCellHistory(cellId, 'd', 125));
-      store.dispatch(TableActions.tableDeleteCellHistory(cellId, 0));
-      store.dispatch(TableActions.tableDeleteCellHistory(cellId, 1)); // former [2]
+      store.dispatch(TableActions.setProp(cellId, 'value', 'a'));
+      store.dispatch(TableActions.pushCellHistory(cellId, 'b', 123));
+      store.dispatch(TableActions.pushCellHistory(cellId, 'c', 124));
+      store.dispatch(TableActions.pushCellHistory(cellId, 'd', 125));
+      store.dispatch(TableActions.deleteCellHistory(cellId, 0));
+      store.dispatch(TableActions.deleteCellHistory(cellId, 1)); // former [2]
 
       const actualCellHistory = store.getState().get('table').present.getIn(
         ['data', 'cells', cellId, 'history']

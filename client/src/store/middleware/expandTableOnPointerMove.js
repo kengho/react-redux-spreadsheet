@@ -2,13 +2,14 @@ import {
   getColumnId,
   getRowId,
 } from '../../core';
-import { tableExpand } from '../../actions/table';
+import * as ActionTypes from '../../actionTypes';
+import { addLine } from '../../actions/table';
 
 // Expands table if pointer moves beyond it.
 const expandTableOnPointerMove = store => next => action => { // eslint-disable-line consistent-return
   const nextAction = next(action);
 
-  if (action.type !== 'TABLE/MOVE_POINTER') {
+  if (action.type !== ActionTypes.MOVE_POINTER) {
     return nextAction;
   }
 
@@ -20,10 +21,10 @@ const expandTableOnPointerMove = store => next => action => { // eslint-disable-
   const nextPointerColumnId = getColumnId(nextPointerCellId);
 
   if (nextRows.findIndex((row) => row.get('id') === nextPointerRowId) === -1) {
-    // slice deletes 'r' and 'c' prefixes from ids, because tableExpand() adds them by itself.
-    store.dispatch(tableExpand(nextRows.size, 'ROW', nextPointerRowId.slice('r'.length)));
+    // slice deletes 'r' and 'c' prefixes from ids, because addLine() adds them by itself.
+    store.dispatch(addLine(nextRows.size, 'ROW', nextPointerRowId.slice('r'.length)));
   } else if (nextColumns.findIndex((column) => column.get('id') === nextPointerColumnId) === -1) {
-    store.dispatch(tableExpand(nextColumns.size, 'COLUMN', nextPointerColumnId.slice('c'.length)));
+    store.dispatch(addLine(nextColumns.size, 'COLUMN', nextPointerColumnId.slice('c'.length)));
   }
 
   return nextAction;

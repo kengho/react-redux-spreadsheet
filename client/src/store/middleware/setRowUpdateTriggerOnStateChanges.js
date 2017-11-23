@@ -1,9 +1,9 @@
 import { getRowId } from '../../core';
-import { tableSetRowUpdateTrigger } from '../../actions/table';
+import { triggerRowUpdate } from '../../actions/table';
 
 // This middleware analyzes action and it's consequences and
-// triggers appropriate Row re-render by dispatching tableSetRowUpdateTrigger().
-// TABLE/SET_HOVER affects only first Row, so it doesn't catched here.
+// triggers appropriate Row re-render by dispatching triggerRowUpdate().
+// ActionTypes.SET_HOVER affects only first Row, so it doesn't catched here.
 const setRowUpdateTriggerOnStateChanges = store => next => action => { // eslint-disable-line consistent-return
   const regex = new RegExp(/([^/]*)\/([^/]*)/);
   const regexGroups = { BranchName: 1, Action: 2 };
@@ -14,12 +14,12 @@ const setRowUpdateTriggerOnStateChanges = store => next => action => { // eslint
   }
 
   if (action.cellId && !action.cellIdPath && !action.cellIdGetter && !action.propsComparePaths) {
-    store.dispatch(tableSetRowUpdateTrigger(getRowId(action.cellId)));
+    store.dispatch(triggerRowUpdate(getRowId(action.cellId)));
 
     return next(action);
   }
 
-  const stateBranchName = actionTypeMatch[regexGroups.BranchName].toLowerCase();
+  const stateBranchName = actionTypeMatch[regexGroups.BranchName];
 
   let getBranchState;
   if (stateBranchName === 'table') {
@@ -99,7 +99,7 @@ const setRowUpdateTriggerOnStateChanges = store => next => action => { // eslint
   // https://stackoverflow.com/questions/1960473/unique-values-in-an-array#comment68618078_14438954
   const changingRowIdsUniq = [...new Set(changingRowIds)];
   if (changingRowIdsUniq.length > 0) {
-    store.dispatch(tableSetRowUpdateTrigger(changingRowIdsUniq));
+    store.dispatch(triggerRowUpdate(changingRowIdsUniq));
   }
 
   return nextAction;

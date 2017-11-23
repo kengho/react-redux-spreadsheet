@@ -1,6 +1,8 @@
-export function metaSetShortId(shortId) { // eslint-disable-line import/prefer-default-export
+import * as ActionTypes from '../actionTypes';
+
+export function setShortId(shortId) { // eslint-disable-line import/prefer-default-export
   return {
-    type: 'META/SET_SHORT_ID',
+    type: ActionTypes.SET_SHORT_ID,
     shortId,
   };
 }

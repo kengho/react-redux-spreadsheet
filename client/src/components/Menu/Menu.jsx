@@ -44,7 +44,7 @@ class Menu extends React.PureComponent {
       place,
     } = this.props;
 
-    this.props.actions.uiOpen('MENU', { cellId, place });
+    this.props.actions.openUi('MENU', { cellId, place });
   }
 
   keyDownHandler(evt) {
@@ -52,7 +52,7 @@ class Menu extends React.PureComponent {
     evt.nativeEvent.stopImmediatePropagation();
 
     if (evt.key === 'Escape') {
-      this.props.actions.uiClose();
+      this.props.actions.closeUi();
     }
   }
 

@@ -360,7 +360,7 @@ export function convert(object, options) {
 
   // String to object.
   // NOTE: we don't convert it to immutable
-  //   since we are going to use tableSetFromJSON anyway.
+  //   since we are going to use setTableFromJSON anyway.
   if (options.inputFormat === 'csv' && options.outputFormat === 'object') {
     const CSV = object;
     const parsedCSV = Papa.parse(CSV);

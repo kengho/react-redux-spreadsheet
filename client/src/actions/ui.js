@@ -1,6 +1,8 @@
-export function uiOpen(kind, params) {
+import * as ActionTypes from '../actionTypes';
+
+export function openUi(kind, params) {
   return {
-    type: 'UI/OPEN',
+    type: ActionTypes.OPEN_UI,
     triggersRowUpdate: true,
     cellIdPath: ['current', 'cellId'],
     propsComparePaths: [['current', 'visibility']],
@@ -9,9 +11,9 @@ export function uiOpen(kind, params) {
   };
 }
 
-export function uiClose() {
+export function closeUi() {
   return {
-    type: 'UI/CLOSE',
+    type: ActionTypes.CLOSE_UI,
     triggersRowUpdate: true,
     cellIdPath: ['current', 'cellId'],
     propsComparePaths: [['current', 'visibility']],

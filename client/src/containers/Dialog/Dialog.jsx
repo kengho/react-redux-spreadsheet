@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
       ...RequestsActions, // requestsPush
-      ...TableActions, // tableSetFromJSON
+      ...TableActions, // setTableFromJSON
       ...UiActions,
     }, dispatch),
   },
@@ -89,7 +89,7 @@ class Dialog extends React.Component {
         className="dialog"
         onClick={this.onClickHandler}
         onKeyDown={this.keyDownHandler}
-        onRequestClose={actions.uiClose}
+        onRequestClose={actions.closeUi}
         open={visibility}
       >
         {dialogBody}

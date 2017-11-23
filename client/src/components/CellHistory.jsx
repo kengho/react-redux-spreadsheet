@@ -35,12 +35,12 @@ class CellHistory extends React.PureComponent {
       history,
     } = this.props;
 
-    const deletePropAction = () => actions.tableDeleteCellHistory(cellId, historyIndex);
+    const deletePropAction = () => actions.deleteCellHistory(cellId, historyIndex);
     if (history.size - 1 === 0) {
       const action = () => {
         deletePropAction();
         if (history.size - 1 === 0) {
-          actions.uiClose();
+          actions.closeUi();
         }
       };
       rippleButtonAction(action)(evt);
@@ -73,7 +73,7 @@ class CellHistory extends React.PureComponent {
         <Paper>
           <IconButton
             className="close-button"
-            onClick={rippleButtonAction(() => actions.uiClose())}
+            onClick={rippleButtonAction(() => actions.closeUi())}
           >
             <CloseIcon />
           </IconButton>
@@ -110,7 +110,7 @@ class CellHistory extends React.PureComponent {
                     <TableCell>
                       <IconButton
                         disabled={historyValue === value}
-                        onClick={() => actions.tableSetProp(cellId, 'value', historyValue)}
+                        onClick={() => actions.setProp(cellId, 'value', historyValue)}
                       >
                         <RestoreIcon />
                       </IconButton>

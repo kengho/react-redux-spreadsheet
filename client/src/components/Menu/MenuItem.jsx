@@ -35,7 +35,7 @@ const MenuItem = (props) => {
     effectiveAction = () => {};
   } else if (dialogVariant) {
     effectiveAction = () => {
-      actions.uiOpen('DIALOG', {
+      actions.openUi('DIALOG', {
         disableYesButton: dialogDisableYesButton,
         variant: dialogVariant,
       });
@@ -44,7 +44,7 @@ const MenuItem = (props) => {
     effectiveAction = () => {
       // NOTE: order of actions is important.
       //   If action is to open ui, it should be called after closing it.
-      actions.uiClose();
+      actions.closeUi();
       action();
     };
   }

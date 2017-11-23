@@ -54,27 +54,27 @@ class Landing extends React.Component {
       .then((json) => {
         if (json.errors) {
           const errors = json.errors.map((error) => error.detail);
-          this.props.actions.landingSetMessages(errors);
+          this.props.actions.setLandingMessages(errors);
         } else {
           const shortId = json.data.short_id;
           const spreadsheetPath = `${getRootPath()}${shortId}`;
 
           // store's shortId used in handleRequestsChanges().
-          this.props.actions.metaSetShortId(shortId);
+          this.props.actions.setShortId(shortId);
 
           // TODO: set table from immutable object here, not json.
-          this.props.actions.tableSetFromJSON(JSON.stringify(table));
+          this.props.actions.setTableFromJSON(JSON.stringify(table));
           this.props.history.push(spreadsheetPath);
         }
 
-        this.props.actions.landingDisableButton(false);
+        this.props.actions.disableLandingButton(false);
       });
   }
 
   onButtonClickHandler(evt) {
     const action = () => {
       // TODO: add some kind of spinner.
-      this.props.actions.landingDisableButton(true);
+      this.props.actions.disableLandingButton(true);
 
       if (this.recaptcha) {
         this.recaptcha.execute();

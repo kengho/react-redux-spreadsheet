@@ -10,7 +10,7 @@ import pushCellHistoryOnValueChanges from './middleware/pushCellHistoryOnValueCh
 import pushRequestOnDataChanges from './middleware/pushRequestOnDataChanges';
 import setRowUpdateTriggerOnStateChanges from './middleware/setRowUpdateTriggerOnStateChanges';
 import clearDetachmentsCurrentCellValueOnPointerMove from './middleware/clearDetachmentsCurrentCellValueOnPointerMove';
-import tableSaveEditingCellValueIfNeeded from './middleware/tableSaveEditingCellValueIfNeeded';
+import saveEditingCellValueIfNeeded from './middleware/saveEditingCellValueIfNeeded';
 import rootReducer from '../reducers';
 
 const composeEnhancer = compose;
@@ -28,9 +28,9 @@ if (process.env.NODE_ENV !== 'test') {
     handleRequestsOnQueueChange,
     clearPointerModifiersOnUndoRedo,
     pushCellHistoryOnValueChanges,
-    tableSaveEditingCellValueIfNeeded,
+    saveEditingCellValueIfNeeded,
 
-    // make sure this mddileware comes after tableSaveEditingCellValueIfNeeded
+    // make sure this mddileware comes after saveEditingCellValueIfNeeded
     clearDetachmentsCurrentCellValueOnPointerMove,
 
     // make sure this is the last middleware
