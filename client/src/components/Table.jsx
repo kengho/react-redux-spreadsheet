@@ -54,6 +54,7 @@ class Table extends React.Component {
 
     // TODO: it probably would be good to have some meta action
     //   doing such similar things at once.
+    actions.saveEditingCellValueIfNeeded();
     actions.closeUi();
     actions.setPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null });
