@@ -107,6 +107,7 @@ class Row extends React.Component {
       props.historySize = (
         cellMenuVisibility &&
         cell &&
+        cell.get('history') &&
         cell.get('history').size
       ) || 0;
 
