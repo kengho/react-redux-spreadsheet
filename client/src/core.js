@@ -426,10 +426,7 @@ export function convert(object, options) {
               // 1513645323000
               // =>
               // 2017-12-19T01:02:03.000Z
-              // =>
-              // 2017-12-19T01:02:03
-              // // https://stackoverflow.com/a/34053802
-              const time = (new Date(record.get('time')).toISOString()).split('.')[0];
+              const time = new Date(record.get('time')).toISOString();
               return {
                 time,
                 value: record.get('value'),
@@ -486,7 +483,7 @@ export function convert(object, options) {
               const convertedCell = { ...cell };
               if (cell.history) {
                 convertedCell.history = cell.history.map((record, recordIndex) => {
-                  // 2017-12-19T01:02:03
+                  // 2017-12-19T01:02:03.000Z
                   // =>
                   // 1513645323000
                   // TODO: catch errors.

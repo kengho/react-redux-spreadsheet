@@ -259,7 +259,7 @@ describe('core', () => {
             {
               history: [
                 {
-                  time: '2017-12-19T01:01:01',
+                  time: '2017-12-19T01:01:01.000Z',
                   value: '00-history-1',
                 },
               ],
@@ -268,11 +268,11 @@ describe('core', () => {
               value: '01',
               history: [
                 {
-                  time: '2017-12-19T01:02:01',
+                  time: '2017-12-19T01:02:01.000Z',
                   value: '01-history-1',
                 },
                 {
-                  time: '2017-12-19T01:02:02',
+                  time: '2017-12-19T01:02:02.000Z',
                   value: '01-history-2',
                 },
               ],
@@ -286,11 +286,11 @@ describe('core', () => {
               value: '10',
               history: [
                 {
-                  time: '2017-12-19T01:03:01',
+                  time: '2017-12-19T01:03:01.000Z',
                   value: '10-history-1',
                 },
                 {
-                  time: '2017-12-19T01:03:02',
+                  time: '2017-12-19T01:03:02.000Z',
                   value: '10-history-2',
                 },
               ],
