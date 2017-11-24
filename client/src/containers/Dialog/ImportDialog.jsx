@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { convert } from '../../core';
+import * as convertFormats from '../../convertFormats';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -40,16 +41,20 @@ class ImportDialog extends React.PureComponent {
       this.fileFakeInput.value = filename;
       this.fileFakeInput.title = filename;
 
-      // TODO: unsupported format excepton.
       const extention = filename.split('.').pop();
 
-      // TODO: extention => format mapping.
       const fileContent = reader.result;
-      const tableData = convert(fileContent, { inputFormat: extention, outputFormat: 'object' });
-
-      // TODO: DRY.
-      switch (extention) {
-        case 'csv': {
+      const inputFormat = extention.toUpperCase();
+      if (convertFormats[inputFormat]) {
+        const tableData = convert(fileContent, inputFormat);
+        // Can't continue if json parser fails.
+        if (inputFormat === convertFormats.JSON && tableData.errors) {
+          this.props.actions.openUi('DIALOG', {
+            disableYesButton: true,
+            errors: tableData.errors,
+            variant: 'IMPORT',
+          });
+        } else {
           this.importAction = () => {
             this.props.actions.setTableFromJSON(
               JSON.stringify({ data: tableData.data }), true
@@ -61,38 +66,19 @@ class ImportDialog extends React.PureComponent {
             errors: tableData.errors,
             variant: 'IMPORT',
           });
-
-          break;
         }
-
-        case 'json': {
-          if (tableData.errors) {
-            this.props.actions.openUi('DIALOG', {
-              disableYesButton: true,
-              errors: tableData.errors,
-              variant: 'IMPORT',
-            });
-          } else {
-            this.importAction = () => {
-              this.props.actions.setTableFromJSON(
-                JSON.stringify({ data: tableData.data }), true
-              );
-            };
-
-            this.props.actions.openUi('DIALOG', {
-              disableYesButton: false,
-              errors: tableData.errors,
-              variant: 'IMPORT',
-            });
-          }
-
-          break;
-        }
-
-        default:
+      } else {
+        this.props.actions.openUi('DIALOG', {
+          disableYesButton: false,
+          errors: [{
+            code: 'WRONG_FORMAT',
+            message: 'Wrong format file.'
+          }],
+          variant: 'IMPORT',
+        });
       }
 
-      // Fixind error
+      // Fixing error
       // "Failed to execute 'readAsText' on 'FileReader': parameter 1 is not of type 'Blob'."
       input.value = null;
     };
@@ -107,15 +93,22 @@ class ImportDialog extends React.PureComponent {
       errors,
     } = this.props;
 
+    // ['CSV', 'JSON']
+    // =>
+    // csv,CSV,json,JSON
+    const acceptedFormats = Object.keys(convertFormats).map((format) => {
+      return [format.toLowerCase(), format].join(',');
+    }).join(',');
+
     // TODO: describe json format.
     return ([
       <MaterialDialogTitle key="dialog-title">
-        Select file (CSV, JSON)
+        Select file ({Object.keys(convertFormats).join(', ')})
       </MaterialDialogTitle>,
       <MaterialDialogContent key="dialog-content">
         <div className="dialog-import">
           <input
-            accept="csv,CSV,json,JSON"
+            accept={acceptedFormats}
             id="file"
             onChange={this.handleFileImport}
             type="file"

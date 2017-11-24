@@ -10,6 +10,7 @@ import { expect } from 'chai';
 import { fromJS } from 'immutable';
 
 import * as Core from './core';
+import * as convertFormats from './convertFormats';
 
 describe('core', () => {
   // TODO: rename its ('it should return/be able to/...').
@@ -221,26 +222,13 @@ describe('core', () => {
     });
 
     it('should return CSV out of table data', () => {
-      const convertOptions = {
-        inputFormat: 'object',
-        outputFormat: 'csv',
-      };
       const expectedCSV = ',01,02\r\n10,11,\r\n,,22\r\n,,\r\n40,,';
 
-      expect(Core.convert(data, convertOptions)).to.equal(expectedCSV);
+      expect(Core.convert(data, undefined, convertFormats.CSV)).to.equal(expectedCSV);
     });
 
     it('should convert CSV to data object', () => {
-      const toCSVConvertOptions = {
-        inputFormat: 'object',
-        outputFormat: 'csv',
-      };
-      const CSV = Core.convert(data, toCSVConvertOptions);
-
-      const toObjectConvertOptions = {
-        inputFormat: 'csv',
-        outputFormat: 'object',
-      };
+      const CSV = Core.convert(data, undefined, convertFormats.CSV);
 
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedData = emptyCroppedData.set(
@@ -248,7 +236,7 @@ describe('core', () => {
         data.get('cells')
       );
 
-      expect(fromJS(Core.convert(CSV, toObjectConvertOptions).data)).to.deep.equal(croppedData);
+      expect(fromJS(Core.convert(CSV, convertFormats.CSV).data)).to.deep.equal(croppedData);
     });
 
     it('should return JSON out of table data', () => {
@@ -306,25 +294,11 @@ describe('core', () => {
         ]
       });
 
-      const convertOptions = {
-        inputFormat: 'object',
-        outputFormat: 'json',
-      };
-
-      expect(Core.convert(historyData, convertOptions)).to.deep.equal(expectedJSON);
+      expect(Core.convert(historyData, undefined, convertFormats.JSON)).to.deep.equal(expectedJSON);
     });
 
     it('should convert JSON to data object', () => {
-      const toJSONConvertOptions = {
-        inputFormat: 'object',
-        outputFormat: 'json',
-      };
-      const object = Core.convert(historyData, toJSONConvertOptions);
-
-      const toObjectConvertOptions = {
-        inputFormat: 'json',
-        outputFormat: 'object',
-      };
+      const object = Core.convert(historyData, undefined, convertFormats.JSON);
 
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedHistoryData = emptyCroppedData.set(
@@ -332,7 +306,7 @@ describe('core', () => {
         historyData.get('cells')
       );
 
-      expect(fromJS(Core.convert(object, toObjectConvertOptions).data)).to.deep.equal(croppedHistoryData);
+      expect(fromJS(Core.convert(object, convertFormats.JSON).data)).to.deep.equal(croppedHistoryData);
     });
   });
 });

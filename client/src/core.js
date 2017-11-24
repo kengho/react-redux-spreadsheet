@@ -2,6 +2,8 @@ import { fromJS, Map } from 'immutable';
 import Papa from 'papaparse';
 import uuid from 'uuid/v4';
 
+import * as convertFormats from './convertFormats';
+
 if (process.env.NODE_ENV !== 'test') {
   // eslint-disable-next-line no-undef, no-console
   window.log = (x) => console.log(JSON.stringify(x, null, 2));
@@ -323,137 +325,144 @@ export function getCroppedSize(data) {
   }
 }
 
-export function convert(object, options) {
-  // Immutable to string.
-  if (options.inputFormat === 'object' && options.outputFormat === 'csv') {
-    const data = object;
-    const rows = data.get('rows');
-    const columns = data.get('columns');
-    const cells = data.get('cells');
-    const croppedSize = getCroppedSize(data);
+const convertDataToArray = (data, cellCallback) => {
+  const table = [];
+  const rows = data.get('rows');
+  const columns = data.get('columns');
+  const cells = data.get('cells');
+  const croppedSize = getCroppedSize(data);
 
-    const CSVArray = [];
-    for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
-      const CSVRowArray = [];
-      for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
-        const currentCellId = getCellId(
-          rows.getIn([rowIterator, 'id']),
-          columns.getIn([columnIterator, 'id'])
-        );
-        const currentCell = cells.get(currentCellId);
+  for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
+    const row = [];
+    for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
+      const currentCellId = getCellId(
+        rows.getIn([rowIterator, 'id']),
+        columns.getIn([columnIterator, 'id'])
+      );
+      const currentCell = cells.get(currentCellId);
 
-        let value;
-        if (currentCell) {
-          value = currentCell.get('value');
-        } else {
-          value = '';
-        }
-
-        CSVRowArray.push(value);
-      }
-
-      CSVArray.push(CSVRowArray);
+      row.push(cellCallback(currentCell));
     }
 
-    return Papa.unparse(CSVArray);
+    table.push(row);
   }
 
-  // String to object.
-  // NOTE: we don't convert it to immutable
-  //   since we are going to use setTableFromJSON anyway.
-  if (options.inputFormat === 'csv' && options.outputFormat === 'object') {
-    const CSV = object;
-    const parsedCSV = Papa.parse(CSV);
+  return table;
+};
+
+const convertArrayToData = (array, cellCallback) => {
+  if (array.length === 0) {
+    return;
+  }
+
+  const dataArrayRowsNumber = array.length;
+  const dataArrayColumnsNumber = array[0].length;
+
+  const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
+  const rows = data.rows;
+  const columns = data.columns;
+  const cells = data.cells;
+
+  array.forEach((row, rowIndex) => {
+    row.forEach((cell, columnIndex) => {
+      const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
+      const callbackedCell = cellCallback(cell);
+      if (callbackedCell) {
+        cells[cellId] = callbackedCell;
+      }
+    });
+  });
+
+  return data;
+};
+
+// Build-in format, doesn't needed to be exported.
+const APP = 'APP';
+
+export function convert(
+  object,
+  inputFormat = APP,
+  outputFormat = APP
+) {
+  if (inputFormat === APP) {
+    const data = object;
+
+    if (outputFormat === convertFormats.CSV) {
+      const dataArray = convertDataToArray(
+        data,
+        ((cell) => {
+          if (cell) {
+            return cell.get('value');
+          } else {
+            return '';
+          }
+        })
+      );
+
+      return Papa.unparse(dataArray);
+    } else if (outputFormat === convertFormats.JSON) {
+      const dataArray = convertDataToArray(
+        data,
+        ((appCell) => {
+          let jsonCell = {};
+          if (appCell) {
+            const cellValue = appCell.get('value');
+            if (cellValue && cellValue !== '') {
+              jsonCell.value = cellValue;
+            }
+            if (appCell.get('history')) {
+              jsonCell.history = appCell.get('history').map((record) => {
+                // 1513645323000
+                // =>
+                // 2017-12-19T01:02:03.000Z
+                const time = new Date(record.get('time')).toISOString();
+                return {
+                  time,
+                  value: record.get('value'),
+                };
+              });
+            }
+          }
+
+          return jsonCell;
+        })
+      );
+
+      return JSON.stringify({
+        version: '1',
+        data: dataArray,
+      });
+    }
+  } else if (inputFormat === convertFormats.CSV) {
+    const CSVdata = object;
+    const parsedCSV = Papa.parse(CSVdata);
 
     const parsedCSVArray = parsedCSV.data;
     const tableData = {
       errors: parsedCSV.errors,
     };
 
-    if (parsedCSVArray.length > 0) {
-      const dataArrayRowsNumber = parsedCSVArray.length;
-      const dataArrayColumnsNumber = parsedCSVArray[0].length;
-
-      const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
-      const rows = data.rows;
-      const columns = data.columns;
-      const cells = data.cells;
-
-      parsedCSVArray.forEach((row, rowIndex) => {
-        row.forEach((value, columnIndex) => {
-          if (value.length > 0) {
-            const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
-            cells[cellId] = { value };
-          }
-        });
-      });
-
-      tableData.data = data;
-    } else {
-      tableData.data = initialTable().data;
-    }
-
-    return tableData;
-  }
-
-  // Immutable to JSON.
-  // TODO: DRY.
-  if (options.inputFormat === 'object' && options.outputFormat === 'json') {
-    const data = object;
-    const rows = data.get('rows');
-    const columns = data.get('columns');
-    const cells = data.get('cells');
-    const croppedSize = getCroppedSize(data);
-
-    const JSONArray = [];
-    for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
-      const JSONRowArray = [];
-      for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
-        const currentCellId = getCellId(
-          rows.getIn([rowIterator, 'id']),
-          columns.getIn([columnIterator, 'id'])
-        );
-        const currentCell = cells.get(currentCellId);
-
-        let cell = {};
-        if (currentCell) {
-          const currentCellValue = currentCell.get('value');
-          if (currentCellValue && currentCellValue !== '') {
-            cell.value = currentCellValue;
-          }
-          if (currentCell.get('history')) {
-            cell.history = currentCell.get('history').map((record) => {
-              // 1513645323000
-              // =>
-              // 2017-12-19T01:02:03.000Z
-              const time = new Date(record.get('time')).toISOString();
-              return {
-                time,
-                value: record.get('value'),
-              };
-            });
-          }
+    const data = convertArrayToData(
+      parsedCSVArray,
+      ((cell) => {
+        if (cell.length === 0) {
+          return;
         }
 
-        JSONRowArray.push(cell);
-      }
-      JSONArray.push(JSONRowArray);
-    }
+        return { value: cell };
+      })
+    ) || initialTable().data;
 
-    return JSON.stringify({
-      version: '1',
-      data: JSONArray,
-    });
-  }
+    tableData.data = data;
 
-  // JSON to object.
-  if (options.inputFormat === 'json' && options.outputFormat === 'object') {
+    return tableData;
+  } else if (inputFormat === convertFormats.JSON) {
+    const JSONData = object;
     let parsedJSON;
     const tableData = {};
     try {
-      parsedJSON = JSON.parse(object);
+      parsedJSON = JSON.parse(JSONData);
     } catch(err) {
-      // TODO: code and message.
       tableData.errors = [{
         code: err.name,
         message: `${err.name}: ${err.message}`,
@@ -462,27 +471,19 @@ export function convert(object, options) {
 
     if (parsedJSON) {
       const JSONVersion = parsedJSON.version;
-      const JSONData = parsedJSON.data;
+      const parsedJSONArray = parsedJSON.data;
       switch (JSONVersion) {
         case '1': {
-          const dataArrayRowsNumber = JSONData.length;
-          const dataArrayColumnsNumber = JSONData[0].length;
-          const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
-          const rows = data.rows;
-          const columns = data.columns;
-          const cells = data.cells;
-
-          JSONData.forEach((row, rowIndex) => {
-            row.forEach((cell, columnIndex) => {
-              // Skip empty cells.
-              if (Object.keys(cell).length === 0) {
+          const data = convertArrayToData(
+            parsedJSONArray,
+            ((jsonCell) => {
+              if (Object.keys(jsonCell).length === 0) {
                 return;
               }
 
-              const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
-              const convertedCell = { ...cell };
-              if (cell.history) {
-                convertedCell.history = cell.history.map((record, recordIndex) => {
+              const appCell = { ...jsonCell };
+              if (jsonCell.history) {
+                appCell.history = jsonCell.history.map((record, recordIndex) => {
                   // 2017-12-19T01:02:03.000Z
                   // =>
                   // 1513645323000
@@ -495,12 +496,12 @@ export function convert(object, options) {
                 });
 
                 // TODO: test.
-                convertedCell.history.sort((a, b) => a.time > b.time);
+                appCell.history.sort((a, b) => a.time > b.time);
               }
 
-              cells[cellId] = convertedCell;
-            });
-          });
+              return appCell;
+            })
+          );
 
           tableData.data = data;
           break;
@@ -513,12 +514,5 @@ export function convert(object, options) {
     }
 
     return tableData;
-  }
-
-  return {
-    errors: [{
-      code: 'WRONG_FORMAT',
-      message: 'Wrong format file.'
-    }],
   }
 }

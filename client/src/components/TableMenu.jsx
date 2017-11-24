@@ -6,6 +6,7 @@ import SyncProblem from 'material-ui-icons/SyncProblem';
 
 import './TableMenu.css';
 import { convert } from '../core';
+import * as convertFormats from '../convertFormats';
 import datetime from '../lib/datetime';
 import Menu from './Menu/Menu';
 
@@ -26,10 +27,7 @@ class TableMenu extends React.PureComponent {
     const formattedDate = datetime();
 
     // TODO: uppercase constants.
-    const csv = convert(this.props.data, {
-      inputFormat: 'object',
-      outputFormat,
-    });
+    const csv = convert(this.props.data, undefined, outputFormat);
 
     const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' });
     FileSaver.saveAs(blob, `${formattedDate} ${this.props.shortId}.${outputFormat.toLowerCase()}`);
@@ -70,12 +68,12 @@ class TableMenu extends React.PureComponent {
         // TODO: nested menu.
         //   https://github.com/callemall/material-ui/issues/8152
         {
-          action: () => this.exportTo('csv'),
+          action: () => this.exportTo(convertFormats.CSV),
           icon: 'FileUpload',
           label: 'Export to CSV',
         },
         {
-          action: () => this.exportTo('json'),
+          action: () => this.exportTo(convertFormats.JSON),
           icon: 'FileUpload',
           label: 'Export to JSON',
         },
