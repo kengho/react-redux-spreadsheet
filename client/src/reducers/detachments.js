@@ -14,6 +14,13 @@ export default function meta(state = defaultState, action) {
         action.currentCellValue
       );
 
+    case ActionTypes.MOVE_POINTER:
+    case ActionTypes.SET_POINTER:
+      return state.set(
+        'currentCellValue',
+        null
+      );
+
     default:
       return state;
   }

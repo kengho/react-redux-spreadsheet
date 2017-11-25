@@ -9,7 +9,6 @@ import handleRequestsOnQueueChange from './middleware/handleRequestsOnQueueChang
 import pushCellHistoryOnValueChanges from './middleware/pushCellHistoryOnValueChanges';
 import pushRequestOnDataChanges from './middleware/pushRequestOnDataChanges';
 import setRowUpdateTriggerOnStateChanges from './middleware/setRowUpdateTriggerOnStateChanges';
-import clearDetachmentsCurrentCellValueOnPointerMove from './middleware/clearDetachmentsCurrentCellValueOnPointerMove';
 import saveEditingCellValueIfNeeded from './middleware/saveEditingCellValueIfNeeded';
 import rootReducer from '../reducers';
 
@@ -29,9 +28,6 @@ if (process.env.NODE_ENV !== 'test') {
     clearPointerModifiersOnUndoRedo,
     pushCellHistoryOnValueChanges,
     saveEditingCellValueIfNeeded,
-
-    // make sure this mddileware comes after saveEditingCellValueIfNeeded
-    clearDetachmentsCurrentCellValueOnPointerMove,
 
     // make sure this is the last middleware
     pushRequestOnDataChanges
