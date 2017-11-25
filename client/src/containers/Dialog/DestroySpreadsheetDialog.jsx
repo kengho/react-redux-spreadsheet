@@ -36,6 +36,7 @@ class DestroySpreadsheetDialog extends React.PureComponent {
           onClick={
             () => {
               actions.requestsPush('DELETE', 'destroy');
+              actions.clearHistory();
               actions.closeUi();
             }
           }

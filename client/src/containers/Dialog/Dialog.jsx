@@ -7,6 +7,7 @@ import './Dialog.css';
 import * as RequestsActions from '../../actions/requests';
 import * as TableActions from '../../actions/table';
 import * as UiActions from '../../actions/ui';
+import * as UndoRedoActions from '../../actions/undoRedo';
 import DestroySpreadsheetDialog from './DestroySpreadsheetDialog';
 import ImportDialog from './ImportDialog';
 import InfoDialog from './InfoDialog';
@@ -27,6 +28,7 @@ const mapDispatchToProps = (dispatch) => ({
       ...RequestsActions, // requestsPush
       ...TableActions, // setTableFromJSON
       ...UiActions,
+      ...UndoRedoActions, // clearHistory
     }, dispatch),
   },
 });
