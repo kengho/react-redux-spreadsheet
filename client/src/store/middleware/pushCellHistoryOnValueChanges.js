@@ -15,10 +15,14 @@ const pushCellHistoryOnValueChanges = store => next => action => { // eslint-dis
     ['data', 'cells', action.cellId, 'value']
   );
 
+  // Middleware should apply after dispatcher changes state
+  // in order to handle redo/undo correctly.
+  const nextAction = next(action);
+
   const time = Date.now();
   store.dispatch(pushCellHistory(action.cellId, historyValue, time));
 
-  return next(action);
+  return nextAction;
 };
 
 export default pushCellHistoryOnValueChanges;

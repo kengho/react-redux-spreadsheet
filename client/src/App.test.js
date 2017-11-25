@@ -70,6 +70,7 @@ Run in all browsers:
 * typing text to cell should expand it to some point horizontally and to infinity vertically, never showing scrollbar
 * moving pointer should scroll page if necessary (even after 100 key presses)
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
+* when user sets cell's value and then do undo, that cell's history should be removed with the value
 * expanding table with empty cells shouldn't affect history and/or server sync
 * if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
 * export button should save CSV file
