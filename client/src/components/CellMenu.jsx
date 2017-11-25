@@ -9,7 +9,7 @@ const propTypes = {
   cellId: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   historyVisibility: PropTypes.bool.isRequired,
-  isHistoryAvailable: PropTypes.bool.isRequired,
+  historyAvailability: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -21,7 +21,7 @@ class CellMenu extends React.PureComponent {
     const {
       value,
       historyVisibility,
-      isHistoryAvailable,
+      historyAvailability,
       ...other,
     } = this.props;
 
@@ -43,7 +43,7 @@ class CellMenu extends React.PureComponent {
         action: () => actions.openUi('HISTORY', { cellId }),
         icon: 'History',
         label: 'View history',
-        disabled: !isHistoryAvailable,
+        disabled: !historyAvailability,
       });
     }
     cellMenuItems.push({

@@ -209,7 +209,7 @@ class Cell extends React.PureComponent {
         />
         <CellMenu
           historyVisibility={historyVisibility}
-          isHistoryAvailable={historySize > 0}
+          historyAvailability={historySize > 0}
           {...other}
         />
         {historyVisibility && history &&
