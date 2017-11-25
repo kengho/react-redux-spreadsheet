@@ -86,7 +86,7 @@ class Row extends React.Component {
       props.isSelectingOnFocus = (
         props.isPointed && (pointer.getIn(['modifiers', 'selectOnFocus']) === true)
       );
-      props.isOnClipboard = (clipboard.get('cells').keySeq().indexOf(props.cellId) !== -1);
+      props.isOnClipboard = (clipboard.get('cells').keySeq().includes(props.cellId));
 
       props.historyVisibility =
         currentUi &&

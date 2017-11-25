@@ -5,7 +5,7 @@ const serverSyncParams = (table) => {
 
   const filteredTable = table.filter(
     (value, key) => {
-      if (syncingStateBranches.indexOf(key) === -1) {
+      if (!syncingStateBranches.includes(key)) {
         return false;
       }
       return true;

@@ -6,13 +6,13 @@ const findKeyAction = (evt, options) => {
     if (item.condition) {
       keyMatch = item.condition();
     } else if (item.keys) {
-      keyMatch = (item.keys.indexOf(key) !== -1);
+      keyMatch = (item.keys.includes(key));
     } else if (item.key) {
       keyMatch = (item.key === evt.key);
     } else if (item.which) {
       keyMatch = (item.which === evt.which);
     } else if (item.whichs) {
-      keyMatch = (item.whichs.indexOf(evt.which) !== -1);
+      keyMatch = (item.whichs.includes(evt.which));
     }
 
     return (

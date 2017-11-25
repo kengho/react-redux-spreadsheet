@@ -1,5 +1,5 @@
 // Modified shallowequal from dashed/shallowequal
-// https://github.com/dashed/shallowequal/blob/master/index.js
+// (https://github.com/dashed/shallowequal/blob/master/index.js)
 // with skippingProps param
 // (also some redundant for this app checks are skipped).
 //
@@ -22,7 +22,7 @@ const shallowEqualWithSkippingProps = (objA, objB, skippingProps = []) => {
   for (var idx = 0; idx < keysA.length; idx++) {
     var key = keysA[idx];
 
-    if (skippingProps.indexOf(key) !== -1) {
+    if (skippingProps.includes(key)) {
       continue;
     }
 
