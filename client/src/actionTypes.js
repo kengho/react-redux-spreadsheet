@@ -1,3 +1,5 @@
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
+
 // detachments
 export const SET_CURRENT_CELL_VALUE = 'detachments/SET_CURRENT_CELL_VALUE';
 
@@ -31,3 +33,8 @@ export const SAVE_EDITING_CELL_VALUE_IF_NEEDED = 'table/SAVE_EDITING_CELL_VALUE_
 // ui
 export const OPEN_UI = 'ui/OPEN_UI';
 export const CLOSE_UI = 'ui/CLOSE_UI';
+
+// undoRedo
+export const UNDO = UndoActionCreators.undo().type;
+export const REDO = UndoActionCreators.redo().type;
+export const CLEAR_HISTORY = UndoActionCreators.clearHistory().type;

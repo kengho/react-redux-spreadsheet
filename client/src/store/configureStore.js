@@ -2,7 +2,6 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import { createBrowserHistory } from 'history';
 import { routerMiddleware, connectRouter } from 'connected-react-router/immutable';
 
-import clearPointerModifiersOnUndoRedo from './middleware/clearPointerModifiersOnUndoRedo';
 import copyToRealClipboardOnSetClipboard from './middleware/copyToRealClipboardOnSetClipboard';
 import expandTableOnPointerMove from './middleware/expandTableOnPointerMove';
 import handleRequestsOnQueueChange from './middleware/handleRequestsOnQueueChange';
@@ -25,7 +24,6 @@ if (process.env.NODE_ENV !== 'test') {
     setRowUpdateTriggerOnStateChanges,
     copyToRealClipboardOnSetClipboard,
     handleRequestsOnQueueChange,
-    clearPointerModifiersOnUndoRedo,
     pushCellHistoryOnValueChanges,
     saveEditingCellValueIfNeeded,
 

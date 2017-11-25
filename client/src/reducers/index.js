@@ -21,6 +21,9 @@ const rootReducer = combineReducers({
       // https://github.com/omnidan/redux-undo/issues/157#issuecomment-298245650
       return (action.changesData || action.type === ActionTypes.SET_TABLE_FROM_JSON);
     },
+
+    // For ActionTypes.UNDO and ActionTypes.REDO in table reducer.
+    neverSkipReducer: true,
   }),
   router: routerReducer,
   ui,

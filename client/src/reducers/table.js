@@ -336,6 +336,21 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       return state;
     }
 
+    // TODO: optimize setIn.
+    // HACK: after actions sequence SET_POINTER (edit: true), SET_PROP, (MOVE_POINTER)
+    //   state with 'pointer.modifiers.edit === true' adds to history, thus pressing Ctrl+Z
+    //   enters DataCell. But Ctrl+Z won't work while you are in DataCell,
+    //   and next Ctrl+Z won't work until you press Esc, which is uncomfortable.
+    //   So, here we delete 'edit: true' from pointer's modifiers after undo/redo actions.
+    // REVIEW: could it be done by undoable() filter or groupBy?
+    //   We need to insert state without pointer to history somehow.
+    case ActionTypes.UNDO:
+    case ActionTypes.REDO:
+      return state.setIn(
+        ['session', 'pointer', 'modifiers'],
+        fromJS({})
+      );
+
     default:
       return state;
   }
