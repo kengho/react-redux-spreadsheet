@@ -48,7 +48,7 @@ class Spreadsheet extends React.Component {
     if (process.env.NODE_ENV === 'test') {
       this.props.actions.setShortId('1');
 
-      const initialJSONTable = JSON.stringify(initialState(4, 4).get('table').present);
+      const initialJSONTable = JSON.stringify(initialState(4, 4).get('table'));
       this.props.actions.setTableFromJSON(initialJSONTable);
       return;
     }

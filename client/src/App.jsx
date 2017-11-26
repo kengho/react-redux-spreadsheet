@@ -17,6 +17,7 @@ const propTypes = {
 const App = ({ history }) => {
   const rootPath = getRootPath();
 
+  // TODO: 404 default component.
   return (
     <ConnectedRouter history={history}>
       <div>

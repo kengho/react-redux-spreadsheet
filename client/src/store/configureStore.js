@@ -13,31 +13,31 @@ import rootReducer from '../reducers';
 
 const composeEnhancer = compose;
 
-export const history = createBrowserHistory();
+const configureMiddleware = (history) => {
+  const middleware = [expandTableOnPointerMove];
+  if (process.env.NODE_ENV !== 'test') {
+    middleware.push(
+      routerMiddleware(history),
+      setRowUpdateTriggerOnStateChanges,
+      copyToRealClipboardOnSetClipboard,
+      handleRequestsOnQueueChange,
+      pushCellHistoryOnValueChanges,
+      saveEditingCellValueIfNeeded,
 
-const middleware = [
-  expandTableOnPointerMove,
-];
-if (process.env.NODE_ENV !== 'test') {
-  middleware.push(
-    routerMiddleware(history),
-    setRowUpdateTriggerOnStateChanges,
-    copyToRealClipboardOnSetClipboard,
-    handleRequestsOnQueueChange,
-    pushCellHistoryOnValueChanges,
-    saveEditingCellValueIfNeeded,
+      // Make sure this is the last middleware.
+      pushRequestOnDataChanges
+    );
+  }
 
-    // Make sure this is the last middleware.
-    pushRequestOnDataChanges
-  );
+  return middleware;
 }
 
-const createStoreWithMiddleware = composeEnhancer(
-  applyMiddleware(...middleware)(createStore)
+const createStoreWithMiddleware = (history) => composeEnhancer(
+  applyMiddleware(...configureMiddleware(history))(createStore)
 );
 
-export function configureStore(initialState) {
-  return createStoreWithMiddleware(
+export function configureStore(initialState, history = createBrowserHistory()) {
+  return createStoreWithMiddleware(history)(
     connectRouter(history)(rootReducer),
     initialState
   );

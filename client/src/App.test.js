@@ -1,17 +1,51 @@
+import { configureStore } from './store/configureStore';
+import {
+  createMemoryHistory,
+  createBrowserHistory,
+} from 'history';
+import { Map } from 'immutable';
 import { Provider } from 'react-redux';
+import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { configureStore, history } from './store/configureStore';
-import App from './App';
+import getRootPath from './lib/getRootPath';
 
 require('./test_helper');
 
-// TODO: test router.
-it('renders without crashing', () => {
+// it('renders without crashing', () => {
+//   const history = createBrowserHistory();
+//   const div = document.createElement('div');
+//
+//   const store = configureStore(undefined, history);
+//   ReactDOM.render(
+//     <Provider store={store}>
+//       <App history={history} />
+//     </Provider>,
+//     div
+//   );
+// });
+
+it('renders landing when passed root path', () => {
+  const rootPath = getRootPath();
+  const history = createMemoryHistory({ initialEntries: [rootPath] });
   const div = document.createElement('div');
 
-  const store = configureStore();
+  const store = configureStore(undefined, history);
+  ReactDOM.render(
+    <Provider store={store}>
+      <App history={history} />
+    </Provider>,
+    div
+  );
+});
+
+it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
+  const spreadsheetPath = `${getRootPath()}some_spreadsheet_short_id`;
+  const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
+  const div = document.createElement('div');
+
+  const store = configureStore(undefined, history);
   ReactDOM.render(
     <Provider store={store}>
       <App history={history} />
