@@ -1,6 +1,6 @@
 // Changing this state branch props doesn't affects on Spreadsheet re-render via connect().
 // Such changes could be handeled only in middleware.
-// (using in client/src/store/middleware/saveEditingCellValueOnPointerMove.js)
+// (using in client/src/store/middleware/saveEditingCellValueIfNeeded.js)
 
 import * as ActionTypes from '../actionTypes';
 

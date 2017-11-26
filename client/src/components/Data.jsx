@@ -217,7 +217,7 @@ class Data extends React.PureComponent {
           onKeyDown={this.keyDownHandler}
           ref={(c) => { this.textarea = c; }}
         />
-    );
+      );
     } else {
       // '22px' is TextareaAutosize's (above) height with empty value.
       // TODO: find a way to calculate this value.

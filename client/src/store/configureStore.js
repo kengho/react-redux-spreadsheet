@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== 'test') {
     pushCellHistoryOnValueChanges,
     saveEditingCellValueIfNeeded,
 
-    // make sure this is the last middleware
+    // Make sure this is the last middleware.
     pushRequestOnDataChanges
   );
 }

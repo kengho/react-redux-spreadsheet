@@ -14,9 +14,6 @@ const propTypes = {
   history: PropTypes.object.isRequired,
 };
 
-const defaultProps = {
-};
-
 const App = ({ history }) => {
   const rootPath = getRootPath();
 
@@ -32,10 +29,9 @@ const App = ({ history }) => {
         />
       </div>
     </ConnectedRouter>
-  )
+  );
 }
 
 App.propTypes = propTypes;
-App.defaultProps = defaultProps;
 
 export default App;

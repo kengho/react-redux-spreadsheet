@@ -18,7 +18,7 @@ export default function meta(state = defaultState, action) {
     case ActionTypes.DISABLE_LANDING_BUTTON:
       return state.set(
         'buttonIsDisabled',
-        fromJS(action.disable)
+        action.disable
       );
 
     default:

@@ -57,7 +57,6 @@ class CellHistory extends React.PureComponent {
       value,
     } = this.props;
 
-    // TODO: export to CSV.
     // TODO: "forget all" button.
     // TODO: add option to not save history somewhere (spreadsheet settings?).
     //   Think about default value.

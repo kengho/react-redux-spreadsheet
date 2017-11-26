@@ -1,4 +1,5 @@
 // TODO: save batched changes periodically instead.
+// TODO: why store all requests when we really need only the last one?
 
 import { push } from 'react-router-redux';
 

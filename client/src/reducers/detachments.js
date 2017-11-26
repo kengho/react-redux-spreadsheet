@@ -6,7 +6,7 @@ const defaultState = fromJS({
   currentCellValue: null,
 });
 
-export default function meta(state = defaultState, action) {
+export default function detachments(state = defaultState, action) {
   switch (action.type) {
     case ActionTypes.SET_CURRENT_CELL_VALUE:
       return state.set(

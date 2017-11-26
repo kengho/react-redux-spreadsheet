@@ -19,9 +19,6 @@ const propTypes = {
   shortId: PropTypes.string.isRequired,
 };
 
-const defaultProps = {
-};
-
 class TableMenu extends React.PureComponent {
   exportTo(outputFormat) {
     const formattedDate = datetime();
@@ -121,6 +118,5 @@ class TableMenu extends React.PureComponent {
 }
 
 TableMenu.propTypes = propTypes;
-TableMenu.defaultProps = defaultProps;
 
 export default TableMenu;
