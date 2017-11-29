@@ -108,13 +108,53 @@ describe('functional tests', () => {
     clickingCellId = getCellId('r0', 'c0');
     dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
   });
+
+  it('doubleclicking on non-editing cell should make it editing and all other cells not editing', () => {
+    const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
+    const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
+    const store = configureStore(undefined, history);
+
+    const rootWrapper = mount(
+      <Provider store={store}>
+        <App history={history} />
+      </Provider>
+    );
+
+    const dataWrapperDoubleClickPointerTest = (someRootWrapper, someStore, someDoubleClickingCellId) => {
+      const doubleClickingDataWrapper = getDataWrapper(someRootWrapper, someDoubleClickingCellId);
+      doubleClickingDataWrapper.simulate('doubleclick', nativeEvent);
+      someRootWrapper.update();
+
+      const data = someStore.getState().get('table').present.get('data');
+      data.get('rows').forEach((row) => {
+        data.get('columns').forEach((column) => {
+          const currentCellId = getCellId(row.get('id'), column.get('id'))
+          const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
+          const currentDataWrapperHasEditingClass = currentDataWrapper.hasClass('editing');
+          if (currentCellId === someDoubleClickingCellId) {
+            expect(currentDataWrapperHasEditingClass).to.equal(true);
+          } else {
+            expect(currentDataWrapperHasEditingClass).to.equal(false);
+          }
+        });
+      });
+    };
+
+    let doubleClickingCellId = getCellId('r1', 'c2');
+    dataWrapperDoubleClickPointerTest(rootWrapper, store, doubleClickingCellId);
+
+    doubleClickingCellId = getCellId('r1', 'c3');
+    dataWrapperDoubleClickPointerTest(rootWrapper, store, doubleClickingCellId);
+
+    doubleClickingCellId = getCellId('r0', 'c0');
+    dataWrapperDoubleClickPointerTest(rootWrapper, store, doubleClickingCellId);
+  });
 });
 
 /*
 TODO: automate.
 
 Run in all browsers:
-* doubleclicking on non-editing cell should make it editing and all other cells not editing
 * doubleclicking on editing cell should do nothing but default
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there are no pointer should move pointer accordingly
