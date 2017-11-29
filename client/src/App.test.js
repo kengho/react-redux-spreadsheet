@@ -79,24 +79,34 @@ describe('functional tests', () => {
       </Provider>
     );
 
-    const clickingCellId = getCellId('r1', 'c2');
-    const clickingDataWrapper = getDataWrapper(rootWrapper, clickingCellId);
-    clickingDataWrapper.simulate('click', nativeEvent);
-    rootWrapper.update();
+    const dataWrapperClickPointerTest = (someRootWrapper, someStore, someClickingCellId) => {
+      const clickingDataWrapper = getDataWrapper(someRootWrapper, someClickingCellId);
+      clickingDataWrapper.simulate('click', nativeEvent);
+      someRootWrapper.update();
 
-    const data = store.getState().get('table').present.get('data');
-    data.get('rows').forEach((row) => {
-      data.get('columns').forEach((column) => {
-        const currentCellId = getCellId(row.get('id'), column.get('id'))
-        const currentDataWrapper = getDataWrapper(rootWrapper, currentCellId);
-        const currentDataWrapperHasPointedClass = currentDataWrapper.hasClass('pointed');
-        if (currentCellId === clickingCellId) {
-          expect(currentDataWrapperHasPointedClass).to.equal(true);
-        } else {
-          expect(currentDataWrapperHasPointedClass).to.equal(false);
-        }
+      const data = someStore.getState().get('table').present.get('data');
+      data.get('rows').forEach((row) => {
+        data.get('columns').forEach((column) => {
+          const currentCellId = getCellId(row.get('id'), column.get('id'))
+          const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
+          const currentDataWrapperHasPointedClass = currentDataWrapper.hasClass('pointed');
+          if (currentCellId === someClickingCellId) {
+            expect(currentDataWrapperHasPointedClass).to.equal(true);
+          } else {
+            expect(currentDataWrapperHasPointedClass).to.equal(false);
+          }
+        });
       });
-    })
+    };
+
+    let clickingCellId = getCellId('r1', 'c2');
+    dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
+
+    clickingCellId = getCellId('r1', 'c3');
+    dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
+
+    clickingCellId = getCellId('r0', 'c0');
+    dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
   });
 });
 
