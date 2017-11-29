@@ -4,7 +4,7 @@
 /* eslint-disable no-multi-spaces */
 /* eslint-disable key-spacing */
 
-require('./test_helper');
+require('./setupTests');
 
 import { expect } from 'chai';
 import { fromJS } from 'immutable';

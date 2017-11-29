@@ -14,20 +14,24 @@ import rootReducer from '../reducers';
 const composeEnhancer = compose;
 
 const configureMiddleware = (history) => {
-  const middleware = [expandTableOnPointerMove];
+  const middleware = [
+    routerMiddleware(history),
+    expandTableOnPointerMove,
+    setRowUpdateTriggerOnStateChanges,
+    saveEditingCellValueIfNeeded,
+    pushRequestOnDataChanges,
+  ];
   if (process.env.NODE_ENV !== 'test') {
     middleware.push(
-      routerMiddleware(history),
-      setRowUpdateTriggerOnStateChanges,
       copyToRealClipboardOnSetClipboard,
-      handleRequestsOnQueueChange,
-      pushCellHistoryOnValueChanges,
-      saveEditingCellValueIfNeeded,
 
-      // Make sure this is the last middleware.
-      pushRequestOnDataChanges
+      // TODO: use in test env too.
+      pushCellHistoryOnValueChanges,
+      handleRequestsOnQueueChange,
     );
   }
+  // Make sure this is the last middleware.
+  middleware.push(pushRequestOnDataChanges)
 
   return middleware;
 }

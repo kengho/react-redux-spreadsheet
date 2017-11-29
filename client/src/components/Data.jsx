@@ -8,6 +8,7 @@ import cssToNumber from '../lib/cssToNumber';
 import findKeyAction from '../lib/findKeyAction';
 import insertText from '../lib/insertText';
 import numberToCss from '../lib/numberToCss';
+import { getDataWrapperTestKey } from './../testKeysGetters';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -237,6 +238,7 @@ class Data extends React.PureComponent {
         className={textareaWrapperClassnames.join(' ')}
         onClick={this.clickHandler}
         onDoubleClick={this.doubleClickHandler}
+        test-key={process.env.NODE_ENV === 'test' ? getDataWrapperTestKey(cellId) : undefined}
       >
         {textareaOutput}
       </div>

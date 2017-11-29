@@ -3,15 +3,20 @@ import {
   createMemoryHistory,
   createBrowserHistory,
 } from 'history';
+import { expect } from 'chai';
 import { Map } from 'immutable';
+import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import sinon from 'sinon';
 
+import { getCellId } from './core';
+import { getDataWrapperTestKey } from './testKeysGetters';
 import getRootPath from './lib/getRootPath';
 
-require('./test_helper');
+require('./setupTests');
 
 // it('renders without crashing', () => {
 //   const history = createBrowserHistory();
@@ -29,9 +34,9 @@ require('./test_helper');
 it('renders landing when passed root path', () => {
   const rootPath = getRootPath();
   const history = createMemoryHistory({ initialEntries: [rootPath] });
-  const div = document.createElement('div');
-
   const store = configureStore(undefined, history);
+
+  const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
       <App history={history} />
@@ -43,9 +48,9 @@ it('renders landing when passed root path', () => {
 it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
   const spreadsheetPath = `${getRootPath()}some_spreadsheet_short_id`;
   const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
-  const div = document.createElement('div');
-
   const store = configureStore(undefined, history);
+
+  const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
       <App history={history} />
@@ -54,11 +59,51 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
   );
 });
 
+describe('functional tests', () => {
+  // https://github.com/Semantic-Org/Semantic-UI-React/issues/1319#issuecomment-279477029
+  const nativeEvent = { nativeEvent: { stopImmediatePropagation: () => {} } };
+  const getDataWrapper = (someRootWrapper, someCellId) => {
+    return someRootWrapper.find({
+      'test-key': getDataWrapperTestKey(someCellId),
+    });;
+  };
+
+  it('clicking on cell should make it pointed and all other cells not pointed', () => {
+    const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
+    const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
+    const store = configureStore(undefined, history);
+
+    const rootWrapper = mount(
+      <Provider store={store}>
+        <App history={history} />
+      </Provider>
+    );
+
+    const clickingCellId = getCellId('r1', 'c2');
+    const clickingDataWrapper = getDataWrapper(rootWrapper, clickingCellId);
+    clickingDataWrapper.simulate('click', nativeEvent);
+    rootWrapper.update();
+
+    const data = store.getState().get('table').present.get('data');
+    data.get('rows').forEach((row) => {
+      data.get('columns').forEach((column) => {
+        const currentCellId = getCellId(row.get('id'), column.get('id'))
+        const currentDataWrapper = getDataWrapper(rootWrapper, currentCellId);
+        const currentDataWrapperHasPointedClass = currentDataWrapper.hasClass('pointed');
+        if (currentCellId === clickingCellId) {
+          expect(currentDataWrapperHasPointedClass).to.equal(true);
+        } else {
+          expect(currentDataWrapperHasPointedClass).to.equal(false);
+        }
+      });
+    })
+  });
+});
+
 /*
 TODO: automate.
 
 Run in all browsers:
-* clicking on cell should make it pointed and all other cells not pointed
 * doubleclicking on non-editing cell should make it editing and all other cells not editing
 * doubleclicking on editing cell should do nothing but default
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should move pointer accordingly
