@@ -1,8 +1,5 @@
 import { configureStore } from './store/configureStore';
-import {
-  createMemoryHistory,
-  createBrowserHistory,
-} from 'history';
+import { createMemoryHistory } from 'history';
 import { expect } from 'chai';
 import { Map } from 'immutable';
 import { mount } from 'enzyme';
@@ -35,6 +32,7 @@ it('renders landing when passed root path', () => {
   const history = createMemoryHistory({ initialEntries: [rootPath] });
   const store = configureStore(undefined, history);
 
+  // TODO: move to testHelpers.
   const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
@@ -60,16 +58,8 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
 
 describe('functional tests', () => {
   describe('cell clicking', () => {
-    // TODO: move to testHelpers.
-    const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
-    const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
-    const store = configureStore(undefined, history);
-
-    const rootWrapper = mount(
-      <Provider store={store}>
-        <App history={history} />
-      </Provider>
-    );
+    const [store, history] = Helpers.getStore();
+    const rootWrapper = Helpers.getRootWrapper(App, store, history);
 
     const cellIdsSequence = [
       getCellId('r1', 'c2'),
@@ -105,16 +95,8 @@ describe('functional tests', () => {
   describe('document keys pressing', () => {
     // TODO: finish for clipboard.
     it('pressing Escape while there are pointer or/and clipboard should clear both', () => {
-      // const onKeyDown = sinon.spy();
-      const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
-      const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
-      const store = configureStore(undefined, history);
-
-      const rootWrapper = mount(
-        <Provider store={store}>
-          <App history={history} />
-        </Provider>
-      );
+      const [store, history] = Helpers.getStore();
+      const rootWrapper = Helpers.getRootWrapper(App, store, history);
 
       const cellId = getCellId('r1', 'c2');
       Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');

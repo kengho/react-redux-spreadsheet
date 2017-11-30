@@ -1,11 +1,33 @@
+import { createMemoryHistory } from 'history';
 import { expect } from 'chai';
+import { mount } from 'enzyme';
+import { Provider } from 'react-redux';
+import React from 'react';
 
+import { configureStore } from './store/configureStore';
 import { getCellId } from './core';
+import getRootPath from './lib/getRootPath';
 
 export const getDataWrapperTestKey = (someCellId) => `data-${someCellId}-wrapper`;
 
 // https://github.com/Semantic-Org/Semantic-UI-React/issues/1319#issuecomment-279477029
 const nativeEvent = { nativeEvent: { stopImmediatePropagation: () => {} } };
+
+export const getStore = () => {
+  const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
+  const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
+  const store = configureStore(undefined, history);
+
+  return [store, history];
+};
+
+export const getRootWrapper = (SomeApp, someStore, someHistory) => {
+  return mount(
+    <Provider store={someStore}>
+      <SomeApp history={someHistory} />
+    </Provider>
+  );
+};
 
 const getDataWrapper = (someRootWrapper, someCellId) => {
   return someRootWrapper.find({
