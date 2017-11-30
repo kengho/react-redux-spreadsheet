@@ -69,7 +69,7 @@ describe('functional tests', () => {
     });;
   };
 
-  describe('data wrapper clicking', () => {
+  describe('cell clicking', () => {
     const dispatchEventOnCellWrapper = (
       someRootWrapper,
       someCellId,
@@ -111,24 +111,34 @@ describe('functional tests', () => {
       </Provider>
     );
 
-    const cellIdSequence = [
+    const cellIdsSequence = [
       getCellId('r1', 'c2'),
       getCellId('r1', 'c3'),
       getCellId('r0', 'c0'),
     ];
 
     it('clicking on cell should make it pointed and all other cells not pointed', () => {
-      cellIdSequence.forEach((cellId) => {
+      cellIdsSequence.forEach((cellId) => {
         dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
         onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'pointed');
       });
     });
 
     it('doubleclicking on non-editing cell should make it editing and all other cells not editing', () => {
-      cellIdSequence.forEach((cellId) => {
+      cellIdsSequence.forEach((cellId) => {
         dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
         onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'editing');
       });
+    });
+
+    it('doubleclicking on editing cell should do nothing but default (no app actions firing)', () => {
+      const cellId = getCellId('r1', 'c2');
+      dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
+      const stateAfterFirstDoubleClick = store.getState();
+      dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
+      const stateAfterSecondtDoubleClick = store.getState();
+
+      expect(stateAfterSecondtDoubleClick).to.equal(stateAfterFirstDoubleClick);
     });
   });
 });
@@ -137,7 +147,6 @@ describe('functional tests', () => {
 TODO: automate.
 
 Run in all browsers:
-* doubleclicking on editing cell should do nothing but default
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there are no pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should add new rows/columns if necessary
