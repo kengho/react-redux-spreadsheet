@@ -62,10 +62,42 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
 describe('functional tests', () => {
   // https://github.com/Semantic-Org/Semantic-UI-React/issues/1319#issuecomment-279477029
   const nativeEvent = { nativeEvent: { stopImmediatePropagation: () => {} } };
+
   const getDataWrapper = (someRootWrapper, someCellId) => {
     return someRootWrapper.find({
       'test-key': getDataWrapperTestKey(someCellId),
     });;
+  };
+
+  const dispatchEventOnCellWrapper = (
+    someRootWrapper,
+    someCellId,
+    someEventName
+  ) => {
+    const dataWrapper = getDataWrapper(someRootWrapper, someCellId);
+    dataWrapper.simulate(someEventName, nativeEvent);
+    someRootWrapper.update();
+  };
+
+  const onlyOneDataWrapperHasClassTest = (
+    someStore,
+    someRootWrapper,
+    someCellId,
+    someClassName
+  ) => {
+    const data = someStore.getState().get('table').present.get('data');
+    data.get('rows').forEach((row) => {
+      data.get('columns').forEach((column) => {
+        const currentCellId = getCellId(row.get('id'), column.get('id'))
+        const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
+        const currentDataWrapperHasClass = currentDataWrapper.hasClass(someClassName);
+        if (currentCellId === someCellId) {
+          expect(currentDataWrapperHasClass).to.equal(true);
+        } else {
+          expect(currentDataWrapperHasClass).to.equal(false);
+        }
+      });
+    });
   };
 
   it('clicking on cell should make it pointed and all other cells not pointed', () => {
@@ -79,34 +111,15 @@ describe('functional tests', () => {
       </Provider>
     );
 
-    const dataWrapperClickPointerTest = (someRootWrapper, someStore, someClickingCellId) => {
-      const clickingDataWrapper = getDataWrapper(someRootWrapper, someClickingCellId);
-      clickingDataWrapper.simulate('click', nativeEvent);
-      someRootWrapper.update();
-
-      const data = someStore.getState().get('table').present.get('data');
-      data.get('rows').forEach((row) => {
-        data.get('columns').forEach((column) => {
-          const currentCellId = getCellId(row.get('id'), column.get('id'))
-          const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
-          const currentDataWrapperHasPointedClass = currentDataWrapper.hasClass('pointed');
-          if (currentCellId === someClickingCellId) {
-            expect(currentDataWrapperHasPointedClass).to.equal(true);
-          } else {
-            expect(currentDataWrapperHasPointedClass).to.equal(false);
-          }
-        });
-      });
-    };
-
-    let clickingCellId = getCellId('r1', 'c2');
-    dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
-
-    clickingCellId = getCellId('r1', 'c3');
-    dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
-
-    clickingCellId = getCellId('r0', 'c0');
-    dataWrapperClickPointerTest(rootWrapper, store, clickingCellId);
+    const cellIdSequence = [
+      getCellId('r1', 'c2'),
+      getCellId('r1', 'c3'),
+      getCellId('r0', 'c0'),
+    ];
+    cellIdSequence.forEach((cellId) => {
+      dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
+      onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'pointed');
+    });
   });
 
   it('doubleclicking on non-editing cell should make it editing and all other cells not editing', () => {
@@ -120,34 +133,15 @@ describe('functional tests', () => {
       </Provider>
     );
 
-    const dataWrapperDoubleClickPointerTest = (someRootWrapper, someStore, someDoubleClickingCellId) => {
-      const doubleClickingDataWrapper = getDataWrapper(someRootWrapper, someDoubleClickingCellId);
-      doubleClickingDataWrapper.simulate('doubleclick', nativeEvent);
-      someRootWrapper.update();
-
-      const data = someStore.getState().get('table').present.get('data');
-      data.get('rows').forEach((row) => {
-        data.get('columns').forEach((column) => {
-          const currentCellId = getCellId(row.get('id'), column.get('id'))
-          const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
-          const currentDataWrapperHasEditingClass = currentDataWrapper.hasClass('editing');
-          if (currentCellId === someDoubleClickingCellId) {
-            expect(currentDataWrapperHasEditingClass).to.equal(true);
-          } else {
-            expect(currentDataWrapperHasEditingClass).to.equal(false);
-          }
-        });
-      });
-    };
-
-    let doubleClickingCellId = getCellId('r1', 'c2');
-    dataWrapperDoubleClickPointerTest(rootWrapper, store, doubleClickingCellId);
-
-    doubleClickingCellId = getCellId('r1', 'c3');
-    dataWrapperDoubleClickPointerTest(rootWrapper, store, doubleClickingCellId);
-
-    doubleClickingCellId = getCellId('r0', 'c0');
-    dataWrapperDoubleClickPointerTest(rootWrapper, store, doubleClickingCellId);
+    const cellIdSequence = [
+      getCellId('r1', 'c2'),
+      getCellId('r1', 'c3'),
+      getCellId('r0', 'c0'),
+    ];
+    cellIdSequence.forEach((cellId) => {
+      dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
+      onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'editing');
+    });
   });
 });
 
