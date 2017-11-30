@@ -7,13 +7,12 @@ import { expect } from 'chai';
 import { Map } from 'immutable';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
-import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import sinon from 'sinon';
 
 import { getCellId } from './core';
-import { getDataWrapperTestKey } from './testHelpers';
+import * as Helpers from './testHelpers';
+import App from './App';
 import getRootPath from './lib/getRootPath';
 
 require('./setupTests');
@@ -60,47 +59,7 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
 });
 
 describe('functional tests', () => {
-  // https://github.com/Semantic-Org/Semantic-UI-React/issues/1319#issuecomment-279477029
-  const nativeEvent = { nativeEvent: { stopImmediatePropagation: () => {} } };
-
-  const getDataWrapper = (someRootWrapper, someCellId) => {
-    return someRootWrapper.find({
-      'test-key': getDataWrapperTestKey(someCellId),
-    });;
-  };
-
   describe('cell clicking', () => {
-    const dispatchEventOnCellWrapper = (
-      someRootWrapper,
-      someCellId,
-      someEventName
-    ) => {
-      const dataWrapper = getDataWrapper(someRootWrapper, someCellId);
-      dataWrapper.simulate(someEventName, nativeEvent);
-      someRootWrapper.update();
-    };
-
-    const onlyOneDataWrapperHasClassTest = (
-      someStore,
-      someRootWrapper,
-      someCellId,
-      someClassName
-    ) => {
-      const data = someStore.getState().get('table').present.get('data');
-      data.get('rows').forEach((row) => {
-        data.get('columns').forEach((column) => {
-          const currentCellId = getCellId(row.get('id'), column.get('id'))
-          const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
-          const currentDataWrapperHasClass = currentDataWrapper.hasClass(someClassName);
-          if (currentCellId === someCellId) {
-            expect(currentDataWrapperHasClass).to.equal(true);
-          } else {
-            expect(currentDataWrapperHasClass).to.equal(false);
-          }
-        });
-      });
-    };
-
     const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
     const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
     const store = configureStore(undefined, history);
@@ -119,23 +78,23 @@ describe('functional tests', () => {
 
     it('clicking on cell should make it pointed and all other cells not pointed', () => {
       cellIdsSequence.forEach((cellId) => {
-        dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
-        onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'pointed');
+        Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
+        Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'pointed');
       });
     });
 
     it('doubleclicking on non-editing cell should make it editing and all other cells not editing', () => {
       cellIdsSequence.forEach((cellId) => {
-        dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
-        onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'editing');
+        Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
+        Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'editing');
       });
     });
 
     it('doubleclicking on editing cell should do nothing but default (no app actions firing)', () => {
       const cellId = getCellId('r1', 'c2');
-      dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
+      Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
       const stateAfterFirstDoubleClick = store.getState();
-      dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
+      Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
       const stateAfterSecondtDoubleClick = store.getState();
 
       expect(stateAfterSecondtDoubleClick).to.equal(stateAfterFirstDoubleClick);
