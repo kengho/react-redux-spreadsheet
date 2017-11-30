@@ -99,7 +99,7 @@ describe('functional tests', () => {
 
     // Keycodes here:
     //   https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-    it('pressing movement key while there are no pointer should move pointer accordingly', () => {
+    it('pressing movement key while there is no pointer should set it accordingly', () => {
       // NOTE: I think there's no need to test all keys since
       //   corresponding reducer is already tested in core.js;
       //   we need only to ensure that app dispacthes the right action
@@ -110,14 +110,14 @@ describe('functional tests', () => {
       Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r2', 'c0'), 'pointed');
     });
 
-    it('pressing movement key while there are non-editing should move pointer accordingly', () => {
+    it('pressing movement key while there is non-editing pinter should move it accordingly', () => {
       Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
       tableWrapper.simulate('keyDown', { key: 'ArrowUp', which: 38 });
 
       Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r0', 'c2'), 'pointed');
     });
 
-    it('pressing movement key while there is non-editing pointer should add new rows/columns if necessary', () => {
+    it('pressing movement key while there is non-editing pointer should also add new rows/columns if necessary', () => {
       const getRowsNumber = (someStore) => {
         return someStore.getState().get('table').present.get('data').get('rows').size;
       };
@@ -132,7 +132,7 @@ describe('functional tests', () => {
     });
 
     // TODO: finish for clipboard.
-    it('pressing Escape while there are pointer or/and clipboard should clear both', () => {
+    it('pressing Escape while there is pointer or/and clipboard should clear both', () => {
       Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
       tableWrapper.simulate('keyDown', { key: 'Escape', which: 27 });
 
