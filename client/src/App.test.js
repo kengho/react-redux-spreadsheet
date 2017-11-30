@@ -93,18 +93,27 @@ describe('functional tests', () => {
   });
 
   describe('document keys pressing', () => {
+    const [store, history] = Helpers.getStore();
+    const rootWrapper = Helpers.getRootWrapper(App, store, history);
+    const tableWrapper = rootWrapper.find('.table');
+
+    // Keycodes here:
+    //   https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+    it('pressing movement key while there are no pointer should move pointer accordingly', () => {
+      // NOTE: I think there's no need to test all keys since
+      //   corresponding reducer is already tested in core.js;
+      //   we need only to ensure that app dispacthes the right action
+      //   on right event.
+      // NOTE: Why 'which':
+      //   https://github.com/airbnb/enzyme/issues/441#issuecomment-278625004
+      tableWrapper.simulate('keyDown', { key: 'ArrowUp', which: 38 });
+      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r2', 'c0'), 'pointed');
+    });
+
     // TODO: finish for clipboard.
     it('pressing Escape while there are pointer or/and clipboard should clear both', () => {
-      const [store, history] = Helpers.getStore();
-      const rootWrapper = Helpers.getRootWrapper(App, store, history);
-
       const cellId = getCellId('r1', 'c2');
       Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
-
-      const tableWrapper = rootWrapper.find('.table');
-
-      // Why 'which':
-      // https://github.com/airbnb/enzyme/issues/441#issuecomment-278625004
       tableWrapper.simulate('keyDown', { key: 'Escape', which: 27 });
 
       Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, undefined, 'pointed');
@@ -116,7 +125,6 @@ describe('functional tests', () => {
 TODO: automate.
 
 Run in all browsers:
-* pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there are no pointer should move pointer accordingly
 * pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should add new rows/columns if necessary
 * clicking on document should hide all open menus and cell histories and clear pointer and clipboard
