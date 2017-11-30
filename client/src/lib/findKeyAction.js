@@ -1,7 +1,9 @@
 const findKeyAction = (evt, options) => {
-  const { key, shiftKey, ctrlKey, altKey } = evt;
+  const { key, evtAltKey, evtCtrlKey, evtShiftKey } = evt;
 
   const option = options.find((item) => {
+    const { itemAltKey, itemShiftKey, itemCtrlKey } = item;
+
     let keyMatch;
     if (item.condition) {
       keyMatch = item.condition();
@@ -17,9 +19,9 @@ const findKeyAction = (evt, options) => {
 
     return (
       keyMatch &&
-      altKey === (item.altKey || false) &&
-      ctrlKey === (item.ctrlKey || false) &&
-      shiftKey === (item.shiftKey || false)
+      (evtAltKey || false) === (itemAltKey || false) &&
+      (evtCtrlKey || false) === (itemCtrlKey || false) &&
+      (evtShiftKey|| false)  === (itemShiftKey || false)
     );
   });
 
