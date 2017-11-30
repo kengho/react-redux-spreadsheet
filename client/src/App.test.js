@@ -117,6 +117,20 @@ describe('functional tests', () => {
       Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r0', 'c2'), 'pointed');
     });
 
+    it('pressing movement key while there is non-editing pointer should add new rows/columns if necessary', () => {
+      const getRowsNumber = (someStore) => {
+        return someStore.getState().get('table').present.get('data').get('rows').size;
+      };
+
+      const previousRowsNumber = getRowsNumber(store);
+      Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r2', 'c2'), 'click');
+      tableWrapper.simulate('keyDown', { key: 'ArrowDown', which: 40 });
+      const nextRowsNumber = getRowsNumber(store);
+
+      expect(nextRowsNumber).to.equal(previousRowsNumber + 1);
+      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r3', 'c2'), 'pointed');
+    });
+
     // TODO: finish for clipboard.
     it('pressing Escape while there are pointer or/and clipboard should clear both', () => {
       Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
@@ -131,7 +145,6 @@ describe('functional tests', () => {
 TODO: automate.
 
 Run in all browsers:
-* pressing movement key (arrow, pgdn, etc) while there is non-editing pointer should add new rows/columns if necessary
 * clicking on document should hide all open menus and cell histories and clear pointer and clipboard
 * pressing on table menu button should show menu
 * pressing on cell menu button should show menu
