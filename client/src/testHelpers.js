@@ -14,8 +14,11 @@ export const getDataWrapperTestKey = (someCellId) => `data-${someCellId}-wrapper
 const nativeEvent = { nativeEvent: { stopImmediatePropagation: () => {} } };
 
 export const getStore = () => {
-  const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
+  const spreadsheetPath = `${getRootPath()}test`;
   const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
+
+  // NOTE: Default state is Core.initialState(3, 4)
+  //   (see Spreadsheet's componentDidMount()).
   const store = configureStore(undefined, history);
 
   return [store, history];
