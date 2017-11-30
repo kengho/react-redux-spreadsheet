@@ -10,7 +10,7 @@ import insertText from '../lib/insertText';
 import numberToCss from '../lib/numberToCss';
 
 // TODO: consider conditional require.
-import { getDataWrapperTestKey } from './../testKeysGetters';
+import { getDataWrapperTestKey } from './../testHelpers';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,

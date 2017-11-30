@@ -13,7 +13,7 @@ import ReactDOM from 'react-dom';
 import sinon from 'sinon';
 
 import { getCellId } from './core';
-import { getDataWrapperTestKey } from './testKeysGetters';
+import { getDataWrapperTestKey } from './testHelpers';
 import getRootPath from './lib/getRootPath';
 
 require('./setupTests');
