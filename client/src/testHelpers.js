@@ -20,7 +20,6 @@ export const dispatchEventOnCellWrapper = (
 ) => {
   const dataWrapper = getDataWrapper(someRootWrapper, someCellId);
   dataWrapper.simulate(someEventName, nativeEvent);
-  someRootWrapper.update();
 };
 
 export const onlyOneDataWrapperHasClassTest = (
@@ -32,7 +31,7 @@ export const onlyOneDataWrapperHasClassTest = (
   const data = someStore.getState().get('table').present.get('data');
   data.get('rows').forEach((row) => {
     data.get('columns').forEach((column) => {
-      const currentCellId = getCellId(row.get('id'), column.get('id'))
+      const currentCellId = getCellId(row.get('id'), column.get('id'));
       const currentDataWrapper = getDataWrapper(someRootWrapper, currentCellId);
       const currentDataWrapperHasClass = currentDataWrapper.hasClass(someClassName);
       if (currentCellId === someCellId) {
