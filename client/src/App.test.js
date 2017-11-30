@@ -60,6 +60,7 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
 
 describe('functional tests', () => {
   describe('cell clicking', () => {
+    // TODO: move to testHelpers.
     const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
     const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
     const store = configureStore(undefined, history);
@@ -100,6 +101,33 @@ describe('functional tests', () => {
       expect(stateAfterSecondtDoubleClick).to.equal(stateAfterFirstDoubleClick);
     });
   });
+
+  describe('document keys pressing', () => {
+    // TODO: finish for clipboard.
+    it('pressing Escape while there are pointer or/and clipboard should clear both', () => {
+      // const onKeyDown = sinon.spy();
+      const spreadsheetPath = `${getRootPath()}empty_spreadsheet_short_id`;
+      const history = createMemoryHistory({ initialEntries: [spreadsheetPath] });
+      const store = configureStore(undefined, history);
+
+      const rootWrapper = mount(
+        <Provider store={store}>
+          <App history={history} />
+        </Provider>
+      );
+
+      const cellId = getCellId('r1', 'c2');
+      Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
+
+      const tableWrapper = rootWrapper.find('.table');
+
+      // Why 'which':
+      // https://github.com/airbnb/enzyme/issues/441#issuecomment-278625004
+      tableWrapper.simulate('keyDown', { key: 'Escape', which: 27 });
+
+      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, undefined, 'pointed');
+    });
+  });
 });
 
 /*
@@ -133,7 +161,6 @@ Run in all browsers:
 * pressing Enter while there are pointer should make pointed cell editable and select all it's content
 * pressing F2 while there are pointer should make pointed cell editable and move cursor to the end of cell's content
 * pressing Delete or Backspace while there are pointer should delete pointed cell's value
-* pressing Escape while there are pointer or/and clipboard should clear both
 * pressing Escape should hide all cell histories
 * pressing Ctrl+X or Ctrl+C while there are pointer should mark cell as clipboard
 * pressing Ctrl+V while there are pointer should copy/cut value from clipboard

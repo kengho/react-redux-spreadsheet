@@ -333,11 +333,15 @@ class Table extends React.Component {
 
     const thereIsClipboard = (clipboard.get('cells').size > 0);
 
+    // NOTE: it's complicated to test document/window binded events,
+    //   so in test env we bind them to React component instead.
+    //   More: https://github.com/airbnb/enzyme/issues/426#issuecomment-225912455
     return (
       <div
         className={`table ${thereIsClipboard ? 'clipboard' : ''}`}
         onMouseLeave={() => { actions.setHover(null); }}
         style={this.style}
+        onKeyDown={process.env.NODE_ENV === 'test' ?this.documentKeyDownHandler : undefined}
       >
         <TableMenu
           actions={actions}
