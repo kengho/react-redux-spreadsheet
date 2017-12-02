@@ -110,7 +110,7 @@ describe('functional tests', () => {
       Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r2', 'c0'), 'pointed');
     });
 
-    it('pressing movement key while there is non-editing pinter should move it accordingly', () => {
+    it('pressing movement key while there is non-editing pointer should move it accordingly', () => {
       Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
       tableWrapper.simulate('keyDown', { key: 'ArrowUp', which: 38 });
 
@@ -139,13 +139,26 @@ describe('functional tests', () => {
       Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, undefined, 'pointed');
     });
   });
+
+  describe('document clicking', () => {
+    const [store, history] = Helpers.getStore();
+    const rootWrapper = Helpers.getRootWrapper(App, store, history);
+    const tableWrapper = rootWrapper.find('.table');
+
+    // TODO: finish for clipboard.
+    it('clicking on document should hide all open menus and cell histories and clear pointer and clipboard', () => {
+      Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
+      tableWrapper.simulate('click');
+
+      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, undefined, 'pointed');
+    });
+  });
 });
 
 /*
 TODO: automate.
 
 Run in all browsers:
-* clicking on document should hide all open menus and cell histories and clear pointer and clipboard
 * pressing on table menu button should show menu
 * pressing on cell menu button should show menu
 * pressing on new cell menu button after adding row/column should show menu

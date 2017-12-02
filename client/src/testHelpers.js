@@ -43,8 +43,10 @@ export const dispatchEventOnCellWrapper = (
   someCellId,
   someEventName
 ) => {
+  process.env['DISPATCH_DOCUMENT_EVENTS'] = 'false';
   const dataWrapper = getDataWrapper(someRootWrapper, someCellId);
   dataWrapper.simulate(someEventName, nativeEvent);
+  process.env['DISPATCH_DOCUMENT_EVENTS'] = 'true';
 };
 
 export const onlyOneDataWrapperHasClassTest = (

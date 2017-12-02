@@ -50,6 +50,10 @@ class Table extends React.Component {
   }
 
   documentClickHandler(evt) {
+    if (process.env.DISPATCH_DOCUMENT_EVENTS === 'false') {
+      return;
+    }
+
     const actions = this.props.actions;
 
     // TODO: it probably would be good to have some meta action
@@ -61,6 +65,10 @@ class Table extends React.Component {
   }
 
   documentKeyDownHandler(evt) {
+     if (process.env.DISPATCH_DOCUMENT_EVENTS === 'false') {
+       return;
+     }
+
     const {
       actions,
       table,
@@ -336,12 +344,19 @@ class Table extends React.Component {
     // NOTE: it's complicated to test document/window binded events,
     //   so in test env we bind them to React component instead.
     //   More: https://github.com/airbnb/enzyme/issues/426#issuecomment-225912455
+    let divOnKeyDown = undefined;
+    let divOnClick = undefined;
+    if (process.env.NODE_ENV === 'test') {
+      divOnKeyDown = this.documentKeyDownHandler;
+      divOnClick = this.documentClickHandler;
+    }
     return (
       <div
         className={`table ${thereIsClipboard ? 'clipboard' : ''}`}
         onMouseLeave={() => { actions.setHover(null); }}
         style={this.style}
-        onKeyDown={process.env.NODE_ENV === 'test' ?this.documentKeyDownHandler : undefined}
+        onKeyDown={divOnKeyDown}
+        onClick={divOnClick}
       >
         <TableMenu
           actions={actions}
