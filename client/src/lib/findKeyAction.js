@@ -1,14 +1,10 @@
 const findKeyAction = (evt, options) => {
-  const { key, evtAltKey, evtCtrlKey, evtShiftKey } = evt;
-
   const option = options.find((item) => {
-    const { itemAltKey, itemShiftKey, itemCtrlKey } = item;
-
     let keyMatch;
     if (item.condition) {
       keyMatch = item.condition();
     } else if (item.keys) {
-      keyMatch = (item.keys.includes(key));
+      keyMatch = (item.keys.includes(evt.key));
     } else if (item.key) {
       keyMatch = (item.key === evt.key);
     } else if (item.which) {
@@ -19,9 +15,9 @@ const findKeyAction = (evt, options) => {
 
     return (
       keyMatch &&
-      (evtAltKey || false) === (itemAltKey || false) &&
-      (evtCtrlKey || false) === (itemCtrlKey || false) &&
-      (evtShiftKey|| false)  === (itemShiftKey || false)
+      (evt.altKey || false) === (item.altKey || false) &&
+      (evt.ctrlKey || false) === (item.ctrlKey || false) &&
+      (evt.shiftKey || false)  === (item.shiftKey || false)
     );
   });
 
