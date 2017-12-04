@@ -246,7 +246,7 @@ class Table extends React.Component {
 
           const srcCellId = srcCellsIds.get(0);
           const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
-          const currentValue = table.getIn(['data', 'cells', srcCellId, 'value']) || '';
+          const currentValue = table.getIn(['data', 'cells', pointerCellId, 'value']) || '';
           const clipboardValue = clipboard.getIn(['cells', srcCellId, 'value']) || '';
 
           // TODO: copy all props.

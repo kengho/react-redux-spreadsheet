@@ -202,6 +202,8 @@ class Data extends React.PureComponent {
     if (value || isEditing) {
       // HACK: key allows autoFocus to work.
       //   http://stackoverflow.com/a/41717743/6376451
+      //   WARNING! DON'T DELETE VALUE FROM KEY!
+      //   DATACELL WON'T UPGRADE IMMEDIATELY AFTER CTRL+C IF YOU DO THIS!
       // HACK: onHeightChange() is workaround for Chromium Linux zoom scrollbar issue.
       //   https://github.com/andreypopp/react-textarea-autosize/issues/147
       textareaOutput = (
@@ -212,7 +214,7 @@ class Data extends React.PureComponent {
           defaultValue={value}
           disabled={!isEditing}
           inputRef={(c) => { this.textareaInputEl = c; }}
-          key={JSON.stringify({ cellId, isEditing })}
+          key={JSON.stringify({ value, cellId, isEditing })}
           maxWidth="512px"
           onChange={this.onChangeHandler}
           onFocus={this.onFocusHandler}
