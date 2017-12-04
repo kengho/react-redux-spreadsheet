@@ -69,7 +69,7 @@ class ImportDialog extends React.PureComponent {
         }
       } else {
         this.props.actions.openUi('DIALOG', {
-          disableYesButton: false,
+          disableYesButton: true,
           errors: [{
             code: 'WRONG_FORMAT',
             message: 'Wrong format file.'

@@ -193,7 +193,7 @@ Run in all browsers:
 * pressing Tab/Shift+Tab while editing should save cell's value and move pointer right/left (unless left border; at right table should expand)
 * pressing Ctrl+Enter while editing should add new line after cursor
 * pressing Escape while editing should make cell uneditable and leave cell's value as it was before
-* clicking on other cell while there are editable cell should save content of editing cell and move pointer
+* clicking on other cell or document while there are editable cell should save content of editing cell and move pointer accordingly
 * typing text to cell should expand it to some point horizontally and to infinity vertically, never showing scrollbar
 * moving pointer should scroll page if necessary (even after 100 key presses)
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
@@ -203,11 +203,11 @@ Run in all browsers:
 * export button should save CSV file
 * import button should show dialog with 'Choose file' button and inactive 'Import' button
 * when user selects CSV file, 'Import button' should become active and file name should appear at the right
-* when user selects incorrect CSV file, errors should appear
+* when user selects incorrect file, errors should appear
 * when import dialog closes and opens again, it should look exactly the same, regardles of previous actions
 * when user selects any file in import dialog, then opens 'Choose file' dialog again and presses Escape, no errors should occur
 * when data is imported, spreadsheet should sync data with server immediately
-* when user is trying to import bad format file, no errors should occur
+* when user is trying to import bad format file, errors should occur
 * on landing, when errors while creating spreadsheet occurs, they should be shown near 'create' button
 * on landing, when error messages occurs, 'create' button should become enabled
 * on landing, error messages appearing shouldn't lead to moving 'create' button on-screen position
@@ -215,15 +215,14 @@ Run in all browsers:
 * back and forward history movements between Landing and Spreadsheet should work
 * after deleting spreadsheet user should be redirected to Landing
 * each cell's value's change should be saved in cell history
-* cell menu should appear on cell hover with little delay
+* cell menu button should appear on cell hover with little delay
 * (REVIEW) when there is clipboard, cell menu should be always invisible
 * cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
 * when cell history if empty, show cell history button should be inactive
 * when cell history is shown, document click should close it
-* when cell history is shown, opening another should close first one
 * cell history should have close button
 * each record in cell history should have delete button
-* when user deletes all cell history records, cell history should hide
+* when user deletes the last cell history record, cell history should hide
 * user should be able to select/copy/paste text from cell history
 * each record in cell history should have restore button
 * if records' value equals current cell's value, restore record button should be inactive
