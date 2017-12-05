@@ -6,9 +6,8 @@ import React from 'react';
 
 import { configureStore } from './store/configureStore';
 import { getCellId } from './core';
+import { getDataWrapperTestKey } from './testKeysGetters';
 import getRootPath from './lib/getRootPath';
-
-export const getDataWrapperTestKey = (someCellId) => `data-${someCellId}-wrapper`;
 
 // https://github.com/Semantic-Org/Semantic-UI-React/issues/1319#issuecomment-279477029
 const nativeEvent = { nativeEvent: { stopImmediatePropagation: () => {} } };
