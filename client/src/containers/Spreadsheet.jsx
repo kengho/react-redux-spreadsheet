@@ -90,6 +90,7 @@ class Spreadsheet extends React.Component {
     } else {
       return [
         <Table key="table" {...other} />,
+        <div key="after-table" style={{ height: '90vh' }}/>,
         <Overlay key="overlay" />
       ];
     }
