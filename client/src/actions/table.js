@@ -7,7 +7,7 @@ import * as ActionTypes from '../actionTypes';
 // triggersRowUpdate prop triggers row update (your K.O.).
 
 // changesData should be true for import and false for initial data load.
-export function setTableFromJSON(tableJSON, changesData: false) {
+export function setTableFromJSON(tableJSON, changesData = false) {
   return {
     type: ActionTypes.SET_TABLE_FROM_JSON,
     tableJSON,
