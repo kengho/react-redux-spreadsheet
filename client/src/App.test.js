@@ -191,6 +191,7 @@ Run in all browsers:
 * pressing Ctrl+V should copy/cut empty cell's values too
 * pressing Enter/Shift+Enter while editing should save cell's value and move pointer down/up (unless top border; at bottom table should expand)
 * pressing Tab/Shift+Tab while editing should save cell's value and move pointer right/left (unless left border; at right table should expand)
+* pressing Enter/Shift+Enter/Tab/Shift+Tab should make next pointer non-editing
 * pressing Ctrl+Enter while editing should add new line after cursor
 * pressing Escape while editing should make cell uneditable and leave cell's value as it was before
 * clicking on other cell or document while there are editable cell should save content of editing cell and move pointer accordingly

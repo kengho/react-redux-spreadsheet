@@ -134,6 +134,7 @@ class Data extends React.PureComponent {
     const setPropIfNeededAndMovePointer = (key) => {
       setPropIfNeeded();
       this.props.actions.movePointer(key);
+      this.props.actions.setPointer({ modifiers: {} });
     };
 
     const action = findKeyAction(evt, [
