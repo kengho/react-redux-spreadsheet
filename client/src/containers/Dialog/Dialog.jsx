@@ -91,7 +91,7 @@ class Dialog extends React.Component {
         className="dialog"
         onClick={this.onClickHandler}
         onKeyDown={this.keyDownHandler}
-        onRequestClose={actions.closeUi}
+        onBackdropClick={actions.closeUi}
         open={visibility}
       >
         {dialogBody}
