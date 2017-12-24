@@ -40,7 +40,7 @@ class CellMenu extends React.PureComponent {
     } else {
       cellMenuItems.push({
         action: () => actions.openUi('HISTORY', { cellId }),
-        label: 'View history',
+        label: 'View history...',
         disabled: !historyAvailability,
       });
     }

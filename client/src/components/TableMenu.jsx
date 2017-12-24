@@ -113,7 +113,7 @@ class TableMenu extends React.PureComponent {
         {
           dialogDisableYesButton: true,
           dialogVariant: 'IMPORT',
-          label: 'Import from file',
+          label: 'Import from file...',
         },
         {
           action: () => actions.undo(),
@@ -127,11 +127,11 @@ class TableMenu extends React.PureComponent {
         },
         {
           dialogVariant: 'INFO',
-          label: 'Help',
+          label: 'Help...',
         },
         {
           dialogVariant: 'DESTROY_SPREADSHEET',
-          label: 'Delete',
+          label: 'Delete...',
         },
       ];
 
