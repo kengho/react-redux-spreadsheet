@@ -62,6 +62,7 @@ class Table extends React.Component {
     actions.closeUi();
     actions.setPointer({ cellId: null, modifiers: {} });
     actions.tableSetClipboard({ cells: {}, operation: null });
+    actions.disableNewSpreadsheetButton(false)
   }
 
   documentKeyDownHandler(evt) {
