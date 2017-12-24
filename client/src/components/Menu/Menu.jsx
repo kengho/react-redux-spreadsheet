@@ -120,15 +120,17 @@ class Menu extends React.PureComponent {
 
               const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
 
+              // NOTE: customComponent prevents closeUi() after click in MenuItem.
               return (
                 <MenuItem
                   disabled={item.disabled}
-                  key={item.label}
+                  key={item.label ? item.label : item.component.key}
+                  customComponent={!!item.component}
                   {...item}
                   {...other}
                 >
                   <ItemIcon />
-                  {item.label}
+                  {item.label ? item.label : item.component}
                 </MenuItem>
               );
             })}

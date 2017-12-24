@@ -19,3 +19,17 @@ export function closeUi() {
     propsComparePaths: [['current', 'visibility']],
   };
 }
+
+export function disableNewSpreadsheetButton(disable) {
+  return {
+    type: ActionTypes.DISABLE_NEW_SPREADSHEET_BUTTON,
+    disable,
+  };
+}
+
+export function setNewSpreadsheetPath(newSpreadsheetPath) {
+  return {
+    type: ActionTypes.SET_NEW_SPREADSHEET_PATH,
+    newSpreadsheetPath,
+  };
+}

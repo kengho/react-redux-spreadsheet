@@ -363,7 +363,9 @@ class Table extends React.Component {
           canRedo={canRedo}
           canUndo={canUndo}
           currentUi={currentUi}
-          data={this.props.table.get('data')}
+          data={table.get('data')}
+          newSpreadsheetButtonIsDisabled={ui.get('newSpreadsheetButtonIsDisabled')}
+          newSpreadsheetPath={ui.get('newSpreadsheetPath')}
           requestsQueueLength={requests.get('queue').size}
           shortId={this.props.match.params.shortId}
         />

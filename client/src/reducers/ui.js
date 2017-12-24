@@ -12,6 +12,10 @@ const defaultState = fromJS({
     disableYesButton: null, // Dialog
     errors: [], // Dialog
   },
+  tableMenu: {
+    disableNewSpreadsheetButton: null,
+    newSpreadsheetPath: null,
+  },
 });
 
 export default function ui(state = defaultState, action) {
@@ -28,6 +32,18 @@ export default function ui(state = defaultState, action) {
 
     case ActionTypes.CLOSE_UI:
       return state.setIn(['current', 'visibility'], false);
+
+    case ActionTypes.DISABLE_NEW_SPREADSHEET_BUTTON:
+      return state.set(
+        'newSpreadsheetButtonIsDisabled',
+        action.disable
+      );
+
+    case ActionTypes.SET_NEW_SPREADSHEET_PATH:
+      return state.set(
+        'newSpreadsheetPath',
+        action.newSpreadsheetPath
+      );
 
     default:
       return state;

@@ -33,6 +33,8 @@ export const SAVE_EDITING_CELL_VALUE_IF_NEEDED = 'table/SAVE_EDITING_CELL_VALUE_
 // ui
 export const OPEN_UI = 'ui/OPEN_UI';
 export const CLOSE_UI = 'ui/CLOSE_UI';
+export const DISABLE_NEW_SPREADSHEET_BUTTON = 'ui/DISABLE_NEW_SPREADSHEET_BUTTON';
+export const SET_NEW_SPREADSHEET_PATH = 'ui/SET_NEW_SPREADSHEET_PATH';
 
 // undoRedo
 export const UNDO = UndoActionCreators.undo().type;

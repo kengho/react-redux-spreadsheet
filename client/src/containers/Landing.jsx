@@ -48,7 +48,6 @@ class Landing extends React.Component {
           onRecaptchaResolved={() => actions.disableLandingButton(false)}
           openInNewTab={false}
           recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-          ripple={true}
         >
           <Button
             color="primary"

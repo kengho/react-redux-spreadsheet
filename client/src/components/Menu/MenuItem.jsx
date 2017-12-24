@@ -7,14 +7,15 @@ import rippleButtonAction from '../../lib/rippleButtonAction';
 const propTypes = {
   action: PropTypes.func,
   actions: PropTypes.object.isRequired,
-  dialogVariant: PropTypes.string,
+  customComponent: PropTypes.bool,
   dialogDisableYesButton: PropTypes.bool,
-  label: PropTypes.string.isRequired,
+  dialogVariant: PropTypes.string,
   disabled: PropTypes.bool,
 };
 
 const defaultProps = {
   action: () => {},
+  customComponent: false,
   dialogDisableYesButton: false,
   dialogVariant: '',
   disabled: false,
@@ -25,6 +26,7 @@ const MenuItem = (props) => {
     action,
     actions,
     children,
+    customComponent,
     dialogDisableYesButton,
     dialogVariant,
     disabled,
@@ -53,7 +55,7 @@ const MenuItem = (props) => {
 
   return (
     <MaterialMenuItem
-      onClick={delayedAction}
+      onClick={customComponent ? undefined : delayedAction}
       disabled={disabled}
     >
       {children}

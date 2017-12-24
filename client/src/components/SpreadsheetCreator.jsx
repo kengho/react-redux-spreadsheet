@@ -11,20 +11,20 @@ import serverSyncParams from '../lib/serverSyncParams';
 const propTypes = {
   actions: PropTypes.object.isRequired,
   beforeRecaptchaExecute: PropTypes.func,
+  disabled: PropTypes.bool,
   history: PropTypes.object,
   onErrors: PropTypes.func,
   onRecaptchaResolved: PropTypes.func,
   openInNewTab: PropTypes.bool,
   recaptchaSitekey: PropTypes.string,
-  ripple: PropTypes.bool,
 };
 
 const defaultProps = {
   beforeRecaptchaExecute: () => {},
+  disabled: false,
   onErrors: () => {},
   onRecaptchaResolved: () => {},
   openInNewTab: false,
-  ripple: true,
 };
 
 class SpreadsheetCreator extends React.PureComponent {
@@ -62,10 +62,9 @@ class SpreadsheetCreator extends React.PureComponent {
           const errors = json.errors.map((error) => error.detail);
           onErrors(errors);
         } else {
+          const shortId = json.data.short_id;
+          const spreadsheetPath = `${getRootPath()}${shortId}`;
           if (history && !openInNewTab) {
-            const shortId = json.data.short_id;
-            const spreadsheetPath = `${getRootPath()}${shortId}`;
-
             // store's shortId used in handleRequestsChanges().
             actions.setShortId(shortId);
 
@@ -73,7 +72,7 @@ class SpreadsheetCreator extends React.PureComponent {
             actions.setTableFromJSON(JSON.stringify(table));
             history.push(spreadsheetPath);
           } else {
-            // ...
+            actions.setNewSpreadsheetPath(spreadsheetPath);
           }
         }
 
@@ -84,7 +83,6 @@ class SpreadsheetCreator extends React.PureComponent {
   onChildrenClickHandler(evt) {
     const {
       beforeRecaptchaExecute,
-      ripple,
     } = this.props;
 
     const action = () => {
@@ -97,23 +95,22 @@ class SpreadsheetCreator extends React.PureComponent {
       }
     }
 
-    if (ripple) {
-      rippleButtonAction(action)(evt);
-    } else {
-      action(evt);
-    }
+    rippleButtonAction(action)(evt);
   }
 
   render() {
     const {
       children,
+      disabled,
       recaptchaSitekey,
     } = this.props;
 
-    const clickableChildren =
-      <div key="children">
-        {React.cloneElement(children, { onClick: this.onChildrenClickHandler })}
-      </div>
+    let clickableChildren = children;
+    if (!disabled)
+    clickableChildren = React.cloneElement(children, {
+      onClick: this.onChildrenClickHandler,
+      key: 'children',
+    })
 
     return [
       clickableChildren,

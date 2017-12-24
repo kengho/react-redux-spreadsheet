@@ -9,14 +9,22 @@ import { convert } from '../core';
 import * as convertFormats from '../convertFormats';
 import datetime from '../lib/datetime';
 import Menu from './Menu/Menu';
+import SpreadsheetCreator from './SpreadsheetCreator';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
   canRedo: PropTypes.bool.isRequired,
   canUndo: PropTypes.bool.isRequired,
   data: PropTypes.object.isRequired,
+  newSpreadsheetButtonIsDisabled: PropTypes.bool,
+  newSpreadsheetPath: PropTypes.string,
   requestsQueueLength: PropTypes.number.isRequired,
   shortId: PropTypes.string.isRequired,
+};
+
+const defaultProps = {
+  newSpreadsheetButtonIsDisabled: false,
+  newSpreadsheetPath: '',
 };
 
 class TableMenu extends React.PureComponent {
@@ -35,6 +43,8 @@ class TableMenu extends React.PureComponent {
     const {
       canRedo,
       canUndo,
+      newSpreadsheetButtonIsDisabled,
+      newSpreadsheetPath,
       requestsQueueLength,
       ...other,
     } = this.props;
@@ -56,11 +66,41 @@ class TableMenu extends React.PureComponent {
         </IconButton>
       );
     } else {
+      let newSpreadsheetLink;
+      if (newSpreadsheetPath) {
+        newSpreadsheetLink = (
+          <a
+            href={newSpreadsheetPath}
+            target="_blank"
+            onClick={() => {
+              actions.disableNewSpreadsheetButton(false);
+              actions.setNewSpreadsheetPath(null);
+            }}
+          >
+            Open in new tab
+          </a>
+        );
+      }
+
       const tableMenuItems = [
         {
-          dialogVariant: 'INFO',
-          icon: 'HelpOutline',
-          label: 'Help',
+          icon: 'AddCircleOutline',
+
+          // key for MenuItem in Menu.
+          component: (
+            <SpreadsheetCreator
+              actions={actions}
+              beforeRecaptchaExecute={() => actions.disableNewSpreadsheetButton(true)}
+              disabled={newSpreadsheetButtonIsDisabled}
+              key="New"
+              openInNewTab={true}
+              recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+            >
+              <div style={{ width: '100%' }}>
+                {newSpreadsheetPath ? newSpreadsheetLink : 'New'}
+              </div>
+            </SpreadsheetCreator>
+          ),
         },
         // TODO: nested menu.
         //   https://github.com/callemall/material-ui/issues/8152
@@ -93,6 +133,11 @@ class TableMenu extends React.PureComponent {
           disabled: !canRedo,
         },
         {
+          dialogVariant: 'INFO',
+          icon: 'HelpOutline',
+          label: 'Help',
+        },
+        {
           dialogVariant: 'DESTROY_SPREADSHEET',
           icon: 'Delete',
           label: 'Delete',
@@ -118,5 +163,6 @@ class TableMenu extends React.PureComponent {
 }
 
 TableMenu.propTypes = propTypes;
+TableMenu.defaultProps = defaultProps;
 
 export default TableMenu;
