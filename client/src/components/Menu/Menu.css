@@ -36,3 +36,8 @@ li svg {
   color: black;
   opacity: 1;
 }
+
+.material-menu li {
+  padding-left: 32px;
+  padding-right: 32px;
+}

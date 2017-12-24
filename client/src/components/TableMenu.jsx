@@ -84,8 +84,6 @@ class TableMenu extends React.PureComponent {
 
       const tableMenuItems = [
         {
-          icon: 'AddCircleOutline',
-
           // key for MenuItem in Menu.
           component: (
             <SpreadsheetCreator
@@ -106,40 +104,33 @@ class TableMenu extends React.PureComponent {
         //   https://github.com/callemall/material-ui/issues/8152
         {
           action: () => this.exportTo(convertFormats.CSV),
-          icon: 'FileUpload',
           label: 'Export to CSV',
         },
         {
           action: () => this.exportTo(convertFormats.JSON),
-          icon: 'FileUpload',
           label: 'Export to JSON',
         },
         {
           dialogDisableYesButton: true,
           dialogVariant: 'IMPORT',
-          icon: 'FileDownload',
           label: 'Import from file',
         },
         {
           action: () => actions.undo(),
-          icon: 'Undo',
           label: 'Undo (Ctrl+Z)',
           disabled: !canUndo,
         },
         {
           action: () => actions.redo(),
-          icon: 'Redo',
           label: 'Redo (Ctrl+Y)',
           disabled: !canRedo,
         },
         {
           dialogVariant: 'INFO',
-          icon: 'HelpOutline',
           label: 'Help',
         },
         {
           dialogVariant: 'DESTROY_SPREADSHEET',
-          icon: 'Delete',
           label: 'Delete',
         },
       ];

@@ -38,7 +38,6 @@ class LineMenu extends React.PureComponent {
       if (!isLineOnly) {
         cellsMenuItems.push({
           action: () => actions.deleteLine(lineNumber, place),
-          icon: 'Close',
 
           // TODO: i18n.
           label: 'Delete row',
@@ -47,12 +46,10 @@ class LineMenu extends React.PureComponent {
       cellsMenuItems.push(
         {
           action: () => actions.addLine(lineNumber, place),
-          icon: 'KeyboardArrowUp',
           label: 'Insert row above',
         },
         {
           action: () => actions.addLine(lineNumber + 1, place),
-          icon: 'KeyboardArrowDown',
           label: 'Insert row below',
         }
       );
@@ -60,19 +57,16 @@ class LineMenu extends React.PureComponent {
       if (!isLineOnly) {
         cellsMenuItems.push({
           action: () => actions.deleteLine(lineNumber, place),
-          icon: 'Close',
           label: 'Delete column',
         });
       }
       cellsMenuItems.push(
         {
           action: () => actions.addLine(lineNumber, place),
-          icon: 'ChevronLeft',
           label: 'Insert column at left',
         },
         {
           action: () => actions.addLine(lineNumber + 1, place),
-          icon: 'ChevronRight',
           label: 'Insert column at right',
         }
       );

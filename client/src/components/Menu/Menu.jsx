@@ -108,6 +108,7 @@ class Menu extends React.PureComponent {
         {visibility &&
           <MaterialMenu
             anchorEl={this.anchorEl}
+            className="material-menu"
             onKeyDown={this.keyDownHandler}
             open={visibility}
           >
@@ -118,8 +119,6 @@ class Menu extends React.PureComponent {
               //   return item;
               // }
 
-              const ItemIcon = require(`material-ui-icons/${item.icon}`).default;
-
               // NOTE: customComponent prevents closeUi() after click in MenuItem.
               return (
                 <MenuItem
@@ -129,7 +128,6 @@ class Menu extends React.PureComponent {
                   {...item}
                   {...other}
                 >
-                  <ItemIcon />
                   {item.label ? item.label : item.component}
                 </MenuItem>
               );
