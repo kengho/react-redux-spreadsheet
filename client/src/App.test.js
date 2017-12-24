@@ -173,6 +173,12 @@ Run in all browsers:
 * 'delete column' button should delete column
 * all those buttons should work properly after adding/removing rows/columns
 * 'delete spreadsheet' button should show dialog and delete spreadsheet if user pressed 'yes'
+
+// TODO: add more table menu tests.
+
+* 'new' button on table menu should show captcha (if necessary) and show link that should open new spreadsheet in new tab
+* if user clicks on 'new' button on table menu and skips captcha by clicking on document, he should be able to press this button and meet captcha again
+* if new spreadsheet is created using 'new' button on table menu, it shouldn't let user to create another one until he follows link
 * when there are only one row/column, delete row/column option shouldn't be present
 * lines addressing should update after adding/removing rows/columns
 * after showing menu first element should be active
