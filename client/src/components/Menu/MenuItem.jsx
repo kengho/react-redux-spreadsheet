@@ -51,12 +51,17 @@ const MenuItem = (props) => {
     };
   }
 
-  const delayedAction = rippleButtonAction(effectiveAction);
+  let delayedAction;
+  if (customComponent) {
+    delayedAction = (evt) => { evt.nativeEvent.stopImmediatePropagation(); };
+  } else {
+    delayedAction = rippleButtonAction(effectiveAction);
+  }
 
   return (
     <MaterialMenuItem
-      onClick={customComponent ? undefined : delayedAction}
       disabled={disabled}
+      onClick={delayedAction}
     >
       {children}
     </MaterialMenuItem>

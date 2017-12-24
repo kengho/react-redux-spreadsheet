@@ -106,11 +106,12 @@ class SpreadsheetCreator extends React.PureComponent {
     } = this.props;
 
     let clickableChildren = children;
-    if (!disabled)
-    clickableChildren = React.cloneElement(children, {
-      onClick: this.onChildrenClickHandler,
-      key: 'children',
-    })
+    if (!disabled) {
+      clickableChildren = React.cloneElement(children, {
+        onClick: this.onChildrenClickHandler,
+        key: 'children',
+      });
+    }
 
     return [
       clickableChildren,

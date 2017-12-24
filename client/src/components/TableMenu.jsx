@@ -94,7 +94,7 @@ class TableMenu extends React.PureComponent {
               openInNewTab={true}
               recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
             >
-              <div style={{ width: '100%' }}>
+              <div className="new-spreadsheet-item">
                 {newSpreadsheetPath ? newSpreadsheetLink : 'New'}
               </div>
             </SpreadsheetCreator>

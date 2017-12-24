@@ -14,3 +14,11 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+/* HACK: allows to click at left and at right from 'New' item. */
+.new-spreadsheet-item {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  padding-left: 32px;
+}
