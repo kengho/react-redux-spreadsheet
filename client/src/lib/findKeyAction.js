@@ -13,12 +13,13 @@ const findKeyAction = (evt, options) => {
       keyMatch = (item.whichs.includes(evt.which));
     }
 
-    return (
-      keyMatch &&
-      (evt.altKey || false) === (item.altKey || false) &&
-      (evt.ctrlKey || false) === (item.ctrlKey || false) &&
-      (evt.shiftKey || false)  === (item.shiftKey || false)
-    );
+    ['altKey', 'ctrlKey', 'shiftKey'].forEach((keyModifier) => {
+      if (item[keyModifier]) {
+        keyMatch = keyMatch && ((evt[keyModifier] || false) === (item[keyModifier] || false));
+      }
+    });
+
+    return keyMatch;
   });
 
   let action = null;

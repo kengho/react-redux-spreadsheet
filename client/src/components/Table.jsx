@@ -80,7 +80,6 @@ class Table extends React.Component {
         condition: () => (evt.key.length === 1 || evt.key === 'Enter' || evt.key === 'F2'),
         altKey: false,
         ctrlKey: false,
-        shiftKey: false,
         action: () => {
           if (evt.key === 'Enter') {
             // Prevents immediately pressing Enter after focus (deletes selected text).
