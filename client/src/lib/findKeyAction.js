@@ -14,7 +14,7 @@ const findKeyAction = (evt, options) => {
     }
 
     ['altKey', 'ctrlKey', 'shiftKey'].forEach((keyModifier) => {
-      if (item[keyModifier]) {
+      if ((typeof item[keyModifier]) === 'boolean') {
         keyMatch = keyMatch && ((evt[keyModifier] || false) === (item[keyModifier] || false));
       }
     });
