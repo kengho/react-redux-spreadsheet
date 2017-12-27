@@ -5,3 +5,10 @@ body {
   https://getmdl.io/ */
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
 }
+
+a {
+  /* Color from .mdl-button--raised.mdl-button--colored */
+  /* https://github.com/google/material-design-lite */
+  color: #3f51b5;
+  text-decoration: none;
+}
