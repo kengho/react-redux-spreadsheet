@@ -69,7 +69,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
 
       unless (id = Spreadsheet.id(params[:short_id]))
         throw_error(
-          'external', "Error processing short_id '#{params[:short_id]}'."
+          'external', "Error processing spreadsheet ID \"#{params[:short_id]}\"."
         ) and return
       end
 
@@ -97,7 +97,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
           accept: :json
         )
       rescue => e
-        Rails.logger.error("Error while sending captcha request: '#{e}'")
+        Rails.logger.error("Error while sending captcha request: \"#{e}\"")
       end
 
       return false unless response
