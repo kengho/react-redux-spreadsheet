@@ -140,16 +140,20 @@ class Data extends React.PureComponent {
     const action = findKeyAction(evt, [
       {
         key: 'Enter',
+        ctrlKey: false,
+        shiftKey: false,
         action: () => setPropIfNeededAndMovePointer('ArrowDown'),
       },
       {
         key: 'Enter',
+        ctrlKey: false,
         shiftKey: true,
         action: () => setPropIfNeededAndMovePointer('ArrowUp'),
       },
       {
         key: 'Enter',
         ctrlKey: true,
+        shiftKey: false,
         action: () => {
           // Add new line to textarea.
           const textarea = evt.target;
@@ -161,6 +165,7 @@ class Data extends React.PureComponent {
       },
       {
         key: 'Tab',
+        shiftKey: false,
         action: () => setPropIfNeededAndMovePointer('ArrowRight'),
       },
       {
