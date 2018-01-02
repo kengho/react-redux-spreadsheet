@@ -18,22 +18,24 @@ const propTypes = {
 const App = ({ history }) => {
   const rootPath = getRootPath();
 
-  return (
-    <div>
-      <ConnectedRouter history={history}>
-        <Switch>
-          <Route exact path={rootPath} component={Landing} />
-          <Route exact path={`${rootPath}:shortId`} component={Spreadsheet} />
-          <Route component={ErrorPageNotFound}/>
-        </Switch>
-      </ConnectedRouter>
-      <Dialog />
-      <GithubMark
-        href="https://github.com/kengho/react-redux-spreadsheet"
-        position="bottom-right"
-      />
-    </div>
-  );
+  // NOTE: is there is div around everything,
+  //   it should have height css property in order
+  //   for .data to have 100% height.
+  return ([
+    <ConnectedRouter key="router" history={history}>
+      <Switch>
+        <Route exact path={rootPath} component={Landing} />
+        <Route exact path={`${rootPath}:shortId`} component={Spreadsheet} />
+        <Route component={ErrorPageNotFound}/>
+      </Switch>
+    </ConnectedRouter>,
+    <Dialog key="dialog" />,
+    <GithubMark
+      key="github-mark"
+      href="https://github.com/kengho/react-redux-spreadsheet"
+      position="bottom-right"
+    />,
+  ]);
 }
 
 App.propTypes = propTypes;

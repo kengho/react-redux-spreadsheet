@@ -1,3 +1,12 @@
+body, html {
+  height: 100%;
+}
+
+/* This somehow fixes issue when .data doesn't have 100% height in Chrome 63. */
+#root {
+  height: 0%;
+}
+
 body {
   background-color: #eee;
 
