@@ -188,7 +188,7 @@ class Table extends React.Component {
           const pointerCellId = table.getIn(['session', 'pointer', 'cellId']);
           const pointedCellValue = cells.getIn([pointerCellId, 'value']);
           if (pointedCellValue) {
-            // Prevents going back in history for Backspace.
+            // Prevents going back in history via Backspace.
             evt.preventDefault();
 
             actions.tableDeleteProp(pointerCellId, 'value');
