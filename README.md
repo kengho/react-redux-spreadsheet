@@ -12,7 +12,7 @@
 
 ## Features
 
-* auto sync with server with requests queue
+* auto sync with server
 * auto saving cells' values history
 * export/import to/from CSV/JSON
 * basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Home`, `End`, `Delete`)
@@ -23,7 +23,7 @@
 * delete/insert row/column buttons
 * automatically expanding table
 * built-in invisible Google reCAPTCHA
-* clean material-ish design
+* clean material design
 
 ## Installing
 
@@ -71,12 +71,11 @@ http://localhost:3000/spreadsheet should display landing page.
 
 ## Known issues
 
-* doesn't work with touch devices
 * may be slow on really large spreadsheets (>100x100)
 
 ## TODO (random order)
 
-* mobile clients support
+* better mobile browsers support
 * cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
 * sort
