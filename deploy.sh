@@ -7,6 +7,7 @@ cd $APP_PATH
 git pull origin master
 
 # prepare environment
+bundle update
 bundle install --without development test
 RAILS_ENV=production bundle exec rake db:migrate
 cd client
