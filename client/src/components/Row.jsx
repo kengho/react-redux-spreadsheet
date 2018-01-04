@@ -29,6 +29,7 @@ const propTypes = {
   rowNumber: PropTypes.number.isRequired,
   rows: PropTypes.object.isRequired,
   rowUpdateTrigger: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
+  tableHasHeader: PropTypes.bool.isRequired, // eslint-disable-line react/no-unused-prop-types
 };
 
 const defaultProps = {
@@ -45,6 +46,7 @@ class Row extends React.Component {
       'hoverColumnId', // hover moves left/right
       'rowNumber', // add/remove rows
       'rowUpdateTrigger', // some cells' value changed
+      'tableHasHeader', // change tableHasHeader param
     ]);
   }
 
@@ -67,6 +69,8 @@ class Row extends React.Component {
     // Non-extracting props (should be passed to children as well).
     const {
       currentUi, // uses in Cell
+      rowNumber, // uses in Cell
+      tableHasHeader, // uses in Cell
     } = this.props;
 
     const outputCells = [];
@@ -125,8 +129,13 @@ class Row extends React.Component {
       );
     }
 
+    const rowClassNames = ['tr'];
+    if (tableHasHeader && rowNumber === 0) {
+      rowClassNames.push('header');
+    }
+
     return (
-      <div className="tr">
+      <div className={rowClassNames.join(' ')}>
         {outputCells}
       </div>
     );

@@ -132,6 +132,7 @@ class Cell extends React.PureComponent {
       isColumnOnly,
       isRowOnly,
       rowNumber,
+      tableHasHeader,
       ...other,
     } = this.props;
 
@@ -167,6 +168,11 @@ class Cell extends React.PureComponent {
           complementClassnames.push('row');
         }
 
+        let effectiveLineNumber = lineNumber + 1;
+        if (tableHasHeader && lineRef === 'ROW') {
+          effectiveLineNumber = lineNumber;
+        }
+
         complements.push(
           <div key={`${this.props.cellId}-complement-${lineRef.toLowerCase()}`}>
             <div
@@ -187,10 +193,14 @@ class Cell extends React.PureComponent {
               className={complementClassnames.join(' ')}
               ref={(c) => { this.domRefs[lineRef]['ADDRESS'] = c; }}
             >
-              <Address
-                lineNumber={lineNumber}
-                lineRef={lineRef}
-              />
+              {
+                !(tableHasHeader && lineRef === 'ROW' && lineNumber === 0) &&
+                <Address
+                  {...other}
+                  effectiveLineNumber={effectiveLineNumber}
+                  lineRef={lineRef}
+                />
+              }
             </div>
           </div>
         );

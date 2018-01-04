@@ -5,22 +5,22 @@ import React from 'react';
 import './Address.css'
 
 const propTypes = {
-  lineNumber: PropTypes.number.isRequired,
+  effectiveLineNumber: PropTypes.number.isRequired,
   lineRef: PropTypes.string.isRequired,
 };
 
 class Address extends React.PureComponent {
   render() {
     const {
-      lineNumber,
+      effectiveLineNumber,
       lineRef,
     } = this.props;
 
     let address;
     if (lineRef === 'ROW') {
-      address = lineNumber + 1;
+      address = effectiveLineNumber;
     } else if (lineRef === 'COLUMN') {
-      address = intToExcelCol(lineNumber + 1);
+      address = intToExcelCol(effectiveLineNumber);
     }
 
     return (

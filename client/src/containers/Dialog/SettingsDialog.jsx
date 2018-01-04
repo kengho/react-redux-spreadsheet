@@ -26,15 +26,16 @@ class SettingsDialog extends React.PureComponent {
     const settingsMap = [
       { group: 'General' },
       {
+        // TODO: 'clear all history' button if false.
         param: 'autoSaveHistory',
         type: SWITCH,
         checked: settings.get('autoSaveHistory'),
         label: 'Automatically save cells\' history',
       },
       {
-        param: 'hasHeader',
+        param: 'tableHasHeader',
         type: SWITCH,
-        checked: settings.get('hasHeader'),
+        checked: settings.get('tableHasHeader'),
         label: 'Table has header',
       },
     ]
@@ -64,6 +65,8 @@ class SettingsDialog extends React.PureComponent {
                 />
               );
             }
+
+            return '';
           })}
         </FormGroup>
       </MaterialDialogContent>,

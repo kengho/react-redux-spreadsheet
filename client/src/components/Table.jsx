@@ -19,6 +19,7 @@ const propTypes = {
   canUndo: PropTypes.bool.isRequired,
   detachments: PropTypes.object.isRequired,
   requests: PropTypes.object.isRequired,
+  settings: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
   ui: PropTypes.object.isRequired,
 };
@@ -296,6 +297,7 @@ class Table extends React.Component {
       canRedo,
       canUndo,
       requests,
+      settings,
       table,
       ui,
     } = this.props;
@@ -305,10 +307,11 @@ class Table extends React.Component {
     const cells = table.getIn(['data', 'cells']);
     const clipboard = table.getIn(['session', 'clipboard']);
     const columns = table.getIn(['data', 'columns']);
+    const currentUi = ui.getIn(['current', 'visibility']) && ui.get('current');
+    const tableHasHeader = settings.get('tableHasHeader');
     const hover = table.getIn(['session', 'hover']);
     const pointer = table.getIn(['session', 'pointer']);
     const updateTriggers = table.getIn(['updateTriggers']);
-    const currentUi = ui.getIn(['current', 'visibility']) && ui.get('current');
 
     const outputRows = [];
     for (let rowIndex = 0; rowIndex < rows.size; rowIndex += 1) {
@@ -321,6 +324,7 @@ class Table extends React.Component {
           clipboard={clipboard}
           columns={columns}
           currentUi={currentUi}
+          tableHasHeader={tableHasHeader}
           hoverColumnId={rowIndex === 0 && getColumnId(hover)}
           key={rowId}
           pointer={pointer}

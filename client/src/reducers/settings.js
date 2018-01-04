@@ -4,7 +4,7 @@ import * as ActionTypes from '../actionTypes';
 
 const defaultState = fromJS({
   autoSaveHistory: true,
-  hasHeader: false,
+  tableHasHeader: false,
 });
 
 export default function meta(state = defaultState, action) {

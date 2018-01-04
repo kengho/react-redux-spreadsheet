@@ -25,6 +25,7 @@ const mapStateToProps = (state) => ({
   detachments: state.get('detachments'),
   meta: state.get('meta'),
   requests: state.get('requests'),
+  settings: state.get('settings'),
   table: state.get('table').present,
   ui: state.get('ui'),
 });

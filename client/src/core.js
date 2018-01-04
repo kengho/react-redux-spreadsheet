@@ -120,7 +120,7 @@ export function initialState(width, height, test = false) {
       table,
       settings: {
         autoSaveHistory: true,
-        hasHeader: false,
+        tableHasHeader: false,
       }
     });
   }
