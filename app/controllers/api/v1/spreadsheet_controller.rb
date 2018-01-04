@@ -1,6 +1,12 @@
 class Api::V1::SpreadsheetController < Api::V1::BaseController
   before_action :prepare, except: [:create]
 
+  CLIENT_COLUMNS = %i(table settings)
+
+  def client_columns_to_hash(data_source)
+    return CLIENT_COLUMNS.map { |column| [column, data_source[column]] }.to_h
+  end
+
   def create
     if ENV['RAILS_ENV'] != 'test' &&
        ENV['RECAPTCHA_SECRET_KEY'] &&
@@ -11,18 +17,18 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
     end
 
     # TODO: data check, errors.
-    @spreadsheet = Spreadsheet.create!(table: params[:table])
+    @spreadsheet = Spreadsheet.create!(client_columns_to_hash(params))
     response = { 'data' => { 'short_id' => @spreadsheet.short_id } }
     render json: response
   end
 
   def show
     # NOTE: I know that GET shouldn't mutate data.
-    #   But we need to zerorize updates_counter,
+    #   but we need to zerorize updates_counter,
     #   and doing it in separate request is unnecessary complex.
     #   Btw, it doesn't affects GET's idempotence.
     @spreadsheet.update_attributes!(updates_counter: 0)
-    @response['data'] = { 'table' => @spreadsheet.table }
+    @response['data'] = client_columns_to_hash(@spreadsheet)
     render json: @response
   end
 
@@ -33,7 +39,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
     status =
       if @spreadsheet.updates_counter > updates_counter
         'OK'
-      elsif @spreadsheet.update_attributes(table: params['table'])
+      elsif @spreadsheet.update_attributes(client_columns_to_hash(params))
         @spreadsheet.update_attributes!(updates_counter: updates_counter + 1)
         'OK'
       else

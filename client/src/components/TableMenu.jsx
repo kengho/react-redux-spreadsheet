@@ -32,9 +32,10 @@ class TableMenu extends React.PureComponent {
     const formattedDate = datetime();
 
     // TODO: uppercase constants.
-    const csv = convert(this.props.data, undefined, outputFormat);
+    // TODO: export settings.
+    const convertedData = convert(this.props.data, undefined, outputFormat);
 
-    const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([convertedData], { type: 'text/plain;charset=utf-8' });
     FileSaver.saveAs(blob, `${formattedDate} ${this.props.shortId}.${outputFormat.toLowerCase()}`);
   }
 
@@ -124,6 +125,10 @@ class TableMenu extends React.PureComponent {
           action: () => actions.redo(),
           label: 'Redo (Ctrl+Y)',
           disabled: !canRedo,
+        },
+        {
+          dialogVariant: 'SETTINGS',
+          label: 'Settings...',
         },
         {
           dialogVariant: 'INFO',

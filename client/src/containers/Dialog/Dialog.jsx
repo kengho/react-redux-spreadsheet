@@ -5,17 +5,22 @@ import React from 'react';
 
 import './Dialog.css';
 import * as RequestsActions from '../../actions/requests';
+import * as SettingsActions from '../../actions/settings';
 import * as TableActions from '../../actions/table';
 import * as UiActions from '../../actions/ui';
 import * as UndoRedoActions from '../../actions/undoRedo';
 import DestroySpreadsheetDialog from './DestroySpreadsheetDialog';
 import ImportDialog from './ImportDialog';
 import InfoDialog from './InfoDialog';
+import SettingsDialog from './SettingsDialog';
 
 const mapStateToProps = (state) => ({
   disableYesButton: state.getIn(['ui', 'current', 'disableYesButton']),
   errors: state.getIn(['ui', 'current', 'errors']),
+  settings: state.get('settings'),
   variant: state.getIn(['ui', 'current', 'variant']),
+
+  // TODO: ui kind should be constant.
   visibility: (
     state.getIn(['ui', 'current', 'kind']) === 'DIALOG' &&
     state.getIn(['ui', 'current', 'visibility'])
@@ -26,6 +31,7 @@ const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
       ...RequestsActions, // requestsPush
+      ...SettingsActions, // setSettingsParam
       ...TableActions, // setTableFromJSON
       ...UiActions,
       ...UndoRedoActions, // clearHistory
@@ -58,6 +64,7 @@ class Dialog extends React.Component {
     } = this.props;
 
     // TODO: variants should be constants.
+    // TODO: get correct dialog dynamically.
     let dialogBody;
     switch (variant) {
       case 'DESTROY_SPREADSHEET': {
@@ -72,6 +79,11 @@ class Dialog extends React.Component {
 
       case 'IMPORT': {
         dialogBody = <ImportDialog {...other} />
+        break;
+      }
+
+      case 'SETTINGS': {
+        dialogBody = <SettingsDialog {...other} />
         break;
       }
 

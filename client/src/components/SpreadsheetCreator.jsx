@@ -46,8 +46,9 @@ class SpreadsheetCreator extends React.PureComponent {
     } = this.props;
 
     const table = initialState().get('table');
+    const settings = initialState().get('settings');
 
-    let params = serverSyncParams(table);
+    let params = serverSyncParams(table, settings);
     if (this.recaptcha) {
       params['g-recaptcha-response'] = this.recaptcha.getResponse();
     }
@@ -68,8 +69,10 @@ class SpreadsheetCreator extends React.PureComponent {
             // store's shortId used in handleRequestsChanges().
             actions.setShortId(shortId);
 
-            // TODO: set table from immutable object here, not json.
+            // REVIEW: why we don't use initialState here?
+            // TODO: set from immutable object here, not json.
             actions.setTableFromJSON(JSON.stringify(table));
+            actions.setSettingsFromJSON(JSON.stringify(settings));
             history.push(spreadsheetPath);
           } else {
             actions.setNewSpreadsheetPath(spreadsheetPath);

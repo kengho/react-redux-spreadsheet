@@ -19,39 +19,30 @@ export default function table(state = initialState(0, 0).get('table'), action) {
       const serverTable = fromJS(JSON.parse(action.tableJSON));
 
       // TODO: consider storage session data.
-      const updateTriggersState = serverTable.set(
+      return serverTable.set(
         'updateTriggers',
         fromJS({
           data: {
             rows: {},
           },
         })
+      ).set(
+        'session',
+        fromJS({
+          pointer: {
+            cellId: null,
+            modifiers: {},
+          },
+          hover: null,
+          selection: {
+            cellsIds: [],
+          },
+          clipboard: {
+            cells: {},
+            operation: null,
+          },
+        })
       );
-
-      let nextState;
-      if (!serverTable.get('session')) {
-        nextState = updateTriggersState.set(
-          'session',
-          fromJS({
-            pointer: {
-              cellId: null,
-              modifiers: {},
-            },
-            hover: null,
-            selection: {
-              cellsIds: [],
-            },
-            clipboard: {
-              cells: {},
-              operation: null,
-            },
-          })
-        );
-      } else {
-        nextState = serverTable;
-      }
-
-      return nextState;
     }
 
     case ActionTypes.SET_PROP: {

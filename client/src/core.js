@@ -101,6 +101,8 @@ export function initialTable(width, height) {
   };
 }
 
+// TODO: the same structure is in reducer.
+//   We need only one source of initial state.
 export function initialState(width, height, test = false) {
   const table = initialTable(width, height);
 
@@ -116,6 +118,10 @@ export function initialState(width, height, test = false) {
   } else {
     state = fromJS({
       table,
+      settings: {
+        autoSaveHistory: true,
+        hasHeader: false,
+      }
     });
   }
 
@@ -387,6 +393,7 @@ export function convert(
   if (inputFormat === APP) {
     const data = object;
 
+    // APP => CSV
     if (outputFormat === convertFormats.CSV) {
       const dataArray = convertDataToArray(
         data,
@@ -400,6 +407,7 @@ export function convert(
       );
 
       return Papa.unparse(dataArray);
+    // APP => JSON
     } else if (outputFormat === convertFormats.JSON) {
       const dataArray = convertDataToArray(
         data,
@@ -431,8 +439,10 @@ export function convert(
       return JSON.stringify({
         version: '1',
         data: dataArray,
+        // settings: ...
       });
     }
+  // CSV => APP
   } else if (inputFormat === convertFormats.CSV) {
     const CSVdata = object;
     const parsedCSV = Papa.parse(CSVdata);
@@ -456,6 +466,7 @@ export function convert(
     tableData.data = data;
 
     return tableData;
+  // CSV => JSON
   } else if (inputFormat === convertFormats.JSON) {
     const JSONData = object;
     let parsedJSON;

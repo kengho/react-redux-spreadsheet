@@ -15,6 +15,10 @@ export const PUSH_REQUEST = 'requests/PUSH_REQUEST';
 export const POP_REQUEST = 'requests/POP_REQUEST';
 export const MARK_REQUEST_AS_FAILED = 'requests/MARK_REQUEST_AS_FAILED';
 
+// settings
+export const SET_SETTINGS_FROM_JSON = 'settings/SET_SETTINGS_FROM_JSON';
+export const SET_SETTINGS_PARAM = 'settings/SET_SETTINGS_PARAM';
+
 // table
 export const SET_TABLE_FROM_JSON = 'table/SET_TABLE_FROM_JSON';
 export const SET_PROP = 'table/SET_PROP';

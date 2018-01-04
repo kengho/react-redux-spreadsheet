@@ -7,6 +7,7 @@ import detachments from './detachments';
 import landing from './landing';
 import meta from './meta';
 import requests from './requests';
+import settings from './settings';
 import table from './table';
 import ui from './ui';
 
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   landing,
   meta,
   requests,
+  settings,
   table: undoable(table, {
     filter: (action) => {
       // Dispaching ActionTypes.SET_TABLE_FROM_JSON saves initial state to history.

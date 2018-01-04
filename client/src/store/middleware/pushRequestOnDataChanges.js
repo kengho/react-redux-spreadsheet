@@ -16,11 +16,12 @@ const pushRequestOnDataChanges = store => next => action => { // eslint-disable-
 
   // Get new data.
   const nextTable = store.getState().get('table').present;
+  const nextSettings = store.getState().get('settings');
 
   // Send new data to server.
   // TODO: reduce traffic amount
   //   (hashdiff? dispatcher on server?).
-  const params = serverSyncParams(nextTable);
+  const params = serverSyncParams(nextTable, nextSettings);
   store.dispatch(requestsPush('PATCH', 'update', params));
 
   return nextAction;

@@ -8,6 +8,7 @@ import * as DetachmentsActions from '../actions/detachments';
 import * as LandingActions from '../actions/landing'; // setLandingMessages()
 import * as MetaActions from '../actions/meta';
 import * as RequestsActions from '../actions/requests';
+import * as SettingsActions from '../actions/settings';
 import * as TableActions from '../actions/table';
 import * as UiActions from '../actions/ui';
 import * as UndoRedoActions from '../actions/undoRedo';
@@ -35,6 +36,7 @@ const mapDispatchToProps = (dispatch) => ({
       ...LandingActions,
       ...MetaActions,
       ...RequestsActions,
+      ...SettingsActions,
       ...TableActions,
       ...UiActions,
       ...UndoRedoActions,
@@ -44,29 +46,37 @@ const mapDispatchToProps = (dispatch) => ({
 
 class Spreadsheet extends React.Component {
   componentDidMount() {
+    const {
+      actions,
+      history,
+      match,
+      table,
+    } = this.props;
+
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
-      this.props.actions.setShortId('1');
+      actions.setShortId('1');
 
       const initialJSONTable = JSON.stringify(initialState(3, 4).get('table'));
-      this.props.actions.setTableFromJSON(initialJSONTable);
+      actions.setTableFromJSON(initialJSONTable);
       return;
     }
 
     // Fetch data after initial render.
-    if (this.props.table.getIn(['data', 'rows']).size === 0) {
-      const shortId = this.props.match.params.shortId;
+    if (table.getIn(['data', 'rows']).size === 0) {
+      const shortId = match.params.shortId;
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
           if (json.errors) {
             const errors = json.errors.map((error) => error.detail);
 
-            this.props.actions.setLandingMessages(errors);
-            this.props.history.push(getRootPath());
+            actions.setLandingMessages(errors);
+            history.push(getRootPath());
           } else {
             // store's shortId used in handleRequestsChanges().
-            this.props.actions.setShortId(shortId);
-            this.props.actions.setTableFromJSON(json.data.table);
+            actions.setShortId(shortId);
+            actions.setTableFromJSON(json.data.table);
+            actions.setSettingsFromJSON(json.data.settings);
           }
         });
     }

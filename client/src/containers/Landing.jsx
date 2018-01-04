@@ -6,6 +6,7 @@ import React from 'react';
 import './Landing.css';
 import * as LandingActions from '../actions/landing';
 import * as MetaActions from '../actions/meta';
+import * as SettingsActions from '../actions/settings';
 import * as TableActions from '../actions/table';
 import SpreadsheetCreator from '../components/SpreadsheetCreator';
 
@@ -19,6 +20,7 @@ const mapDispatchToProps = (dispatch) => ({
     ...bindActionCreators({
       ...LandingActions,
       ...MetaActions,
+      ...SettingsActions, // setSettingsFromJSON in SpreadsheetCreator
       ...TableActions,
     }, dispatch),
   },
