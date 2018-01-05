@@ -58,13 +58,26 @@ const MenuItem = (props) => {
     delayedAction = rippleButtonAction(effectiveAction);
   }
 
+  // NOTE: onClick() on div wrapper prevents propagation of onClick on
+  //   disabled MenuItem. Such items doesn't handle own onClick() events,
+  //   which leads to bubbling event to document unless stopeed here.
+  //   It couldn't be stopped on Menu, because it leads to unability to close
+  //   UI by clicking on document at all.
+  let wrapperOnClickHandler;
+  if (disabled) {
+    wrapperOnClickHandler = (evt) => { evt.nativeEvent.stopImmediatePropagation(); };
+  } else {
+    wrapperOnClickHandler = () => {};
+  }
   return (
-    <MaterialMenuItem
-      disabled={disabled}
-      onClick={delayedAction}
-    >
-      {children}
-    </MaterialMenuItem>
+    <div onClick={wrapperOnClickHandler}>
+      <MaterialMenuItem
+        disabled={disabled}
+        onClick={delayedAction}
+      >
+        {children}
+      </MaterialMenuItem>
+    </div>
   );
 };
 
