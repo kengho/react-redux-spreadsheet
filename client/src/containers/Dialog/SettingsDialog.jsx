@@ -9,6 +9,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Switch from 'material-ui/Switch';
 
+import './SettingsDialog.css';
+import { initialSettings } from '../../core';
+
 const propTypes = {
   actions: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
@@ -38,8 +41,11 @@ class SettingsDialog extends React.PureComponent {
         checked: settings.get('tableHasHeader'),
         label: 'Table has header',
       },
-    ]
+    ];
 
+    const boolRenderMap = { true: 'on', false: 'off' };
+
+    // TODO: reset to defaults button.
     return ([
       <MaterialDialogTitle key="dialog-title">
         Settings
@@ -52,6 +58,16 @@ class SettingsDialog extends React.PureComponent {
             }
 
             if (item.param && item.type === SWITCH) {
+              const defaulValue = boolRenderMap[initialSettings[item.param]];
+              const label = [
+                <span key="label-main">
+                  {item.label}
+                </span>,
+                <span key="label-default-value" className="settings-default-value">
+                  {`(default: ${defaulValue})`}
+                </span>
+              ];
+
               return (
                 <FormControlLabel
                   key={item.param}
@@ -61,7 +77,7 @@ class SettingsDialog extends React.PureComponent {
                       onChange={(evt, checked) => actions.setSettingsParam(item.param, checked)}
                     />
                   }
-                  label={item.label}
+                  label={label}
                 />
               );
             }

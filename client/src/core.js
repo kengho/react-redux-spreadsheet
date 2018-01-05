@@ -101,6 +101,12 @@ export function initialTable(width, height) {
   };
 }
 
+// Using in containers/Dialog/SettingsDialog.jsx.
+export const initialSettings = {
+  autoSaveHistory: true,
+  tableHasHeader: false,
+}
+
 export function initialState(width, height, test = false) {
   const table = initialTable(width, height);
 
@@ -130,10 +136,7 @@ export function initialState(width, height, test = false) {
         counter: 0,
       },
       table,
-      settings: {
-        autoSaveHistory: true,
-        tableHasHeader: false,
-      },
+      settings: initialSettings,
       ui: {
         current: {
           visibility: false,
