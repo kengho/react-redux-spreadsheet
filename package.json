@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "0.9.0",
+  "homepage": "https://kengho.tech/spreadsheet",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kengho/react-redux-spreadsheet"
+  },
+  "author": "Alexander Morozov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kengho/react-redux-spreadsheet/issues"
+  },
+  "scripts": {
+    "start": "foreman start -f Procfile.dev"
+  }
+}
