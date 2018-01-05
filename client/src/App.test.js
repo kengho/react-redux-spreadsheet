@@ -176,6 +176,8 @@ Run in all browsers:
 
 // TODO: add more table menu tests.
 
+* table should have column labels A, B, C, ... AA, ...
+* table should have row labels 1, 2, 3 starting with first row if parameter 'tableHasHeader' is true and with second otherwise
 * 'new' button on table menu should show captcha (if necessary) and show link that should open new spreadsheet in new tab
 * if user clicks on 'new' button on table menu and skips captcha by clicking on document, he should be able to press this button and meet captcha again
 * if new spreadsheet is created using 'new' button on table menu, it shouldn't let user to create another one until he follows link
@@ -221,7 +223,7 @@ Run in all browsers:
 * if there are errors occurs while loading spreadsheet in Spreadsheet, user should be redirected to Landing with messages
 * back and forward history movements between Landing and Spreadsheet should work
 * after deleting spreadsheet user should be redirected to Landing
-* each cell's value's change should be saved in cell history
+* each cell's value's change should be saved in cell history if 'autoSaveHistory' is true, and not saved otherwise
 * cell menu button should appear on cell hover with little delay
 * (REVIEW) when there is clipboard, cell menu should be always invisible
 * cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
@@ -235,4 +237,7 @@ Run in all browsers:
 * if records' value equals current cell's value, restore record button should be inactive
 * cell menu should have clear cell button, which clears cell value
 * if cell's is already empty, clear cell button should be inactive
+* in table menu item 'settings' should be present
+* in table menu, when user clicks on 'settings', appropriate dialog should pop up
+* when user changes something in settings dialog, update request should sync it with server
 */
