@@ -5,7 +5,7 @@ import * as ActionTypes from '../actionTypes';
 const defaultState = fromJS({
   messages: [],
   buttonIsDisabled: false,
-})
+});
 
 export default function meta(state = defaultState, action) {
   switch (action.type) {

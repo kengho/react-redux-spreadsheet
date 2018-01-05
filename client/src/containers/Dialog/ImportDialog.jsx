@@ -32,6 +32,10 @@ class ImportDialog extends React.PureComponent {
   }
 
   handleFileImport(evt) {
+    const {
+      actions,
+    } = this.props;
+
     // TODO: drag-and-drop.
     const input = evt.target;
     const reader = new FileReader();
@@ -49,26 +53,26 @@ class ImportDialog extends React.PureComponent {
         const tableData = convert(fileContent, inputFormat);
         // Can't continue if json parser fails.
         if (inputFormat === convertFormats.JSON && tableData.errors) {
-          this.props.actions.openUi('DIALOG', {
+          actions.openUi('DIALOG', {
             disableYesButton: true,
             errors: tableData.errors,
             variant: 'IMPORT',
           });
         } else {
           this.importAction = () => {
-            this.props.actions.setTableFromJSON(
+            actions.setTableFromJSON(
               JSON.stringify({ data: tableData.data }), true
             );
           };
 
-          this.props.actions.openUi('DIALOG', {
+          actions.openUi('DIALOG', {
             disableYesButton: false,
             errors: tableData.errors,
             variant: 'IMPORT',
           });
         }
       } else {
-        this.props.actions.openUi('DIALOG', {
+        actions.openUi('DIALOG', {
           disableYesButton: true,
           errors: [{
             code: 'WRONG_FORMAT',
