@@ -358,7 +358,7 @@ const convertDataToArray = (data, cellCallback) => {
 
 const convertArrayToData = (array, cellCallback) => {
   if (array.length === 0) {
-    return;
+    return initialTable().data;
   }
 
   const dataArrayRowsNumber = array.length;
@@ -492,7 +492,6 @@ export function convert(args) {
       let appData;
       switch (JSONVersion) {
         case '1': {
-          // TODO: import exported to JSON empty table should work.
           appData = convertArrayToData(
             parsedJSONArray,
             ((jsonCell) => {

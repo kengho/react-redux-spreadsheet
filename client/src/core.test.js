@@ -373,5 +373,18 @@ describe('core', () => {
         inputFormat: convertFormats.JSON,
       }).data)).to.deep.equal(croppedData);
     });
+
+    it('should convert empty data from/to JSON', () => {
+      const emptyDefaultSizeData = fromJS(Core.initialTable().data);
+      const object = Core.convert({
+        data: emptyDefaultSizeData,
+        outputFormat: convertFormats.JSON,
+      });
+
+      expect(fromJS(Core.convert({
+        data: object,
+        inputFormat: convertFormats.JSON,
+      }).data)).to.deep.equal(emptyDefaultSizeData);
+    });
   });
 });
