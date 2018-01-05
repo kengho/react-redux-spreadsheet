@@ -11,38 +11,18 @@ import {
   getRowId,
   getRowNumber,
   initialState,
+  initialTable,
 } from '../core';
 
+// NOTE: default table size is set to (0, 0) for make componentDidMount()
+//   in Spreadsheet to fetch data from server.
 export default function table(state = initialState(0, 0).get('table'), action) {
   switch (action.type) {
     case ActionTypes.SET_TABLE_FROM_JSON: {
       const serverTable = fromJS(JSON.parse(action.tableJSON));
 
       // TODO: consider storage session data.
-      return serverTable.set(
-        'updateTriggers',
-        fromJS({
-          data: {
-            rows: {},
-          },
-        })
-      ).set(
-        'session',
-        fromJS({
-          pointer: {
-            cellId: null,
-            modifiers: {},
-          },
-          hover: null,
-          selection: {
-            cellsIds: [],
-          },
-          clipboard: {
-            cells: {},
-            operation: null,
-          },
-        })
-      );
+      return fromJS({ ...initialTable(0, 0), data: serverTable.get('data') });
     }
 
     case ActionTypes.SET_PROP: {

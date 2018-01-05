@@ -101,8 +101,6 @@ export function initialTable(width, height) {
   };
 }
 
-// TODO: the same structure is in reducer.
-//   We need only one source of initial state.
 export function initialState(width, height, test = false) {
   const table = initialTable(width, height);
 
