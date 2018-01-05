@@ -184,7 +184,7 @@ Run in all browsers:
 * when there are only one row/column, delete row/column option shouldn't be present
 * lines addressing should update after adding/removing rows/columns
 * after showing menu first element should be active
-* after dialog appearing arrow, Enter and Escape keys should work // TODO: currently doesn't work
+* after dialog appearing, Enter and Escape keys should work // TODO: Enter currently doesn't work
 * on document, pressing regular key should start editing currently pointed cell with value equals to that key
 * on document, if regular key pressed while there are no pointed cells, [0, 0] cell should become pointed
 * pressing Enter while there are pointer should make pointed cell editable and select all it's content

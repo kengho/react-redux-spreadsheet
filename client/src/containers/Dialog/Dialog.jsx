@@ -40,9 +40,19 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Dialog extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+  }
+
   keyDownHandler(evt) {
     // Prevents firing documentKeyDownHandler().
     evt.nativeEvent.stopImmediatePropagation();
+
+    if (evt.key === 'Escape') {
+      this.props.actions.closeUi();
+    }
   }
 
   onClickHandler(evt) {
