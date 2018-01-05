@@ -217,6 +217,11 @@ describe('core', () => {
       ])
     );
 
+    const settings = fromJS({
+      autoSaveHistory: false,
+      tableHasHeader: true,
+    });
+
     it('should return size of cropped table data', () => {
       expect(Core.getCroppedSize(data)).to.deep.equal([5, 3]);
     });
@@ -291,14 +296,16 @@ describe('core', () => {
           [{}, {}, { value: '22' }],
           [{}, {}, {}],
           [{ value: '40' }, {}, {}],
-        ]
+        ],
       });
 
-      expect(Core.convert(historyData, undefined, convertFormats.JSON)).to.deep.equal(expectedJSON);
+      expect(
+        Core.convert({ data: historyData }, undefined, convertFormats.JSON
+      )).to.deep.equal(expectedJSON);
     });
 
     it('should convert JSON to data object', () => {
-      const object = Core.convert(historyData, undefined, convertFormats.JSON);
+      const object = Core.convert({ data: historyData }, undefined, convertFormats.JSON);
 
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedHistoryData = emptyCroppedData.set(
@@ -307,6 +314,37 @@ describe('core', () => {
       );
 
       expect(fromJS(Core.convert(object, convertFormats.JSON).data)).to.deep.equal(croppedHistoryData);
+    });
+
+    it('should return JSON out of table data with settings', () => {
+      const expectedJSON = JSON.stringify({
+        version: '1',
+        data: [
+          [{}, { value: '01' }, { value: '02' }],
+          [{ value: '10' }, { value: '11' }, {}],
+          [{}, {}, { value: '22' }],
+          [{}, {}, {}],
+          [{ value: '40' }, {}, {}],
+        ],
+        settings: {
+          autoSaveHistory: false,
+          tableHasHeader: true,
+        },
+      });
+
+      expect(Core.convert({ data, settings }, undefined, convertFormats.JSON)).to.deep.equal(expectedJSON);
+    });
+
+    it('should convert JSON with settings to data object', () => {
+      const object = Core.convert({ data, settings }, undefined, convertFormats.JSON);
+
+      const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
+      const croppedData = emptyCroppedData.set(
+        'cells',
+        data.get('cells')
+      );
+
+      expect(fromJS(Core.convert(object, convertFormats.JSON).data)).to.deep.equal(croppedData);
     });
   });
 });

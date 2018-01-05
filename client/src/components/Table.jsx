@@ -371,6 +371,7 @@ class Table extends React.Component {
           newSpreadsheetButtonIsDisabled={ui.get('newSpreadsheetButtonIsDisabled')}
           newSpreadsheetPath={ui.get('newSpreadsheetPath')}
           requestsQueueLength={requests.get('queue').size}
+          settings={settings}
           shortId={this.props.match.params.shortId}
         />
         {outputRows}

@@ -50,7 +50,10 @@ class ImportDialog extends React.PureComponent {
       const fileContent = reader.result;
       const inputFormat = extention.toUpperCase();
       if (convertFormats[inputFormat]) {
-        const tableData = convert(fileContent, inputFormat);
+        const convertedData = convert(fileContent, inputFormat);
+        const tableData = convertedData.data;
+        const settings = convertedData.settings;
+
         // Can't continue if json parser fails.
         if (inputFormat === convertFormats.JSON && tableData.errors) {
           actions.openUi('DIALOG', {
@@ -60,9 +63,12 @@ class ImportDialog extends React.PureComponent {
           });
         } else {
           this.importAction = () => {
-            actions.setTableFromJSON(
-              JSON.stringify({ data: tableData.data }), true
-            );
+            if (settings) {
+              actions.setSettingsFromJSON(JSON.stringify(settings));
+            }
+
+            // Set changesData flag once at last action.
+            actions.setTableFromJSON(JSON.stringify({ data: tableData }), true);
           };
 
           actions.openUi('DIALOG', {

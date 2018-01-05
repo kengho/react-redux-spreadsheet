@@ -217,6 +217,7 @@ Run in all browsers:
 * when user selects any file in import dialog, then opens 'Choose file' dialog again and presses Escape, no errors should occur
 * when data is imported, spreadsheet should sync data with server immediately
 * when user is trying to import bad format file, errors should occur
+* import from JSON string should work regardless of settings key in it
 * on landing, when errors while creating spreadsheet occurs, they should be shown near 'create' button
 * on landing, when error messages occurs, 'create' button should become enabled
 * on landing, error messages appearing shouldn't lead to moving 'create' button on-screen position

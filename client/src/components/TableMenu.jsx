@@ -19,6 +19,7 @@ const propTypes = {
   newSpreadsheetButtonIsDisabled: PropTypes.bool,
   newSpreadsheetPath: PropTypes.string,
   requestsQueueLength: PropTypes.number.isRequired,
+  settings: PropTypes.object.isRequired,
   shortId: PropTypes.string.isRequired,
 };
 
@@ -29,14 +30,19 @@ const defaultProps = {
 
 class TableMenu extends React.PureComponent {
   exportTo(outputFormat) {
+    const {
+      data,
+      settings,
+      shortId,
+    } = this.props;
+
     const formattedDate = datetime();
 
-    // TODO: uppercase constants.
     // TODO: export settings.
-    const convertedData = convert(this.props.data, undefined, outputFormat);
+    const convertedData = convert({ data, settings }, undefined, outputFormat);
 
     const blob = new Blob([convertedData], { type: 'text/plain;charset=utf-8' });
-    FileSaver.saveAs(blob, `${formattedDate} ${this.props.shortId}.${outputFormat.toLowerCase()}`);
+    FileSaver.saveAs(blob, `${formattedDate} ${shortId}.${outputFormat.toLowerCase()}`);
   }
 
   render() {
