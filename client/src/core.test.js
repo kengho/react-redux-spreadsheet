@@ -40,36 +40,6 @@ describe('core', () => {
     expect(Core.initialLines(3, 4)).to.deep.equal(expectedInitialLines);
   });
 
-  it('return initial table', () => {
-    const expectedInitialTable = {
-      data: {
-        ...Core.initialLines(3, 4),
-        cells: {},
-      },
-      session: {
-        pointer: {
-          cellId: null,
-          modifiers: {},
-        },
-        hover: null,
-        selection: {
-          cellsIds: [],
-        },
-        clipboard: {
-          cells: {},
-          operation: null,
-        }
-      },
-      updateTriggers: {
-        data: {
-          rows: {},
-        },
-      },
-    };
-
-    expect(Core.initialTable(3, 4)).to.deep.equal(expectedInitialTable);
-  });
-
   it('get maximum pos in table', () => {
     const rows = fromJS([{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }]);
     const columns = fromJS([{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }]);
