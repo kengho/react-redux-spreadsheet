@@ -35,11 +35,6 @@ class Landing extends React.Component {
       messages,
     } = this.props;
 
-    const outputMessages = [];
-    messages.forEach((message) => {
-      outputMessages.push(<li key={message}>{message}</li>);
-    });
-
     return (
       <div className="landing">
         <SpreadsheetCreator
@@ -61,7 +56,7 @@ class Landing extends React.Component {
         </SpreadsheetCreator>
         <div className="messages">
           <ul>
-            {outputMessages}
+            {messages.map((message) => <li key={message}>{message}</li>)}
           </ul>
         </div>
 
