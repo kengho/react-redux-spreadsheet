@@ -117,11 +117,40 @@ export function initialState(width, height, test = false) {
     });
   } else {
     state = fromJS({
+      detachments: {
+        currentCellValue: null,
+      },
+      landing: {
+        messages: [],
+        buttonIsDisabled: false,
+      },
+      meta: {
+        shortId: null,
+      },
+      requests: {
+        queue: [],
+        counter: 0,
+      },
       table,
       settings: {
         autoSaveHistory: true,
         tableHasHeader: false,
-      }
+      },
+      ui: {
+        current: {
+          visibility: false,
+          kind: null,
+          place: null,
+          cellId: null,
+          variant: null, // Dialog
+          disableYesButton: null, // Dialog
+          errors: [], // Dialog
+        },
+        tableMenu: {
+          disableNewSpreadsheetButton: null,
+          newSpreadsheetPath: null,
+        },
+      },
     });
   }
 

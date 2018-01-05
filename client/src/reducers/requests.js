@@ -1,5 +1,6 @@
 import { fromJS } from 'immutable';
 
+import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
 const findRequestById = (state, id) => {
@@ -10,7 +11,7 @@ const findRequestById = (state, id) => {
   )
 };
 
-export default function requests(state = fromJS({ queue: [], counter: 0 }), action) {
+export default function requests(state = initialState().get('requests'), action) {
   switch (action.type) {
     case ActionTypes.PUSH_REQUEST: {
       const counter = state.get('counter');

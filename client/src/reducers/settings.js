@@ -1,13 +1,9 @@
 import { fromJS } from 'immutable';
 
+import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-const defaultState = fromJS({
-  autoSaveHistory: true,
-  tableHasHeader: false,
-});
-
-export default function meta(state = defaultState, action) {
+export default function settings(state = initialState().get('settings'), action) {
   switch (action.type) {
     case ActionTypes.SET_SETTINGS_FROM_JSON: {
       return fromJS(JSON.parse(action.settingsJSON));

@@ -1,12 +1,9 @@
 import { fromJS } from 'immutable';
 
+import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-const defaultState = fromJS({
-  currentCellValue: null,
-});
-
-export default function detachments(state = defaultState, action) {
+export default function detachments(state = initialState().get('detachments'), action) {
   switch (action.type) {
     case ActionTypes.SET_CURRENT_CELL_VALUE:
       return state.set(

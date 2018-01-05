@@ -1,24 +1,9 @@
 import { fromJS } from 'immutable';
 
+import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-const defaultState = fromJS({
-  current: {
-    visibility: false,
-    kind: null,
-    place: null,
-    cellId: null,
-    variant: null, // Dialog
-    disableYesButton: null, // Dialog
-    errors: [], // Dialog
-  },
-  tableMenu: {
-    disableNewSpreadsheetButton: null,
-    newSpreadsheetPath: null,
-  },
-});
-
-export default function ui(state = defaultState, action) {
+export default function ui(state = initialState().get('ui'), action) {
   switch (action.type) {
     case ActionTypes.OPEN_UI:
       return state

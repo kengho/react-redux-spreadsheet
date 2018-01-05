@@ -1,13 +1,9 @@
 import { fromJS } from 'immutable';
 
+import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-const defaultState = fromJS({
-  messages: [],
-  buttonIsDisabled: false,
-});
-
-export default function meta(state = defaultState, action) {
+export default function landing(state = initialState().get('landing'), action) {
   switch (action.type) {
     case ActionTypes.SET_LANDING_MESSAGES:
       return state.set(
