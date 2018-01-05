@@ -23,6 +23,7 @@ const composeRequest = (store, action) => {
   }
 
   const shortId = store.getState().get('meta').get('shortId');
+  // TODO: if !shortId throw error.
 
   // Counter prevents server from handling outdated requests.
   const counter = store.getState().get('requests').get('counter');
@@ -51,10 +52,10 @@ const sendRequest = (composedRequest) => {
 };
 
 const handleResponse = (store, composedRequest, response) => {
-  if (response.data.status !== 'OK') {
-    store.dispatch(requestsMarkAsFailed(response.request_uuid));
-  } else {
+  if (response.data && response.data.status === 'OK') {
     store.dispatch(requestsPop(response.request_uuid));
+  } else {
+    store.dispatch(requestsMarkAsFailed(response.request_uuid));
   }
 
   if (composedRequest.method === 'DELETE') {

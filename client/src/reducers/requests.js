@@ -55,6 +55,8 @@ export default function requests(state = initialState().get('requests'), action)
             true
           )
         );
+      } else {
+        return state;
       }
 
       break;
