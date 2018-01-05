@@ -38,8 +38,7 @@ class TableMenu extends React.PureComponent {
 
     const formattedDate = datetime();
 
-    // TODO: export settings.
-    const convertedData = convert({ data, settings }, undefined, outputFormat);
+    const convertedData = convert({ data, settings, outputFormat });
 
     const blob = new Blob([convertedData], { type: 'text/plain;charset=utf-8' });
     FileSaver.saveAs(blob, `${formattedDate} ${shortId}.${outputFormat.toLowerCase()}`);

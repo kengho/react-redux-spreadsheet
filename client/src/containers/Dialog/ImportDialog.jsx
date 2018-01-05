@@ -50,7 +50,7 @@ class ImportDialog extends React.PureComponent {
       const fileContent = reader.result;
       const inputFormat = extention.toUpperCase();
       if (convertFormats[inputFormat]) {
-        const convertedData = convert(fileContent, inputFormat);
+        const convertedData = convert({ data: fileContent, inputFormat });
         const tableData = convertedData.data;
         const settings = convertedData.settings;
 

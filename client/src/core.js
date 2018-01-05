@@ -385,17 +385,22 @@ const convertArrayToData = (array, cellCallback) => {
 // Build-in format, doesn't needed to be exported.
 const APP = 'APP';
 
-// TODO: make more obvious API for this function.
-export function convert(
-  params,
-  inputFormat = APP,
-  outputFormat = APP
-) {
+export function convert(args) {
+  const {
+    data,
+    settings,
+  } = args;
+
+  let {
+    inputFormat,
+    outputFormat,
+  } = args;
+  inputFormat = inputFormat || APP;
+  outputFormat = outputFormat || APP;
+
   if (inputFormat === APP) {
     // APP => CSV
     if (outputFormat === convertFormats.CSV) {
-      // TODO: make more unambiguous naming.
-      const data = params;
       const dataArray = convertDataToArray(
         data,
         ((cell) => {
@@ -410,12 +415,6 @@ export function convert(
       return Papa.unparse(dataArray);
     // APP => JSON
     } else if (outputFormat === convertFormats.JSON) {
-      // TODO: make more unambiguous naming.
-      const {
-        data,
-        settings,
-      } = params;
-
       const dataArray = convertDataToArray(
         data,
         ((appCell) => {
@@ -451,7 +450,7 @@ export function convert(
     }
   // CSV => APP
   } else if (inputFormat === convertFormats.CSV) {
-    const CSVdata = params;
+    const CSVdata = data;
     const parsedCSV = Papa.parse(CSVdata);
     const parsedCSVArray = parsedCSV.data;
     const tableData = {};
@@ -459,7 +458,7 @@ export function convert(
       tableData.errors = parsedCSV.errors;
     };
 
-    const data = convertArrayToData(
+    const appData = convertArrayToData(
       parsedCSVArray,
       ((cell) => {
         if (cell.length === 0) {
@@ -470,12 +469,12 @@ export function convert(
       })
     ) || initialTable().data;
 
-    tableData.data = data;
+    tableData.data = appData;
 
     return tableData;
   // JSON => APP
   } else if (inputFormat === convertFormats.JSON) {
-    const JSONData = params;
+    const JSONData = data;
     const tableData = {};
     let parsedJSON;
     try {
@@ -490,11 +489,11 @@ export function convert(
     if (parsedJSON) {
       const JSONVersion = parsedJSON.version;
       const parsedJSONArray = parsedJSON.data;
-      let data;
+      let appData;
       switch (JSONVersion) {
         case '1': {
           // TODO: import exported to JSON empty table should work.
-          data = convertArrayToData(
+          appData = convertArrayToData(
             parsedJSONArray,
             ((jsonCell) => {
               if (Object.keys(jsonCell).length === 0) {
@@ -522,7 +521,7 @@ export function convert(
               return appCell;
             })
           );
-          tableData.data = data;
+          tableData.data = appData;
           tableData.settings = parsedJSON.settings;
           break;
         }

@@ -229,19 +229,28 @@ describe('core', () => {
     it('should return CSV out of table data', () => {
       const expectedCSV = ',01,02\r\n10,11,\r\n,,22\r\n,,\r\n40,,';
 
-      expect(Core.convert(data, undefined, convertFormats.CSV)).to.equal(expectedCSV);
+      expect(Core.convert({
+        data,
+        outputFormat: convertFormats.CSV,
+      })).to.equal(expectedCSV);
     });
 
     it('should convert CSV to data object', () => {
-      const CSV = Core.convert(data, undefined, convertFormats.CSV);
-
+      const CSV = Core.convert({
+        data,
+        outputFormat: convertFormats.CSV,
+      });
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedData = emptyCroppedData.set(
         'cells',
         data.get('cells')
       );
 
-      expect(fromJS(Core.convert(CSV, convertFormats.CSV).data)).to.deep.equal(croppedData);
+      expect(fromJS(Core.convert({
+        data: CSV,
+        inputFormat: convertFormats.CSV,
+      }).data)).to.deep.equal(croppedData);
+      // expect(fromJS(Core.convert(CSV, convertFormats.CSV).data)).to.deep.equal(croppedData);
     });
 
     it('should return JSON out of table data', () => {
@@ -299,13 +308,17 @@ describe('core', () => {
         ],
       });
 
-      expect(
-        Core.convert({ data: historyData }, undefined, convertFormats.JSON
-      )).to.deep.equal(expectedJSON);
+      expect(Core.convert({
+        data: historyData,
+        outputFormat: convertFormats.JSON,
+      })).to.deep.equal(expectedJSON);
     });
 
     it('should convert JSON to data object', () => {
-      const object = Core.convert({ data: historyData }, undefined, convertFormats.JSON);
+      const object = Core.convert({
+        data: historyData,
+        outputFormat: convertFormats.JSON,
+      });
 
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedHistoryData = emptyCroppedData.set(
@@ -313,7 +326,10 @@ describe('core', () => {
         historyData.get('cells')
       );
 
-      expect(fromJS(Core.convert(object, convertFormats.JSON).data)).to.deep.equal(croppedHistoryData);
+      expect(fromJS(Core.convert({
+        data: object,
+        inputFormat: convertFormats.JSON,
+      }).data)).to.deep.equal(croppedHistoryData);
     });
 
     it('should return JSON out of table data with settings', () => {
@@ -332,11 +348,19 @@ describe('core', () => {
         },
       });
 
-      expect(Core.convert({ data, settings }, undefined, convertFormats.JSON)).to.deep.equal(expectedJSON);
+      expect(Core.convert({
+        data,
+        settings,
+        outputFormat: convertFormats.JSON,
+      })).to.deep.equal(expectedJSON);
     });
 
     it('should convert JSON with settings to data object', () => {
-      const object = Core.convert({ data, settings }, undefined, convertFormats.JSON);
+      const object = Core.convert({
+        data,
+        settings,
+        outputFormat: convertFormats.JSON,
+      });
 
       const emptyCroppedData = fromJS(Core.initialTable(5, 3).data);
       const croppedData = emptyCroppedData.set(
@@ -344,7 +368,10 @@ describe('core', () => {
         data.get('cells')
       );
 
-      expect(fromJS(Core.convert(object, convertFormats.JSON).data)).to.deep.equal(croppedData);
+      expect(fromJS(Core.convert({
+        data: object,
+        inputFormat: convertFormats.JSON,
+      }).data)).to.deep.equal(croppedData);
     });
   });
 });
