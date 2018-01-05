@@ -97,7 +97,7 @@ class Menu extends React.PureComponent {
       }
     }
 
-    // ids for componentDidMount() and componentDidUpdate().
+    // NOTE: ids for componentDidMount() and componentDidUpdate().
     return (
       <div
         className={classnames.join(' ')}

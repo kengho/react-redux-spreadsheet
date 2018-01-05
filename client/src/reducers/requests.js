@@ -58,8 +58,6 @@ export default function requests(state = initialState().get('requests'), action)
       } else {
         return state;
       }
-
-      break;
     }
 
     default:

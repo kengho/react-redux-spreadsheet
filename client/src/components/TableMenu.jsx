@@ -61,6 +61,9 @@ class TableMenu extends React.PureComponent {
     } = this.props;
 
     let output;
+
+    // TODO: this check shouldn't be here.
+    //   Components should be distinguished before this component renders.
     if (requestsQueueLength > 0) {
       // TODO: return tooltip.
       //   tooltip="Data sync error. Please don't close tab until data is saved"
@@ -92,6 +95,7 @@ class TableMenu extends React.PureComponent {
         {
           // key for MenuItem in Menu.
           component: (
+            // TODO: recaptcha files reloading on every single table menu click now.
             <SpreadsheetCreator
               actions={actions}
               beforeRecaptchaExecute={() => actions.disableNewSpreadsheetButton(true)}

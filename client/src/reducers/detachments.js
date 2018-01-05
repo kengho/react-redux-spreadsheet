@@ -1,5 +1,3 @@
-import { fromJS } from 'immutable';
-
 import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
