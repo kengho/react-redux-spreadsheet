@@ -23,9 +23,25 @@ const fetchServer = (method, action, body = {}) => {
     `${serverOrigin}/api/v1/${action}`,
     fetchParams
   )
-    .then((response) => response.json());
+    .then((response) => response.json())
+    .catch((error) => {
+      return {
+        errors: [{ detail: error.message }],
+      };
+    });
 
   return promise;
 };
 
 export default fetchServer;
+
+// Some snippet to test failed requests.
+// .then((response) => {
+//   if (method === 'PATCH') {
+//     return {
+//       errors: [{ detail: 'detail' }],
+//     };
+//   } else {
+//     return response.json();
+//   }
+// })
