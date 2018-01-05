@@ -8,6 +8,7 @@ import {
   requestsMarkAsFailed,
 } from '../../actions/requests';
 import * as ActionTypes from '../../actionTypes';
+import datetime from './../../lib/datetime';
 import fetchServer from './../../lib/fetchServer';
 import getRootPath from './../../lib/getRootPath';
 
@@ -55,6 +56,8 @@ const handleResponse = (store, composedRequest, response) => {
   if (response.data && response.data.status === 'OK') {
     store.dispatch(requestsPop(response.request_uuid));
   } else {
+    // TODO: this logic doesn't work if server doesn't respond correctly,
+    //   need to rethink all requests queue thing.
     store.dispatch(requestsMarkAsFailed(response.request_uuid));
   }
 
@@ -103,6 +106,8 @@ const handleRequestsOnQueueChanges = store => next => action => {
       return next(action);
     }
 
+    // eslint-disable-next-line no-undef, no-console
+    console.log(`${datetime}: request failed, retry in ${REQUEST_RETRY_TIMEOUT / 1000} seconds...`);
     composedRequest = composeRequest(store, request);
     setTimeout((() => {
       handleRequest(store, composedRequest);
