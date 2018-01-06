@@ -44,6 +44,10 @@ class Table extends React.Component {
     window.addEventListener('click', this.documentClickHandler); // eslint-disable-line no-undef
   }
 
+  componentDidUpdate() {
+    document.title = this.props.settings.get('spreadsheetName'); // eslint-disable-line no-undef
+  }
+
   componentWillUnmount() {
     // TODO: window or document?
     window.removeEventListener('keydown', this.documentKeyDownHandler); // eslint-disable-line no-undef

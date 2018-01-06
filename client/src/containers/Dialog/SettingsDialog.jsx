@@ -8,6 +8,7 @@ import Button from 'material-ui/Button';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Switch from 'material-ui/Switch';
+import TextField from 'material-ui/TextField';
 
 import './SettingsDialog.css';
 import { initialSettings } from '../../core';
@@ -25,9 +26,16 @@ class SettingsDialog extends React.PureComponent {
     } = this.props;
 
     const SWITCH = 'SWITCH';
+    const STRING = 'STRING';
 
     const settingsMap = [
-      { group: 'General' },
+      // { group: 'General' },
+      {
+        param: 'spreadsheetName',
+        type: STRING,
+        value: settings.get('spreadsheetName'),
+        label: 'Spreadsheet name',
+      },
       {
         // TODO: 'clear all history' button if false.
         param: 'autoSaveHistory',
@@ -53,9 +61,9 @@ class SettingsDialog extends React.PureComponent {
       <MaterialDialogContent key="dialog-content">
         <FormGroup>
           {settingsMap.map((item) => {
-            if (item.group) {
-              return <span key={item.group}>{item.group}</span>;
-            }
+            // if (item.group) {
+            //   return <span key={item.group}>{item.group}</span>;
+            // }
 
             if (item.param && item.type === SWITCH) {
               const defaulValue = boolRenderMap[initialSettings[item.param]];
@@ -82,14 +90,25 @@ class SettingsDialog extends React.PureComponent {
               );
             }
 
+            if (item.param && item.type === STRING) {
+              return (
+                <TextField
+                  helperText={`(default: ${initialSettings[item.param]})`}
+                  key={item.param}
+                  label={item.label}
+                  margin="dense"
+                  onChange={(evt) => actions.setSettingsParam(item.param, evt.target.value)}
+                  value={item.value}
+                />
+              );
+            }
+
             return '';
           })}
         </FormGroup>
       </MaterialDialogContent>,
       <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
-        <Button
-          onClick={() => actions.closeUi()}
-        >
+        <Button onClick={() => actions.closeUi()} >
           Close
         </Button>
       </MaterialDialogActions>,

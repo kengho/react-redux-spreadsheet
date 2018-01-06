@@ -105,6 +105,7 @@ export function initialTable(width, height) {
 export const initialSettings = {
   autoSaveHistory: true,
   tableHasHeader: false,
+  spreadsheetName: 'Spreadsheet',
 }
 
 export function initialState(width, height, test = false) {
