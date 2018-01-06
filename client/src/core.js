@@ -433,13 +433,7 @@ export function convert(args) {
     if (outputFormat === convertFormats.CSV) {
       const dataArray = convertDataToArray(
         data,
-        ((cell) => {
-          if (cell) {
-            return cell.get('value');
-          } else {
-            return '';
-          }
-        })
+        (cell) => cell ? cell.get('value') : ''
       );
 
       return Papa.unparse(dataArray);
@@ -447,7 +441,7 @@ export function convert(args) {
     } else if (outputFormat === convertFormats.JSON) {
       const dataArray = convertDataToArray(
         data,
-        ((appCell) => {
+        (appCell) => {
           let jsonCell = {};
           if (appCell) {
             const cellValue = appCell.get('value');
@@ -460,6 +454,7 @@ export function convert(args) {
                 // =>
                 // 2017-12-19T01:02:03.000Z
                 const time = new Date(record.get('time')).toISOString();
+
                 return {
                   time,
                   value: record.get('value'),
@@ -469,7 +464,7 @@ export function convert(args) {
           }
 
           return jsonCell;
-        })
+        }
       );
 
       return JSON.stringify({
@@ -490,13 +485,7 @@ export function convert(args) {
 
     const appData = convertArrayToData(
       parsedCSVArray,
-      ((cell) => {
-        if (cell.length === 0) {
-          return;
-        }
-
-        return { value: cell };
-      })
+      (cell) => cell.length === 0 ? null : { value: cell }
     ) || initialTable().data;
 
     tableData.data = appData;
@@ -519,12 +508,13 @@ export function convert(args) {
     if (parsedJSON) {
       const JSONVersion = parsedJSON.version;
       const parsedJSONArray = parsedJSON.data;
+
       let appData;
       switch (JSONVersion) {
         case '1': {
           appData = convertArrayToData(
             parsedJSONArray,
-            ((jsonCell) => {
+            (jsonCell) => {
               if (Object.keys(jsonCell).length === 0) {
                 return;
               }
@@ -537,6 +527,7 @@ export function convert(args) {
                   // 1513645323000
                   // TODO: catch errors.
                   const time = new Date(record.time).getTime();
+
                   return {
                     time,
                     value: record.value,
@@ -548,7 +539,7 @@ export function convert(args) {
               }
 
               return appCell;
-            })
+            }
           );
           tableData.data = appData;
           tableData.settings = parsedJSON.settings;

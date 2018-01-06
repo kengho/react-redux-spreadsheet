@@ -14,8 +14,8 @@ import {
   initialTable,
 } from '../core';
 
-// NOTE: default table size is set to (0, 0) for make componentDidMount()
-//   in Spreadsheet to fetch data from server.
+// NOTE: default table size is set to (0, 0) to make
+//   componentDidMount() in Spreadsheet to fetch data from server.
 export default function table(state = initialState(0, 0).get('table'), action) {
   switch (action.type) {
     case ActionTypes.SET_TABLE_FROM_JSON: {
