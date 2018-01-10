@@ -162,8 +162,8 @@ class Table extends React.Component {
           const rows = table.getIn(['data', 'rows']);
           const columns = table.getIn(['data', 'columns']);
           const pointedCellAfterPos = [
-            rows.indexOf(getRowId(pointedCellAfter.id)),
-            columns.indexOf(getColumnId(pointedCellAfter.id)),
+            rows.findIndex((item) => (item.get('id') === getRowId(pointedCellAfter.id))),
+            columns.findIndex((item) => (item.get('id') === getColumnId(pointedCellAfter.id))),
           ];
 
           // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.

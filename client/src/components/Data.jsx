@@ -243,9 +243,12 @@ class Data extends React.PureComponent {
       );
     }
 
+    // NOTE: id for getting cellPos after ArrowUp and ArrowLeft
+    //   in documentKeyDownHandler() .
     return (
       <div
         className={textareaWrapperClassnames.join(' ')}
+        id={cellId}
         onClick={this.clickHandler}
         onDoubleClick={this.doubleClickHandler}
         test-key={process.env.NODE_ENV === 'test' ? getDataWrapperTestKey(cellId) : undefined}

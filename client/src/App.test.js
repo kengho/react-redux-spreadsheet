@@ -205,6 +205,7 @@ Run in all browsers:
 * clicking on other cell or document while there are editable cell should save content of editing cell and move pointer accordingly
 * typing text to cell should expand it to some point horizontally and to infinity vertically, never showing scrollbar
 * moving pointer should scroll page if necessary (even after 100 key presses)
+* if user presses ArrwoUp when second row cell is selected and first row cell isn't visible, scroll should be to the top of the page (the same with columns) # TODO: currently don't work
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
 * when user sets cell's value and then do undo, that cell's history should be removed with the value
 * expanding table with empty cells shouldn't affect history and/or server sync
