@@ -31,23 +31,23 @@ class SettingsDialog extends React.PureComponent {
     const settingsMap = [
       // { group: 'General' },
       {
+        label: 'Spreadsheet name',
         param: 'spreadsheetName',
         type: STRING,
         value: settings.get('spreadsheetName'),
-        label: 'Spreadsheet name',
       },
       {
         // TODO: 'clear all history' button if false.
+        label: 'Automatically save cells\' history',
         param: 'autoSaveHistory',
         type: SWITCH,
-        checked: settings.get('autoSaveHistory'),
-        label: 'Automatically save cells\' history',
+        value: settings.get('autoSaveHistory'),
       },
       {
+        label: 'Table has header',
         param: 'tableHasHeader',
         type: SWITCH,
-        checked: settings.get('tableHasHeader'),
-        label: 'Table has header',
+        value: settings.get('tableHasHeader'),
       },
     ];
 
@@ -81,8 +81,8 @@ class SettingsDialog extends React.PureComponent {
                   key={item.param}
                   control={
                     <Switch
-                      checked={item.checked}
-                      onChange={(evt, checked) => actions.setSettingsParam(item.param, checked)}
+                      checked={item.value}
+                      onChange={(evt, value) => actions.setSettingsParam(item.param, value)}
                     />
                   }
                   label={label}
@@ -108,7 +108,7 @@ class SettingsDialog extends React.PureComponent {
         </FormGroup>
       </MaterialDialogContent>,
       <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
-        <Button onClick={() => actions.closeUi()} >
+        <Button onClick={() => actions.closeUi()}>
           Close
         </Button>
       </MaterialDialogActions>,

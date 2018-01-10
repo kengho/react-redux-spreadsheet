@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import shallowEqualWithSkippingProps from '../lib/shallowEqualWithSkippingProps';
+import shallowEqualWithSkippingProps from './shallowEqualWithSkippingProps';
 
 const connectWithSkippingProps = (
   mapStateToProps,
@@ -23,4 +23,3 @@ const connectWithSkippingProps = (
 };
 
 export default connectWithSkippingProps;
- 
