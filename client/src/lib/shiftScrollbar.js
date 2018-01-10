@@ -4,30 +4,43 @@ import {
   getRowNumber,
 } from '../core';
 
-const shiftScrollbar = (key, cellElem, cellPos, extra) => {
+const shiftScrollbar = (key, cellElem, cellPos, extra, relapse = false) => {
   let relShift;
   let absShift;
   switch (key) {
     case 'ArrowUp':
-      // Make absolute jump if cellElem is on first row/column.
-      if (getRowNumber(cellPos) === 0) {
+      if (relapse) {
+        relShift = { y: cellElem.getBoundingClientRect().top };
+      } else if (getRowNumber(cellPos) === 0) {
+        // Make absolute jump if cellElem is on first row/column.
         absShift = { y: 0 };
       } else {
         relShift = { y: -(cellElem.scrollHeight + extra) };
       }
       break;
     case 'ArrowDown':
-      relShift = { y: cellElem.scrollHeight + extra };
+      if (relapse) {
+        // NOTE: 10 is the size of scrollbar, adding just in case.
+        relShift = { y: cellElem.getBoundingClientRect().bottom - window.innerHeight + 10};
+      } else {
+        relShift = { y: cellElem.scrollHeight + extra };
+      }
       break;
     case 'ArrowLeft':
-      if (getColumnNumber(cellPos) === 0) {
+      if (relapse) {
+        relShift = { x: cellElem.getBoundingClientRect().left };
+      } else if (getColumnNumber(cellPos) === 0) {
         absShift = { x: 0 };
       } else {
         relShift = { x: -(cellElem.scrollWidth + extra) };
       }
       break;
     case 'ArrowRight':
-      relShift = { x: cellElem.scrollWidth + extra };
+      if (relapse) {
+        relShift = { x: cellElem.getBoundingClientRect().right - window.innerWidth + 10 };
+      } else {
+        relShift = { x: cellElem.scrollWidth + extra };
+      }
       break;
     case 'PageUp':
       absShift = { y: 0 };

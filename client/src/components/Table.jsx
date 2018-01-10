@@ -166,13 +166,36 @@ class Table extends React.Component {
             columns.findIndex((item) => (item.get('id') === getColumnId(pointedCellAfter.id))),
           ];
 
-          // TODO: in Chromium on 125 and 175% zoom correct value is 4.5 for some reason. Seems unfixable.
+          // TODO: in Chromium on 125 and 175% zoom correct value of extra
+          //   is 4.5 for some reason. Seems unfixable.
+          const borderSpacingNumber = cssToNumber(this.style.borderSpacing);
+
+          // TODO: refactor.
           if (
             (isScrolledIntoViewBefore.x && !isScrolledIntoViewAfter.x) ||
             (isScrolledIntoViewBefore.y && !isScrolledIntoViewAfter.y)
           ) {
-            const borderSpacingNumber = cssToNumber(this.style.borderSpacing);
-            shiftScrollbar(evt.key, pointedCellAfter, pointedCellAfterPos, borderSpacingNumber * 2);
+            shiftScrollbar(
+              evt.key,
+              pointedCellAfter,
+              pointedCellAfterPos,
+              borderSpacingNumber * 2,
+              false
+            );
+          }
+
+          const isScrolledIntoViewAfterScrolling = isScrolledIntoView(pointedCellAfter);
+          if (
+            (!isScrolledIntoViewAfter.x && !isScrolledIntoViewAfterScrolling.x) ||
+            (!isScrolledIntoViewAfter.y && !isScrolledIntoViewAfterScrolling.y)
+          ) {
+            shiftScrollbar(
+              evt.key,
+              pointedCellAfter,
+              pointedCellAfterPos,
+              borderSpacingNumber * 2,
+              true
+            );
           }
         },
       },
@@ -379,6 +402,7 @@ class Table extends React.Component {
           shortId={this.props.match.params.shortId}
         />
         {outputRows}
+        <div key="after-table" style={{ height: '40vh' }}/>
       </div>
     );
   }
