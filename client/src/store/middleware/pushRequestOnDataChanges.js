@@ -2,6 +2,10 @@ import { requestsPush } from '../../actions/requests';
 import serverSyncParams from '../../lib/serverSyncParams';
 
 const pushRequestOnDataChanges = store => next => action => { // eslint-disable-line consistent-return
+  if (!store.getState().getIn(['meta', 'sync'])) {
+    return next(action);
+  }
+
   // Don't fire before server data populates state.
   if (!store.getState().get('table').present) {
     return next(action);

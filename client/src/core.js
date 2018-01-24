@@ -131,6 +131,7 @@ export function initialState(width, height, test = false) {
       },
       meta: {
         shortId: null,
+        sync: true,
       },
       requests: {
         queue: [],

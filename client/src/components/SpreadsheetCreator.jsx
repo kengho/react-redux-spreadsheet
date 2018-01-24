@@ -54,9 +54,6 @@ class SpreadsheetCreator extends React.PureComponent {
     }
 
     // TODO: handle errors if server not responding.
-    // TODO: consider offline mode.
-    //   Issues:
-    //   1 short_id?
     fetchServer('POST', 'create', params)
       .then((json) => {
         if (json.errors) {

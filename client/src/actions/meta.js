@@ -3,9 +3,16 @@
 
 import * as ActionTypes from '../actionTypes';
 
-export function setShortId(shortId) { // eslint-disable-line import/prefer-default-export
+export function setShortId(shortId) {
   return {
     type: ActionTypes.SET_SHORT_ID,
     shortId,
+  };
+}
+
+export function setSync(sync) {
+  return {
+    type: ActionTypes.SET_SYNC,
+    sync,
   };
 }

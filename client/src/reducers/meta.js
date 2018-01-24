@@ -9,6 +9,12 @@ export default function meta(state = initialState().get('meta'), action) {
         action.shortId
       );
 
+    case ActionTypes.SET_SYNC:
+      return state.set(
+        'sync',
+        action.sync
+      );
+
     default:
       return state;
   }

@@ -9,6 +9,7 @@ export const DISABLE_LANDING_BUTTON = 'landing/DISABLE_LANDING_BUTTON';
 
 // meta
 export const SET_SHORT_ID = 'meta/SET_SHORT_ID';
+export const SET_SYNC = 'meta/SET_SYNC';
 
 // requests
 export const PUSH_REQUEST = 'requests/PUSH_REQUEST';

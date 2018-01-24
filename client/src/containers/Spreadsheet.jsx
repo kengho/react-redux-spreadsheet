@@ -17,6 +17,7 @@ import fetchServer from '../lib/fetchServer';
 import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
 import Overlay from '../components/Overlay';
+import SyncIndicator from '../components/SyncIndicator';
 import Table from '../components/Table';
 
 const mapStateToProps = (state) => ({
@@ -63,9 +64,18 @@ class Spreadsheet extends React.Component {
       return;
     }
 
+    if (table.getIn(['data', 'rows']).size > 0) {
+      return;
+    }
+
     // Fetch data after initial render.
-    if (table.getIn(['data', 'rows']).size === 0) {
-      const shortId = match.params.shortId;
+    const shortId = match.params.shortId;
+    if (shortId === 'offline') {
+      const initialJSONTable = JSON.stringify(initialState().get('table'));
+      actions.setShortId(shortId);
+      actions.setTableFromJSON(initialJSONTable);
+      actions.setSync(false);
+    } else {
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
           if (json.errors) {
@@ -86,13 +96,15 @@ class Spreadsheet extends React.Component {
   render() {
     // Extracting props.
     const {
-      meta,
+      history,
+      requests,
       ...other,
     } = this.props;
 
     // Non-extracting props (should be passed to children as well).
     const {
-      table, // uses in Overlay
+      meta, // uses in Table (until there are TableMenu)
+      table, // uses in Table
     } = this.props;
 
     const rows = table.getIn(['data', 'rows']);
@@ -101,6 +113,11 @@ class Spreadsheet extends React.Component {
     } else {
       return [
         <Table key="table" {...other} />,
+        <SyncIndicator
+          key="sync-indicator"
+          requestsQueueLength={requests.get('queue').size}
+          sync={meta.get('sync')}
+        />,
         <div key="after-table" style={{ height: '90vh' }}/>,
         <Overlay key="overlay" />
       ];

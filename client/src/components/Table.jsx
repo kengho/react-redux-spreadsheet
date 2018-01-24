@@ -18,7 +18,7 @@ const propTypes = {
   canRedo: PropTypes.bool.isRequired,
   canUndo: PropTypes.bool.isRequired,
   detachments: PropTypes.object.isRequired,
-  requests: PropTypes.object.isRequired,
+  meta: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
   ui: PropTypes.object.isRequired,
@@ -323,7 +323,7 @@ class Table extends React.Component {
       actions,
       canRedo,
       canUndo,
-      requests,
+      meta,
       settings,
       table,
       ui,
@@ -363,12 +363,9 @@ class Table extends React.Component {
       );
     }
 
-    // TODO: add optional header row without number.
-    // TODO: show requests queue.
     // TODO: scroll to top/bottom buttons.
     // TODO: store pointer coordinates in URL and scroll to pointer on load.
     // TODO: create menu id getter.
-    // TODO: add crop option to table menu.
 
     const thereIsClipboard = (clipboard.get('cells').size > 0);
 
@@ -381,6 +378,8 @@ class Table extends React.Component {
       divOnKeyDown = this.documentKeyDownHandler;
       divOnClick = this.documentClickHandler;
     }
+
+    // TODO: move TableMenu to Spreadsheet.jsx.
     return (
       <div
         className={`table ${thereIsClipboard ? 'clipboard' : ''}`}
@@ -397,9 +396,9 @@ class Table extends React.Component {
           data={table.get('data')}
           newSpreadsheetButtonIsDisabled={ui.get('newSpreadsheetButtonIsDisabled')}
           newSpreadsheetPath={ui.get('newSpreadsheetPath')}
-          requestsQueueLength={requests.get('queue').size}
           settings={settings}
           shortId={this.props.match.params.shortId}
+          sync={meta.get('sync')}
         />
         {outputRows}
         <div key="after-table" style={{ height: '40vh' }}/>

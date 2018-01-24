@@ -54,6 +54,9 @@ class Landing extends React.Component {
             create spreadsheet
           </Button>
         </SpreadsheetCreator>
+        <Button dense onClick={() => history.push('offline')}>
+          try offline
+        </Button>
         <div className="messages">
           <ul>
             {messages.map((message) => <li key={message}>{message}</li>)}

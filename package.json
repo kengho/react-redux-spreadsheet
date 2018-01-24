@@ -12,7 +12,8 @@
     "url": "https://github.com/kengho/react-redux-spreadsheet/issues"
   },
   "scripts": {
-    "start": "foreman start -f Procfile.dev",
+    "dev": "foreman start -f Procfile.dev",
+    "dev-offline": "cd client && BROWSER=none npm start",
     "test": "cd client && npm run test"
   }
 }
