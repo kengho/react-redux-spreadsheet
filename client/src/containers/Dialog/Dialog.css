@@ -25,18 +25,23 @@
   white-space: nowrap;
 }
 
-.dialog .dialog-import .fake-input {
+.dialog .dialog-import .filename {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  background-color: white;
   padding: 8px;
   border: none;
   flex-grow: 1;
+  color: #333;
 }
 
-.dialog .dialog-errors {
+.dialog .dialog-messages {
   padding: 16px 0 0 0;
   margin-top: 8px;
   color: #900;
+}
+
+.dialog .dialog-settings-default-value {
+  padding-left: 0.25rem;
+  color: #777;
 }

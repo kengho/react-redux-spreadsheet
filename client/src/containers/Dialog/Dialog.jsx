@@ -4,7 +4,7 @@ import MaterialDialog from 'material-ui/Dialog';
 import React from 'react';
 
 import './Dialog.css';
-import * as RequestsActions from '../../actions/requests';
+import * as ServerActions from '../../actions/server';
 import * as SettingsActions from '../../actions/settings';
 import * as TableActions from '../../actions/table';
 import * as UiActions from '../../actions/ui';
@@ -14,52 +14,40 @@ import ImportDialog from './ImportDialog';
 import InfoDialog from './InfoDialog';
 import SettingsDialog from './SettingsDialog';
 
-const mapStateToProps = (state) => ({
-  disableYesButton: state.getIn(['ui', 'current', 'disableYesButton']),
-  errors: state.getIn(['ui', 'current', 'errors']),
-  settings: state.get('settings'),
-  variant: state.getIn(['ui', 'current', 'variant']),
+import {
+  DESTROY_SPREADSHEET,
+  IMPORT,
+  INFO,
+  SETTINGS,
+} from '../../constants';
 
-  // TODO: ui kind should be constant.
-  visibility: (
-    state.getIn(['ui', 'current', 'kind']) === 'DIALOG' &&
-    state.getIn(['ui', 'current', 'visibility'])
-  ),
+const mapStateToProps = (state) => ({
+  server: state.get('server'),
+  settings: state.get('settings'),
+  variant: state.getIn(['ui', 'dialog', 'variant']),
+  visibility: state.getIn(['ui', 'dialog', 'visibility']),
 });
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
-      ...RequestsActions, // requestsPush
-      ...SettingsActions, // setSettingsParam
-      ...TableActions, // setTableFromJSON
+      ...ServerActions, // makeServerRequest, setRequestFailed
+      ...SettingsActions, // setSettings
+      ...TableActions, // mergeServerState
       ...UiActions,
       ...UndoRedoActions, // clearHistory
     }, dispatch),
   },
 });
-
+//
 class Dialog extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.keyDownHandler = this.keyDownHandler.bind(this);
-  }
-
-  keyDownHandler(evt) {
-    // Prevents firing documentKeyDownHandler().
+  keyDownHandler = (evt) => {
     evt.nativeEvent.stopImmediatePropagation();
 
     if (evt.key === 'Escape') {
-      this.props.actions.closeUi();
+      this.props.actions.closeDialog();
     }
   }
-
-  onClickHandler(evt) {
-    // Prevents firing documentClickHandler().
-    evt.nativeEvent.stopImmediatePropagation();
-  }
-
   render() {
     // Extracting props.
     const {
@@ -70,37 +58,33 @@ class Dialog extends React.Component {
 
     // Non-extracting props (should be passed to children as well).
     const {
-      actions, // uses in DestroySpreadsheetDialog, InfoDialog and ImportDialog
+      actions, // uses in DestroySpreadsheetDialog, ImportDialog and SettingsDialog
     } = this.props;
 
-    // TODO: variants should be constants.
-    // TODO: get correct dialog dynamically.
-    let dialogBody;
+    let dialogBody = '';
     switch (variant) {
-      case 'DESTROY_SPREADSHEET': {
+      case DESTROY_SPREADSHEET: {
         dialogBody = <DestroySpreadsheetDialog {...other} />
         break;
       }
 
-      case 'INFO': {
-        dialogBody = <InfoDialog {...other} />
-        break;
-      }
-
-      case 'IMPORT': {
+      case IMPORT: {
         dialogBody = <ImportDialog {...other} />
         break;
       }
 
-      case 'SETTINGS': {
+      case SETTINGS: {
         dialogBody = <SettingsDialog {...other} />
         break;
       }
 
-      default: {
-        // Shouldn't happen; fill just in case.
-        dialogBody = '';
+      case INFO: {
+        dialogBody = <InfoDialog {...other} />
+        break;
       }
+
+      default:
+        break;
     }
 
     // TODO: focus Dialog buttons using hotkeys.
@@ -111,9 +95,8 @@ class Dialog extends React.Component {
     return (
       <MaterialDialog
         className="dialog"
-        onClick={this.onClickHandler}
+        onBackdropClick={actions.closeDialog}
         onKeyDown={this.keyDownHandler}
-        onBackdropClick={actions.closeUi}
         open={visibility}
       >
         {dialogBody}

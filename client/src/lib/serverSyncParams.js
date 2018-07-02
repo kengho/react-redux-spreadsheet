@@ -1,7 +1,7 @@
 // TODO: test that it deletes session.
-const serverSyncParams = (table, settings) => {
+export default (table, settings) => {
   // TODO: consider storing session data.
-  const syncingTableBranches = ['data'];
+  const syncingTableBranches = ['layout'];
 
   const filteredTable = table.filter(
     (value, key) => {
@@ -17,5 +17,3 @@ const serverSyncParams = (table, settings) => {
     settings: JSON.stringify(settings),
   };
 };
-
-export default serverSyncParams;

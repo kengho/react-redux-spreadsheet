@@ -2,14 +2,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Recaptcha from 'react-google-invisible-recaptcha';
 
+import './SpreadsheetCreator.css';
 import { initialState } from '../core';
 import fetchServer from './../lib/fetchServer';
 import getRootPath from './../lib/getRootPath';
+import getSufficientState from '../lib/getSufficientState';
 import rippleButtonAction from '../lib/rippleButtonAction';
-import serverSyncParams from '../lib/serverSyncParams';
 
 const propTypes = {
-  actions: PropTypes.object.isRequired,
   beforeRecaptchaExecute: PropTypes.func,
   disabled: PropTypes.bool,
   history: PropTypes.object,
@@ -38,22 +38,18 @@ class SpreadsheetCreator extends React.PureComponent {
 
   onRecaptchaResolved(evt) {
     const {
-      actions,
       history,
       onErrors,
       onRecaptchaResolved,
       openInNewTab,
     } = this.props;
 
-    const table = initialState().get('table');
-    const settings = initialState().get('settings');
-
-    let params = serverSyncParams(table, settings);
+    const state = initialState();
+    let params = { state: getSufficientState(state) };
     if (this.recaptcha) {
       params['g-recaptcha-response'] = this.recaptcha.getResponse();
     }
 
-    // TODO: handle errors if server not responding.
     fetchServer('POST', 'create', params)
       .then((json) => {
         if (json.errors) {
@@ -63,16 +59,10 @@ class SpreadsheetCreator extends React.PureComponent {
           const shortId = json.data.short_id;
           const spreadsheetPath = `${getRootPath()}${shortId}`;
           if (history && !openInNewTab) {
-            // store's shortId used in handleRequestsChanges().
-            actions.setShortId(shortId);
-
-            // REVIEW: why we don't use initialState here?
-            // TODO: set from immutable object here, not json.
-            actions.setTableFromJSON(JSON.stringify(table));
-            actions.setSettingsFromJSON(JSON.stringify(settings));
             history.push(spreadsheetPath);
           } else {
-            actions.setNewSpreadsheetPath(spreadsheetPath);
+            // NOTE: TODO: code for "New spreadsheet" button (not yet implemented).
+            // actions.setNewSpreadsheetPath(spreadsheetPath);
           }
         }
 
@@ -81,9 +71,7 @@ class SpreadsheetCreator extends React.PureComponent {
   }
 
   onChildrenClickHandler(evt) {
-    const {
-      beforeRecaptchaExecute,
-    } = this.props;
+    const beforeRecaptchaExecute = this.props.beforeRecaptchaExecute;
 
     const action = () => {
       beforeRecaptchaExecute();
@@ -113,17 +101,18 @@ class SpreadsheetCreator extends React.PureComponent {
       });
     }
 
-    return [
-      clickableChildren,
-      (recaptchaSitekey &&
-        <Recaptcha
-          ref={(c) => { this.recaptcha = c; }}
-          key="recaptcha"
-          sitekey={recaptchaSitekey}
-          onResolved={this.onRecaptchaResolved}
-        />
-      ),
-    ];
+    return (
+      <React.Fragment>
+        {clickableChildren}
+        {recaptchaSitekey &&
+          <Recaptcha
+            onResolved={this.onRecaptchaResolved}
+            ref={(c) => this.recaptcha = c}
+            sitekey={recaptchaSitekey}
+          />
+        }
+      </React.Fragment>
+    );
   }
 }
 

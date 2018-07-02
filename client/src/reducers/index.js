@@ -1,34 +1,26 @@
 import { combineReducers } from 'redux-immutable';
-import { routerReducer } from 'react-router-redux';
 import undoable from 'redux-undo';
 
 import * as ActionTypes from '../actionTypes';
-import detachments from './detachments';
 import landing from './landing';
-import meta from './meta';
-import requests from './requests';
+import server from './server';
 import settings from './settings';
 import table from './table';
 import ui from './ui';
 
-const rootReducer = combineReducers({
-  detachments,
+export default combineReducers({
   landing,
-  meta,
-  requests,
   settings,
+  server,
   table: undoable(table, {
     filter: (action) => {
-      // Dispaching ActionTypes.SET_TABLE_FROM_JSON saves initial state to history.
-      // https://github.com/omnidan/redux-undo/issues/157#issuecomment-298245650
-      return (action.changesData || action.type === ActionTypes.SET_TABLE_FROM_JSON);
+      // NOTE: Dispaching ActionTypes.MERGE_SERVER_STATE should save state to history.
+      //  https://github.com/omnidan/redux-undo/issues/157#issuecomment-298245650
+      return (action.changesData || action.type === ActionTypes.MERGE_SERVER_STATE);
     },
 
     // For ActionTypes.UNDO and ActionTypes.REDO in table reducer.
     neverSkipReducer: true,
   }),
-  router: routerReducer,
   ui,
 });
-
-export default rootReducer;

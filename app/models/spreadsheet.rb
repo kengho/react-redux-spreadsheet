@@ -1,7 +1,7 @@
 class Spreadsheet < ApplicationRecord
-  validates_each :table do |record, attr, value|
+  validates_each :state do |record, attr, value|
     unless value && value.size < 10 * 1024 * 1024 # 10 MB
-      record.errors.add(attr, 'table size should be between 1b and 10MB')
+      record.errors.add(attr, 'state size should be between 1b and 10MB')
     end
   end
 

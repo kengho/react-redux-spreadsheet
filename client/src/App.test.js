@@ -1,38 +1,33 @@
-import { configureStore } from './store/configureStore';
-import { createMemoryHistory } from 'history';
+import { createMemoryHistory, createBrowserHistory } from 'history';
 import { expect } from 'chai';
-import { Map } from 'immutable';
-import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { getCellId } from './core';
-import * as Helpers from './testHelpers';
 import App from './App';
+import configureStore from './store/configureStore';
 import getRootPath from './lib/getRootPath';
 
 require('./setupTests');
 
-// it('renders without crashing', () => {
-//   const history = createBrowserHistory();
-//   const div = document.createElement('div');
-//
-//   const store = configureStore(undefined, history);
-//   ReactDOM.render(
-//     <Provider store={store}>
-//       <App history={history} />
-//     </Provider>,
-//     div
-//   );
-// });
+it('renders without crashing', () => {
+  const history = createBrowserHistory();
+  const div = document.createElement('div');
+
+  const store = configureStore(undefined, history);
+  ReactDOM.render(
+    <Provider store={store}>
+      <App history={history} />
+    </Provider>,
+    div
+  );
+});
 
 it('renders landing when passed root path', () => {
   const rootPath = getRootPath();
   const history = createMemoryHistory({ initialEntries: [rootPath] });
   const store = configureStore(undefined, history);
 
-  // TODO: move to testHelpers.
   const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
@@ -56,191 +51,102 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
   );
 });
 
-describe('functional tests', () => {
-  describe('cell clicking', () => {
-    const [store, history] = Helpers.getStore();
-    const rootWrapper = Helpers.getRootWrapper(App, store, history);
-
-    const cellIdsSequence = [
-      getCellId('r1', 'c2'),
-      getCellId('r1', 'c3'),
-      getCellId('r0', 'c0'),
-    ];
-
-    it('clicking on cell should make it pointed and all other cells not pointed', () => {
-      cellIdsSequence.forEach((cellId) => {
-        Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'click');
-        Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'pointed');
-      });
-    });
-
-    it('doubleclicking on non-editing cell should make it editing and all other cells not editing', () => {
-      cellIdsSequence.forEach((cellId) => {
-        Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
-        Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, cellId, 'editing');
-      });
-    });
-
-    it('doubleclicking on editing cell should do nothing but default (no app actions firing)', () => {
-      const cellId = getCellId('r1', 'c2');
-      Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
-      const stateAfterFirstDoubleClick = store.getState();
-      Helpers.dispatchEventOnCellWrapper(rootWrapper, cellId, 'doubleclick');
-      const stateAfterSecondtDoubleClick = store.getState();
-
-      expect(stateAfterSecondtDoubleClick).to.equal(stateAfterFirstDoubleClick);
-    });
-  });
-
-  describe('document keys pressing', () => {
-    const [store, history] = Helpers.getStore();
-    const rootWrapper = Helpers.getRootWrapper(App, store, history);
-    const tableWrapper = rootWrapper.find('.table');
-
-    // Keycodes here:
-    //   https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-    it('pressing movement key while there is no pointer should set it accordingly', () => {
-      // NOTE: I think there's no need to test all keys since
-      //   corresponding reducer is already tested in core.js;
-      //   we need only to ensure that app dispacthes the right action
-      //   on right event.
-      // NOTE: Why 'which':
-      //   https://github.com/airbnb/enzyme/issues/441#issuecomment-278625004
-      tableWrapper.simulate('keyDown', { key: 'ArrowUp', which: 38 });
-      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r2', 'c0'), 'pointed');
-    });
-
-    it('pressing movement key while there is non-editing pointer should move it accordingly', () => {
-      Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
-      tableWrapper.simulate('keyDown', { key: 'ArrowUp', which: 38 });
-
-      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r0', 'c2'), 'pointed');
-    });
-
-    it('pressing movement key while there is non-editing pointer should also add new rows/columns if necessary', () => {
-      const getRowsNumber = (someStore) => {
-        return someStore.getState().get('table').present.get('data').get('rows').size;
-      };
-
-      const previousRowsNumber = getRowsNumber(store);
-      Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r2', 'c2'), 'click');
-      tableWrapper.simulate('keyDown', { key: 'ArrowDown', which: 40 });
-      const nextRowsNumber = getRowsNumber(store);
-
-      expect(nextRowsNumber).to.equal(previousRowsNumber + 1);
-      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, getCellId('r3', 'c2'), 'pointed');
-    });
-
-    // TODO: finish for clipboard.
-    it('pressing Escape while there is pointer or/and clipboard should clear both', () => {
-      Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
-      tableWrapper.simulate('keyDown', { key: 'Escape', which: 27 });
-
-      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, undefined, 'pointed');
-    });
-  });
-
-  describe('document clicking', () => {
-    const [store, history] = Helpers.getStore();
-    const rootWrapper = Helpers.getRootWrapper(App, store, history);
-    const tableWrapper = rootWrapper.find('.table');
-
-    // TODO: finish for clipboard.
-    it('clicking on document should hide all open menus and cell histories and clear pointer and clipboard', () => {
-      Helpers.dispatchEventOnCellWrapper(rootWrapper, getCellId('r1', 'c2'), 'click');
-      tableWrapper.simulate('click');
-
-      Helpers.onlyOneDataWrapperHasClassTest(store, rootWrapper, undefined, 'pointed');
-    });
-  });
-});
-
 /*
 TODO: automate.
+TODO: mark all tests with numbers (probably, rand 1000) and put labels un the code.
 
 Run in all browsers:
-* pressing on table menu button should show menu
-* pressing on cell menu button should show menu
-* pressing on new cell menu button after adding row/column should show menu
-* when hover on cell, one and only appropriate row/column menus' buttons should become visible
-* table menu should always be visible
-* when data is changed table menu icon should change, signalizing server sync
-* 'insert row above' button should insert row above
-* 'insert row below' button should insert row below
-* 'delete row' button should delete row
-* 'insert column at left' button should insert column at left
-* 'insert column at right' button should insert column at right
-* 'delete column' button should delete column
-* all those buttons should work properly after adding/removing rows/columns
-* 'delete spreadsheet' button should show dialog and delete spreadsheet if user pressed 'yes'
+* rightclick on grid header should show spreadsheet menu
+* rightclick on cell should show cell menu
+* line headers corresponding to pointed cell should have different style
+* "insert row above menu item should insert row above
+* "insert row below" menu item should insert row below
+* "delete row" menu item should delete row
+* "insert column at left" menu item should insert column at left
+* "insert column at right" menu item should insert column at right
+* "delete column" menu item should delete column
+* all those menu items should work properly after adding/removing rows/columns
+* "delete spreadsheet" button should show dialog and delete spreadsheet if user pressed "yes"
+* "export to csv" grid menu item should save CSV file
+* "export to json" grid menu item should save JSON file containing history if any
+* "import" grid menu item should show dialog with "Choose file" button and inactive 'Import' button
+* when user selects CSV file, "Import button" should become active and file name should appear
+* when user selects incorrect file, errors should appear
+* when data is imported, spreadsheet should sync data with server
+* when user is trying to import bad format file, errors should occur
+* import from JSON string should work regardless of settings key in it
 
-// TODO: add more table menu tests.
+TODO: this.
+* making one line extra large shouldn't break grid layout
 
 * table should have column labels A, B, C, ... AA, ...
+* grid should be infinite
+* grid should update on scroll or changing screen size
 * table should have row labels 1, 2, 3 starting with first row if parameter 'tableHasHeader' is true and with second otherwise
-* 'new' button on table menu should show captcha (if necessary) and show link that should open new spreadsheet in new tab
-* if user clicks on 'new' button on table menu and skips captcha by clicking on document, he should be able to press this button and meet captcha again
-* if new spreadsheet is created using 'new' button on table menu, it shouldn't let user to create another one until he follows link
-* when there are only one row/column, delete row/column option shouldn't be present
+
+TODO: this.
+* "new" button on table menu should show captcha (if necessary) and show link that should open new spreadsheet in new tab
+
+TODO: this.
+* if user clicks on "new" button on table menu and skips captcha by clicking on document, he should be able to press this button and meet captcha again
+
+TODO: this.
+* if new spreadsheet is created using "new" button on table menu, it shouldn't let user to create another one until he follows link
 * lines addressing should update after adding/removing rows/columns
+
+TODO: this.
 * after showing menu first element should be active
-* after dialog appearing, Enter and Escape keys should work // TODO: Enter currently doesn't work
+
+TODO: Enter currently doesn't work
+* after dialog appearing, Enter and Escape keys should work
+
 * on document, pressing regular key should start editing currently pointed cell with value equals to that key
 * on document, if regular key pressed while there are no pointed cells, [0, 0] cell should become pointed
 * pressing Enter while there are pointer should make pointed cell editable and select all it's content
 * pressing F2 while there are pointer should make pointed cell editable and move cursor to the end of cell's content
-* pressing Delete or Backspace while there are pointer should delete pointed cell's value
-* pressing Escape should hide all cell histories
+* pressing Delete while there are pointer should delete pointed cell's value
+
+TODO: Backspace.
+* pressing Backspace while there are pointer should delete all pointed cells' props
+* pressing Escape should hide cell history, all menus and dialogs
 * pressing Ctrl+X or Ctrl+C while there are pointer should mark cell as clipboard
 * pressing Ctrl+V while there are pointer should copy/cut value from clipboard
 * pressing Ctrl+V while there are pointer multiple times should cut multiple times even if clipboard cell is already empty
 * pressing Ctrl+V shouldn't throw errors if the source cell have no value
 * pressing Ctrl+X and then Ctrl+C on the same cell should do nothing to the cell's value
 * pressing Ctrl+V should copy/cut empty cell's values too
-* pressing Enter/Shift+Enter while editing should save cell's value and move pointer down/up (unless top border; at bottom table should expand)
-* pressing Tab/Shift+Tab while editing should save cell's value and move pointer right/left (unless left border; at right table should expand)
+* pressing Enter/Shift+Enter while editing should save cell's value and move pointer down/up (unless border)
+* pressing Tab/Shift+Tab on non-editing should move pointer right/left (unless border)
+* pressing Tab/Shift+Tab while editing should save cell's value and move pointer right/left (unless border)
 * pressing Enter/Shift+Enter/Tab/Shift+Tab should make next pointer non-editing
 * pressing Ctrl+Enter while editing should add new line after cursor
 * pressing Escape while editing should make cell uneditable and leave cell's value as it was before
 * clicking on other cell or document while there are editable cell should save content of editing cell and move pointer accordingly
-* typing text to cell should expand it to some point horizontally and to infinity vertically, never showing scrollbar
-* moving pointer should scroll page if necessary (even after 100 key presses)
-* if user presses ArrowUp when second row cell is selected and first row cell isn't visible, scroll should be to the top of the page (the same with columns) # TODO: currently don't work
+* moving pointer using any hotkey should scroll page if necessary (even after 100 key presses)
+* (text_777) after pointing cell, scrolling it out of sight and back again, and moving pointer, next pointed cell's value shouldn't be copied from previous one
+* (test_134) if user presses ArrowUp when second row cell is selected and first row cell isn't visible, scroll should be to the top of the page (the same with columns)
 * after pressing any arrow key appropriate cell should always became visible, even if previous cell wasn't fitting the screen entirely or wasn't visible at all
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
 * when user sets cell's value and then do undo, that cell's history should be removed with the value
-* expanding table with empty cells shouldn't affect history and/or server sync
 * if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
-* export button should save CSV file
-* import button should show dialog with 'Choose file' button and inactive 'Import' button
-* when user selects CSV file, 'Import button' should become active and file name should appear at the right
-* when user selects incorrect file, errors should appear
-* when import dialog closes and opens again, it should look exactly the same, regardles of previous actions
-* when user selects any file in import dialog, then opens 'Choose file' dialog again and presses Escape, no errors should occur
-* when data is imported, spreadsheet should sync data with server immediately
-* when user is trying to import bad format file, errors should occur
-* import from JSON string should work regardless of settings key in it
 * on landing, when errors while creating spreadsheet occurs, they should be shown near 'create' button
-* on landing, when error messages occurs, 'create' button should become enabled
-* on landing, error messages appearing shouldn't lead to moving 'create' button on-screen position
+* on landing, when error messages occurs, "create" button should become enabled
+* on landing, error messages appearing shouldn't lead to moving "create" button on-screen position
 * if there are errors occurs while loading spreadsheet in Spreadsheet, user should be redirected to Landing with messages
 * back and forward history movements between Landing and Spreadsheet should work
 * after deleting spreadsheet user should be redirected to Landing
-* each cell's value's change should be saved in cell history if 'autoSaveHistory' is true, and not saved otherwise
-* cell menu button should appear on cell hover with little delay
-* (REVIEW) when there is clipboard, cell menu should be always invisible
+* each cell's value's change should be saved in cell history if "autoSaveHistory" is true, and not saved otherwise
 * cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
 * when cell history if empty, show cell history button should be inactive
-* when cell history is shown, document click should close it
-* cell history should have close button
+* when cell history is shown, document click or Escape should close it
 * each record in cell history should have delete button
-* when user deletes the last cell history record, cell history should hide
 * user should be able to select/copy/paste text from cell history
 * each record in cell history should have restore button
 * if records' value equals current cell's value, restore record button should be inactive
 * cell menu should have clear cell button, which clears cell value
-* if cell's is already empty, clear cell button should be inactive
-* in table menu item 'settings' should be present
-* in table menu, when user clicks on 'settings', appropriate dialog should pop up
-* when user changes something in settings dialog, update request should sync it with server
+* in grid menu item "settings" should be present
+* in table menu, when user clicks on "settings", appropriate dialog should pop up
+* when user changes something in settings dialog and presses OK update request should sync it with server
+
+TODO: more tests.
 */

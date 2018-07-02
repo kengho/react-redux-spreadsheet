@@ -3,17 +3,15 @@ import { fromJS } from 'immutable';
 import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-export default function settings(state = initialState().get('settings'), action) {
+export default (state = initialState().get('settings') || null, action) => {
   switch (action.type) {
-    case ActionTypes.SET_SETTINGS_FROM_JSON: {
-      return fromJS(JSON.parse(action.settingsJSON));
-    }
+    case ActionTypes.MERGE_SERVER_STATE:
+      return state.mergeDeep(fromJS(action.serverState.settings));
 
-    case ActionTypes.SET_SETTINGS_PARAM: {
-      return state.set(action.param, action.value);
-    }
+    case ActionTypes.SET_SETTINGS:
+      return fromJS(action.settings)
 
     default:
       return state;
   }
-}
+};

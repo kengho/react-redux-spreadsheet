@@ -4,7 +4,7 @@
 
 [rails](http://rubyonrails.org/)-[react](https://facebook.github.io/react/)-[redux](http://redux.js.org/docs/introduction/)-powered spreadsheet, where you can do basic spreadsheeting.
 
-![main view](/doc/img/main.png?raw=true)
+![main view](/doc/img/main.png?raw=true?v=v2)
 
 ## Live
 
@@ -15,15 +15,31 @@
 * auto sync with server
 * auto saving cells' values history
 * export/import to/from CSV/JSON
-* basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Home`, `End`, `Delete`)
+* basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Delete`)
 * copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`)
 * [redux-undo](https://github.com/omnidan/redux-undo)-powered undo/redo (`Ctrl+Z`, `Ctrl+Y`)
 * multiline text (`Ctrl+Enter`)
-* autosizing cells
-* delete/insert row/column buttons
-* automatically expanding table
+* infinite 2D grid
 * built-in invisible Google reCAPTCHA
 * clean material design
+
+## Changelog
+
+### v2
+
+* data model changed to a different more logical and fast way
+* **(breaking)** (effect of above) database scheme changed too, but migration is supplied
+* **(breaking)** spreadsheet is now scalable with new infinite layout and dynamic loading
+* (effect of above) there are custom search bar now
+* **(breaking)** lines are now don't grow automatically due to technical difficulties (performance, scroll-consistency, and other)
+* (effect of above) user can resize lines manually
+* **(breaking)** UI for cells, lines and entire spreadsheet is now handled by rightclick context menu, not buttons
+* there are no more requests queue, updating algorithm was adjusted
+* huge changes to the code style occurred, many performance- and readability-wise patterns applied
+
+### v1
+
+* first version
 
 ## Installing
 
@@ -76,23 +92,26 @@ http://localhost:3000/spreadsheet should display landing page.
 ## TODO (random order)
 
 * better mobile browsers support
+* scripting (aka "functions")
 * cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
 * sort
 * lists (in form of just links to other spreadsheets)
 * consider users' auth
 * private spreadsheets
-* block/clone/crop spreadsheet
+* password protect (preferably the way even server owner can't access user data)
+* block/clone spreadsheet
 * multiple users collaboration
 * cells' styling
-* sync user session (pointer and stuff) with server
 * context actions panel
 * embedding (?)
+* sync user session (pointer and stuff) with server (?)
 * optimize CPU, memory and traffic usage
-* fix all code imperfections (`REVIEW`, `TODO`, etc.)
+* fix all code imperfections
+* consider RLE compression for data (see ODS format)
 * i18n
-* scripting
-* customize max width for columns (with dblclick for optimal width)
+* add/delete lines' and other animations
+* perfect lines sizing (double click for optimal size, consider returning autogrowth)
 * more spreadsheeting
 * full xlsx compatibility (just a joke)
 

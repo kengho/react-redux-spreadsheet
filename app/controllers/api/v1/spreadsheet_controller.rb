@@ -1,46 +1,42 @@
 class Api::V1::SpreadsheetController < Api::V1::BaseController
   before_action :prepare, except: [:create]
 
-  CLIENT_COLUMNS = %i(table settings)
-
-  def client_columns_to_hash(data_source)
-    return CLIENT_COLUMNS.map { |column| [column, data_source[column]] }.to_h
-  end
-
   def create
-    if ENV['RAILS_ENV'] != 'test' &&
-       ENV['RECAPTCHA_SECRET_KEY'] &&
-       !captcha_is_valid
+    if (
+      ENV['RAILS_ENV'] != 'test' &&
+      ENV['RECAPTCHA_SECRET_KEY'] &&
+      !captcha_is_valid
+     )
       throw_error(
         'external', 'CAPTCHA is invalid.'
       ) and return
     end
 
     # TODO: data check, errors.
-    @spreadsheet = Spreadsheet.create!(client_columns_to_hash(params))
+    # https://stackoverflow.com/a/14039753/6376451
+    state = params.permit!.to_h['state']
+    @spreadsheet = Spreadsheet.create!(state: state.to_json)
     response = { 'data' => { 'short_id' => @spreadsheet.short_id } }
     render json: response
   end
 
   def show
-    # NOTE: I know that GET shouldn't mutate data.
-    #   but we need to zerorize updates_counter,
-    #   and doing it in separate request is unnecessary complex.
-    #   Btw, it doesn't affects GET's idempotence.
-    @spreadsheet.update_attributes!(updates_counter: 0)
-    @response['data'] = client_columns_to_hash(@spreadsheet)
+    @response['data'] = { 'state' => @spreadsheet.state }
     render json: @response
   end
 
   def update
+    state = params.permit!.to_h['state']
+    client_timestamp = params.permit!.to_h['client_timestamp']
+    short_id = params.permit!.to_h['short_id']
     # TODO: data check, errors.
-    updates_counter = params['updates_counter'].to_i
 
+    # TODO: import response codes from constants.js somehow (or store them elsewhere).
     status =
-      if @spreadsheet.updates_counter > updates_counter
-        'OK'
-      elsif @spreadsheet.update_attributes(client_columns_to_hash(params))
-        @spreadsheet.update_attributes!(updates_counter: updates_counter + 1)
+      if @spreadsheet.client_timestamp > client_timestamp
+        'ERROR'
+      elsif @spreadsheet.update_attributes(state: state.to_json)
+        @spreadsheet.update_attributes!(client_timestamp: Time.at(client_timestamp/1000.0))
         'OK'
       else
         'ERROR'
@@ -86,7 +82,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
         ) and return
       end
 
-      @response = { 'request_uuid' => params['request_uuid'] }
+      @response = {}
     end
 
     def captcha_is_valid
@@ -107,7 +103,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
       end
 
       return false unless response
-      return false unless response.code == 200
+      return false unless response.code == 200 # TODO: use :ok
       parsed_response = JSON.parse(response)
       return false unless parsed_response['success'] == true
 

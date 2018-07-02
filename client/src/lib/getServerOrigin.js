@@ -1,5 +1,5 @@
 // TODO: to package.
-const getServerOrigin = () => {
+export default () => {
   const clientOriginSplitted = window.location.origin.split(/:/);
   const serverOriginSplitted = [...clientOriginSplitted];
   const probablyPort = serverOriginSplitted[serverOriginSplitted.length - 1];
@@ -19,5 +19,3 @@ const getServerOrigin = () => {
 
   return serverOrigin;
 };
-
-export default getServerOrigin;

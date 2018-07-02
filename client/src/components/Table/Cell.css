@@ -1,0 +1,33 @@
+[contenteditable]:focus {
+  outline: 0px solid transparent;
+}
+
+.cell {
+  cursor: pointer;
+  padding: 8px;
+  border: 1px solid #eee;
+  white-space: pre;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.cell.pointed {
+  border: 1px solid #48e;
+}
+
+.cell.editing {
+  border: 1px solid #4e8;
+  cursor: inherit;
+}
+
+.cell.clipboard {
+  border: 1px dashed #777;
+}
+
+.cell.pointed.clipboard {
+  border: 1px dashed #48e;
+}
+
+.cell.header {
+  font-weight: 600;
+}

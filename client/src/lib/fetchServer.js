@@ -1,14 +1,14 @@
 // TODO: to package.
 import getServerOrigin from './getServerOrigin';
 
-const fetchServer = (method, action, body = {}) => {
+export default (method, action, body = {}) => {
   const serverOrigin = getServerOrigin();
-  const headers = new Headers(); // eslint-disable-line no-undef
+  const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Accept', 'application/json');
 
-  // CORS for development setup.
-  headers.append('Origin', window.location.origin); // eslint-disable-line no-undef
+  // NOTE: CORS for development setup.
+  headers.append('Origin', window.location.origin);
 
   const fetchParams = {
     method,
@@ -19,11 +19,19 @@ const fetchServer = (method, action, body = {}) => {
     fetchParams.body = JSON.stringify(body);
   }
 
-  const promise = fetch( // eslint-disable-line no-undef
+  const promise = fetch(
     `${serverOrigin}/api/v1/${action}`,
     fetchParams
   )
-    .then((response) => response.json())
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return {
+          errors: [{ detail: 'Sorry, server error occurred, please try later.' }],
+        };
+      }
+    })
     .catch((error) => {
       return {
         errors: [{ detail: error.message }],
@@ -32,16 +40,3 @@ const fetchServer = (method, action, body = {}) => {
 
   return promise;
 };
-
-export default fetchServer;
-
-// Some snippet to test failed requests.
-// .then((response) => {
-//   if (method === 'PATCH') {
-//     return {
-//       errors: [{ detail: 'detail' }],
-//     };
-//   } else {
-//     return response.json();
-//   }
-// })

@@ -1,0 +1,8 @@
+.line-sizer-handle {
+  position: absolute;
+  z-index: 10000;
+}
+
+.line-sizer-helper {
+  position: absolute;
+}

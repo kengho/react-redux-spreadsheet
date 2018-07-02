@@ -8,7 +8,12 @@ body, html {
 }
 
 body {
-  background-color: #eee;
+  margin: 0;
+
+  /* TODO: with scroll when material Popup appears abcolute positioned elements shifts. */
+  /*   Without - when Popup is visible user can scroll, which is strange. */
+  /*   Should figure it out. */
+  /* overflow: scroll !important; */
 
   /* Fonts from html > body
   https://getmdl.io/ */

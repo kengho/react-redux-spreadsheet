@@ -10,18 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180104141756) do
+ActiveRecord::Schema.define(version: 2018_06_02_192848) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
   create_table "spreadsheets", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
-    t.text "table", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "updates_counter", default: 0
-    t.text "settings"
+    t.datetime "client_timestamp", default: "-0001-12-31 21:29:43"
+    t.text "state", default: "{}", null: false
   end
 
 end

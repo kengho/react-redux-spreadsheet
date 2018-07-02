@@ -1,43 +1,50 @@
 import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import React from 'react';
 
-import {
-  initialState,
-} from '../core';
-import * as DetachmentsActions from '../actions/detachments';
+import { initialState } from '../core';
+import { OFFLINE, ROW } from '../constants';
 import * as LandingActions from '../actions/landing'; // setLandingMessages()
-import * as MetaActions from '../actions/meta';
-import * as RequestsActions from '../actions/requests';
+import * as ServerActions from '../actions/server';
 import * as SettingsActions from '../actions/settings';
 import * as TableActions from '../actions/table';
 import * as UiActions from '../actions/ui';
 import * as UndoRedoActions from '../actions/undoRedo';
-import connectWithSkippingProps from '../lib/connectWithSkippingProps';
+import CellHistory from '../components/Popup/CellHistory';
 import fetchServer from '../lib/fetchServer';
 import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
-import Overlay from '../components/Overlay';
+import Menu from '../components/Popup/Menu';
+import SearchBar from '../components/SearchBar';
 import SyncIndicator from '../components/SyncIndicator';
-import Table from '../components/Table';
+import Table from '../components/Table/Table';
 
-const mapStateToProps = (state) => ({
-  canRedo: state.get('table').future.length > 0,
-  canUndo: state.get('table').past.length > 1, // omitting ActionTypes.SET_TABLE_FROM_JSON
-  detachments: state.get('detachments'),
-  meta: state.get('meta'),
-  requests: state.get('requests'),
-  settings: state.get('settings'),
-  table: state.get('table').present,
-  ui: state.get('ui'),
-});
+const mapStateToProps = (state, ownProps) => {
+  // (?) TODO: canUndo and canRedo to table.
+  let table;
+  if (process.env.NODE_ENV !== 'test') {
+    table = state.get('table');
+  } else {
+    table = state.get('table').present;
+  }
+
+  return {
+    canRedo: table.future.length > 0,
+    canUndo: table.past.length > 1, // omitting ActionTypes.MERGE_SERVER_STATE
+    requests: state.get('requests'),
+    server: state.get('server'),
+    settings: state.get('settings'),
+    shortId: ownProps.match.params.shortId,
+    table: table.present.get('major'),
+    ui: state.get('ui'),
+  };
+};
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
-      ...DetachmentsActions,
       ...LandingActions,
-      ...MetaActions,
-      ...RequestsActions,
+      ...ServerActions,
       ...SettingsActions,
       ...TableActions,
       ...UiActions,
@@ -47,88 +54,88 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Spreadsheet extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { loaded: false };
+  }
+
   componentDidMount() {
     const {
       actions,
       history,
-      match,
-      table,
+      shortId,
     } = this.props;
 
     // Don't fetch data from server in tests.
     if (process.env.NODE_ENV === 'test') {
-      actions.setShortId('1');
-
-      const initialJSONTable = JSON.stringify(initialState(3, 4).get('table'));
-      actions.setTableFromJSON(initialJSONTable);
+      actions.setShortId('test');
       return;
     }
 
-    if (table.getIn(['data', 'rows']).size > 0) {
-      return;
-    }
-
-    // Fetch data after initial render.
-    const shortId = match.params.shortId;
-    if (shortId === 'offline') {
-      const initialJSONTable = JSON.stringify(initialState().get('table'));
-      actions.setShortId(shortId);
-      actions.setTableFromJSON(initialJSONTable);
-      actions.setSync(false);
-    } else {
+    if (shortId.toLowerCase() !== OFFLINE.toLowerCase()) {
       fetchServer('GET', `show?short_id=${shortId}`)
         .then((json) => {
-          if (json.errors) {
-            const errors = json.errors.map((error) => error.detail);
+          let parsedServerState;
+          let errors;
+          if (json.data && json.data.state) {
+            try {
+              parsedServerState = JSON.parse(json.data.state);
+            } catch(err) {
+              errors = ['Sory, data is corrupted, please contact us.'];
+            }
+          } else {
+            if (json.errors) {
+              errors = json.errors.map((error) => error.detail);
+            } else {
+              errors = ['Sorry, something went wrong, please try later.'];
+            }
+          }
 
+          if (!parsedServerState) {
             actions.setLandingMessages(errors);
             history.push(getRootPath());
           } else {
-            // store's shortId used in handleRequestsChanges().
-            actions.setShortId(shortId);
-            actions.setTableFromJSON(json.data.table);
-            actions.setSettingsFromJSON(json.data.settings);
+            actions.setShortId(shortId.toLowerCase());
+            actions.setSync(true);
+            actions.mergeServerState(parsedServerState);
+            this.setState({ loaded: true });
           }
         });
+    } else {
+      actions.setLandingMessages([]); // for not to show previous messages after goinh back in history
+      actions.setShortId(OFFLINE.toLowerCase()); // shortIds
+      actions.setSync(false);
+      actions.mergeServerState(initialState().toJS());
+      this.setState({ loaded: true });
     }
   }
 
   render() {
-    // Extracting props.
-    const {
-      history,
-      requests,
-      ...other,
-    } = this.props;
+    if (this.state.loaded) {
+      return (
+        <React.Fragment>
+          <Table {...this.props} />
+          <Menu {...this.props} />
+          <CellHistory {...this.props} />
+          <SyncIndicator server={this.props.server} />
 
-    // Non-extracting props (should be passed to children as well).
-    const {
-      meta, // uses in Table (until there are TableMenu)
-      table, // uses in Table
-    } = this.props;
-
-    const rows = table.getIn(['data', 'rows']);
-    if (rows.size === 0) {
-      return <LoadingScreen />;
+          {/*
+            NOTE: key prop allows to reset internal SearchBar state
+              if some data changed. After data changes SearchBar should
+              search again from "clean slate", which is the most simple
+              and reliable approach.
+          */}
+          <SearchBar
+            {...this.props}
+            key={this.props.table.getIn(['layout', ROW, 'list'])}
+          />
+        </React.Fragment>
+      );
     } else {
-      return [
-        <Table key="table" {...other} />,
-        <SyncIndicator
-          key="sync-indicator"
-          requestsQueueLength={requests.get('queue').size}
-          sync={meta.get('sync')}
-        />,
-        <div key="after-table" style={{ height: '90vh' }}/>,
-        <Overlay key="overlay" />
-      ];
+      return <LoadingScreen />;
     }
   }
 }
 
-const detachmentsProps = ['detachments'];
-
-export default connectWithSkippingProps(
-  mapStateToProps,
-  mapDispatchToProps,
-  detachmentsProps
-)(Spreadsheet);
+export default connect(mapStateToProps, mapDispatchToProps)(Spreadsheet);

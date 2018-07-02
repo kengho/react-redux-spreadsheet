@@ -3,7 +3,9 @@ import { fromJS } from 'immutable';
 import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-export default function landing(state = initialState().get('landing'), action) {
+// NOTE: initialState() could return undefined in
+//   test environment, so "|| null" is needed.
+export default (state = initialState().get('landing') || null, action) => {
   switch (action.type) {
     case ActionTypes.SET_LANDING_MESSAGES:
       return state.set(
@@ -20,4 +22,4 @@ export default function landing(state = initialState().get('landing'), action) {
     default:
       return state;
   }
-}
+};

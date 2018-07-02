@@ -1,279 +1,483 @@
-import { fromJS } from 'immutable';
-import uuid from 'uuid/v4';
+import {
+  fromJS,
+  List,
+} from 'immutable';
 
 import * as ActionTypes from '../actionTypes';
+import { ROW, COLUMN } from '../constants';
 import {
-  calcNewPos,
-  getCellId,
-  getColumnId,
-  getColumnNumber,
-  getMaxPos,
-  getRowId,
-  getRowNumber,
+  composeCell,
+  composeLine,
+  findLineByOffset,
+  getLineOffset,
   initialState,
   initialTable,
+  isLineScrolledIntoView,
 } from '../core';
+
+// For dev.
+process.clog = (x) => {
+  if (process.logBelow) {
+    process.log(x);
+  }
+};
+
+const undefinedMerger = (oldVal, newVal) => newVal !== undefined ? newVal : oldVal;
+
+// TODO: PERF: use withMutations.
+//   https://facebook.github.io/immutable-js/docs/#/Map/withMutations
 
 // NOTE: default table size is set to (0, 0) to make
 //   componentDidMount() in Spreadsheet to fetch data from server.
-export default function table(state = initialState(0, 0).get('table'), action) {
+export default (state = initialState().get('table'), action) => {
   switch (action.type) {
-    case ActionTypes.SET_TABLE_FROM_JSON: {
-      const serverTable = fromJS(JSON.parse(action.tableJSON));
+    case ActionTypes.MERGE_IN: {
+      const {
+        object,
+        defaults,
+        path,
+      } = action;
 
-      // TODO: consider storage session data.
-      return fromJS({ ...initialTable(0, 0), data: serverTable.get('data') });
+      return state.updateIn(
+        path,
+        (value) => value.mergeDeepWith(undefinedMerger, { ...defaults, ...object })
+      );
+    }
+
+    case ActionTypes.SET_CELL: {
+      const { [ROW]: _, [COLUMN]: __, ...cellProps } = action.cell;
+
+      return state.setIn(
+        [
+          'major',
+          'layout',
+          ROW,
+          'list',
+          action.cell[ROW].index,
+          'cells',
+          action.cell[COLUMN].index,
+        ],
+        fromJS(cellProps),
+      );
     }
 
     case ActionTypes.SET_PROP: {
-      let nextState;
-      if (action.cellId) {
-        nextState = state.setIn(
-          ['data', 'cells', action.cellId, action.prop],
-          action.value
-        );
+      const cellPropPath = [
+        'major',
+        'layout',
+        ROW,
+        'list',
+        action.cell[ROW].index,
+        'cells',
+        action.cell[COLUMN].index,
+        action.cell.prop,
+      ];
+
+      if (action.cell.value === undefined) {
+        return state.deleteIn(cellPropPath);
       } else {
-        nextState = state;
+        return state.setIn(cellPropPath, action.cell.value);
       }
-
-      return nextState;
     }
 
-    case ActionTypes.DELETE_PROP: {
+    case ActionTypes.SET_SCROLL_SIZE: {
+      // NOTE: here we make two-way binding document.documentElement.scroll*
+      //   and state: onScroll in Table fires this action, and dispatching
+      //   this action leads to scroll changes.
+      //
+      //   In most browsers onScroll isn't fired if props are equal,
+      //   no need to check it manually.
+      document.documentElement.scrollTop = action.scrollSize[ROW].scrollSize;
+      document.documentElement.scrollLeft = action.scrollSize[COLUMN].scrollSize;
+
       return state.updateIn(
-        ['data', 'cells'],
-        value => {
-          if (!value.get(action.cellId)) {
-            return value;
-          }
-
-          return value.deleteIn(
-            [action.cellId, action.prop]
-          );
-
-          // TODO: only Backscape should do that, not Delete.
-          //   (In another action like 'table/WIPE_CELL').
-          // let nextValue;
-          // if (deletedPropValue.get(action.cellId).size === 0) {
-          //   nextValue = deletedPropValue.delete(action.cellId);
-          // } else {
-          //   nextValue = deletedPropValue;
-          // }
-        }
+        ['major', 'vision'],
+        (value) => value.mergeDeep(action.scrollSize)
       );
     }
 
-    case ActionTypes.SET_HOVER: {
+    case ActionTypes.SET_SCREEN_SIZE: {
+      return state.updateIn(
+        ['major', 'vision'],
+        (value) => value.mergeDeep(action.screenSize)
+      );
+    }
+
+    case ActionTypes.SET_LINES_OFFSETS: {
+      // NOTE: no need for optimizing minor branch reduceres
+      //   for they don't triggers rerenders anyway.
       return state.setIn(
-        ['session', 'hover'],
-        action.cellId
+        ['minor', 'linesOffsets'],
+        fromJS(action.offsets)
       );
-    }
-
-    case ActionTypes.SET_POINTER: {
-      let nextState = state;
-
-      // null is valid value for cellId, uses when you want to clear pointer.
-      if (action.cellId !== undefined) {
-        nextState = nextState.setIn(
-          ['session', 'pointer', 'cellId'],
-          action.cellId
-        );
-      }
-
-      if (action.modifiers) {
-        // Preventing unnecessary mutations to prevent unnecessary re-renders.
-        // TODO: do it everywhere, for example in ActionTypes.SET_CLIPBOARD.
-        const currentModifiers = nextState.getIn(
-          ['session', 'pointer', 'modifiers'],
-        );
-        const allKeys = [
-          ...Object.keys(action.modifiers),
-          ...currentModifiers.keySeq().toArray(),
-        ];
-        const allKeysUniq = [...new Set(allKeys)];
-
-        allKeysUniq.forEach((modifier) => {
-          nextState = nextState.setIn(
-            ['session', 'pointer', 'modifiers', modifier],
-            action.modifiers[modifier]
-          );
-        });
-      }
-
-      return nextState;
     }
 
     case ActionTypes.MOVE_POINTER: {
-      const rows = state.getIn(['data', 'rows']);
-      const columns = state.getIn(['data', 'columns']);
-      const pointerCellId = state.getIn(['session', 'pointer', 'cellId']);
+      const {
+        key,
+        altKey,
+        cell,
+      } = action;
 
-      let currentPointerPos;
-      if (pointerCellId) {
-        currentPointerPos = [
-          rows.findIndex((row) => row.get('id') === getRowId(pointerCellId)),
-          columns.findIndex((column) => column.get('id') === getColumnId(pointerCellId)),
-        ];
-      }
+      const FORWARD = true;
+      const BACKWARD = false;
 
-      const newPointerPos = calcNewPos(currentPointerPos, action.key, rows, columns);
-      const currentMaxPos = getMaxPos(rows, columns);
+      let workingPointerPath;
+      let workingScrollPath;
+      let linesList;
+      let defaultLineSize;
+      let linesOffsets;
+      let screenSize;
+      let direction;
+      let marginSize;
+      let documentScrollProp;
 
-      let nextPointerRowId;
-      let nextPointerColumnId;
-      if (getRowNumber(newPointerPos) > getRowNumber(currentMaxPos)) {
-        let newRowId;
-        if (process.env.NODE_ENV === 'test') {
-          newRowId = `r${rows.size}`;
+      // Figuring out what line type we are dealing with.
+
+      let lineType;
+      if (key) {
+        if (
+          key === 'ArrowUp' ||
+          key === 'ArrowDown' ||
+          (
+            !altKey && (
+              key === 'PageUp' ||
+              key === 'PageDown'
+            )
+          )
+        ) {
+          lineType = ROW;
+        } else if (
+          key === 'ArrowLeft' ||
+          key === 'ArrowRight' ||
+          (
+            altKey && (
+              key === 'PageUp' ||
+              key === 'PageDown'
+            )
+          )
+        ) {
+          lineType = COLUMN;
         } else {
-          newRowId = `r${uuid()}`;
+          return state;
         }
-
-        nextPointerRowId = newRowId;
-
-        // TODO: commenting next line should break tests.
-        nextPointerColumnId = columns.getIn([getColumnNumber(newPointerPos), 'id']);
-      } else if (getColumnNumber(newPointerPos) > getColumnNumber(currentMaxPos)) {
-        let newColumnId;
-        if (process.env.NODE_ENV === 'test') {
-          newColumnId = `c${columns.size}`;
+      } else if (cell) {
+        if (cell[ROW]) {
+          lineType = ROW;
+        } else if (cell[COLUMN]) {
+          lineType = COLUMN;
         } else {
-          newColumnId = `c${uuid()}`;
+          return state;
         }
-
-        // TODO: commenting next line should break tests.
-        nextPointerRowId = rows.getIn([getRowNumber(newPointerPos), 'id']);
-        nextPointerColumnId = newColumnId;
       } else {
-        nextPointerRowId = rows.getIn([getRowNumber(newPointerPos), 'id']);
-        nextPointerColumnId = columns.getIn([getColumnNumber(newPointerPos), 'id']);
+        return state;
       }
 
-      const nextPointerCellId = getCellId(nextPointerRowId, nextPointerColumnId);
+      // REVIEW: maybe get rid of this? Those are leftovers
+      //   from revisions without lines-symmetrical state.
+      workingPointerPath = ['major', 'session', 'pointer', lineType, 'index'];
+      workingScrollPath = ['major', 'vision', lineType, 'scrollSize'];
+      linesList = state.getIn(['major', 'layout', lineType, 'list']);
+      defaultLineSize = state.getIn(['major', 'layout', lineType, 'defaultSize']);
+      linesOffsets = state.getIn(['minor', 'linesOffsets', lineType]);
+      screenSize = state.getIn(['major', 'vision', lineType, 'screenSize']);
+      marginSize = state.getIn(['major', 'layout', lineType, 'marginSize']);
+      if (lineType === ROW) {
+        documentScrollProp = 'scrollTop';
+      } else if (lineType === COLUMN) {
+        documentScrollProp = 'scrollLeft';
+      }
 
-      return state.setIn(
-        ['session', 'pointer', 'cellId'],
-        nextPointerCellId
-      );
-    }
+      const effectiveScreenSize = screenSize - marginSize;
 
-    // TODO: optimize.
-    case ActionTypes.SET_CLIPBOARD: {
-      return state.setIn(
-        ['session', 'clipboard'],
-        fromJS(action.clipboard)
-      );
-    }
+      if (key) {
+        if (
+          key === 'ArrowDown' ||
+          key === 'ArrowRight' ||
+          key === 'PageDown'
+        ) {
+          direction = FORWARD;
+        } else if (
+          key === 'ArrowUp' ||
+          key === 'ArrowLeft' ||
+          key === 'PageUp'
+        ) {
+          direction = BACKWARD;
+        } else {
+          return state;
+        }
+      }
 
-    case ActionTypes.TRIGGER_ROW_UPDATE: {
+      // Main action.
+
+      const scrollSize = state.getIn(workingScrollPath);
+      const currentLineIndex = state.getIn(workingPointerPath);
+      const currentLineSize = linesList.get(currentLineIndex, defaultLineSize);
+      const currentLineOffset = getLineOffset({
+        offsets: linesOffsets,
+        index: currentLineIndex,
+        defaultSize: defaultLineSize,
+      });
+      const isCurrentLineScrolledIntoView = isLineScrolledIntoView({
+        size: currentLineSize,
+        offset: currentLineOffset,
+        scrollSize,
+        screenSize,
+        marginSize,
+      });
+
+      let nextLineIndex = currentLineIndex;
+
+      if (key) {
+        switch (key) {
+          case 'ArrowUp':
+          case 'ArrowDown':
+          case 'ArrowRight':
+          case 'ArrowLeft': {
+            switch (direction) {
+              case FORWARD:
+              nextLineIndex += 1;
+              break;
+
+              case BACKWARD:
+              nextLineIndex -= 1;
+              break;
+
+              default:
+            }
+
+            break;
+          }
+
+          case 'PageUp':
+          case 'PageDown': {
+            switch (direction) {
+              case FORWARD:
+              // NOTE: see tests for explanation how it works.
+              nextLineIndex = findLineByOffset({
+                offsets: linesOffsets,
+                startSearchIndex: currentLineIndex,
+                stopSearchIndex: Infinity,
+                callback: (offset) => offset > (currentLineOffset + effectiveScreenSize),
+                defaultLineSize,
+              });
+
+              // NOTE: line we're interested in is,
+              //   previous one, which is still visible.
+              nextLineIndex -= 1;
+              break;
+
+              case BACKWARD:
+              nextLineIndex = findLineByOffset({
+                offsets: linesOffsets,
+                startSearchIndex: currentLineIndex,
+                stopSearchIndex: 0,
+                callback: (offset) => offset < (currentLineOffset + currentLineSize - effectiveScreenSize),
+                defaultLineSize,
+              });
+              break;
+
+              default:
+            }
+
+            break;
+          }
+
+          default:
+        }
+      } else if (cell) {
+        nextLineIndex = cell[lineType].index;
+      } else {
+        return state;
+      }
+      if (nextLineIndex < 0) {
+        nextLineIndex = 0;
+      }
+
       let nextState = state;
-      action.rowIds.forEach((rowId, index) => {
-        if (!rowId) {
+
+      // Decide, whether we should scroll page.
+      const nextLineSize = linesList.get(nextLineIndex, defaultLineSize);
+      const nextLineOffset = getLineOffset({
+        offsets: linesOffsets,
+        index: nextLineIndex,
+        defaultSize: defaultLineSize,
+      });
+      const isNextLineScrolledIntoView = isLineScrolledIntoView({
+        size: nextLineSize,
+        offset: nextLineOffset,
+        scrollSize,
+        screenSize,
+        marginSize,
+      });
+      if (isCurrentLineScrolledIntoView && !isNextLineScrolledIntoView) {
+        let linesOffsetsDiff;
+        if (nextLineIndex === 0) {
+          // test_134
+          linesOffsetsDiff = -document.documentElement[documentScrollProp]
+        } else {
+          linesOffsetsDiff = nextLineOffset - currentLineOffset;
+        }
+
+        document.documentElement[documentScrollProp] += linesOffsetsDiff;
+        nextState = state.updateIn(
+          workingScrollPath,
+          (value) => value + linesOffsetsDiff
+        );
+      }
+      if (!isCurrentLineScrolledIntoView && !isNextLineScrolledIntoView) {
+        document.documentElement[documentScrollProp] = nextLineOffset;
+        nextState = state.setIn(
+          workingScrollPath,
+          nextLineOffset
+        );
+      }
+
+      return nextState
+        .setIn(workingPointerPath, nextLineIndex)
+        .setIn(['major', 'session', 'pointer', 'value'], ''); // text_777
+    }
+
+    case ActionTypes.UPDATE_CELL_SIZE: {
+      let nextState = state;
+      [ROW, COLUMN].forEach((lineType) => {
+        const lineSize = action.cellSize[lineType];
+        if (!lineSize) {
           return;
         }
 
-        // Using uuid() ensures that after n sequential updates
-        // resulting state will be different. This behaviour may be useful if
-        // some middleware toggles triggers too.
-        nextState = nextState.setIn(
-          ['updateTriggers', 'data', 'rows', rowId],
-          action.ids[index]
-        );
+        const {
+          index,
+          size,
+        } = lineSize;
+        const lineSizePath = ['major', 'layout', lineType, 'list', index, 'size'];
+        const currentLineSize = state.getIn(lineSizePath);
+        if (currentLineSize < size) {
+          nextState = nextState.setIn(lineSizePath, size);
+        }
       });
 
       return nextState;
     }
 
-    // TODO: reducing leaves cells object untouched,
-    //   so it should be cleaned afterwards somehow.
-    // TODO: DRY refactor (with EXPAND).
-    case ActionTypes.DELETE_LINE: {
-      // Don't allow to delete first row/column if there are only one row/column left.
-      if (
-        (action.lineRef === 'ROW' && state.getIn(['data', 'rows']).size === 1) ||
-        (action.lineRef === 'COLUMN' && state.getIn(['data', 'columns']).size === 1)
-      ) {
-        return state;
-      }
-
-      let deletingRowId;
-      let deletingColumnId;
-      let reducedLinesState;
-      if (action.lineRef === 'ROW') {
-        deletingRowId = state.getIn(['data', 'rows']).getIn([action.lineNumber, 'id']);
-        reducedLinesState = state.deleteIn(
-          ['data', 'rows', action.lineNumber]
-        );
-      } else if (action.lineRef === 'COLUMN') {
-        deletingColumnId = state.getIn(['data', 'columns']).getIn([action.lineNumber, 'id']);
-        reducedLinesState = state.deleteIn(
-          ['data', 'columns', action.lineNumber]
-        );
-      } else {
-        reducedLinesState = state;
-      }
-
-      const pointerCellId = state.getIn(['session', 'pointer', 'cellId']);
-      let deletedPointerState;
-      if (
-        pointerCellId &&
-        (
-          getRowId(pointerCellId) === deletingRowId ||
-          getColumnId(pointerCellId) === deletingColumnId
-        )
-      ) {
-        deletedPointerState = reducedLinesState.setIn(
-          ['session', 'pointer', 'cellId'],
-          null
-        );
-      } else {
-        deletedPointerState = reducedLinesState;
-      }
-
-      return deletedPointerState;
+    case ActionTypes.SET_LINE_SIZE: {
+      return state.setIn(
+        ['major', 'layout', action.lineType, 'list', action.index, 'size'],
+        action.size
+      );
     }
 
-    case ActionTypes.ADD_LINE: {
-      let expandedLinesState;
-      if (action.lineRef === 'ROW') {
-        let newRowId;
-        if (process.env.NODE_ENV === 'test') {
-          newRowId = `r${action.lineNumber}a`;
-        } else {
-          newRowId = `r${action.id}`;
-        }
+    case ActionTypes.INSERT_LINES: {
+      // NOTE: could be called with just index within existing range without harm.
+      const {
+        lineType,
+      } = action;
 
-        expandedLinesState = state.updateIn(
-          ['data', 'rows'],
-          value => value.insert(
-            action.lineNumber,
-            fromJS({ id: newRowId })
-          )
-        );
-      } else if (action.lineRef === 'COLUMN') {
-        let newColumnId;
-        if (process.env.NODE_ENV === 'test') {
-          newColumnId = `c${action.lineNumber}a`;
-        } else {
-          newColumnId = `c${action.id}`;
-        }
+      let {
+        index,
+        number,
+      } = action;
 
-        expandedLinesState = state.updateIn(
-          ['data', 'columns'],
-          value => value.insert(
-            action.lineNumber,
-            fromJS({ id: newColumnId })
-          )
+      // Assuming that if number is number we wanted "index" to be next last line,
+      //   filling gap ("number") between it and current last line.
+      if (number === undefined) {
+        const currentLinesNumber = state.getIn(['major', 'layout', lineType, 'list']).size;
+        const currentMaxLinesIndex = currentLinesNumber - 1;
+        const expectedLinesNumber = index + 1;
+        number = expectedLinesNumber - currentLinesNumber;
+        index = currentMaxLinesIndex + 1;
+      }
+
+      if (number <= 0) {
+        return state;
+      }
+      let nextState = state;
+
+      if (lineType === COLUMN) {
+        // Compose and insert new cells into existing rows.
+        const newCells = List(Array.from(Array(number)).map(() => composeCell()));
+        nextState = nextState.updateIn(
+          ['major', 'layout', ROW, 'list'],
+          (value) => {
+            return value.map((row) => {
+              return row.update(
+                'cells',
+                (cells) => cells.splice(index, 0, ...newCells)
+              );
+            });
+          }
         );
       }
 
-      return expandedLinesState;
+      // Prepare new lines.
+      let composeLineArgs = {
+        lineType,
+      };
+      if (lineType === ROW) {
+        const columnsNumber = state.getIn(['major', 'layout', COLUMN, 'list']).size;
+        composeLineArgs.cellsNumber = columnsNumber;
+      }
+      const newLines = List(
+        Array.from(Array(number)).map(
+          (_, relativeLineIndex) => {
+            if (process.env.NODE_ENV === 'test') {
+              composeLineArgs.index = `${index}${relativeLineIndex}`
+            }
+            return composeLine(composeLineArgs);
+          }
+        )
+      );
+
+      // Insert new lines.
+      nextState = nextState.updateIn(
+        ['major', 'layout', lineType, 'list'],
+        (value) => value.splice(index, 0, ...newLines)
+      );
+
+      return nextState;
+    }
+
+    // NOTE: don't merge it with INSERT_LINES, let code to be simple.
+    case ActionTypes.DELETE_LINES: {
+      const {
+        lineType,
+        index,
+        number,
+      } = action;
+
+      let nextState = state;
+
+      if (lineType === COLUMN) {
+        // Delete cells from existing rows.
+        nextState = nextState.updateIn(
+          ['major', 'layout', ROW, 'list'],
+          (value) => {
+            return value.map((row) => {
+              return row.update(
+                'cells',
+                (cells) => cells.splice(index, number)
+              );
+            });
+          }
+        );
+      }
+
+      // Delete lines.
+      nextState = nextState.updateIn(
+        ['major', 'layout', lineType, 'list'],
+        (value) => value.splice(index, number)
+      );
+
+      return nextState;
     }
 
     case ActionTypes.PUSH_CELL_HISTORY: {
       let nextState = state;
-      const historyPath = ['data', 'cells', action.cellId, 'history'];
+
+      const rowIndex = action.cell[ROW].index;
+      const columnIndex = action.cell[COLUMN].index;
+      const historyPath = ['major', 'layout', ROW, 'list', rowIndex, 'cells', columnIndex, 'history'];
+
       if (!nextState.getIn(historyPath)) {
         nextState = nextState.setIn(
           historyPath,
@@ -283,7 +487,7 @@ export default function table(state = initialState(0, 0).get('table'), action) {
 
       nextState = nextState.updateIn(
         historyPath,
-        value => value.push(
+        (value) => value.push(
           fromJS({
             time: action.time,
             value: action.value,
@@ -295,20 +499,41 @@ export default function table(state = initialState(0, 0).get('table'), action) {
     }
 
     case ActionTypes.DELETE_CELL_HISTORY: {
+      const rowIndex = action.cell[ROW].index;
+      const columnIndex = action.cell[COLUMN].index;
+      const historyPath = ['major', 'layout', ROW, 'list', rowIndex, 'cells', columnIndex, 'history'];
+
       return state.updateIn(
-        ['data', 'cells', action.cellId, 'history'],
-        value => value.delete(action.historyIndex)
+        historyPath,
+        (value) => value.delete(action.historyIndex)
       )
     }
 
-    case ActionTypes.SAVE_EDITING_CELL_VALUE_IF_NEEDED: {
-      // See corresponding middleware.
-      // Action requires 'detachments' state branch, unavailable here.
-      return state;
-    }
+    case ActionTypes.SET_CLIPBOARD:
+      return state.setIn([
+        'major',
+        'session',
+        'clipboard',
+      ], fromJS(action.clipboard));
+
+      case ActionTypes.MERGE_SERVER_STATE:
+        const initialSession = initialTable().getIn(['major', 'session']);
+        // TODO: in case of empty state mergeDeep() doesn't work as we would like,
+        //   leaving  Lists inside layout as is instead of replacing them.
+        //   Using this version until it is fugured out.
+        //   Also, it can't wipe session data, so meybe this approach was
+        //   failed by desing.
+        return state.setIn(
+          ['major', 'layout'],
+          fromJS(action.serverState.table.major.layout)
+        ).setIn(
+          ['major', 'session'],
+          initialSession
+        );
+
 
     // TODO: optimize setIn.
-    // HACK: after actions sequence SET_POINTER (edit: true), SET_PROP, (MOVE_POINTER)
+    // HACK: after actions sequence SETpointer (edit: true), SET_PROP, (MOVEpointer)
     //   state with 'pointer.modifiers.edit === true' adds to history, thus pressing Ctrl+Z
     //   enters DataCell. But Ctrl+Z won't work while you are in DataCell,
     //   and next Ctrl+Z won't work until you press Esc, which is uncomfortable.
@@ -318,11 +543,11 @@ export default function table(state = initialState(0, 0).get('table'), action) {
     case ActionTypes.UNDO:
     case ActionTypes.REDO:
       return state.setIn(
-        ['session', 'pointer', 'modifiers'],
-        fromJS({})
+        ['session', 'pointer', 'edit'],
+        false
       );
 
     default:
       return state;
   }
-}
+};

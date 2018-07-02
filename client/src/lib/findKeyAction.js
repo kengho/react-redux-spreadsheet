@@ -1,8 +1,8 @@
-const findKeyAction = (evt, options) => {
+export default (evt, options) => {
   const option = options.find((item) => {
     let keyMatch;
     if (item.condition) {
-      keyMatch = item.condition();
+      keyMatch = item.condition(evt);
     } else if (item.keys) {
       keyMatch = (item.keys.includes(evt.key));
     } else if (item.key) {
@@ -29,5 +29,3 @@ const findKeyAction = (evt, options) => {
 
   return action;
 };
-
-export default findKeyAction;

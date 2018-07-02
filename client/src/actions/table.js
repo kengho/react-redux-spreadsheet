@@ -1,164 +1,261 @@
-import uuid from 'uuid/v4';
-
 import * as ActionTypes from '../actionTypes';
+import {
+  ROW,
+  COLUMN,
+  COPY,
+  CUT,
+  PASTE,
+  CLEAR,
+  DELETE,
+} from '../constants';
 
-// TODO: more docs.
-// changesData prop triggers server sync.
-// triggersRowUpdate prop triggers row update (your K.O.).
+const changesData = true;
 
-// changesData should be true for import and false for initial data load.
-export function setTableFromJSON(tableJSON, changesData = false) {
+export function setCell(cell) {
   return {
-    type: ActionTypes.SET_TABLE_FROM_JSON,
-    tableJSON,
+    type: ActionTypes.SET_CELL,
+    cell,
     changesData,
   };
 }
 
-// If triggersRowUpdate is set and some cellId changes should be tracked,
-// cellId, cellIdPath or cellIdGetter should be set.
-// If triggersRowUpdate is set and some other props changes should be tracked,
-// propsComparePaths should be set.
-// If nor cellIdGetter or propsComparePaths are set, cellId should be set.
-// See client/src/store/middleware/detectRowUpdatesNeed.js.
-export function setProp(cellId, prop, value) {
+export function setProp(cell) {
   return {
     type: ActionTypes.SET_PROP,
-    changesData: true,
-    triggersRowUpdate: true,
-    propsComparePaths: [['data', 'cells', cellId, prop]],
-    cellId,
-    prop,
-    value,
+    cell,
+    changesData,
   };
 }
 
-export function tableDeleteProp(cellId, prop) {
+export function setScrollSize(scrollSize) {
   return {
-    type: ActionTypes.DELETE_PROP,
-    changesData: true,
-    triggersRowUpdate: true,
-    propsComparePaths: [['data', 'cells', cellId, prop]],
-    cellId,
-    prop,
+    type: ActionTypes.SET_SCROLL_SIZE,
+    scrollSize,
   };
 }
 
-export function setHover(cellId) {
+export function setScreenSize(screenSize) {
   return {
-    type: ActionTypes.SET_HOVER,
-    cellId,
+    type: ActionTypes.SET_SCREEN_SIZE,
+    screenSize,
   };
 }
 
+export function setLinesOffsets(offsets) {
+  return {
+    type: ActionTypes.SET_LINES_OFFSETS,
+    offsets,
+  };
+}
+
+// NOTE: please add subType prop when calling mergeIn for debugging purpose.
+export function mergeIn(path, object, defaults) {
+  return {
+    type: ActionTypes.MERGE_IN,
+    object,
+    path,
+    defaults,
+  };
+}
+
+// NOTE: this is really complex action which I don't want to divide.
+//   MERGE_IN is allowed to use only here.
 export function setPointer(pointer) {
   return {
-    type: ActionTypes.SET_POINTER,
-    triggersRowUpdate: true,
-    cellIdPath: ['session', 'pointer', 'cellId'],
-    propsComparePaths: [['session', 'pointer', 'modifiers']],
-    cellId: pointer.cellId,
-    modifiers: pointer.modifiers,
+    type: ActionTypes.MERGE_IN,
+    subType: ActionTypes.SET_POINTER,
+    object: pointer,
+    path: ['major', 'session', 'pointer'],
+
+    // NOTE: fixes issue when you have editing cell and scroll it ouf of vision
+    //   and click on other cell after this copying editing cell's value to new
+    //   cell because of saving pointed cell's vlaue after scroll mechanism.
+    defaults: { value: '' },
   };
 }
 
-export function movePointer(key) {
+export function movePointer({ key, altKey = false, cell }) {
   return {
     type: ActionTypes.MOVE_POINTER,
-    triggersRowUpdate: true,
-    cellIdPath: ['session', 'pointer', 'cellId'],
     key,
+    altKey,
+    cell,
   };
 }
 
-// TODO: handle multiple clipboard cells.
-// NOTE: this action looks like a mess until
-//   there are only one cell in clipboard at max.
-export function tableSetClipboard(clipboard) {
-  let cellId;
-  if (Object.keys(clipboard.cells).length > 0) {
-    cellId = Object.keys(clipboard.cells)[0];
-  }
+export function updateCellSize(cellSize) {
+  return {
+    type: ActionTypes.UPDATE_CELL_SIZE,
+    cellSize,
+  };
+}
 
-  const cellIdGetter = (table) => {
-    const cellsKeyes = table.getIn(['session', 'clipboard', 'cells']).keySeq().toArray();
-    if (cellsKeyes.length > 0) {
-      return cellsKeyes[0];
-    }
-  }
+export function setLineSize({
+  lineType,
+  index,
+  size,
+}) {
+  return {
+    type: ActionTypes.SET_LINE_SIZE,
+    lineType,
+    index,
+    size,
+  };
+}
 
+// NOTE: if number not specified, inserting lines from last one to 'index'.
+export function insertLines({
+  lineType,
+  index,
+  number,
+}) {
+  return {
+    type: ActionTypes.INSERT_LINES,
+    lineType,
+    index,
+    number,
+    changesData,
+  };
+}
+
+export function insertRows({
+  index,
+  number,
+}) {
+  return {
+    type: ActionTypes.INSERT_LINES,
+    lineType: ROW,
+    index,
+    number,
+  };
+}
+
+export function insertColumns({
+  index,
+  number,
+}) {
+  return {
+    type: ActionTypes.INSERT_LINES,
+    lineType: COLUMN,
+    index,
+    number,
+  };
+}
+
+export function deleteLines({
+  lineType,
+  index,
+  number,
+}) {
+  return {
+    type: ActionTypes.DELETE_LINES,
+    lineType,
+    index,
+    number,
+    changesData,
+  };
+}
+
+export function pushCellHistory(cell, time, value = '') {
+  return {
+    type: ActionTypes.PUSH_CELL_HISTORY,
+    cell,
+    time,
+    value,
+
+    // NOTE: if you set this flag here, UNDO will not undo MOVE_POINTER
+    //   bacause of this chain of actions appearing due to history middleware:
+    //     table/MOVE_POINTER
+    //     table/PUSH_CELL_HISTORY
+    //     table/SET_PROP
+    //   Alternative is to apply history middleware aall other acions like this:
+    //     ...
+    //     const nextAction = next(action);
+    //     ...
+    //     return nextAction;
+    //   But code reader's brain could explode trying understand chain of actions
+    //   in this case especially is you use this trick more than once.
+    //
+    // changesData,
+  };
+}
+
+export function deleteCellHistory(cell, historyIndex) {
+  return {
+    type: ActionTypes.DELETE_CELL_HISTORY,
+    cell,
+    historyIndex,
+    changesData,
+  };
+}
+
+export function setClipboard(clipboard) {
   return {
     type: ActionTypes.SET_CLIPBOARD,
-    triggersRowUpdate: true,
-    cellId,
-    cellIdGetter,
     clipboard,
   };
 }
 
-export function triggerRowUpdate(rowId, ids) {
-  let rowIds;
-  if (Array.isArray(rowId)) {
-    rowIds = rowId;
-  } else {
-    rowIds = [rowId];
-  }
-
-  if (typeof ids === 'undefined') {
-    ids = rowIds.map(() => uuid());
-  }
-
+export function performOperationAtPointer(operation) { // pointerPperations
   return {
-    type: ActionTypes.TRIGGER_ROW_UPDATE,
-    rowIds,
-    ids,
+    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    operation,
   };
 }
 
-export function deleteLine(lineNumber, lineRef) {
+export function copyAtPointer() {
   return {
-    type: ActionTypes.DELETE_LINE,
-    changesData: true,
-    lineNumber,
-    lineRef,
+    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    subType: ActionTypes.COPY_AT_POINTER,
+    operation: COPY,
   };
 }
 
-export function addLine(lineNumber, lineRef, id = uuid()) {
+export function cutAtPointer() {
   return {
-    type: ActionTypes.ADD_LINE,
-
-    // Even though addLine() changes data, we don't want
-    // 1) to press Ctrl+Z twice to undo SET_PROP, EXPAND actions sequence, and
-    // 2) to send empty rows to server each time user presses ArrowDown.
-    changesData: false,
-    lineNumber,
-    lineRef,
-    id,
+    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    subType: ActionTypes.CUT_AT_POINTER,
+    operation: CUT,
   };
 }
 
-export function pushCellHistory(cellId, value, time) {
+export function pasteAtPointer() {
   return {
-    type: ActionTypes.PUSH_CELL_HISTORY,
-    cellId,
-    value,
-    time,
+    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    subType: ActionTypes.PASTE_AT_POINTER,
+    operation: PASTE,
   };
 }
 
-export function deleteCellHistory(cellId, historyIndex) {
+export function clearAtPointer() {
   return {
-    type: ActionTypes.DELETE_CELL_HISTORY,
-    triggersRowUpdate: true,
-    changesData: true,
-    cellId,
-    historyIndex,
+    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    subType: ActionTypes.CLEAR_AT_POINTER,
+    operation: CLEAR,
   };
 }
 
-export function saveEditingCellValueIfNeeded() {
+export function deleteAtPointer() {
   return {
-    type: ActionTypes.SAVE_EDITING_CELL_VALUE_IF_NEEDED,
+    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    subType: ActionTypes.DELETE_AT_POINTER,
+    operation: DELETE,
+  };
+}
+
+// changesData should be true for import and false for initial data load.
+// NOTE: serverState should be plain object.
+export function mergeServerState(serverState, changesData = false) {
+  return {
+    type: ActionTypes.MERGE_SERVER_STATE,
+    serverState,
+    changesData,
+  };
+}
+
+export function batchActions(actions) {
+  return {
+    type: ActionTypes.BATCH_ACTIONS,
+    actions,
   };
 }

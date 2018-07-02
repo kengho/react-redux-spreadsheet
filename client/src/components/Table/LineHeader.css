@@ -1,0 +1,18 @@
+.line-header {
+  color: #eee;
+  background-color: #70707f;
+  border: 1px solid #eee;
+  box-sizing: border-box;
+}
+
+.line-header-address {
+  position: relative;
+  top: 50%;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.line-header.pointed {
+  color: white;
+  background-color: #a0a0af;
+}

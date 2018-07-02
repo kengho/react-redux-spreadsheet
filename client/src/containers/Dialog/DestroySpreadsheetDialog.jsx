@@ -7,44 +7,73 @@ import Button from 'material-ui/Button';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { DESTROY_SPREADSHEET } from '../../constants';
+import withCircularProgress from './withCircularProgress';
+
 const propTypes = {
   actions: PropTypes.object.isRequired,
+  server: PropTypes.object.isRequired,
 };
 
 class DestroySpreadsheetDialog extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isProcessing: false,
+    };
+  }
+
   render() {
     const {
       actions,
+      server,
     } = this.props;
+    const requestFailed = server.get('requestFailed');
+    const isProcessing = this.state.isProcessing;
 
-    return ([
-      <MaterialDialogTitle key="dialog-title">
-        Confirm action
-      </MaterialDialogTitle>,
-      <MaterialDialogContent key="dialog-content">
-        Are you sure?
-      </MaterialDialogContent>,
-      <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
-        <Button
-          key="dialog-button-no"
-          onClick={() => actions.closeUi()}
-        >
-          No, go back
-        </Button>
-        <Button
-          key="dialog-button-yes"
-          onClick={
-            () => {
-              actions.requestsPush('DELETE', 'destroy');
-              actions.clearHistory();
-              actions.closeUi();
-            }
+    return (
+      <React.Fragment>
+        <MaterialDialogTitle>
+          Confirm action
+        </MaterialDialogTitle>
+        <MaterialDialogContent>
+          Are you sure you want to destroy spreadsheet?<br />
+          This action cannot be undone.
+          {requestFailed &&
+            <div className="dialog-messages">
+              Sorry, unable to destroy spreadsheet, please try later.
+            </div>
           }
-        >
-          Yes
-        </Button>
-      </MaterialDialogActions>,
-    ]);
+        </MaterialDialogContent>
+        <MaterialDialogActions className="dialog-buttons">
+          <Button
+            onClick={() => {
+              actions.closeDialog();
+              actions.setRequestFailed(false); // destroy action don't repeating in handleSyncRequest
+            }}
+          >
+            Go back
+          </Button>
+          {withCircularProgress(
+            <Button
+              variant="raised"
+              color="secondary"
+              disabled={requestFailed || isProcessing}
+              onClick={
+                () => {
+                  actions.makeServerRequest(DESTROY_SPREADSHEET);
+                  this.setState({ isProcessing: true });
+                }
+              }
+            >
+              Yes, I'm sure
+            </Button>,
+            isProcessing
+          )}
+        </MaterialDialogActions>
+      </React.Fragment>
+    );
   }
 }
 

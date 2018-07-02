@@ -1,0 +1,85 @@
+#search-bar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  z-index: 10000; /* so it overlaps GithubMark */
+  padding: 4px 0 4px 16px;
+  margin-right: 24px;
+}
+
+#search-bar-search-buttons {
+  display: flex;
+  transition: opacity 0.4s;
+}
+
+#search-bar-flag-buttons {
+  display: flex;
+  transition: opacity 0.4s;
+}
+
+#search-bar-flag-buttons button {
+  white-space: pre;
+  margin: 4px !important;
+}
+
+#search-bar-close-button {
+  margin-left: 16px; /* so it doesn't overlap input on really small screens */
+  right: 16px;
+}
+
+#search-bar-left-block {
+  display: flex;
+  justify-content: flex-start;
+
+  align-items: center;
+}
+
+.search-bar-input::after {
+  background-color: #48e !important;
+}
+
+#search-bar-results-summary {
+  padding-left: 8px;
+  transition: opacity 0.4s;
+  white-space: pre;
+  min-width: 6em; /* so it occupy the same space despite the content */
+}
+
+/* REVIEW: is it possible to calc these threshold values? */
+@media only screen and (max-width: 750px) {
+  #search-bar-results-summary {
+    opacity: 0;
+  }
+}
+
+@media only screen and (max-width: 740px) {
+  #search-bar-results-summary {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  #search-bar-flag-buttons {
+    opacity: 0;
+  }
+}
+
+@media only screen and (max-width: 660px) {
+  #search-bar-flag-buttons {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  #search-bar-search-buttons {
+    opacity: 0;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  #search-bar-search-buttons {
+    display: none;
+  }
+}

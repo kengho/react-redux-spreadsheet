@@ -1,26 +1,25 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { fromJS } from 'immutable';
 import Button from 'material-ui/Button';
 import React from 'react';
 
 import './Landing.css';
+import { OFFLINE } from '../constants';
 import * as LandingActions from '../actions/landing';
-import * as MetaActions from '../actions/meta';
-import * as SettingsActions from '../actions/settings';
 import * as TableActions from '../actions/table';
+import getRootPath from '../lib/getRootPath';
 import SpreadsheetCreator from '../components/SpreadsheetCreator';
 
 const mapStateToProps = (state) => ({
-  messages: state.getIn(['landing', 'messages']),
   buttonIsDisabled: state.getIn(['landing', 'buttonIsDisabled']),
+  messages: state.getIn(['landing', 'messages']) || fromJS([]), // default value for tests
 });
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
       ...LandingActions,
-      ...MetaActions,
-      ...SettingsActions, // setSettingsFromJSON in SpreadsheetCreator
       ...TableActions,
     }, dispatch),
   },
@@ -38,7 +37,6 @@ class Landing extends React.Component {
     return (
       <div className="landing">
         <SpreadsheetCreator
-          actions={actions}
           beforeRecaptchaExecute={() => actions.disableLandingButton(true)}
           history={history}
           onErrors={(errors) => actions.setLandingMessages(errors)}
@@ -49,20 +47,21 @@ class Landing extends React.Component {
           <Button
             color="primary"
             disabled={buttonIsDisabled}
-            raised
+            raised="true"
+            variant="raised"
           >
             create spreadsheet
           </Button>
         </SpreadsheetCreator>
-        <Button dense onClick={() => history.push('offline')}>
+        <Button
+          dense="true"
+          onClick={() => history.push(`${getRootPath()}${OFFLINE.toLowerCase()}`)}
+        >
           try offline
         </Button>
         <div className="messages">
-          <ul>
-            {messages.map((message) => <li key={message}>{message}</li>)}
-          </ul>
+          <ul>{messages.map((message) => <li key={message}>{message}</li>)}</ul>
         </div>
-
       </div>
     );
   }

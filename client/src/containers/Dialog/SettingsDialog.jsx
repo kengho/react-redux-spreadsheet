@@ -10,7 +10,7 @@ import React from 'react';
 import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 
-import './SettingsDialog.css';
+import './Dialog.css';
 import { initialSettings } from '../../core';
 
 const propTypes = {
@@ -18,101 +18,139 @@ const propTypes = {
   settings: PropTypes.object.isRequired,
 };
 
+const SWITCH = 'SWITCH';
+const STRING = 'STRING';
+
 class SettingsDialog extends React.PureComponent {
-  render() {
-    const {
-      actions,
-      settings,
-    } = this.props;
+  constructor(props) {
+    super(props);
 
-    const SWITCH = 'SWITCH';
-    const STRING = 'STRING';
-
-    const settingsMap = [
-      // { group: 'General' },
+    this.settingsMap = [
       {
         label: 'Spreadsheet name',
         param: 'spreadsheetName',
         type: STRING,
-        value: settings.get('spreadsheetName'),
+        value: props.settings.get('spreadsheetName'),
       },
       {
-        // TODO: 'clear all history' button if false.
+        // TODO: "clear all history" button if false.
         label: 'Automatically save cells\' history',
         param: 'autoSaveHistory',
         type: SWITCH,
-        value: settings.get('autoSaveHistory'),
+        value: props.settings.get('autoSaveHistory'),
       },
       {
         label: 'Table has header',
         param: 'tableHasHeader',
         type: SWITCH,
-        value: settings.get('tableHasHeader'),
+        value: props.settings.get('tableHasHeader'),
       },
     ];
+
+    const initialSettings = {};
+    this.settingsMap.forEach((item) => initialSettings[item.param] = item.value);
+    this.state = {
+      settings: initialSettings,
+    };
+  }
+
+  render() {
+    const actions = this.props.actions;
 
     const boolRenderMap = { true: 'on', false: 'off' };
 
     // TODO: reset to defaults button.
-    return ([
-      <MaterialDialogTitle key="dialog-title">
-        Settings
-      </MaterialDialogTitle>,
-      <MaterialDialogContent key="dialog-content">
-        <FormGroup>
-          {settingsMap.map((item) => {
-            // if (item.group) {
-            //   return <span key={item.group}>{item.group}</span>;
-            // }
+    return (
+      <React.Fragment>
+        <MaterialDialogTitle>
+          Settings
+        </MaterialDialogTitle>
+        <MaterialDialogContent>
+          <FormGroup>
+            {this.settingsMap.map((item) => {
+              switch (item.type) {
+                case SWITCH: {
+                  const defaulValue = boolRenderMap[initialSettings.get(item.param)];
+                  const label = (
+                    <React.Fragment>
+                      <span>{item.label}</span>
+                      <span className="dialog-settings-default-value">{`(default: ${defaulValue})`}</span>
+                    </React.Fragment>
+                  );
 
-            if (item.param && item.type === SWITCH) {
-              const defaulValue = boolRenderMap[initialSettings[item.param]];
-              const label = [
-                <span key="label-main">
-                  {item.label}
-                </span>,
-                <span key="label-default-value" className="settings-default-value">
-                  {`(default: ${defaulValue})`}
-                </span>
-              ];
-
-              return (
-                <FormControlLabel
-                  key={item.param}
-                  control={
-                    <Switch
-                      checked={item.value}
-                      onChange={(evt, value) => actions.setSettingsParam(item.param, value)}
+                  return (
+                    <FormControlLabel
+                      key={item.param}
+                      control={
+                        <Switch
+                          checked={this.state.settings[item.param]}
+                          onChange={(evt, value) => this.setState(
+                            (prevState) => ({
+                              settings: {
+                                ...prevState.settings,
+                                [item.param]: value,
+                              }
+                            })
+                          )}
+                          color="primary"
+                        />
+                      }
+                      label={label}
                     />
-                  }
-                  label={label}
-                />
-              );
-            }
+                  );
+                }
 
-            if (item.param && item.type === STRING) {
-              return (
-                <TextField
-                  helperText={`(default: ${initialSettings[item.param]})`}
-                  key={item.param}
-                  label={item.label}
-                  margin="dense"
-                  onChange={(evt) => actions.setSettingsParam(item.param, evt.target.value)}
-                  value={item.value}
-                />
-              );
-            }
+                case STRING: {
+                  // TODO: PERF: fix lag when user types fast.
+                  //   Possible approach: save settings on close or using throttle.
+                  return (
+                    <TextField
+                      helperText={`(default: ${initialSettings.get(item.param)})`}
+                      key={item.param}
+                      label={item.label}
+                      margin="dense"
+                      onChange={(evt) => {
+                        // NOTE: this is required.
+                        //   https://stackoverflow.com/a/48075517/6376451
+                        const value = evt.target.value;
 
-            return '';
-          })}
-        </FormGroup>
-      </MaterialDialogContent>,
-      <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
-        <Button onClick={() => actions.closeUi()}>
-          Close
-        </Button>
-      </MaterialDialogActions>,
-    ]);
+                        this.setState(
+                          (prevState) => ({
+                            settings: {
+                              ...prevState.settings,
+                              [item.param]: value,
+                            }
+                          })
+                        )
+                      }}
+                      value={this.state.settings[item.param]}
+                    />
+                  );
+                }
+
+                default:
+                  return '';
+              }
+            })}
+          </FormGroup>
+        </MaterialDialogContent>
+        <MaterialDialogActions>
+          <Button onClick={() => actions.closeDialog()}>
+            Cancel
+          </Button>
+          <Button
+            variant="raised"
+            color="primary"
+            onClick={() => {
+              actions.setSettings(this.state.settings);
+              actions.closeDialog();
+            }}
+          >
+            OK
+          </Button>
+        </MaterialDialogActions>
+      </React.Fragment>
+    );
   }
 }
 

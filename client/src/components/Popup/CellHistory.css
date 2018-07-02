@@ -1,0 +1,26 @@
+.cell-history td {
+  white-space: nowrap;
+  white-space: pre; /* like in Cell.css */
+}
+
+/* Delete history record button. */
+.cell-history th:first-child,
+.cell-history td:first-child {
+  padding: 0 0 0 16px !important;
+}
+
+/* Restore history record button. */
+.cell-history th:nth-child(2),
+.cell-history td:nth-child(2) {
+  padding: 8px !important;
+}
+
+/* "Added at" columm with close button*/
+.cell-history th:last-child,
+.cell-history td:last-child {
+  min-width: 6em;
+}
+
+.cell-history-no-records {
+  padding: 16px;
+}

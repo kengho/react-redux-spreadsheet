@@ -1,737 +1,917 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-undef */
-/* eslint-disable object-property-newline */
-/* eslint-disable no-multi-spaces */
-/* eslint-disable key-spacing */
-
 require('../setupTests');
 
 import { expect } from 'chai';
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 
+import { ROW, COLUMN } from '../constants';
 import * as Core from '../core';
 import * as TableActions from './table';
-import { configureStore } from '../store/configureStore';
+import configureStore from '../store/configureStore';
 
-const tableSize = [3, 4];
+const getPointer = (store) => store.getState().get('table').present.getIn(['major', 'session', 'pointer']);
+const getTableLayout = (store) => store.getState().get('table').present.getIn(['major', 'layout']);
+const getRowsList = (store) => store.getState().get('table').present.getIn(['major', 'layout', ROW, 'list']);
+const getColumnsList = (store) => store.getState().get('table').present.getIn(['major', 'layout', COLUMN, 'list']);
 
-describe('table', () => {
-  it('set table from JSON', () => {
-    const tableJSON = `{
-      "data": {
-        "rows": [{ "id": "r0" }, { "id": "r1" }, { "id": "r2" }],
-        "columns": [{ "id": "c0" }, { "id": "c1" }, { "id": "c2" }, { "id": "c3" }],
-        "cells": {}
+describe('merge in', () => {
+  // Testing in regular workflow style.
+
+  const state = Core.initialState();
+  const store = configureStore(state);
+  let object;
+  let expectedPointer;
+
+  it('should merge in if all args are present (using pointer as expample) and set default values', () => {
+    process.logBelow = false;
+
+    store.dispatch(TableActions.mergeIn(['major', 'session', 'pointer'], { value: null }));
+
+    object = {
+      [ROW]: {
+        index: 1,
+        size: 20,
       },
-      "session": {
-        "pointer": {
-          "cellId": null,
-          "modifiers": {}
-        },
-        "hover": null,
-        "selection": {
-          "cellsIds": []
-        },
-        "clipboard": {
-          "cells": {},
-          "operation": null
-        }
+      [COLUMN]: {
+        index: 2,
+        size: 30,
       },
-      "updateTriggers": {
-        "data": {
-          "rows": {}
-        }
-      }
-    }`;
+      edit: true,
+      selectOnFocus: true,
+    };
+    store.dispatch(TableActions.mergeIn(['major', 'session', 'pointer'], object, { value: '' }));
 
-    const store = configureStore();
-    store.dispatch(TableActions.setTableFromJSON(tableJSON));
-
-    const expectedTable = fromJS({
-      data: {
-        rows: [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }],
-        columns: [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }],
-        cells: {},
+    expectedPointer = fromJS({
+      [ROW]: {
+        index: 1,
+        size: 20,
       },
-      session: {
-        pointer: {
-          cellId: null,
-          modifiers: {},
-        },
-        hover: null,
-        selection: {
-          cellsIds: [],
-        },
-        clipboard: {
-          cells: {},
-          operation: null,
-        }
+      [COLUMN]: {
+        index: 2,
+        size: 30,
       },
-      updateTriggers: {
-        data: {
-          rows: {},
-        },
+      value: '',
+      edit: true,
+      selectOnFocus: true,
+    });
+
+    expect(getPointer(store)).to.deep.equal(expectedPointer);
+  });
+
+  it('should merge in when not all args are present, leaving previous values', () => {
+    process.logBelow = false;
+
+    const object = {
+      [ROW]: {
+        index: 3,
       },
-    });
+      value: 'asd',
+      edit: false,
+    };
+    store.dispatch(TableActions.mergeIn(['major', 'session', 'pointer'], object));
 
-    expect(store.getState().get('table').present).to.deep.equal(expectedTable);
-  });
-
-  it('set table from JSON (no session given)', () => {
-    const tableJSON = `{
-      "data": {
-        "rows": [{ "id": "r0" }, { "id": "r1" }, { "id": "r2" }],
-        "columns": [{ "id": "c0" }, { "id": "c1" }, { "id": "c2" }, { "id": "c3" }],
-        "cells": {}
-      }
-    }`;
-
-    const store = configureStore();
-    store.dispatch(TableActions.setTableFromJSON(tableJSON));
-
-    const expectedTable = fromJS({
-      data: {
-        rows: [{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }],
-        columns: [{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }],
-        cells: {},
+    expectedPointer = fromJS({
+      [ROW]: {
+        index: 3,
+        size: 20,
       },
-      session: {
-        pointer: {
-          cellId: null,
-          modifiers: {},
-        },
-        hover: null,
-        selection: {
-          cellsIds: [],
-        },
-        clipboard: {
-          cells: {},
-          operation: null,
-        },
+      [COLUMN]: {
+        index: 2,
+        size: 30,
       },
-      updateTriggers: {
-        data: {
-          rows: {},
-        },
+      value: 'asd',
+      edit: false,
+      selectOnFocus: true,
+    });
+
+    expect(getPointer(store)).to.deep.equal(expectedPointer);
+  });
+});
+
+describe('set pointer', () => {
+  // Testing in regular workflow style.
+
+  const state = Core.initialState();
+  const store = configureStore(state);
+
+  let pointer;
+  let expectedPointer;
+
+  it('should set pointer if all args are present', () => {
+    process.logBelow = false;
+
+    pointer = {
+      [ROW]: {
+        index: 1,
+        size: 20,
       },
+      [COLUMN]: {
+        index: 2,
+        size: 30,
+      },
+      value: 'asd',
+      edit: true,
+      selectOnFocus: true,
+    };
+    store.dispatch(TableActions.setPointer(pointer));
+
+    expectedPointer = fromJS({
+      [ROW]: {
+        index: 1,
+        size: 20,
+      },
+      [COLUMN]: {
+        index: 2,
+        size: 30,
+      },
+      value: 'asd',
+      edit: true,
+      selectOnFocus: true,
     });
 
-    expect(store.getState().get('table').present).to.deep.equal(expectedTable);
+    expect(getPointer(store)).to.deep.equal(expectedPointer);
   });
+});
 
-  describe('cells', () => {
-    it('set prop', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
-      const value = 'Cell value';
+describe('move pointer', () => {
+  // Testing in regular workflow style.
 
-      store.dispatch(TableActions.setProp(cellId, 'value', value));
-      const expectedCells = fromJS({ 'r1,c1': { value } });
+  const state = Core.initialState();
+  const store = configureStore(state);
 
-      expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
+  const getPointerPosition = (store) => {
+    const pointer = getPointer(store);
+    return Map({
+      rowIndex: pointer.getIn([ROW, 'index']),
+      columnIndex: pointer.getIn([COLUMN, 'index']),
+    });
+  };
+
+  describe('basic keys', () => {
+    it('should move pointer with basic keys when available', () => {
+      process.logBelow = false;
+      // [b] - pointer before
+      // [a] - pointer after
+      //
+      //    0   1
+      // 0 [b] ...
+      // 1 [a] ...
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 0 }));
+
+      //    0   1
+      // 0 ... ...
+      // 1 [b] [a]
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 1 }));
+      //
+      //    0   1
+      // 0 ... [a]
+      // 1 ... [b]
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 1 }));
+
+      //    0   1
+      // 0 [a] [b]
+      // 1 ... ...
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 0 }));
     });
 
-    it('set prop (undefined cellId)', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = undefined;
-      const value = 'Cell value';
-
-      store.dispatch(TableActions.setProp(cellId, 'value', value));
-      const expectedCells = fromJS({});
-
-      expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
-    });
-
-    it('delete prop', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
-      const value = 'Cell value';
-      const color = 'red';
-
-      store.dispatch(TableActions.setProp(cellId, 'value', value));
-      store.dispatch(TableActions.setProp(cellId, 'color', color));
-      store.dispatch(TableActions.tableDeleteProp(cellId, 'color'));
-
-      const expectedCells = fromJS({ 'r1,c1': { value } });
-
-      expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
-    });
-
-    // REVIEW: why do we need that?
-    it('delete prop (there is no cell with such cellId)', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
-
-      store.dispatch(TableActions.tableDeleteProp(cellId, 'value'));
-
-      const expectedCells = fromJS({});
-
-      expect(store.getState().get('table').present.getIn(['data', 'cells'])).to.deep.equal(expectedCells);
-    });
-  });
-
-  describe('hover', () => {
-    it('set hover', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
-
-      store.dispatch(TableActions.setHover(cellId));
-
-      const expectedHover = 'r1,c1';
-
-      expect(store.getState().get('table').present.getIn(['session', 'hover'])).to.equal(expectedHover);
-    });
-  });
-
-  describe('pointer', () => {
-    it('set pointer', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const pointer = {
-        cellId: 'r1,c1',
-        modifiers: { edit: true },
-      };
-
-      store.dispatch(TableActions.setPointer(pointer));
-
-      const expectedPointer = fromJS(pointer);
-
-      expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-    });
-
-    describe('movement', () => {
-      it('move pointer (ArrowUp, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('ArrowUp'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowUp, OK)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r1,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('ArrowUp'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowUp, border)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r0,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('ArrowUp'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (PageUp, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('PageUp'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (PageUp, OK)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('PageUp'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (PageUp, border)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r0,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('PageUp'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowDown, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('ArrowDown'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowDown, expand)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('ArrowDown'));
-
-        const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1' }, { id: 'r2' }, { id: 'r3a' }]);
-        const expectedPointer = fromJS({
-          cellId: 'r3,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-        expect(store.getState().get('table').present.getIn(['data', 'rows'])).to.equal(expectedRows);
-      });
-
-      it('move pointer (PageDown, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('PageDown'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (PageDown, OK)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r0,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('PageDown'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (PageDown, border)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('PageDown'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c2',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowLeft, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('ArrowLeft'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c3',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowLeft, OK)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('ArrowLeft'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c1',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowLeft, border)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c0', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('ArrowLeft'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (Home, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('Home'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (Home, OK)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c2', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('Home'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (Home, border)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c0', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('Home'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowRight, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('ArrowRight'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c0',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (ArrowRight, expand)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r0,c3', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('ArrowRight'));
-
-        const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }, { id: 'c4a' }]);
-        const expectedPointer = fromJS({
-          cellId: 'r0,c4',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (End, no initial pos)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.movePointer('End'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r0,c3',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (End, OK)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c1', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('End'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c3',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
-
-      it('move pointer (End, border)', () => {
-        const state = Core.initialState(...tableSize, true);
-        const store = configureStore(state);
-
-        store.dispatch(TableActions.setPointer({ cellId: 'r2,c3', modifiers: {} }));
-        store.dispatch(TableActions.movePointer('End'));
-
-        const expectedPointer = fromJS({
-          cellId: 'r2,c3',
-          modifiers: {},
-        });
-
-        expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-      });
+    it('shouldn\'t move pointer with basic keys when unavailable', () => {
+      process.logBelow = false;
+      //    0
+      // 0 [b]
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 0 }));
+
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 0 }));
     });
   });
 
-  describe('clipboard', () => {
-    it('set clipboard', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const clipboard = {
-        cells: {
-          'r2,c3': {
-            value: '1',
-          },
-        },
-        operation: 'COPY',
-      };
+  // TODO.
+  // describe('basic keys + ctrl', () => {
+  // });
 
-      store.dispatch(TableActions.tableSetClipboard(clipboard));
+  describe('numpad keys', () => {
+    // 1 dot =~ 25 pixels, no gap between lines
+    //
+    // rows
+    //   0      1       2      3        4       5       6      7     8      9     c10   c11   c12   c13
+    // |150 || 200  || 175 || 200  ||  225  || 200  || 200  ||150 ||150 || 200  ||150 ||150 ||150 ||150 |
+    // |----||------||-----||------||-------||------||------||----||----||------||----||----||----||----|
+    // ........................................
+    //            screen (1000)
 
-      const expectedClipboard = fromJS(clipboard);
+    // columns
+    //   0    1      2      3      4     5     6      7     c8     c9    c10     c11    c12
+    // |125||150 || 200  ||150 || 175 ||125|| 200  ||150 || 175 || 175 || 175 || 175 || 175 |
+    // |---||----||------||----||-----||---||------||----||-----||-----||-----||-----||-----|
+    // ....................................
+    //            screen (900)
 
-      expect(store.getState().get('table').present.getIn(['session', 'clipboard'])).to.equal(expectedClipboard);
+    it('should move pointer with PageDown and PageUp when available', () => {
+      process.logBelow = false;
+      // General rule: get farthest at least partially hidden line on screen before/after current one.
+      // (Assuming that the current line is entirely visibe.)
+      //
+      // [b] - pointer before
+      // [a] - pointer after
+      // +++ - margin
+      //
+      // rows
+      //       0      1       2      3        4
+      //     |150 || 200  || 175 || 200  ||  225  |
+      //     |----||------||-----||------||-------|
+      //       ↑                              ↑
+      //      [b]                            [a]
+      // ++++....................................
+      //              screen (1000)
+      store.dispatch(TableActions.movePointer({ key: 'PageDown' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 4, columnIndex: 0 }));
+
+      // rows
+      //         4       5       6      7     8
+      //     |  225  || 200  || 200  ||150 ||150 |
+      //     |-------||------||------||----||----|
+      //         ↑                            ↑
+      //        [b]                          [a]
+      // ++++....................................
+      //            screen (1000)
+      store.dispatch(TableActions.movePointer({ key: 'PageDown' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 8, columnIndex: 0 }));
+
+      // rows
+      //       8      9     c10   c11   c12   c13
+      //     |150 || 200  ||150 ||150 ||150 ||150 |
+      //     |----||------||----||----||----||----|
+      //       ↑                               ↑
+      //      [b]                             [a]
+      // ++++....................................
+      //            screen (1000)
+      store.dispatch(TableActions.movePointer({ key: 'PageDown' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 13, columnIndex: 0 }));
+
+      // rows
+      //         8      9     c10   c11   c12   c13
+      //       |150 || 200  ||150 ||150 ||150 ||150 |
+      //       |----||------||----||----||----||----|
+      //         ↑                               ↑
+      //        [a]                             [b]
+      //     ++++....................................
+      //                    screen (1000)
+      store.dispatch(TableActions.movePointer({ key: 'PageUp' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 8, columnIndex: 0 }));
+
+      // rows
+      //             4       5       6      7     8
+      //         |  225  || 200  || 200  ||150 ||150 |
+      //         |-------||------||------||----||----|
+      //             ↑                            ↑
+      //            [b]                          [b]
+      //      ++++....................................
+      //                  screen (1000)
+      store.dispatch(TableActions.movePointer({ key: 'PageUp' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 4, columnIndex: 0 }));
+
+      // rows
+      //     0      1       2      3        4
+      //   |150 || 200  || 175 || 200  ||  225  |
+      //   |----||------||-----||------||-------|
+      //     ↑                              ↑
+      //    [a]                            [b]
+      // ++++....................................
+      //          screen (1000)
+      store.dispatch(TableActions.movePointer({ key: 'PageUp' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 0 }));
+    });
+
+    it('shouldn\'t move pointer with PageUp when unavailable', () => {
+      process.logBelow = false;
+      // NOTE: moving pointer across columns just to be sure that there are no
+      //   confusion between rows and columns in movePointer reducer.
+      store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 10 }}));
+      store.dispatch(TableActions.movePointer({ key: 'PageUp' }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 10 }));
+      store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
+    });
+
+    it('should move pointer with Alt+PageDown and Alt+PageUp when available', () => {
+      process.logBelow = false;
+      // columns
+      //         0    1      2      3      4
+      //       |125||150 || 200  ||150 || 175 |
+      //       |---||----||------||----||-----|
+      //         ↑                         ↑
+      //        [b]                       [a]
+      // ++++++..........................
+      //           screen (800)
+      store.dispatch(TableActions.movePointer({ key: 'PageDown', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 4 }));
+
+      // columns
+      //          4     5     6      7     c8
+      //       | 175 ||125|| 200  ||150 || 175 |
+      //       |-----||---||------||----||-----|
+      //          ↑                         ↑
+      //         [b]                       [a]
+      // ++++++..........................
+      //           screen (800)
+      store.dispatch(TableActions.movePointer({ key: 'PageDown', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 8 }));
+
+      // columns
+      //         c8     c9     c10    c11    c12
+      //       | 175 || 175 || 175 || 175 || 175 |
+      //       |-----||-----||-----||-----||-----|
+      //          ↑                    ↑
+      //         [b]                  [a]
+      // ++++++..........................
+      //           screen (800)
+      store.dispatch(TableActions.movePointer({ key: 'PageDown', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 11 }));
+
+      // columns
+      //       c8     c9     c10    c11
+      //     | 175 || 175 || 175 || 175 |
+      //     |-----||-----||-----||-----|
+      //        ↑                    ↑
+      //       [a]                  [b]
+      // ++++++..........................
+      //          screen (800)
+      store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 8 }));
+
+      // columns
+      //    4     5     6      7     c8
+      // | 175 ||125|| 200  ||150 || 175 |
+      // |-----||---||------||----||-----|
+      //    ↑                         ↑
+      //   [a]                       [b]
+      //  ++++++..........................
+      //            screen (800)
+      store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 4 }));
+
+      // columns
+      //   0    1      2      3      4
+      // |125||150 || 200  ||150 || 175 |
+      // |---||----||------||----||-----|
+      //        ↑                    ↑
+      //       [b]                  [b]
+      // ++++++..........................
+      //           screen (800)
+      store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 1 }));
+
+      // Finally.
+      store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 0 }));
+    });
+
+    it('shouldn\'t move pointer with Alt+PageUp when unavailable', () => {
+      process.logBelow = false;
+      store.dispatch(TableActions.setPointer({ [ROW]: { index: 10 }, [COLUMN]: { index: 0 }}));
+      store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 10, columnIndex: 0 }));
+      store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
     });
   });
+});
 
-  describe('update triggers', () => {
-    it('toggle row update trigger (set)', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const rowId = 'r1';
-      const ids = ['id1'];
+describe('set prop', () => {
+  const state = Core.initialState();
+  const store = configureStore(state);
 
-      store.dispatch(TableActions.triggerRowUpdate(rowId, ids));
+  let args;
 
-      const expectedUpdateTriggersJS = {
-        data: {
-          rows: {},
-        },
-      };
-      expectedUpdateTriggersJS.data.rows[rowId] = ids[0];
-      const expectedUpdateTriggers = fromJS(expectedUpdateTriggersJS);
+  // NOTE: we don't need this because expandTableLayout() should always
+  //   come before setProp() and cell path should always exist.
+  // it('shouldn\'t set prop if described cell don\'t exists', () => {
+  //   process.logBelow = false;
+  //   const tableBeforeDispatch = store.getState().get('table').present;
+  //   store.dispatch(TableActions.setProp(args));
+  //   const tableAfterDispatch = store.getState().get('table').present;
+  //
+  //   expect(tableAfterDispatch).to.deep.equal(tableBeforeDispatch);
+  // });
 
-      expect(store.getState().get('table').present.get('updateTriggers')).to.equal(expectedUpdateTriggers);
-    });
+  it('should set prop if described cell exists', () => {
+    process.logBelow = false;
 
-    it('toggle row update trigger (array)', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const rowIds = ['r1', 'r2', undefined];
-      const ids = ['id1', 'id2'];
+    // expected table
+    //    0   1   2
+    // 0 ... ... ...
+    // 1 ... ... 12
+    store.dispatch(TableActions.insertRows({ index: 1 }));
+    store.dispatch(TableActions.insertColumns({ index: 2 }));
 
-      store.dispatch(TableActions.triggerRowUpdate(rowIds, ids));
+    args = {
+      [ROW]: {
+        index: 1,
+      },
+      [COLUMN]: {
+        index: 2,
+      },
+      prop: 'value',
+      value: '12',
+    };
+    store.dispatch(TableActions.setProp(args));
 
-      const expectedUpdateTriggersJS = {
-        data: {
-          rows: {},
-        },
-      };
-      expectedUpdateTriggersJS.data.rows[rowIds[0]] = ids[0];
-      expectedUpdateTriggersJS.data.rows[rowIds[1]] = ids[1];
-      const expectedUpdateTriggers = fromJS(expectedUpdateTriggersJS);
+    const cellValuePath = ['major', 'layout', ROW, 'list', 1, 'cells', 2, 'value'];
+    const cellValue = store.getState().get('table').present.getIn(cellValuePath);
 
-      expect(store.getState().get('table').present.get('updateTriggers')).to.equal(expectedUpdateTriggers);
-    });
+    expect(cellValue).to.equal('12');
   });
 
-  describe('reduce', () => {
-    it('remove row', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
+  it('should delete prop if undefined passed', () => {
+    process.logBelow = false;
 
-      store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
-      store.dispatch(TableActions.deleteLine(1, 'ROW'));
+    args = {
+      [ROW]: {
+        index: 1,
+      },
+      [COLUMN]: {
+        index: 2,
+      },
+      prop: 'value',
+      value: undefined,
+    };
+    store.dispatch(TableActions.setProp(args));
 
-      const expectedRows = fromJS([{ id: 'r0' }, { id: 'r2' }]);
-      const expectedPointer = fromJS({
-        cellId: null,
-        modifiers: {},
-      });
+    const cellPath = ['major', 'layout', ROW, 'list', 1, 'cells', 2];
+    const cell = store.getState().get('table').present.getIn(cellPath);
 
-      expect(store.getState().get('table').present.getIn(['data', 'rows'])).to.equal(expectedRows);
-      expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-    });
+    expect(cell).to.equal(fromJS({}));
+  });
+});
 
-    it('remove row (only)', () => {
-      const state = Core.initialState(1, 4, true);
-      const store = configureStore(state);
+describe('update cell size', () => {
+  // Testing in regular workflow style.
 
-      store.dispatch(TableActions.deleteLine(0, 'ROW'));
+  const state = Core.initialState();
+  const store = configureStore(state);
 
-      const expectedRows = fromJS([{ id: 'r0' }]);
+  //    00  01  02  03
+  // 00 ... ... ... ...
+  // 01 ... ... ... ...
+  // 02 ... ... ... ...
+  store.dispatch(TableActions.insertRows({ index: 2 }));
+  store.dispatch(TableActions.insertColumns({ index: 3 }));
 
-      expect(store.getState().get('table').present.getIn(['data', 'rows'])).to.equal(expectedRows);
-    });
+  let args;
+  let expectedRowsList;
+  let expectedColumnsList;
 
-    it('remove column', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
+  it('should update cell size if there is no size yet', () => {
+    process.logBelow = false;
 
-      store.dispatch(TableActions.setPointer({ cellId: 'r1,c1', modifiers: {} }));
-      store.dispatch(TableActions.deleteLine(1, 'COLUMN'));
+    args = {
+      [ROW]: {
+        index: 1,
+        size: 101,
+      },
+      [COLUMN]: {
+        index: 2,
+        size: 102,
+      },
+    };
+    store.dispatch(TableActions.updateCellSize(args));
 
-      const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c2' }, { id: 'c3' }]);
-      const expectedPointer = fromJS({
-        cellId: null,
-        modifiers: {},
-      });
+    expectedRowsList = fromJS([
+      { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
+      { id: 'r01', size: 101, cells: [{}, {}, {}, {}] },
+      { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+    ]);
+    expectedColumnsList = fromJS([
+      { id: 'k00', size: null },
+      { id: 'k01', size: null },
+      { id: 'k02', size: 102 },
+      { id: 'k03', size: null },
+    ]);
 
-      expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
-      expect(store.getState().get('table').present.getIn(['session', 'pointer'])).to.equal(expectedPointer);
-    });
-
-    it('remove column (only)', () => {
-      const state = Core.initialState(3, 1, true);
-      const store = configureStore(state);
-
-      store.dispatch(TableActions.deleteLine(0, 'COLUMN'));
-
-      const expectedColumns = fromJS([{ id: 'c0' }]);
-
-      expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
-    });
+    expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+    expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
   });
 
-  describe('expand', () => {
-    it('add row', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
+  it('should update row size if new size is bigger then current one', () => {
+    process.logBelow = false;
 
-      store.dispatch(TableActions.addLine(1, 'ROW'));
+    args = {
+      [ROW]: {
+        index: 1,
+        size: 201,
+      },
+      [COLUMN]: {
+        index: 2,
+        size: 202,
+      },
+    };
 
-      const expectedRows = fromJS([{ id: 'r0' }, { id: 'r1a' }, { id: 'r1' }, { id: 'r2' }]);
+    store.dispatch(TableActions.updateCellSize(args));
 
-      expect(store.getState().get('table').present.getIn(['data', 'rows'])).to.equal(expectedRows);
-    });
+    expectedRowsList = fromJS([
+      { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
+      { id: 'r01', size: 201, cells: [{}, {}, {}, {}] },
+      { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+    ]);
+    expectedColumnsList = fromJS([
+      { id: 'k00', size: null },
+      { id: 'k01', size: null },
+      { id: 'k02', size: 202 },
+      { id: 'k03', size: null },
+    ]);
 
-    it('add column', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-
-      store.dispatch(TableActions.addLine(1, 'COLUMN'));
-
-      const expectedColumns = fromJS([{ id: 'c0' }, { id: 'c1a' }, { id: 'c1' }, { id: 'c2' }, { id: 'c3' }]);
-
-      expect(store.getState().get('table').present.getIn(['data', 'columns'])).to.equal(expectedColumns);
-    });
+    expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+    expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
   });
 
-  describe('cell history', () => {
-    it('push cell history', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
+  it('shouldn\'t update row size if new size isn\'t bigger then current one', () => {
+    process.logBelow = false;
 
-      store.dispatch(TableActions.setProp(cellId, 'value', 'a'));
-      store.dispatch(TableActions.pushCellHistory(cellId, 'b', 123));
-      store.dispatch(TableActions.pushCellHistory(cellId, 'c', 124));
-      store.dispatch(TableActions.pushCellHistory(cellId, 'd', 125));
+    args = {
+      [ROW]: {
+        index: 1,
+        size: 151,
+      },
+      [COLUMN]: {
+        index: 2,
+        size: 152,
+      },
+    };
 
-      const actualCellHistory = store.getState().get('table').present.getIn(
-        ['data', 'cells', cellId, 'history']
-      );
-      const expectedCellHistory = fromJS([
-        {
-          time: 123,
-          value: 'b',
-        },
-        {
-          time: 124,
-          value: 'c',
-        },
-        {
-          time: 125,
-          value: 'd',
-        },
+    const tableLayoutBefore = getTableLayout(store);
+    store.dispatch(TableActions.updateCellSize(args));
+    const tableLayoutAfter = getTableLayout(store);
+
+    expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+    expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
+  });
+});
+
+describe('insert lines', () => {
+  // Testing in regular workflow style.
+
+  const state = Core.initialState();
+  const store = configureStore(state);
+
+  let args;
+  let expectedRowsList;
+  let expectedColumnsList;
+
+  describe('expand table layout', () => {
+    it('should expand table layout by inserting lines in empty layout', () => {
+      process.logBelow = false;
+
+      store.dispatch(TableActions.insertRows({ index: 2 }));
+      store.dispatch(TableActions.insertColumns({ index: 3 }));
+
+      //    00  01  02  03
+      // 00 +++ +++ +++ +++
+      // 01 +++ +++ +++ +++
+      // 02 +++ +++ +++ +++
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r01', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k01', size: null },
+        { id: 'k02', size: null },
+        { id: 'k03', size: null },
       ]);
 
-      expect(actualCellHistory).to.equal(expectedCellHistory);
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
     });
+  });
 
-    it('delete cell history', () => {
-      const state = Core.initialState(...tableSize, true);
-      const store = configureStore(state);
-      const cellId = 'r1,c1';
+  describe('insert rows', () => {
+    it('should insert 2 rows beside existing ones', () => {
+      process.logBelow = false;
 
-      store.dispatch(TableActions.setProp(cellId, 'value', 'a'));
-      store.dispatch(TableActions.pushCellHistory(cellId, 'b', 123));
-      store.dispatch(TableActions.pushCellHistory(cellId, 'c', 124));
-      store.dispatch(TableActions.pushCellHistory(cellId, 'd', 125));
-      store.dispatch(TableActions.deleteCellHistory(cellId, 0));
-      store.dispatch(TableActions.deleteCellHistory(cellId, 1)); // former [2]
+      args = {
+        lineType: ROW,
+        index: 1,
+        number: 2,
+      };
+      store.dispatch(TableActions.insertLines(args));
 
-      const actualCellHistory = store.getState().get('table').present.getIn(
-        ['data', 'cells', cellId, 'history']
-      );
-      const expectedCellHistory = fromJS([
-        {
-          time: 124,
-          value: 'c',
-        },
+      //     00  01  02  03
+      // 00  ... ... ... ...
+      // 10  +++ +++ +++ +++
+      // 11  +++ +++ +++ +++
+      // 01  ... ... ... ...
+      // 02  ... ... ... ...
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r10', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r11', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r01', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k01', size: null },
+        { id: 'k02', size: null },
+        { id: 'k03', size: null },
       ]);
 
-      expect(actualCellHistory).to.equal(expectedCellHistory);
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
     });
+
+    it('should insert rows from last one to \'index\' if number not specified', () => {
+      process.logBelow = false;
+
+      args = {
+        lineType: ROW,
+        index: 5,
+      };
+      store.dispatch(TableActions.insertLines(args));
+
+      //    00  01  02  03
+      // 00 ... ... ... ...
+      // 10 ... ... ... ...
+      // 11 ... ... ... ...
+      // 01 ... ... ... ...
+      // 02 ... ... ... ...
+      // 50 +++ +++ +++ +++
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r10', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r11', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r01', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+        { id: 'r50', size: null, cells: [{}, {}, {}, {}] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k01', size: null },
+        { id: 'k02', size: null },
+        { id: 'k03', size: null },
+      ]);
+
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
+    });
+  });
+
+  describe('insert columns', () => {
+    it('should insert 3 columns beside existing ones', () => {
+      process.logBelow = false;
+
+      // Filling cells in order to see where new cells are inserted.
+      for (let i = 0; i < 6; i += 1) {
+        for (let j = 0; j < 4; j += 1) {
+          store.dispatch(TableActions.setProp({
+            [ROW]: {
+              index: i,
+            },
+            [COLUMN]: {
+              index: j,
+            },
+            prop: 'v',
+            value: `${i}${j}`,
+          }));
+        }
+      }
+
+      args = {
+        lineType: COLUMN,
+        index: 2,
+        number: 3,
+      };
+      store.dispatch(TableActions.insertLines(args));
+
+      //    00  01  20  21  22  02  03
+      // 00 ... ... +++ +++ +++ ... ...
+      // 10 ... ... +++ +++ +++ ... ...
+      // 11 ... ... +++ +++ +++ ... ...
+      // 12 ... ... +++ +++ +++ ... ...
+      // 02 ... ... +++ +++ +++ ... ...
+      // 50 ... ... +++ +++ +++ ... ...
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{ v: '00' }, { v: '01' }, {}, {}, {}, { v: '02' }, { v: '03' }] },
+        { id: 'r10', size: null, cells: [{ v: '10' }, { v: '11' }, {}, {}, {}, { v: '12' }, { v: '13' }] },
+        { id: 'r11', size: null, cells: [{ v: '20' }, { v: '21' }, {}, {}, {}, { v: '22' }, { v: '23' }] },
+        { id: 'r01', size: null, cells: [{ v: '30' }, { v: '31' }, {}, {}, {}, { v: '32' }, { v: '33' }] },
+        { id: 'r02', size: null, cells: [{ v: '40' }, { v: '41' }, {}, {}, {}, { v: '42' }, { v: '43' }] },
+        { id: 'r50', size: null, cells: [{ v: '50' }, { v: '51' }, {}, {}, {}, { v: '52' }, { v: '53' }] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k01', size: null },
+        { id: 'k20', size: null },
+        { id: 'k21', size: null },
+        { id: 'k22', size: null },
+        { id: 'k02', size: null },
+        { id: 'k03', size: null },
+      ]);
+
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
+    });
+
+    it('should insert columns from last one to \'index\' if number not specified', () => {
+      process.logBelow = false;
+
+      args = {
+        lineType: COLUMN,
+        index: 8,
+      };
+      store.dispatch(TableActions.insertLines(args));
+
+      //    00  01  20  21  22  02  03  70  71
+      // 00 ... ... ... ... ... ... ... +++ +++
+      // 10 ... ... ... ... ... ... ... +++ +++
+      // 11 ... ... ... ... ... ... ... +++ +++
+      // 12 ... ... ... ... ... ... ... +++ +++
+      // 02 ... ... ... ... ... ... ... +++ +++
+      // 50 ... ... ... ... ... ... ... +++ +++
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{ v: '00' }, { v: '01' }, {}, {}, {}, { v: '02' }, { v: '03' }, {}, {}] },
+        { id: 'r10', size: null, cells: [{ v: '10' }, { v: '11' }, {}, {}, {}, { v: '12' }, { v: '13' }, {}, {}] },
+        { id: 'r11', size: null, cells: [{ v: '20' }, { v: '21' }, {}, {}, {}, { v: '22' }, { v: '23' }, {}, {}] },
+        { id: 'r01', size: null, cells: [{ v: '30' }, { v: '31' }, {}, {}, {}, { v: '32' }, { v: '33' }, {}, {}] },
+        { id: 'r02', size: null, cells: [{ v: '40' }, { v: '41' }, {}, {}, {}, { v: '42' }, { v: '43' }, {}, {}] },
+        { id: 'r50', size: null, cells: [{ v: '50' }, { v: '51' }, {}, {}, {}, { v: '52' }, { v: '53' }, {}, {}] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k01', size: null },
+        { id: 'k20', size: null },
+        { id: 'k21', size: null },
+        { id: 'k22', size: null },
+        { id: 'k02', size: null },
+        { id: 'k03', size: null },
+        { id: 'k70', size: null },
+        { id: 'k71', size: null },
+      ]);
+
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
+    });
+  });
+});
+
+describe('delete lines', () => {
+  // Testing in regular workflow style.
+
+  const state = Core.initialState();
+  const store = configureStore(state);
+
+  store.dispatch(TableActions.insertRows({ index: 3 }));
+  store.dispatch(TableActions.insertColumns({ index: 4 }));
+
+  //    00  01  02  03  04
+  // 00 ... ... ... ... ...
+  // 01 ... ... ... ... ...
+  // 02 ... ... ... ... ...
+  // 03 ... ... ... ... ...
+
+  let args;
+  let expectedRowsList;
+  let expectedColumnsList;
+
+  describe('delete rows', () => {
+    it('should delete 2 rows beside existing ones', () => {
+      process.logBelow = false;
+
+      args = {
+        lineType: ROW,
+        index: 1,
+        number: 2,
+      };
+      store.dispatch(TableActions.deleteLines(args));
+
+      //     00  01  02  03  04
+      // 00  ... ... ... ... ...
+      //     xxx xxx xxx xxx xxx
+      //     xxx xxx xxx xxx xxx
+      // 03  ... ... ... ... ...
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{}, {}, {}, {}, {}] },
+        { id: 'r03', size: null, cells: [{}, {}, {}, {}, {}] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k01', size: null },
+        { id: 'k02', size: null },
+        { id: 'k03', size: null },
+        { id: 'k04', size: null },
+      ]);
+
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
+    });
+  });
+
+  describe('delete columns', () => {
+    it('should delete 3 columns beside existing ones', () => {
+      process.logBelow = false;
+
+      // Filling cells in order to see where new cells are inserted.
+      for (let i = 0; i < 2; i += 1) {
+        for (let j = 0; j < 5; j += 1) {
+          store.dispatch(TableActions.setProp({
+            [ROW]: {
+              index: i,
+            },
+            [COLUMN]: {
+              index: j,
+            },
+            prop: 'v',
+            value: `${i}${j}`,
+          }));
+        }
+      }
+
+      args = {
+        lineType: COLUMN,
+        index: 1,
+        number: 3,
+      };
+      store.dispatch(TableActions.deleteLines(args));
+
+      //     00  01  02  03  04
+      // 00  ... xxx xxx xxx ...
+      // 03  ... xxx xxx xxx ...
+      expectedRowsList = fromJS([
+        { id: 'r00', size: null, cells: [{ v: '00' }, { v: '04' }] },
+        { id: 'r03', size: null, cells: [{ v: '10' }, { v: '14' }] },
+      ]);
+      expectedColumnsList = fromJS([
+        { id: 'k00', size: null },
+        { id: 'k04', size: null },
+      ]);
+
+      expect(getRowsList(store)).to.deep.equal(expectedRowsList);
+      expect(getColumnsList(store)).to.deep.equal(expectedColumnsList);
+    });
+  });
+});
+
+describe('cell history', () => {
+  // Testing in regular workflow style.
+
+  const state = Core.initialState();
+  const store = configureStore(state);
+
+  store.dispatch(TableActions.insertRows({ index: 3 }));
+  store.dispatch(TableActions.insertColumns({ index: 4 }));
+
+  const cell = {
+    [ROW]: {
+      index: 1,
+    },
+    [COLUMN]: {
+      index: 2,
+    },
+  };
+
+  it('should create and push cell history', () => {
+    store.dispatch(TableActions.setProp({ ...cell, prop: 'value', value: 'a' }));
+    store.dispatch(TableActions.pushCellHistory(cell, 123, 'b'));
+    store.dispatch(TableActions.pushCellHistory(cell, 124, 'c'));
+    store.dispatch(TableActions.pushCellHistory(cell, 125, 'd'));
+
+    const expectedCellHistory = fromJS([
+      {
+        time: 123,
+        value: 'b',
+      },
+      {
+        time: 124,
+        value: 'c',
+      },
+      {
+        time: 125,
+        value: 'd',
+      },
+    ]);
+    const actualCellHistory = store.getState().get('table').present.getIn(
+      ['major', 'layout', ROW, 'list', 1, 'cells', 2, 'history']
+    );
+
+    expect(actualCellHistory).to.equal(expectedCellHistory);
+  });
+
+  it('delete cell history', () => {
+    store.dispatch(TableActions.deleteCellHistory(cell, 0));
+    store.dispatch(TableActions.deleteCellHistory(cell, 1)); // former [2]
+
+    const actualCellHistory = store.getState().get('table').present.getIn(
+      ['major', 'layout', ROW, 'list', 1, 'cells', 2, 'history']
+    );
+    const expectedCellHistory = fromJS([
+      {
+        time: 124,
+        value: 'c',
+      },
+    ]);
+
+    expect(actualCellHistory).to.equal(expectedCellHistory);
   });
 });

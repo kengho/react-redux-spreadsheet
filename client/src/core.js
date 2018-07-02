@@ -1,118 +1,280 @@
-import { fromJS, Map } from 'immutable';
-import Papa from 'papaparse';
+import { fromJS, Map, List } from 'immutable';
 import uuid from 'uuid/v4';
 
-import * as convertFormats from './convertFormats';
+import getSufficientState from './lib/getSufficientState';
+
+import {
+  APP,
+  COLUMN,
+  CSV,
+  JSON_FORMAT,
+  ROW,
+} from './constants';
 
 if (process.env.NODE_ENV !== 'test') {
-  // eslint-disable-next-line no-undef, no-console
   window.log = (x) => console.log(JSON.stringify(x, null, 2));
 }
 
-// TODO: add cellId format checks.
-export function getRowId(cellId) {
-  if (cellId) {
-    return cellId.slice(
-      0,
-      Math.floor(cellId.length / 2)
-    );
+export function composeLine({
+  lineType,
+  cellsNumber = 0,
+  size = null,
+  index = null,
+}) {
+  let id;
+  if (process.env.NODE_ENV === 'test') {
+    id = index;
+  } else {
+    id = uuid();
   }
-}
 
-export function getColumnId(cellId) {
-  if (cellId) {
-    return cellId.slice(
-      Math.ceil(cellId.length / 2),
-      cellId.length
-    );
+  const line = {
+    id,
+    size,
+  };
+
+  if (lineType === ROW) {
+    line.cells = Array.from(Array(cellsNumber)).map(() => composeCell());
   }
+
+  return fromJS(line);
 }
 
-export function getCellId(rowId, columnId) {
-  if (rowId && columnId) {
-    return `${rowId},${columnId}`;
-  }
+export function composeCell() {
+  return Map({});
 }
 
-// TODO: get rid of pos everywhere.
-export function getRowNumber(pos) {
-  return pos[0];
+export function composeRow({
+    size = null,
+    index = null,
+    cellsNumber = 0,
+} = {}) {
+  return composeLine({
+    lineType: ROW,
+    index,
+    size,
+  }).set(
+    'cells',
+    List(Array.from(Array(cellsNumber)).map(() => composeCell()))
+  );
 }
 
-export function getColumnNumber(pos) {
-  return pos[1];
-}
+// NOTE: Legend:
+//   size - visible size of something; pixels
+//   offset - offset of something from coordinates begginning; pixels
+//   index - position of some element in ordeled list; positive integer number
+//   length - number of elements between one and the other (last not included); positive integer number
+export function initialTable() {
+  const table = {
+    // NOTE: changing major branch props forces Table to rerender.
+    //   Everywhere in reducers table has major and minor branches,
+    //   and everywhere in components it have only major (aka just "table").
+    major: {
+      layout: {
+        [ROW]: {
+          defaultSize: 40,
+          marginSize: 30,
+          list: [],
+          // [
+          //   {
+          //     id,
+          //     size,
+          //     cells: [{}, ...],
+          //     // cell:
+          //     // { value: 2, history: [{ value: '1', date: 123123123 }, ...] }
+          //   },
+          //   ...
+          // ]
+          // //  see composeRow()
+        },
+        [COLUMN]: {
+          defaultSize: 60,
+          marginSize: 50,
+          list: [],
+          // [
+          //   {
+          //     id,
+          //     size,
+          //   },
+          //   ...
+          // ]
+          // // see composeLine()
+        },
+      },
+      session: {
+        pointer: {
+          [ROW]: {
+            index: 0,
+            size: null,
+          },
+          [COLUMN]: {
+            index: 0,
+            size: null,
+          },
+          value: '',
+          edit: false,
+          selectOnFocus: false,
+        },
+        clipboard: {
+          [ROW]: {
+            index: null,
+            length: null,
+          },
+          [COLUMN]: {
+            index: null,
+            length: null,
+          },
+          cells: null, // see layout's cells, here we just have a full copy of some range from there
+        },
+        selection: {
+          [ROW]: {
+            index: null,
+            length: null,
+          },
+          [COLUMN]: {
+            index: null,
+            length: null,
+          },
+        },
+      },
 
-export function initialLines(height = 4, width = 4) {
-  const rows = Array.from(Array(height)).map((_, rowIndex) => {
-    let rowId;
-    if (process.env.NODE_ENV === 'test') {
-      rowId = `r${rowIndex}`;
-    } else {
-      rowId = `r${uuid()}`;
-    }
-
-    return { id: rowId };
-  });
-
-  // REVIEW: maybe use 'k' for 'kolumn' instead
-  //   just not to confuse it with with UUID hex chars.
-  const columns = Array.from(Array(width)).map((_, columnIndex) => {
-    let columnId;
-    if (process.env.NODE_ENV === 'test') {
-      columnId = `c${columnIndex}`;
-    } else {
-      columnId = `c${uuid()}`;
-    }
-
-    return { id: columnId };
-  });
-
-  return { rows, columns };
-}
-
-export function initialTable(width, height) {
-  const lines = initialLines(width, height);
-
-  return {
-    data: {
-      ...lines,
-      cells: {},
+      // NOTE: why vision is in table? In order to move pointer correctly with, say,
+      //   PageUp, we should know screen size. In order to move pointer with Ctrl
+      //   we should know table data (aka layout). So, because of pointer we can't
+      //   separate vision and table (unless we want to get ugly middleware).
+      //   In the end, it makes sense, because entire table view directly rely on vision.
+      //   It also answers the question "why have vision in redux state at all" - vision is crucial.
+      vision: {
+        [ROW]: {
+          scrollSize: 0,
+          screenSize: window.innerHeight,
+        },
+        [COLUMN]: {
+          scrollSize: 0,
+          screenSize: window.innerWidth,
+        },
+      },
     },
-    session: {
-      pointer: {
-        cellId: null,
-        modifiers: {},
-      },
-      hover: null,
-      selection: {
-        cellsIds: [],
-      },
-      clipboard: {
-        cells: {},
-        operation: null,
-      },
-    },
-    updateTriggers: {
-      data: {
-        rows: {},
+
+    // NOTE: changing minor branch props not forces Table to rerender.
+    minor: {
+      linesOffsets: {
+        [ROW]: [],
+        [COLUMN]: [],
       },
     },
   };
+
+  if (process.env.NODE_ENV !== 'test') {
+    return fromJS(table);
+  } else {
+    const rowsSizes = [150, 200, 175, 200, 225, 200, 200, 150, 150, 200];
+    const columnsSizes = [125, 150, 200, 150, 175, 125, 200, 150];
+    const rowsList = rowsSizes.map((size, index) => {
+      return composeRow({
+        size,
+        index,
+        cellsNumber: columnsSizes.length,
+      });
+    });
+    const columnsList = columnsSizes.map((size, index) => {
+      return composeLine({
+        lineType: COLUMN,
+        size,
+        index,
+      });
+    });
+    const getLinesOffsets = (linesList) => {
+      const offsets = [0];
+      let currentOffset = offsets[0];
+      let nextOffset;
+      linesList.forEach((line, index) => {
+        nextOffset = line.get('size') + currentOffset;
+        offsets.push(nextOffset);
+        currentOffset = nextOffset;
+      });
+
+      return offsets;
+    };
+    const rowsOffsets = getLinesOffsets(rowsList);
+    const columnsOffsets = getLinesOffsets(columnsList);
+
+    table.major.layout.ROW.defaultSize = 150;
+    table.major.layout.COLUMN.defaultSize = 175;
+    table.major.layout.ROW.marginSize = 100;
+    table.major.layout.COLUMN.marginSize = 150;
+    table.minor.linesOffsets.ROW = rowsOffsets;
+    table.minor.linesOffsets.COLUMN = columnsOffsets;
+    table.major.vision.ROW.screenSize = 1000;
+    table.major.vision.COLUMN.screenSize = 800;
+
+    return fromJS(table);
+  }
 }
 
 // Using in containers/Dialog/SettingsDialog.jsx.
-export const initialSettings = {
+// TODO: make everything immutable by default.
+export const initialSettings = Map({
   autoSaveHistory: true,
   tableHasHeader: false,
   spreadsheetName: 'Spreadsheet',
-}
+  // TODO: make hierarchy and put it here
+  // renderParams: {
+  //   rows: {
+  //     gridRoundingLength: 3,
+  //     overscanLength: 3, // word I learned from react-virtualized
+  //     additionalScrollSize: 300, // lets you scroll faster through comp lines
+  //   },
+  //   columns: {
+  //     gridRoundingLength: 3,
+  //     overscanLength: 3,
+  //     additionalScrollSize: 300,
+  //   },
+  // },
+})
 
-export function initialState(width, height, test = false) {
-  const table = initialTable(width, height);
+export function initialState() {
+  const table = initialTable();
 
   let state;
-  if (test) {
+  if (process.env.NODE_ENV !== 'test') {
+    state = fromJS({
+      landing: {
+        messages: [],
+        buttonIsDisabled: false,
+      },
+      server: {
+        shortId: null,
+        sync: null,
+        requestFailed: false,
+      },
+      settings: initialSettings,
+      table,
+      ui: {
+        popup: {
+          visibility: false,
+          place: null, // componentsNames, lineTypes
+          kind: null, // uiKinds
+          [ROW]: {
+            index: null,
+            offset: null,
+          },
+          [COLUMN]: {
+            index: null,
+            offset: null,
+          },
+        },
+        dialog: {
+          variant: null, // dialogVariants
+          visibility: false,
+        },
+        search: {
+          visibility: false,
+          focus: false,
+        },
+      },
+    });
+  } else {
     state = Map({
       table: {
         past: [],
@@ -120,329 +282,171 @@ export function initialState(width, height, test = false) {
         future: [],
       },
     });
-  } else {
-    state = fromJS({
-      detachments: {
-        currentCellValue: null,
-      },
-      landing: {
-        messages: [],
-        buttonIsDisabled: false,
-      },
-      meta: {
-        shortId: null,
-        sync: true,
-      },
-      requests: {
-        queue: [],
-        counter: 0,
-      },
-      table,
-      settings: initialSettings,
-      ui: {
-        current: {
-          visibility: false,
-          kind: null,
-          place: null,
-          cellId: null,
-          variant: null, // Dialog
-          disableYesButton: null, // Dialog
-          errors: [], // Dialog
-        },
-        tableMenu: {
-          disableNewSpreadsheetButton: null,
-          newSpreadsheetPath: null,
-        },
-      },
-    });
   }
 
   return state;
 }
 
-export function getMaxPos(rows, columns) {
-  return [rows.size - 1, columns.size - 1];
+// TODO: test.
+export function isLineScrolledIntoView({
+  size,
+  offset,
+  scrollSize,
+  screenSize,
+  marginSize,
+}) {
+  // NOTE: hanles situations when all things considered line is visible,
+  //   but something (like, scrollbar) in a way. Also allows to set
+  //   comfortable visible gap from bottom of the screen.
+  const MAX_MARGIN_UNTIL_LINE_CONSIDERED_OUT_OF_VIEW_SIZE = 20;
+
+  if (marginSize + offset < scrollSize) {
+    return false;
+  }
+
+  if (scrollSize + screenSize <  marginSize + offset + size + MAX_MARGIN_UNTIL_LINE_CONSIDERED_OUT_OF_VIEW_SIZE) {
+    return false;
+  }
+
+  return true;
 }
 
-export function calcNewPos(pos, key, rows, columns) {
-  const maxPos = getMaxPos(rows, columns);
+export function getLineOffset({
+  offsets,
+  index,
+  defaultSize,
+}) {
+  const maxOffsetsIndex = offsets.size - 1;
 
-  let rowNumber;
-  let columnNumber;
-  switch (key) {
-    case 'ArrowUp': {
-      if (!pos) {
-        rowNumber = getRowNumber(maxPos);
-        columnNumber = 0;
-      } else {
-        rowNumber = getRowNumber(pos) - 1;
-        columnNumber = getColumnNumber(pos);
-      }
-      break;
-    }
-
-    case 'PageUp': {
-      rowNumber = 0;
-      if (!pos) {
-        columnNumber = 0;
-      } else {
-        columnNumber = getColumnNumber(pos);
-      }
-      break;
-    }
-
-    case 'ArrowDown': {
-      if (!pos) {
-        rowNumber = 0;
-        columnNumber = 0;
-      } else {
-        rowNumber = getRowNumber(pos) + 1;
-        columnNumber = getColumnNumber(pos);
-      }
-      break;
-    }
-
-    case 'PageDown': {
-      rowNumber = getRowNumber(maxPos);
-      if (!pos) {
-        columnNumber = 0;
-      } else {
-        columnNumber = getColumnNumber(pos);
-      }
-      break;
-    }
-
-    case 'ArrowLeft': {
-      if (!pos) {
-        rowNumber = 0;
-        columnNumber = getColumnNumber(maxPos);
-      } else {
-        rowNumber = getRowNumber(pos);
-        columnNumber = getColumnNumber(pos) - 1;
-      }
-      break;
-    }
-
-    case 'Home': {
-      columnNumber = 0;
-      if (!pos) {
-        rowNumber = 0;
-      } else {
-        rowNumber = getRowNumber(pos);
-      }
-      break;
-    }
-
-    case 'ArrowRight': {
-      if (!pos) {
-        rowNumber = 0;
-        columnNumber = 0;
-      } else {
-        rowNumber = getRowNumber(pos);
-        columnNumber = getColumnNumber(pos) + 1;
-      }
-      break;
-    }
-
-    case 'End': {
-      columnNumber = getColumnNumber(maxPos);
-      if (!pos) {
-        rowNumber = 0;
-      } else {
-        rowNumber = getRowNumber(pos);
-      }
-      break;
-    }
-
-    default:
+  // NOTE: though offsets shouldn't be empty, as tested in Grid,
+  //   we return some number in case there are still error occur just
+  //   not to fall into infinite loop in findLineByOffset().
+  if (maxOffsetsIndex < 0) {
+    return 0;
   }
 
-  if (rowNumber < 0) {
-    rowNumber = 0;
-  }
-  if (columnNumber < 0) {
-    columnNumber = 0;
-  }
+  if (index <= maxOffsetsIndex) {
+    return offsets.get(index);
+  } else {
+    const lastOffset = offsets.get(maxOffsetsIndex);
+    const indexOverflow = index - maxOffsetsIndex;
 
-  return [rowNumber, columnNumber];
-}
-
-// NOTE: order or props in array is important.
-//   Place strings in the beginning, objects in the end (more complex => closer to the end).
-// NOTE: this thing doesn't compare js objects anymore, only strings and immutable.
-export function arePropsEqual(currentProps, nextProps, props) {
-  return !props.some((prop) => {
-    const currentProp = currentProps[prop];
-    const nextProp = nextProps[prop];
-
-    return (nextProp !== currentProp);
-  });
-}
-
-// NOTE: data is immutable.
-export function getCroppedSize(data) {
-  // Cropped size search algorithm.
-  //
-  // [B] - beginning point
-  // [ ] - current point
-  // [D] - destination point
-  // [↑, ←] - search directions
-  // [a-z] - cells' values
-  //
-  // TODO: decide, should we require additional data
-  //   in store to provide more optimal crop algorithms.
-  //
-  //    0  1  2  3  4
-  // 0  a  b  c  ↑  ↑
-  // 1  d  e [D] ↑  ↑
-  // 2  ←  ← [ ] ↑  ↑
-  // 3  ←  ← [ ] ↑  ↑
-  // 4  ←  ←  ← [ ] ↑
-  // 5  ←  ←  ←  ← [B]
-
-  const cells = data.get('cells');
-  if (cells.keySeq().size === 0) {
-    return [0, 0];
-  }
-
-  let rows = data.get('rows');
-  let columns = data.get('columns');
-  const backwardVHSeach = (point, matchPoint = [null, null]) => {
-    const [rowNumber, columnNumber] = point;
-    let [rowMatch, columnMatch] = matchPoint;
-
-    if (!rowMatch) {
-      for (let rowIterator = rowNumber; rowIterator >= 0; rowIterator -= 1) {
-        const currentCellId = getCellId(
-          rows.getIn([rowIterator, 'id']),
-          columns.getIn([columnNumber, 'id'])
-        );
-        if (cells.get(currentCellId)) {
-          rowMatch = rowIterator;
-          break;
-        }
-      }
-    }
-
-    if (!columnMatch) {
-      for (let columnIterator = columnNumber; columnIterator >= 0; columnIterator -= 1) {
-        const currentCellId = getCellId(
-          rows.getIn([rowNumber, 'id']),
-          columns.getIn([columnIterator, 'id'])
-        );
-        if (cells.get(currentCellId)) {
-          columnMatch = columnIterator;
-          break;
-        }
-      }
-    }
-
-    return [rowMatch, columnMatch];
-  };
-
-  const currentPoint = [rows.size - 1, columns.size - 1];
-
-  let matchPoint;
-  while (true) {
-    const [rowMatch, columnMatch] = backwardVHSeach(currentPoint, matchPoint);
-    if (rowMatch !== null && columnMatch !== null) {
-      return [currentPoint[0] + 1, currentPoint[1] + 1];
-    }
-
-    if (currentPoint[0] === 0 && currentPoint[1] === 0) {
-      return [0, 0];
-    }
-
-    if (columnMatch === null && currentPoint[0] > 0) {
-      currentPoint[0] -= 1;
-    }
-
-    if (rowMatch === null && currentPoint[1] > 0) {
-      currentPoint[1] -= 1;
-    }
+    return lastOffset + defaultSize * indexOverflow;
   }
 }
 
-const convertDataToArray = (data, cellCallback) => {
-  const table = [];
-  const rows = data.get('rows');
-  const columns = data.get('columns');
-  const cells = data.get('cells');
-  const croppedSize = getCroppedSize(data);
+// TODO: PERF: (?) optimize algorithm. Use binary search
+//   for real lines and simple arithmetics for comp ones.
+//   Also remember not to optimize prematurely; there are
+//   a lot of places in the codebase which are much worse.
+export function findLineByOffset({
+  offsets,
+  startSearchIndex,
+  stopSearchIndex,
+  callback,
+  defaultLineSize,
+}) {
+  let indexIncrement;
+  let loopCondition;
+  if (startSearchIndex < stopSearchIndex) {
+    // TODO: PERF: startSearchIndex +-= 1 (perf, haha).
+    indexIncrement = 1;
+    loopCondition = (index) => (index <= stopSearchIndex);
+  } else {
+    indexIncrement = -1;
+    loopCondition = (index) => (index >= stopSearchIndex);
+  }
 
-  for (let rowIterator = 0; rowIterator < croppedSize[0]; rowIterator += 1) {
+  for (
+    let lineIndex = startSearchIndex;
+    loopCondition(lineIndex);
+    lineIndex += indexIncrement
+  ) {
+    const lineOffset = getLineOffset({
+      offsets,
+      index: lineIndex,
+      defaultSize: defaultLineSize,
+      // lastValue: // TODO: PERF: cache last value.
+    });
+
+    if (callback(lineOffset)) {
+      return lineIndex;
+    }
+  }
+
+  return stopSearchIndex; // in case callback condition is never met
+}
+
+// NOTE: this function uses in component, so table
+//   has no minor and major branches, it's just "table".
+const convertTableToPlainArray = (table, cellCallback) => {
+  const tableArray = [];
+  const rowsSize = table.getIn(['layout', ROW, 'list']).size;
+  const columnsSize = table.getIn(['layout', COLUMN, 'list']).size;
+  for (let i = 0; i < rowsSize; i += 1) {
     const row = [];
-    for (let columnIterator = 0; columnIterator < croppedSize[1]; columnIterator += 1) {
-      const currentCellId = getCellId(
-        rows.getIn([rowIterator, 'id']),
-        columns.getIn([columnIterator, 'id'])
-      );
-      const currentCell = cells.get(currentCellId);
-
+    for (let j = 0; j < columnsSize; j += 1) {
+      const currentCell = table.getIn(['layout', ROW, 'list', i, 'cells', j]);
       row.push(cellCallback(currentCell));
     }
-
-    table.push(row);
+    tableArray.push(row);
   }
 
-  return table;
+  return tableArray;
 };
 
-const convertArrayToData = (array, cellCallback) => {
-  if (array.length === 0) {
-    return initialTable().data;
-  }
+const convertPlainArrayToState = (array, cellCallback) => {
+  const state = initialState();
+  let updatedState = state;
 
-  const dataArrayRowsNumber = array.length;
-  const dataArrayColumnsNumber = array[0].length;
+  array.forEach((arrayRow, rowIndex) => {
+    let cells = [];
+    arrayRow.forEach((value, columnIndex) => {
+      const cell = cellCallback(value) || {};
+      cells.push(cell);
 
-  const data = initialTable(dataArrayRowsNumber, dataArrayColumnsNumber).data;
-  const rows = data.rows;
-  const columns = data.columns;
-  const cells = data.cells;
-
-  array.forEach((row, rowIndex) => {
-    row.forEach((cell, columnIndex) => {
-      const cellId = getCellId(rows[rowIndex].id, columns[columnIndex].id);
-      const callbackedCell = cellCallback(cell);
-      if (callbackedCell) {
-        cells[cellId] = callbackedCell;
+      if (rowIndex === 0) {
+        updatedState = updatedState.updateIn(
+          ['table', 'major', 'layout', COLUMN, 'list'],
+          (list) => list.push(composeLine({ lineType: COLUMN })),
+        );
       }
     });
+
+    let emptyStateRow = composeRow();
+    const stateRow = emptyStateRow.set('cells', fromJS(cells));
+
+    updatedState = updatedState.updateIn(
+      ['table', 'major', 'layout', ROW, 'list'],
+      (list) => list.push(stateRow),
+    );
   });
 
-  return data;
+  return updatedState;
 };
 
-// Build-in format, doesn't needed to be exported.
-const APP = 'APP';
-
-export function convert(args) {
-  const {
-    data,
-    settings,
-  } = args;
-
-  let {
-    inputFormat,
-    outputFormat,
-  } = args;
-  inputFormat = inputFormat || APP;
-  outputFormat = outputFormat || APP;
-
+export async function convert({
+  serializedData,
+  table,
+  settings,
+  inputFormat = APP,
+  outputFormat,
+}) {
   if (inputFormat === APP) {
     // APP => CSV
-    if (outputFormat === convertFormats.CSV) {
-      const dataArray = convertDataToArray(
-        data,
-        (cell) => cell ? cell.get('value') : ''
+    if (outputFormat === CSV) {
+      const tableArray = convertTableToPlainArray(
+        table,
+        (cell) => cell.get('value') || ''
       );
 
-      return Papa.unparse(dataArray);
+      const Papa = await import('papaparse');
+
+      return Papa.unparse(tableArray);
     // APP => JSON
-    } else if (outputFormat === convertFormats.JSON) {
-      const dataArray = convertDataToArray(
-        data,
+    } else if (outputFormat === JSON_FORMAT) {
+      const tableArray = convertTableToPlainArray(
+        table,
         (appCell) => {
           let jsonCell = {};
           if (appCell) {
@@ -471,51 +475,45 @@ export function convert(args) {
 
       return JSON.stringify({
         version: '1',
-        data: dataArray,
-        settings,
+        ...getSufficientState({ table: tableArray, settings }),
       });
     }
+
   // CSV => APP
-  } else if (inputFormat === convertFormats.CSV) {
-    const CSVdata = data;
+  } else if (inputFormat === CSV) {
+    const CSVdata = serializedData;
+
+    // TODO: more code splitting.
+    const Papa = await import('papaparse');
     const parsedCSV = Papa.parse(CSVdata);
-    const parsedCSVArray = parsedCSV.data;
-    const tableData = {};
-    if (parsedCSV.errors){
-      tableData.errors = parsedCSV.errors;
+    const result = {
+      messages: parsedCSV.errors,
     };
 
-    const appData = convertArrayToData(
-      parsedCSVArray,
-      (cell) => cell.length === 0 ? null : { value: cell }
-    ) || initialTable().data;
+    const state = convertPlainArrayToState(
+      parsedCSV.data,
+      (value) => value.length === 0 ? null : { value }
+    );
+    result.data = getSufficientState(state);
 
-    tableData.data = appData;
+    return result;
 
-    return tableData;
-  // JSON => APP
-  } else if (inputFormat === convertFormats.JSON) {
-    const JSONData = data;
-    const tableData = {};
+    // JSON => APP
+    } else if (inputFormat === JSON_FORMAT) {
+    const JSONData = serializedData;
+    const result = {};
     let parsedJSON;
     try {
       parsedJSON = JSON.parse(JSONData);
     } catch(err) {
-      tableData.errors = [{
-        code: err.name,
-        message: `${err.name}: ${err.message}`,
-      }];
+      result.messages = [`${err.name}: ${err.message}`];
     }
 
     if (parsedJSON) {
-      const JSONVersion = parsedJSON.version;
-      const parsedJSONArray = parsedJSON.data;
-
-      let appData;
-      switch (JSONVersion) {
+      switch (parsedJSON.version) {
         case '1': {
-          appData = convertArrayToData(
-            parsedJSONArray,
+          const state = convertPlainArrayToState(
+            parsedJSON.table,
             (jsonCell) => {
               if (Object.keys(jsonCell).length === 0) {
                 return;
@@ -542,20 +540,20 @@ export function convert(args) {
 
               return appCell;
             }
+          ).setIn(
+            'settings',
+            parsedJSON.settings
           );
-          tableData.data = appData;
-          tableData.settings = parsedJSON.settings;
+
+          result.data = getSufficientState(state);
+
           break;
         }
 
         default:
       }
-    } else {
-      const newState = initialState();
-      tableData.data = newState.getIn(['table', 'data']);
-      tableData.settings = newState.getIn(['settings']);
     }
 
-    return tableData;
+    return result;
   }
 }

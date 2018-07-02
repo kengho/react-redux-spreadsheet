@@ -2,23 +2,26 @@ require 'test_helper'
 
 class Api::V1::SpreadsheetControllerTest < ActionController::TestCase
   setup do
-    @table_fixture = {
-      'rows' => 'some_rows',
-      'columns' => 'some_columns',
-    }
+    @state_fixture = { 'prop' => 'value' }
 
     Spreadsheet.destroy_all
-    Spreadsheet.create!(table: @table_fixture.to_json)
+    Spreadsheet.create!(state: @state_fixture.to_json)
+
+    # NOTE: format required in order to have correct
+    #   types for params in controller instead of strings
+    #   (e.g. client_timestamp should be number).
+    #   https://github.com/rails/rails/issues/26075#issuecomment-244315017
+    request.content_type = 'application/json'
   end
 
   test 'should create spreadsheet' do
     Spreadsheet.destroy_all
 
-    post(:create, params: { table: @table_fixture.to_json })
+    post(:create, params: { state: @state_fixture })
     created_spreadsheet = Spreadsheet.last
 
     assert created_spreadsheet
-    assert_equal(@table_fixture, JSON.parse(created_spreadsheet.table))
+    assert_equal(@state_fixture, JSON.parse(created_spreadsheet.state))
 
     parsed_response = JSON.parse(response.body)
     data = parsed_response['data']
@@ -39,24 +42,22 @@ class Api::V1::SpreadsheetControllerTest < ActionController::TestCase
 
     parsed_response = JSON.parse(response.body)
     data = parsed_response['data']
-    assert_equal({ 'table' => @table_fixture.to_json }, data)
+    assert_equal({ 'state' => @state_fixture.to_json }, data)
   end
 
   test 'should update spreadsheet' do
-    updated_table_fixture = {
-      'rows' => 'some_other_rows',
-      'columns' => 'some_other_columns',
-    }
+    updated_state_fixture = { 'prop' => 'other_value' }
     patch(
       :update,
       params: {
         short_id: Spreadsheet.last.short_id,
-        table: updated_table_fixture.to_json,
-        updates_counter: 0,
-      })
+        state: updated_state_fixture,
+        client_timestamp: 9999999999999,
+      },
+    )
 
     updated_spreadsheet = Spreadsheet.last
-    assert_equal(updated_table_fixture.to_json, updated_spreadsheet.table)
+    assert_equal(updated_state_fixture.to_json, updated_spreadsheet.state)
 
     parsed_response = JSON.parse(response.body)
     data = parsed_response['data']
@@ -64,31 +65,27 @@ class Api::V1::SpreadsheetControllerTest < ActionController::TestCase
   end
 
   test 'should update spreadsheet in intended order' do
-    updated_table_fixture1 = {
-      'rows' => 'some_other_rows1',
-      'columns' => 'some_other_columns1',
-    }
-    updated_table_fixture2 = {
-      'rows' => 'some_other_rows2',
-      'columns' => 'some_other_columns2',
-    }
+    updated_state_fixture1 = { 'prop' => 'value1' }
+    updated_state_fixture2 = { 'prop' => 'value2' }
     patch(
       :update,
       params: {
         short_id: Spreadsheet.last.short_id,
-        table: updated_table_fixture2.to_json,
-        updates_counter: 2,
-      })
+        state: updated_state_fixture2,
+        client_timestamp: 9999999999999,
+      },
+    )
     patch(
       :update,
       params: {
         short_id: Spreadsheet.last.short_id,
-        table: updated_table_fixture1.to_json,
-        updates_counter: 1,
-      })
+        state: updated_state_fixture1,
+        client_timestamp: 9999999999998,
+      },
+    )
 
     updated_spreadsheet = Spreadsheet.last
-    assert_equal(updated_table_fixture2.to_json, updated_spreadsheet.table)
+    assert_equal(updated_state_fixture2.to_json, updated_spreadsheet.state)
   end
 
   test 'should destroy spreadsheet' do

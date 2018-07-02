@@ -12,53 +12,47 @@ const propTypes = {
   actions: PropTypes.object.isRequired,
 };
 
-class InfoDialog extends React.PureComponent {
-  render() {
-    const {
-      actions,
-    } = this.props;
+const InfoDialog = (props) => {
+  const actions = props.actions;
 
-    const hotkeysMap = [
-      ['Ctrl+Z', 'undo'],
-      ['Ctrl+Y', 'redo'],
-      ['Ctrl+X', 'cut'],
-      ['Ctrl+C', 'copy'],
-      ['Ctrl+V', 'paste'],
-      ['Enter / Shift+Enter', 'save and move cursor down/up'],
-      ['Tab / Tab+Enter', 'save and move cursor to the right/left'],
-      ['Escape or Backspace', 'delete cell\'s value'],
-      ['Arrow keys, Home, End, PgUp, PgDn', 'move cursor'],
-      ['Ctrl+Enter (while editing)', 'insert new line'],
-    ];
+  const hotkeysMap = [
+    ['Ctrl+Z', 'undo'],
+    ['Ctrl+Y', 'redo'],
+    ['Ctrl+X', 'cut'],
+    ['Ctrl+C', 'copy'],
+    ['Ctrl+V', 'paste'],
+    ['Enter / Shift+Enter', 'save and move cursor down/up'],
+    ['Tab / Shift+Tab', 'save and move cursor to the right/left'],
+    ['Escape or Backspace', 'delete cell\'s value'],
+    ['Arrow keys, PgUp, PgDn (also with Alt)', 'move cursor'],
+    ['Ctrl+Enter (while editing)', 'insert new line'],
+  ];
 
-    return ([
-      <MaterialDialogTitle key="dialog-title">
+  return (
+    <React.Fragment>
+      <MaterialDialogTitle>
         Help
-      </MaterialDialogTitle>,
-      <MaterialDialogContent key="dialog-content">
-        <div className="info">
-          <List>
-            {hotkeysMap.map(hotkeyMap =>
-              <ListItem key={hotkeyMap[0]}>
-                <ListItemText
-                  primary={hotkeyMap[0]}
-                  secondary={hotkeyMap[1]}
-                />
-              </ListItem>
-            )}
-          </List>
-        </div>
-      </MaterialDialogContent>,
-      <MaterialDialogActions key="dialog-actions" className="dialog-buttons">
-        <Button
-          onClick={() => actions.closeUi()}
-        >
+      </MaterialDialogTitle>
+      <MaterialDialogContent>
+        <List dense={true}>
+          {hotkeysMap.map((hotkeyMap) =>
+            <ListItem key={hotkeyMap[0]}>
+              <ListItemText
+                primary={hotkeyMap[0]}
+                secondary={hotkeyMap[1]}
+              />
+            </ListItem>
+          )}
+        </List>
+      </MaterialDialogContent>
+      <MaterialDialogActions>
+        <Button onClick={() => actions.closeDialog()}>
           OK
         </Button>
-      </MaterialDialogActions>,
-    ]);
-  }
-}
+      </MaterialDialogActions>
+    </React.Fragment>
+  );
+};
 
 InfoDialog.propTypes = propTypes;
 

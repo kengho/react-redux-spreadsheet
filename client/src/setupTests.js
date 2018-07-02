@@ -8,5 +8,4 @@ configure({ adapter: new Adapter() });
 
 chai.use(chaiImmutable);
 
-// eslint-disable-next-line no-undef, no-console
 process.log = (x) => console.log(JSON.stringify(x, null, 2));

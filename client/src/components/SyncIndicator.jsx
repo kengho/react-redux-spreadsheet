@@ -1,54 +1,66 @@
 import IconButton from 'material-ui/IconButton';
+import Paper from 'material-ui/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
 import SyncDisabled from 'material-ui-icons/SyncDisabled';
 import SyncProblem from 'material-ui-icons/SyncProblem';
 import Tooltip from 'material-ui/Tooltip';
 
-const propTypes = {
-  requestsQueueLength: PropTypes.number.isRequired,
-  sync: PropTypes.bool.isRequired,
-};
+import './SyncIndicator.css';
 
-const defaultProps = {
+const propTypes = {
+  server: PropTypes.object.isRequired
 };
 
 class SyncIndicator extends React.PureComponent {
   render() {
-    const {
-      requestsQueueLength,
-      sync,
-    } = this.props;
+    const server = this.props.server;
 
-    let payload;
-    if (!sync) {
-      // TODO: go online on click.
-      payload = (
-        <Tooltip disabled title="Synchronization with server is disabled.">
-          <IconButton>
-            <SyncDisabled />
-          </IconButton>
+    let syncIndicatorBody;
+    if (!server.get('sync')) {
+      // TODO: go online on click (if not offline).
+      syncIndicatorBody = (
+        <Tooltip
+          placement="left"
+          title="Synchronization with server is disabled."
+        >
+          <div>
+            <IconButton disabled>
+              <SyncDisabled />
+            </IconButton>
+          </div>
         </Tooltip>
       );
-    } else if (requestsQueueLength === 0) {
-      payload = '';
+    } else if (!server.get('requestFailed')) {
+      syncIndicatorBody = '';
     } else {
-      payload = (
-        <Tooltip disabled title="Synchronization with server is in progress...">
-          <IconButton>
-            <SyncProblem />
-          </IconButton>
+      syncIndicatorBody = (
+        <Tooltip
+          placement="left"
+          title="Synchronization with server is in progress..."
+        >
+          {/* NOTE: without div tooltip not showing. */}
+          {/*   https://github.com/mui-org/material-ui/issues/8416#issuecomment-332556082 */}
+          <div>
+            <IconButton disabled>
+              <SyncProblem />
+            </IconButton>
+          </div>
         </Tooltip>
       );
     }
 
     return (
-      <div style={{ position: 'absolute', top: '0', right: '0' }}>{payload}</div>
+      <Paper
+        style={{ zIndex: '1000', position: 'fixed', top: '0', right: '0' }}
+        className="sync-indicator-wrapper"
+      >
+        {syncIndicatorBody}
+      </Paper>
     );
   }
 }
 
 SyncIndicator.propTypes = propTypes;
-SyncIndicator.defaultProps = defaultProps;
 
 export default SyncIndicator;

@@ -1,10 +1,8 @@
 import { LinearProgress } from 'material-ui/Progress';
 import React from 'react';
 
-import './LoadingScreen.css';
-
 const LoadingScreen = () => (
-  <LinearProgress className="progress" />
+  <LinearProgress style={{ width: 'calc(100% + 8px * 2)' }} />
 );
 
 export default LoadingScreen;
