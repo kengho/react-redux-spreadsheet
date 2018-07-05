@@ -122,7 +122,6 @@ export default function cellClickHandler({ evt, pointedCell }) {
         actions.batchActions([
           TableActions.insertRows(pointedCellProps[ROW]),
           TableActions.insertColumns(pointedCellProps[COLUMN]),
-          TableActions.updateCellSize(pointedCellProps),
           TableActions.setProp({
             ...pointedCellProps,
             prop: 'value',

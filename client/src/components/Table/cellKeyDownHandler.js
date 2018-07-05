@@ -45,7 +45,6 @@ export default function cellKeyDownHandler({ evt, elem }) {
         actions.batchActions([
           TableActions.insertRows(cellProps[ROW]),
           TableActions.insertColumns(cellProps[COLUMN]),
-          TableActions.updateCellSize(cellProps),
           TableActions.setPointer({
             edit: false,
             value: null,
