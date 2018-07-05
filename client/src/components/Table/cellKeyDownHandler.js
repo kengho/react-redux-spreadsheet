@@ -9,7 +9,7 @@ export default function cellKeyDownHandler({ evt, elem }) {
   //   context menu, though it's not catched here.
 
   const actions = this.props.actions;
-  const cell = evt.target;
+  const cell = evt.target.parentNode.parentNode;
 
   const action = findKeyAction(evt, [
     {

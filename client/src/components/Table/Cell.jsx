@@ -42,15 +42,16 @@ class Cell extends React.PureComponent {
       selectOnFocus,
     } = this.props;
 
-    // Focus cell.
-    if (isEditing && this.cell && this.cell.focus) {
-      this.cell.focus();
-    }
-
     // Set selection and caret if cell is editing.
-    if (isEditing && this.cell.firstChild) {
+    if (isEditing && this.cell) {
       const cellValue = this.cell.innerText;
-      const textContainer = this.cell.firstChild;
+      let textContainer
+      if (this.cell.firstChild) {
+        textContainer = this.cell.firstChild;
+      } else {
+        textContainer = this.cell;
+      }
+
       if (textContainer) {
         const range = document.createRange();
         const sel = window.getSelection();
@@ -97,53 +98,44 @@ class Cell extends React.PureComponent {
     if (tableHasHeader && (rowIndex === 0)) { classNames.push('header'); }
     if (value !== '') { classNames.push('non-empty'); }
 
-    let cellBody;
-    if (isEditing) {
-      cellBody = value;
-    } else {
-      // NOTE: without wrapper with pointer-events css prop user
-      //   can click on overflowing text instead of other cells.
-      //   Making it permanent messes with code that relies
-      //   on Cell having no childern.
-      cellBody = (
-        <div style={{ pointerEvents: 'none' }}>
-          {value}
-        </div>
-      );
-    }
-
-    // HACK: z-index making Cells' borders at left not to overlap text of Cells at right.
-    //   Why 900?
-    //     900 is z-index of line headers in Grid, Cell's z-index should be less.
-    //   Why not (someKindOfvisibleColumnsNumber - columnIndex) instead of 900?
-    //     If we make z-indexes relative to visible columns, too many updates will occur at scroll.
-    //     With this attempt we have broken overlapping for each 900 columns, whih is probably acceptable.
-    //   Why "- rowIndex"?
-    //     Issue persists in vertical direction without it.
-    //   Why "%"?
-    //     If we don't cycle z-indexes, Cells became unclickable at the moment z-index reaches -1.
-    const zIndex = (900 - columnIndex - rowIndex - 1) % 900;
-
     // NOTE: events handeled in Table.
+    // TODO: delete duplicating "data-" props using to
+    //   handle click in both empty and nonempty cells.
     return (
       <div
-        contentEditable={isEditing.toString()}
-        autoFocus={isEditing}
         className={classNames.join(' ')}
         data-column-index={columnIndex}
         data-component-name={CELL}
         data-row-index={rowIndex}
-        ref={(c) => {
-          this.cell = c;
-
-          if (bubbleCellRef !== false) {
-            bubbleCellRef(c);
-          }
-        }}
-        style={{ ...style, zIndex }}
-        suppressContentEditableWarning={true}
+        style={style}
       >
-        {cellBody}
+        {/*
+          HACK: additional wrapper div fixes bug in Firefox when after deleteing
+            all text in cell and pressing enter regardless of what was in handler
+            internal div was deleted.
+          NOTE: wrapper for value is required in order to fill overflowing text
+            while editing cell so it overlap nearby cellls' text.
+        */}
+        <div>
+          <div
+            className="cell-content"
+            autoFocus={isEditing}
+            contentEditable={isEditing.toString()}
+            data-column-index={columnIndex}
+            data-component-name={CELL}
+            data-row-index={rowIndex}
+            ref={(c) => {
+              this.cell = c;
+
+              if (bubbleCellRef !== false) {
+                bubbleCellRef(c);
+              }
+            }}
+            suppressContentEditableWarning={true}
+          >
+            {value}
+          </div>
+        </div>
       </div>
     );
   }
