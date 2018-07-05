@@ -74,11 +74,18 @@ export function setPointer(pointer) {
   };
 }
 
-export function movePointer({ key, altKey = false, cell }) {
+// REVIEW: do we really need default params here?
+export function movePointer({
+  key,
+  altKey = false,
+  ctrlKey = false,
+  cell,
+}) {
   return {
     type: ActionTypes.MOVE_POINTER,
     key,
     altKey,
+    ctrlKey,
     cell,
   };
 }

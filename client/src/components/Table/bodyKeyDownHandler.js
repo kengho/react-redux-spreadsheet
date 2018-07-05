@@ -60,9 +60,11 @@ export default function bodyKeyDownHandler(evt) {
         // Prevents native scrollbar movement.
         evt.preventDefault();
 
+        // REVIEW: can we just pass "evt" to movePointer?
         actions.movePointer({
           key: evt.key,
           altKey: evt.altKey,
+          ctrlKey: evt.ctrlKey,
         });
       },
     },
