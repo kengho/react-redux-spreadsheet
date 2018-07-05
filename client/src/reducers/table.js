@@ -212,7 +212,7 @@ export default (state = initialState().get('table'), action) => {
 
       const scrollSize = state.getIn(workingScrollPath);
       const currentLineIndex = state.getIn(workingPointerPath);
-      const currentLineSize = linesList.get(currentLineIndex, defaultLineSize);
+      const currentLineSize = linesList.getIn([currentLineIndex, 'index'], defaultLineSize);
       const currentLineOffset = getLineOffset({
         offsets: linesOffsets,
         index: currentLineIndex,
@@ -297,7 +297,7 @@ export default (state = initialState().get('table'), action) => {
       let nextState = state;
 
       // Decide, whether we should scroll page.
-      const nextLineSize = linesList.get(nextLineIndex, defaultLineSize);
+      const nextLineSize = linesList.getIn([nextLineIndex, 'index'], defaultLineSize);
       const nextLineOffset = getLineOffset({
         offsets: linesOffsets,
         index: nextLineIndex,
