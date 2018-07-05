@@ -19,4 +19,4 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-client/src/components/Grid
+src/components/Grid
