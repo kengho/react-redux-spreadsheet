@@ -27,6 +27,4 @@
 /dev
 .env
 .directory
-client/src/components/Grid
-client/node_modules
 public
