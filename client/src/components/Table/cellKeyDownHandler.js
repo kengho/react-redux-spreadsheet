@@ -8,6 +8,9 @@ export default function cellKeyDownHandler({ evt, elem }) {
   // TODO: for some reason, pressing ContextMenu doesn't open browser
   //   context menu, though it's not catched here.
 
+  // Preventing passing Ctlr+X to the body.
+  evt.stopImmediatePropagation();
+
   const actions = this.props.actions;
   const cell = evt.target.parentNode.parentNode;
 
