@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 2018_06_02_192848) do
   create_table "spreadsheets", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "client_timestamp", default: "-0001-12-31 21:29:43"
+    t.datetime "client_timestamp", default: "0000-01-01 00:00:00"
     t.text "state", default: "{}", null: false
   end
 
