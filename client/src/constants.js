@@ -42,3 +42,7 @@ export const SYNC = 'SYNC';
 // serverResponseCodes
 export const OK = 'OK';
 export const ERROR = 'ERROR';
+
+// directions
+export const FORWARD = 'FORWARD';
+export const BACKWARD = 'BACKWARD';

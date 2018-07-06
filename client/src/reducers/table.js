@@ -4,10 +4,16 @@ import {
 } from 'immutable';
 
 import * as ActionTypes from '../actionTypes';
-import { ROW, COLUMN } from '../constants';
+import {
+  ROW,
+  COLUMN,
+  FORWARD,
+  BACKWARD,
+} from '../constants';
 import {
   composeCell,
   composeLine,
+  findLastNonemptyAdjacentCell,
   findLineByOffset,
   getLineOffset,
   initialState,
@@ -116,11 +122,9 @@ export default (state = initialState().get('table'), action) => {
       const {
         key,
         altKey,
+        ctrlKey,
         cell,
       } = action;
-
-      const FORWARD = true;
-      const BACKWARD = false;
 
       let workingPointerPath;
       let workingScrollPath;
@@ -234,16 +238,28 @@ export default (state = initialState().get('table'), action) => {
           case 'ArrowDown':
           case 'ArrowRight':
           case 'ArrowLeft': {
-            switch (direction) {
-              case FORWARD:
-              nextLineIndex += 1;
-              break;
+            if (ctrlKey) {
+              // NOTE: see tests for explanation how it works.
+              nextLineIndex = findLastNonemptyAdjacentCell({
+                layout: state.getIn(['major', 'layout']),
+                startingCell: state.getIn(['major', 'session', 'pointer']),
+                lineType,
+                direction,
+              });
+            } else {
+              switch (direction) {
+                case FORWARD: {
+                  nextLineIndex += 1;
+                  break;
+                }
 
-              case BACKWARD:
-              nextLineIndex -= 1;
-              break;
+                case BACKWARD: {
+                  nextLineIndex -= 1;
+                  break;
+                }
 
-              default:
+                default:
+              }
             }
 
             break;

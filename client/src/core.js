@@ -9,6 +9,8 @@ import {
   CSV,
   JSON_FORMAT,
   ROW,
+  FORWARD,
+  BACKWARD,
 } from './constants';
 
 if (process.env.NODE_ENV !== 'test') {
@@ -285,6 +287,108 @@ export function initialState() {
   }
 
   return state;
+}
+
+// NOTE: all props are immutable.
+export function findLastNonemptyAdjacentCell({
+  layout,
+  startingCell,
+  lineType,
+  direction, // directions
+}) {
+  const rows = layout.getIn([ROW, 'list']);
+  const getCellValue = (cell) => {
+    return rows.getIn(
+      [cell[ROW].index, 'cells', cell[COLUMN].index, 'value'],
+      ''
+    );
+  };
+  const workingLines = layout.get(lineType);
+
+  let result;
+  let firstNonemptyCellSearchIndex;
+  let stopSearchIndex;
+  let indexIncrement;
+  let loopCondition;
+  let fallbackResult;
+  switch (direction) {
+    case FORWARD: {
+      firstNonemptyCellSearchIndex = startingCell.getIn([lineType, 'index']);
+      stopSearchIndex = workingLines.get('list').size - 1;
+      indexIncrement = +1;
+      loopCondition = (index) => (index <= stopSearchIndex);
+      fallbackResult = startingCell.getIn([lineType, 'index']);
+
+      break;
+    }
+
+    case BACKWARD: {
+      firstNonemptyCellSearchIndex = startingCell.getIn([lineType, 'index']);
+      stopSearchIndex = 0;
+      indexIncrement = -1;
+      loopCondition = (index) => (index >= stopSearchIndex);
+      fallbackResult = 0;
+
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  const currentCell = startingCell.toJS();
+  const nextCell = startingCell.toJS();
+
+  const currentValue = getCellValue(currentCell);
+  let startSearchIndex;
+  if (currentValue === '') {
+    startSearchIndex = firstNonemptyCellSearchIndex;
+  } else {
+    for (
+      let lineIndex = firstNonemptyCellSearchIndex;
+      loopCondition(lineIndex);
+      lineIndex += indexIncrement
+    ) {
+      currentCell[lineType].index = lineIndex;
+      const currentValue = getCellValue(currentCell);
+      if (currentValue !== '') {
+        startSearchIndex = lineIndex;
+        break;
+      }
+    }
+
+    if (!Number.isInteger(startSearchIndex)) {
+      return fallbackResult;
+    }
+  }
+
+  // Main loop.
+  for (
+    let lineIndex = startSearchIndex;
+    loopCondition(lineIndex);
+    lineIndex += indexIncrement
+  ) {
+    currentCell[lineType].index = lineIndex;
+    nextCell[lineType].index = lineIndex + indexIncrement;
+    const currentValue = getCellValue(currentCell);
+    const nextValue = getCellValue(nextCell);
+
+    if (currentValue !== '' && nextValue === '' && lineIndex !== startSearchIndex) {
+      result = lineIndex;
+      break;
+    }
+
+    if (currentValue === '' && nextValue !== '') {
+      result = lineIndex + indexIncrement;
+      break;
+    }
+  }
+
+  if (!Number.isInteger(result)) {
+    result = fallbackResult;
+  }
+
+  return result;
 }
 
 // TODO: test.

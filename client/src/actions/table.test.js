@@ -189,11 +189,313 @@ describe('move pointer', () => {
     });
   });
 
-  // TODO.
-  // describe('basic keys + ctrl', () => {
-  // });
+  describe('basic keys + ctrl', () => {
+    process.logBelow = true;
+
+    // Prepare state.
+    // [xx] - pointer before
+    // [a] - pointer after
+    const cells = [
+      //         pointer
+      //           ↓
+      ['' , ''  , '02', ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , '11', '12', '13', '' , '15' , '' , '17' , '18' , ''],
+      ['' , ''  , '22', ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , ''  , ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , '42', ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , ''  , ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , '62', ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , '72', ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , ''  , ''  , '' , ''   , '' , ''   , ''   , ''],
+      ['' , ''  , ''  , ''  , '' , ''   , '' , ''   , ''   , ''],
+    ];
+    store.dispatch(TableActions.insertLines({ lineType: ROW, index: cells.length - 1 }));
+    store.dispatch(TableActions.insertLines({ lineType: COLUMN, index: cells[0].length - 1 }));
+    cells.forEach((row, rowIndex) => {
+      row.forEach((value, columnIndex) => {
+        store.dispatch(TableActions.setProp({
+          [ROW]: {
+            index: rowIndex,
+          },
+          [COLUMN]: {
+            index: columnIndex,
+          },
+          prop: 'value',
+          value,
+        }));
+      });
+    });
+
+    it('should move pointer with basic keys + ctrl through rows when available', () => {
+      process.logBelow = false;
+
+      store.dispatch(TableActions.setPointer({
+        [ROW]: {
+          index: 0,
+        },
+        [COLUMN]: {
+          index: 2,
+        },
+      }));
+
+      // [xx] - pointer before
+      // {xx} - pointer after
+      //     2
+      // 0 [02]
+      // 1  12
+      // 2 {22}
+      // 3
+      // 4  42
+      // 5
+      // 6  62
+      // 7  72
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 2, columnIndex: 2 }));
+
+      //     2
+      // 0  02
+      // 1  12
+      // 2 [22]
+      // 3
+      // 4 {42}
+      // 5
+      // 6  62
+      // 7  72
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 4, columnIndex: 2 }));
+
+      //     2
+      // 0  02
+      // 1  12
+      // 2  22
+      // 3
+      // 4 [42]
+      // 5
+      // 6 {62}
+      // 7  72
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 6, columnIndex: 2 }));
+
+      //     2
+      // 0  02
+      // 1  12
+      // 2  22
+      // 3
+      // 4  42
+      // 5
+      // 6 [62]
+      // 7 {72}
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 7, columnIndex: 2 }));
+
+      //     2
+      // 0   02
+      // 1   12
+      // 2   22
+      // 3
+      // 4   42
+      // 5
+      // 6   62
+      // 7 {[72]}
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 7, columnIndex: 2 }));
+
+      // Starting point for ArrowUp.
+      store.dispatch(TableActions.setPointer({
+        [ROW]: {
+          index: 10, // out of real range
+        },
+        [COLUMN]: {
+          index: 2,
+        },
+      }));
+
+      //     2
+      // 0   02
+      // 1   12
+      // 2   22
+      // 3
+      // 4   42
+      // 5
+      // 6   62
+      // 7  {72}
+      // 8
+      // 9
+      // 10 [  ]
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 7, columnIndex: 2 }));
+
+      //     2
+      // 0   02
+      // 1   12
+      // 2   22
+      // 3
+      // 4   42
+      // 5
+      // 6  {62}
+      // 7  [72]
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 6, columnIndex: 2 }));
+
+      //     2
+      // 0   02
+      // 1   12
+      // 2   22
+      // 3
+      // 4  {42}
+      // 5
+      // 6  [62]
+      // 7   72
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 4, columnIndex: 2 }));
+
+      //     2
+      // 0   02
+      // 1   12
+      // 2  {22}
+      // 3
+      // 4  [42]
+      // 5
+      // 6   62
+      // 7   72
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 2, columnIndex: 2 }));
+
+      //     2
+      // 0  {02}
+      // 1   12
+      // 2  [22]
+      // 3
+      // 4   42
+      // 5
+      // 6   62
+      // 7   72
+      // 8
+      // 9
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 2 }));
+
+      // Border.
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 0, columnIndex: 2 }));
+
+      // Starting point for columns.
+      store.dispatch(TableActions.setPointer({
+        [ROW]: {
+          index: 1,
+        },
+        [COLUMN]: {
+          index: 0,
+        },
+      }));
+
+      //     0    1  2  3  4  5  6  7  8  9
+      // 1 [__] {11} 12 13 __ 15 __ 17 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 1 }));
+
+      //    0  1   2   3   4  5  6  7  8  9
+      // 1 __ [11] 12 {13} __ 15 __ 17 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 3 }));
+
+      //    0  1  2  3   4   5   6  7  8  9
+      // 1 __ 11 12 [13] __ {15} __ 17 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 5 }));
+
+      //    0  1  2  3  4  5   6   7   8  9
+      // 1 __ 11 12 13 __ [15] __ {17} 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 7 }));
+
+      //    0  1  2  3  4  5  6  7    8   9
+      // 1 __ 11 12 13 __ 15 __ [17] {18} __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 8 }));
+
+      //    0  1  2  3  4  5  6  7   8    9
+      // 1 __ 11 12 13 __ 15 __ 17 {[18]} __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowRight', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 8 }));
+
+      // Starting point for ArrowLeft.
+      store.dispatch(TableActions.setPointer({
+        [ROW]: {
+          index: 1,
+        },
+        [COLUMN]: {
+          index: 10, // out of real range
+        },
+      }));
+
+      //    0  1  2  3  4  5  6  7  8   9   10
+      // 1 __ 11 12 13 __ 15 __ 17 {18} __ [__]
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 8 }));
+
+      //    0  1  2  3  4  5  6  7    8   9
+      // 1 __ 11 12 13 __ 15 __ {17} [18] __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 7 }));
+
+      //    0  1  2  3  4  5   6   7   8  9
+      // 1 __ 11 12 13 __ {15} __ [17] 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 5 }));
+
+      //    0  1  2  3   4   5   6  7  8  9
+      // 1 __ 11 12 {13} __ [15] __ 17 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 3 }));
+
+      //    0  1   2   3   4  5  6  7  8  9
+      // 1 __ {11} 12 [13] __ 15 __ 17 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 1 }));
+
+      //     0    1  2  3  4  5  6  7  8  9
+      // 1 {__} [11] 12 13 __ 15 __ 17 18 __
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 0 }));
+
+      // Border.
+      store.dispatch(TableActions.movePointer({ key: 'ArrowLeft', ctrlKey: true }));
+      expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 0 }));
+
+      // Reseting.
+      store.dispatch(TableActions.setPointer({
+        [ROW]: {
+          index: 0,
+        },
+        [COLUMN]: {
+          index: 0,
+        },
+      }));
+    });
+
+
+  });
 
   describe('numpad keys', () => {
+    // TODO: restore pointer after each tests block (or before) like that.
+
     // 1 dot =~ 25 pixels, no gap between lines
     //
     // rows
