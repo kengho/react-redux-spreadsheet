@@ -479,15 +479,15 @@ describe('update cell size', () => {
     store.dispatch(TableActions.updateCellSize(args));
 
     expectedRowsList = fromJS([
-      { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
-      { id: 'r01', size: 101, cells: [{}, {}, {}, {}] },
-      { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+      { id: '00', size: null, cells: [{}, {}, {}, {}] },
+      { id: '01', size: 101, cells: [{}, {}, {}, {}] },
+      { id: '02', size: null, cells: [{}, {}, {}, {}] },
     ]);
     expectedColumnsList = fromJS([
-      { id: 'k00', size: null },
-      { id: 'k01', size: null },
-      { id: 'k02', size: 102 },
-      { id: 'k03', size: null },
+      { id: '00', size: null },
+      { id: '01', size: null },
+      { id: '02', size: 102 },
+      { id: '03', size: null },
     ]);
 
     expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -511,15 +511,15 @@ describe('update cell size', () => {
     store.dispatch(TableActions.updateCellSize(args));
 
     expectedRowsList = fromJS([
-      { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
-      { id: 'r01', size: 201, cells: [{}, {}, {}, {}] },
-      { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+      { id: '00', size: null, cells: [{}, {}, {}, {}] },
+      { id: '01', size: 201, cells: [{}, {}, {}, {}] },
+      { id: '02', size: null, cells: [{}, {}, {}, {}] },
     ]);
     expectedColumnsList = fromJS([
-      { id: 'k00', size: null },
-      { id: 'k01', size: null },
-      { id: 'k02', size: 202 },
-      { id: 'k03', size: null },
+      { id: '00', size: null },
+      { id: '01', size: null },
+      { id: '02', size: 202 },
+      { id: '03', size: null },
     ]);
 
     expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -571,15 +571,15 @@ describe('insert lines', () => {
       // 01 +++ +++ +++ +++
       // 02 +++ +++ +++ +++
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r01', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+        { id: '00', size: null, cells: [{}, {}, {}, {}] },
+        { id: '01', size: null, cells: [{}, {}, {}, {}] },
+        { id: '02', size: null, cells: [{}, {}, {}, {}] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k01', size: null },
-        { id: 'k02', size: null },
-        { id: 'k03', size: null },
+        { id: '00', size: null },
+        { id: '01', size: null },
+        { id: '02', size: null },
+        { id: '03', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -605,17 +605,17 @@ describe('insert lines', () => {
       // 01  ... ... ... ...
       // 02  ... ... ... ...
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r10', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r11', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r01', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
+        { id: '00', size: null, cells: [{}, {}, {}, {}] },
+        { id: '10', size: null, cells: [{}, {}, {}, {}] },
+        { id: '11', size: null, cells: [{}, {}, {}, {}] },
+        { id: '01', size: null, cells: [{}, {}, {}, {}] },
+        { id: '02', size: null, cells: [{}, {}, {}, {}] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k01', size: null },
-        { id: 'k02', size: null },
-        { id: 'k03', size: null },
+        { id: '00', size: null },
+        { id: '01', size: null },
+        { id: '02', size: null },
+        { id: '03', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -639,18 +639,18 @@ describe('insert lines', () => {
       // 02 ... ... ... ...
       // 50 +++ +++ +++ +++
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r10', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r11', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r01', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r02', size: null, cells: [{}, {}, {}, {}] },
-        { id: 'r50', size: null, cells: [{}, {}, {}, {}] },
+        { id: '00', size: null, cells: [{}, {}, {}, {}] },
+        { id: '10', size: null, cells: [{}, {}, {}, {}] },
+        { id: '11', size: null, cells: [{}, {}, {}, {}] },
+        { id: '01', size: null, cells: [{}, {}, {}, {}] },
+        { id: '02', size: null, cells: [{}, {}, {}, {}] },
+        { id: '50', size: null, cells: [{}, {}, {}, {}] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k01', size: null },
-        { id: 'k02', size: null },
-        { id: 'k03', size: null },
+        { id: '00', size: null },
+        { id: '01', size: null },
+        { id: '02', size: null },
+        { id: '03', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -693,21 +693,21 @@ describe('insert lines', () => {
       // 02 ... ... +++ +++ +++ ... ...
       // 50 ... ... +++ +++ +++ ... ...
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{ v: '00' }, { v: '01' }, {}, {}, {}, { v: '02' }, { v: '03' }] },
-        { id: 'r10', size: null, cells: [{ v: '10' }, { v: '11' }, {}, {}, {}, { v: '12' }, { v: '13' }] },
-        { id: 'r11', size: null, cells: [{ v: '20' }, { v: '21' }, {}, {}, {}, { v: '22' }, { v: '23' }] },
-        { id: 'r01', size: null, cells: [{ v: '30' }, { v: '31' }, {}, {}, {}, { v: '32' }, { v: '33' }] },
-        { id: 'r02', size: null, cells: [{ v: '40' }, { v: '41' }, {}, {}, {}, { v: '42' }, { v: '43' }] },
-        { id: 'r50', size: null, cells: [{ v: '50' }, { v: '51' }, {}, {}, {}, { v: '52' }, { v: '53' }] },
+        { id: '00', size: null, cells: [{ v: '00' }, { v: '01' }, {}, {}, {}, { v: '02' }, { v: '03' }] },
+        { id: '10', size: null, cells: [{ v: '10' }, { v: '11' }, {}, {}, {}, { v: '12' }, { v: '13' }] },
+        { id: '11', size: null, cells: [{ v: '20' }, { v: '21' }, {}, {}, {}, { v: '22' }, { v: '23' }] },
+        { id: '01', size: null, cells: [{ v: '30' }, { v: '31' }, {}, {}, {}, { v: '32' }, { v: '33' }] },
+        { id: '02', size: null, cells: [{ v: '40' }, { v: '41' }, {}, {}, {}, { v: '42' }, { v: '43' }] },
+        { id: '50', size: null, cells: [{ v: '50' }, { v: '51' }, {}, {}, {}, { v: '52' }, { v: '53' }] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k01', size: null },
-        { id: 'k20', size: null },
-        { id: 'k21', size: null },
-        { id: 'k22', size: null },
-        { id: 'k02', size: null },
-        { id: 'k03', size: null },
+        { id: '00', size: null },
+        { id: '01', size: null },
+        { id: '20', size: null },
+        { id: '21', size: null },
+        { id: '22', size: null },
+        { id: '02', size: null },
+        { id: '03', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -731,23 +731,23 @@ describe('insert lines', () => {
       // 02 ... ... ... ... ... ... ... +++ +++
       // 50 ... ... ... ... ... ... ... +++ +++
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{ v: '00' }, { v: '01' }, {}, {}, {}, { v: '02' }, { v: '03' }, {}, {}] },
-        { id: 'r10', size: null, cells: [{ v: '10' }, { v: '11' }, {}, {}, {}, { v: '12' }, { v: '13' }, {}, {}] },
-        { id: 'r11', size: null, cells: [{ v: '20' }, { v: '21' }, {}, {}, {}, { v: '22' }, { v: '23' }, {}, {}] },
-        { id: 'r01', size: null, cells: [{ v: '30' }, { v: '31' }, {}, {}, {}, { v: '32' }, { v: '33' }, {}, {}] },
-        { id: 'r02', size: null, cells: [{ v: '40' }, { v: '41' }, {}, {}, {}, { v: '42' }, { v: '43' }, {}, {}] },
-        { id: 'r50', size: null, cells: [{ v: '50' }, { v: '51' }, {}, {}, {}, { v: '52' }, { v: '53' }, {}, {}] },
+        { id: '00', size: null, cells: [{ v: '00' }, { v: '01' }, {}, {}, {}, { v: '02' }, { v: '03' }, {}, {}] },
+        { id: '10', size: null, cells: [{ v: '10' }, { v: '11' }, {}, {}, {}, { v: '12' }, { v: '13' }, {}, {}] },
+        { id: '11', size: null, cells: [{ v: '20' }, { v: '21' }, {}, {}, {}, { v: '22' }, { v: '23' }, {}, {}] },
+        { id: '01', size: null, cells: [{ v: '30' }, { v: '31' }, {}, {}, {}, { v: '32' }, { v: '33' }, {}, {}] },
+        { id: '02', size: null, cells: [{ v: '40' }, { v: '41' }, {}, {}, {}, { v: '42' }, { v: '43' }, {}, {}] },
+        { id: '50', size: null, cells: [{ v: '50' }, { v: '51' }, {}, {}, {}, { v: '52' }, { v: '53' }, {}, {}] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k01', size: null },
-        { id: 'k20', size: null },
-        { id: 'k21', size: null },
-        { id: 'k22', size: null },
-        { id: 'k02', size: null },
-        { id: 'k03', size: null },
-        { id: 'k70', size: null },
-        { id: 'k71', size: null },
+        { id: '00', size: null },
+        { id: '01', size: null },
+        { id: '20', size: null },
+        { id: '21', size: null },
+        { id: '22', size: null },
+        { id: '02', size: null },
+        { id: '03', size: null },
+        { id: '70', size: null },
+        { id: '71', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -792,15 +792,15 @@ describe('delete lines', () => {
       //     xxx xxx xxx xxx xxx
       // 03  ... ... ... ... ...
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{}, {}, {}, {}, {}] },
-        { id: 'r03', size: null, cells: [{}, {}, {}, {}, {}] },
+        { id: '00', size: null, cells: [{}, {}, {}, {}, {}] },
+        { id: '03', size: null, cells: [{}, {}, {}, {}, {}] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k01', size: null },
-        { id: 'k02', size: null },
-        { id: 'k03', size: null },
-        { id: 'k04', size: null },
+        { id: '00', size: null },
+        { id: '01', size: null },
+        { id: '02', size: null },
+        { id: '03', size: null },
+        { id: '04', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
@@ -839,12 +839,12 @@ describe('delete lines', () => {
       // 00  ... xxx xxx xxx ...
       // 03  ... xxx xxx xxx ...
       expectedRowsList = fromJS([
-        { id: 'r00', size: null, cells: [{ v: '00' }, { v: '04' }] },
-        { id: 'r03', size: null, cells: [{ v: '10' }, { v: '14' }] },
+        { id: '00', size: null, cells: [{ v: '00' }, { v: '04' }] },
+        { id: '03', size: null, cells: [{ v: '10' }, { v: '14' }] },
       ]);
       expectedColumnsList = fromJS([
-        { id: 'k00', size: null },
-        { id: 'k04', size: null },
+        { id: '00', size: null },
+        { id: '04', size: null },
       ]);
 
       expect(getRowsList(store)).to.deep.equal(expectedRowsList);
