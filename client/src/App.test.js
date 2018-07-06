@@ -109,6 +109,11 @@ TODO: Enter currently doesn't work
 TODO: Backspace.
 * pressing Backspace while there are pointer should delete all pointed cells' props
 * pressing Escape should hide cell history, all menus and dialogs
+* pressing arrowkeys at body should move pointer accordingly (unless border)
+* pressing arrowkeys with Ctrl at body should move pointer to the corresponding nearest nonempty cell
+* pressing ArrowDown and ArrowRight with Ctrl at body while there are no nonempty cells after pointer shouldn't move pointer
+* pressing PageUp and PageDown at body should move pointer to the one screen up and down accordingly (unless border)
+* pressing PageUp and PageDown with Alt at body should move pointer to the one screen left and right accordingly (unless border)
 * pressing Ctrl+X or Ctrl+C while there are pointer should mark cell as clipboard
 * pressing Ctrl+V while there are pointer should copy/cut value from clipboard
 * pressing Ctrl+V while there are pointer multiple times should cut multiple times even if clipboard cell is already empty

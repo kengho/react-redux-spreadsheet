@@ -24,7 +24,10 @@ const InfoDialog = (props) => {
     ['Enter / Shift+Enter', 'save and move cursor down/up'],
     ['Tab / Shift+Tab', 'save and move cursor to the right/left'],
     ['Escape or Backspace', 'delete cell\'s value'],
-    ['Arrow keys, PgUp, PgDn (also with Alt)', 'move cursor'],
+    ['Arrow keys', 'move cursor'],
+    ['Arrow keys with Ctrl', 'move cursor to the nearest nonempty cell'],
+    ['PgUp, PgDn', 'move cursor fast up and down'],
+    ['PgUp, PgDn with Alt', 'move cursor fast to the left and right '],
     ['Ctrl+Enter (while editing)', 'insert new line'],
   ];
 
