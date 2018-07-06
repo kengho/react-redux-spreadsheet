@@ -25,7 +25,7 @@ const mapStateToProps = (state) => ({
   server: state.get('server'),
   settings: state.get('settings'),
   variant: state.getIn(['ui', 'dialog', 'variant']),
-  visibility: state.getIn(['ui', 'dialog', 'visibility']),
+  visibility: state.getIn(['ui', 'dialog', 'visibility']) || false,
 });
 
 const mapDispatchToProps = (dispatch) => ({
