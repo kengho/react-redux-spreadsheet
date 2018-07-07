@@ -108,6 +108,7 @@ class Cell extends React.PureComponent {
         data-component-name={CELL}
         data-row-index={rowIndex}
         style={style}
+        title={value}
       >
         {/*
           HACK: additional wrapper div fixes bug in Firefox when after deleteing
