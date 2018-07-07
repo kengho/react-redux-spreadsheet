@@ -24,6 +24,8 @@ class ImportDialog extends React.PureComponent {
       isProcessing: false,
       messages: [],
     };
+
+    this.yesButton = null;
   }
 
   handleFileImport = async (evt) => {
@@ -58,6 +60,10 @@ class ImportDialog extends React.PureComponent {
             importedState: result.data,
             isProcessing: false,
           });
+
+          if (this.yesButton && this.yesButton.focus) {
+            this.yesButton.focus();
+          }
         }
       } else {
         this.setState({
@@ -118,10 +124,12 @@ class ImportDialog extends React.PureComponent {
         <MaterialDialogActions className="dialog-buttons">
           <Button onClick={() => actions.closeDialog()}>Cancel</Button>
           {withCircularProgress(
+            /* NOTE: autoFocus don't work. */
             <Button
+              buttonRef={(c) => this.yesButton = c}
+              color="primary"
               disabled={!Boolean(importedState)}
               variant="raised"
-              color="primary"
               onClick={
                 () => {
                   actions.mergeServerState(importedState, true);

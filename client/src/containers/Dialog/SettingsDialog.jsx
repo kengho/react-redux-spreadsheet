@@ -54,10 +54,19 @@ class SettingsDialog extends React.PureComponent {
     };
   }
 
+  keyDownHandler = (evt) => {
+    // TODO: find better way of handling hotkeys for all Dialogs.
+    if (evt.nativeEvent.key === 'Enter') {
+      this.props.actions.setSettings(this.state.settings);
+      this.props.actions.closeDialog();
+    }
+  };
+
   render() {
     const actions = this.props.actions;
 
     const boolRenderMap = { true: 'on', false: 'off' };
+    let autoFocusSet = false;
 
     // TODO: reset to defaults button.
     return (
@@ -66,8 +75,8 @@ class SettingsDialog extends React.PureComponent {
           Settings
         </MaterialDialogTitle>
         <MaterialDialogContent>
-          <FormGroup>
-            {this.settingsMap.map((item) => {
+          <FormGroup onKeyDown={this.keyDownHandler}>
+            {this.settingsMap.map((item, itemIndex) => {
               switch (item.type) {
                 case SWITCH: {
                   const defaulValue = boolRenderMap[initialSettings.get(item.param)];
@@ -101,10 +110,17 @@ class SettingsDialog extends React.PureComponent {
                 }
 
                 case STRING: {
+                  // Autofocus first STRING element.
+                  const autoFocus = !autoFocusSet;
+                  if (!autoFocusSet) {
+                    autoFocusSet = true;
+                  };
+
                   // TODO: PERF: fix lag when user types fast.
                   //   Possible approach: save settings on close or using throttle.
                   return (
                     <TextField
+                      autoFocus={autoFocus}
                       helperText={`(default: ${initialSettings.get(item.param)})`}
                       key={item.param}
                       label={item.label}

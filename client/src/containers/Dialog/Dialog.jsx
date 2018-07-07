@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch) => ({
     }, dispatch),
   },
 });
-//
+
 class Dialog extends React.Component {
   keyDownHandler = (evt) => {
     evt.nativeEvent.stopImmediatePropagation();
@@ -86,11 +86,6 @@ class Dialog extends React.Component {
       default:
         break;
     }
-
-    // TODO: focus Dialog buttons using hotkeys.
-    //   This doesn't work (on Button):
-    //   // style={{ keyboardFocused: (buttonMap.type === 'ACTION') }}
-    //   'ref' on buttons also returns strange results.
 
     return (
       <MaterialDialog

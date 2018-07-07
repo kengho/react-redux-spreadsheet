@@ -152,6 +152,10 @@ TODO: Backspace.
 * in grid menu item "settings" should be present
 * in table menu, when user clicks on "settings", appropriate dialog should pop up
 * when user changes something in settings dialog and presses OK update request should sync it with server
+* when "settings" dialog opens first input should focus
+* when "info" dialog appears, after pressing "Enter" should close it
+* in "import" dialog after importing and processing data "OK" button should focus
+* in "destroy spreadsheet" dialog pressing "Enter" shouldn't have effect unless user manually "tabbed" there
 
 TODO: more tests.
 */

@@ -49,7 +49,10 @@ const InfoDialog = (props) => {
         </List>
       </MaterialDialogContent>
       <MaterialDialogActions>
-        <Button onClick={() => actions.closeDialog()}>
+        <Button
+          autoFocus={true}
+          onClick={() => actions.closeDialog()}
+        >
           OK
         </Button>
       </MaterialDialogActions>
