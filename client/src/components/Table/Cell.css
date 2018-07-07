@@ -37,7 +37,7 @@
 .cell.editing {
   border: 1px solid #4e8;
   cursor: inherit;
-  z-index: 1000;
+  z-index: 700;
 }
 
 .cell.clipboard {
