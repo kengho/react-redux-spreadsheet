@@ -532,20 +532,22 @@ export default (state = initialState().get('table'), action) => {
         'clipboard',
       ], fromJS(action.clipboard));
 
-      case ActionTypes.MERGE_SERVER_STATE:
-        const initialSession = initialTable().getIn(['major', 'session']);
-        // TODO: in case of empty state mergeDeep() doesn't work as we would like,
-        //   leaving  Lists inside layout as is instead of replacing them.
-        //   Using this version until it is fugured out.
-        //   Also, it can't wipe session data, so meybe this approach was
-        //   failed by desing.
-        return state.setIn(
-          ['major', 'layout'],
-          fromJS(action.serverState.table.major.layout)
-        ).setIn(
-          ['major', 'session'],
-          initialSession
-        );
+    case ActionTypes.MERGE_SERVER_STATE: {
+      const initialSession = initialTable().getIn(['major', 'session']);
+
+      // TODO: in case of empty state mergeDeep() doesn't work as we would like,
+      //   leaving  Lists inside layout as is instead of replacing them.
+      //   Using this version until it is fugured out.
+      //   Also, it can't wipe session data, so meybe this approach was
+      //   failed by desing.
+      return state.setIn(
+        ['major', 'layout'],
+        fromJS(action.serverState.table.major.layout)
+      ).setIn(
+        ['major', 'session'],
+        initialSession
+      );
+    }
 
 
     // TODO: optimize setIn.
