@@ -603,7 +603,7 @@ export async function convert({
     return result;
 
     // JSON => APP
-    } else if (inputFormat === JSON_FORMAT) {
+  } else if (inputFormat === JSON_FORMAT) {
     const JSONData = serializedData;
     const result = {};
     let parsedJSON;
@@ -644,9 +644,9 @@ export async function convert({
 
               return appCell;
             }
-          ).setIn(
+          ).set(
             'settings',
-            parsedJSON.settings
+            fromJS(parsedJSON.settings)
           );
 
           result.data = getSufficientState(state);
