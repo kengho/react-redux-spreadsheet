@@ -547,39 +547,26 @@ export async function convert({
       const Papa = await import('papaparse');
 
       return Papa.unparse(tableArray);
+
     // APP => JSON
     } else if (outputFormat === JSON_FORMAT) {
-      const tableArray = convertTableToPlainArray(
-        table,
-        (appCell) => {
-          let jsonCell = {};
-          if (appCell) {
-            const cellValue = appCell.get('value');
-            if (cellValue && cellValue !== '') {
-              jsonCell.value = cellValue;
-            }
-            if (appCell.get('history')) {
-              jsonCell.history = appCell.get('history').map((record) => {
-                // 1513645323000
-                // =>
-                // 2017-12-19T01:02:03.000Z
-                const time = new Date(record.get('time')).toISOString();
+      const layout = table.get('layout').toJS();
 
-                return {
-                  time,
-                  value: record.get('value'),
-                };
-              });
-            }
+      // Convert history timestamps.
+      layout[ROW].list.forEach((row, rowIndex) => {
+        row.cells.forEach((cell, columnIndex) => {
+          if (cell.history) {
+            cell.history.forEach((record) => {
+              const formattedTime = new Date(record.time).toISOString();
+              record.time = formattedTime;
+            });
           }
-
-          return jsonCell;
-        }
-      );
+        });
+      });
 
       return JSON.stringify({
-        version: '1',
-        ...getSufficientState({ table: tableArray, settings }),
+        version: '2',
+        ...getSufficientState({ table: layout, settings }),
       });
     }
 
@@ -602,7 +589,7 @@ export async function convert({
 
     return result;
 
-    // JSON => APP
+  // JSON => APP
   } else if (inputFormat === JSON_FORMAT) {
     const JSONData = serializedData;
     const result = {};
@@ -650,6 +637,35 @@ export async function convert({
           );
 
           result.data = getSufficientState(state);
+
+          break;
+        }
+
+        case '2': {
+          const state = initialState().toJS();
+
+          // TODO: fill lines' ids if there are none.
+
+          // Convert history timestamps.
+          state.table.major.layout = parsedJSON.table;
+          state.table.major.layout[ROW].list.forEach((row, rowIndex) => {
+            row.cells.forEach((cell, columnIndex) => {
+              if (cell.history) {
+                cell.history.forEach((record) => {
+                  // 2017-12-19T01:02:03.000Z
+                  // =>
+                  // 1513645323000
+                  // TODO: catch errors.
+                  const time = new Date(record.time).getTime();
+                  record.time = time;
+                });
+
+                cell.history.sort((a, b) => a.time > b.time);
+              }
+            });
+          });
+          state.setting = parsedJSON.settings;
+          result.data = getSufficientState(fromJS(state));
 
           break;
         }
