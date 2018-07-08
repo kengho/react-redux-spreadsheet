@@ -305,6 +305,16 @@ export default (state = initialState().get('table'), action) => {
         }
       } else if (cell) {
         nextLineIndex = cell[lineType].index;
+
+        // HACK: if SearchBar is visible, next row (getting here),
+        //   could become overlapped by it. There is no way to prevent
+        //   this until "table" state branch knows about "ui", which
+        //   is not going to happen. Another approach could be changing
+        //   margin in "table" after calling openSearchBar() action,
+        //   but it seems to be too complicated. Don't know how to solve it yet.
+        if (lineType === ROW) {
+          marginSize += 50;
+        }
       } else {
         return state;
       }
