@@ -1,5 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Loadable from 'react-loadable';
 import React from 'react';
 
 import { initialState } from '../core';
@@ -10,14 +11,27 @@ import * as SettingsActions from '../actions/settings';
 import * as TableActions from '../actions/table';
 import * as UiActions from '../actions/ui';
 import * as UndoRedoActions from '../actions/undoRedo';
-import CellHistory from '../components/Popup/CellHistory';
 import fetchServer from '../lib/fetchServer';
 import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
-import Menu from '../components/Popup/Menu';
-import SearchBar from '../components/SearchBar';
-import SyncIndicator from '../components/SyncIndicator';
 import Table from '../components/Table/Table';
+
+const CellHistory = Loadable({
+  loader: () => import('../components/Popup/CellHistory'),
+  loading: () => <div />,
+});
+const Menu = Loadable({
+  loader: () => import('../components/Popup/Menu'),
+  loading: () => <div />,
+});
+const SearchBar = Loadable({
+  loader: () => import('../components/SearchBar'),
+  loading: () => <div />,
+});
+const SyncIndicator = Loadable({
+  loader: () => import('../components/SyncIndicator'),
+  loading: () => <div />,
+});
 
 const mapStateToProps = (state, ownProps) => {
   // (?) TODO: canUndo and canRedo to table.

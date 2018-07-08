@@ -576,7 +576,6 @@ export async function convert({
   } else if (inputFormat === CSV) {
     const CSVdata = serializedData;
 
-    // TODO: more code splitting.
     const Papa = await import('papaparse');
     const parsedCSV = Papa.parse(CSVdata);
     const result = {
