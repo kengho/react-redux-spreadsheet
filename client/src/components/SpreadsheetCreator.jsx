@@ -66,6 +66,7 @@ class SpreadsheetCreator extends React.PureComponent {
           }
         }
 
+        this.recaptcha.reset();
         onRecaptchaResolved();
       });
   }

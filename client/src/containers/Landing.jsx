@@ -48,7 +48,10 @@ class Landing extends React.Component {
         <SpreadsheetCreator
           beforeRecaptchaExecute={() => this.setState({ buttonIsDisabled: true })}
           history={history}
-          onErrors={(errors) => actions.setLandingMessages(errors)}
+          onErrors={(errors) => {
+            actions.setLandingMessages(errors);
+            this.setState({ buttonIsDisabled: false });
+          }}
           onRecaptchaResolved={() => this.setState({ buttonIsDisabled: false })}
           openInNewTab={false}
           recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
