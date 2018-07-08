@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { JSON_FORMAT, ConvertFormats } from '../../constants';
-import withCircularProgress from './withCircularProgress';
+import withCircularProgress from '../../components/withCircularProgress';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,

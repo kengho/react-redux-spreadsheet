@@ -10,6 +10,7 @@ import * as LandingActions from '../actions/landing';
 import * as TableActions from '../actions/table';
 import getRootPath from '../lib/getRootPath';
 import SpreadsheetCreator from '../components/SpreadsheetCreator';
+import withCircularProgress from '../components/withCircularProgress';
 
 const mapStateToProps = (state) => ({
   buttonIsDisabled: state.getIn(['landing', 'buttonIsDisabled']),
@@ -56,14 +57,17 @@ class Landing extends React.Component {
           openInNewTab={false}
           recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
         >
-          <Button
-            color="primary"
-            disabled={buttonIsDisabled}
-            raised="true"
-            variant="raised"
-          >
-            create spreadsheet
-          </Button>
+          {withCircularProgress(
+            <Button
+              color="primary"
+              disabled={buttonIsDisabled}
+              raised="true"
+              variant="raised"
+            >
+              create spreadsheet
+            </Button>,
+            buttonIsDisabled
+          )}
         </SpreadsheetCreator>
         <Button
           dense="true"
