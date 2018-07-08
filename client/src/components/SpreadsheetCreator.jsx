@@ -32,11 +32,9 @@ class SpreadsheetCreator extends React.PureComponent {
     super(props);
 
     this.recaptcha = null;
-    this.onChildrenClickHandler = this.onChildrenClickHandler.bind(this);
-    this.onRecaptchaResolved = this.onRecaptchaResolved.bind(this);
   }
 
-  onRecaptchaResolved(evt) {
+  onRecaptchaResolvedHandler = (evt) => {
     const {
       history,
       onErrors,
@@ -69,9 +67,9 @@ class SpreadsheetCreator extends React.PureComponent {
         this.recaptcha.reset();
         onRecaptchaResolved();
       });
-  }
+  };
 
-  onChildrenClickHandler(evt) {
+  onChildrenClickHandler = (evt) => {
     const beforeRecaptchaExecute = this.props.beforeRecaptchaExecute;
 
     const action = () => {
@@ -80,12 +78,12 @@ class SpreadsheetCreator extends React.PureComponent {
       if (this.recaptcha) {
         this.recaptcha.execute();
       } else {
-        this.onRecaptchaResolved();
+        this.onRecaptchaResolvedHandler();
       }
     }
 
     rippleButtonAction(action)(evt);
-  }
+  };
 
   render() {
     const {
@@ -107,7 +105,7 @@ class SpreadsheetCreator extends React.PureComponent {
         {clickableChildren}
         {recaptchaSitekey &&
           <Recaptcha
-            onResolved={this.onRecaptchaResolved}
+            onResolved={this.onRecaptchaResolvedHandler}
             ref={(c) => this.recaptcha = c}
             sitekey={recaptchaSitekey}
           />

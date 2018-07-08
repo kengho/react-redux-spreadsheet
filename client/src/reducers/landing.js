@@ -13,12 +13,6 @@ export default (state = initialState().get('landing') || null, action) => {
         fromJS(action.messages)
       );
 
-    case ActionTypes.DISABLE_LANDING_BUTTON:
-      return state.set(
-        'buttonIsDisabled',
-        action.disable
-      );
-
     default:
       return state;
   }

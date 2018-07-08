@@ -32,11 +32,7 @@ export default (method, action, body = {}) => {
         };
       }
     })
-    .catch((error) => {
-      return {
-        errors: [{ detail: error.message }],
-      };
-    });
+    .catch((error) => ({ errors: [{ detail: error.message }] }));
 
   return promise;
 };
