@@ -31,7 +31,7 @@ class Landing extends React.Component {
     super(props);
 
     this.state = {
-      buttonIsDisabled: false,
+      buttonIsDisabled: true,
     };
   }
 
@@ -53,6 +53,7 @@ class Landing extends React.Component {
             actions.setLandingMessages(errors);
             this.setState({ buttonIsDisabled: false });
           }}
+          onRecaptchaLoaded={() => this.setState({ buttonIsDisabled: false })}
           onRecaptchaResolved={() => this.setState({ buttonIsDisabled: false })}
           openInNewTab={false}
           recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}

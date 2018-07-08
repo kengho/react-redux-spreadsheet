@@ -14,6 +14,7 @@ const propTypes = {
   disabled: PropTypes.bool,
   history: PropTypes.object,
   onErrors: PropTypes.func,
+  onRecaptchaLoaded: PropTypes.func,
   onRecaptchaResolved: PropTypes.func,
   openInNewTab: PropTypes.bool,
   recaptchaSitekey: PropTypes.string,
@@ -23,6 +24,7 @@ const defaultProps = {
   beforeRecaptchaExecute: () => {},
   disabled: false,
   onErrors: () => {},
+  onRecaptchaLoaded: () => {},
   onRecaptchaResolved: () => {},
   openInNewTab: false,
 };
@@ -89,6 +91,7 @@ class SpreadsheetCreator extends React.PureComponent {
     const {
       children,
       disabled,
+      onRecaptchaLoaded,
       recaptchaSitekey,
     } = this.props;
 
@@ -105,6 +108,7 @@ class SpreadsheetCreator extends React.PureComponent {
         {clickableChildren}
         {recaptchaSitekey &&
           <Recaptcha
+            onLoaded={onRecaptchaLoaded}
             onResolved={this.onRecaptchaResolvedHandler}
             ref={(c) => this.recaptcha = c}
             sitekey={recaptchaSitekey}
