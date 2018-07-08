@@ -91,11 +91,10 @@ http://localhost:3000/spreadsheet should display landing page.
 
 ## TODO (random order)
 
-* better mobile browsers support
+* mobile browsers support
 * scripting (aka "functions")
 * cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
-* sort
 * lists (in form of just links to other spreadsheets)
 * consider users' auth
 * private spreadsheets
@@ -110,8 +109,8 @@ http://localhost:3000/spreadsheet should display landing page.
 * fix all code imperfections
 * consider RLE compression for data (see ODS format)
 * i18n
-* add/delete lines' and other animations
-* perfect lines sizing (double click for optimal size, consider returning autogrowth)
+* add/delete lines' and other animations (?)
+* to perfect lines sizing (double click for optimal size, consider returning autogrowth)
 * more spreadsheeting
 * full xlsx compatibility (just a joke)
 

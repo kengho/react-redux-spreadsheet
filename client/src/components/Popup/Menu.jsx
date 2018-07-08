@@ -22,6 +22,7 @@ import {
 const propTypes = {
   actions: PropTypes.object.isRequired,
   server: PropTypes.object.isRequired,
+  settings: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
   ui: PropTypes.object.isRequired,
 };

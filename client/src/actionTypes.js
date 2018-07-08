@@ -31,6 +31,7 @@ export const PASTE_AT_POINTER = 'table/PASTE_AT_POINTER';
 export const CLEAR_AT_POINTER = 'table/CLEAR_AT_POINTER';
 export const DELETE_AT_POINTER = 'table/DELETE_AT_POINTER';
 export const MERGE_SERVER_STATE = 'table/MERGE_SERVER_STATE';
+export const SORT = 'table/SORT';
 export const BATCH_ACTIONS = 'table/BATCH_ACTIONS';
 
 // server

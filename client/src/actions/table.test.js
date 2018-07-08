@@ -3,8 +3,14 @@ require('../setupTests');
 import { expect } from 'chai';
 import { fromJS, Map } from 'immutable';
 
-import { ROW, COLUMN } from '../constants';
+import {
+  ROW,
+  COLUMN,
+  ASCENDING,
+  DESCENDING,
+} from '../constants';
 import * as Core from '../core';
+// import * as SettingsActions from './settings';
 import * as TableActions from './table';
 import configureStore from '../store/configureStore';
 
@@ -12,6 +18,33 @@ const getPointer = (store) => store.getState().get('table').present.getIn(['majo
 const getTableLayout = (store) => store.getState().get('table').present.getIn(['major', 'layout']);
 const getRowsList = (store) => store.getState().get('table').present.getIn(['major', 'layout', ROW, 'list']);
 const getColumnsList = (store) => store.getState().get('table').present.getIn(['major', 'layout', COLUMN, 'list']);
+
+const setCellsValues = (store, cellsArray) => {
+  // Example for cellsArray:
+  // const cellsArray = [
+  //   ['00' , ''],
+  //   ['' , '11'],
+  // ];
+
+  store.dispatch(TableActions.insertLines({ lineType: ROW, index: cellsArray.length - 1 }));
+  store.dispatch(TableActions.insertLines({ lineType: COLUMN, index: cellsArray[0].length - 1 }));
+  cellsArray.forEach((row, rowIndex) => {
+    row.forEach((value, columnIndex) => {
+      store.dispatch(TableActions.setProp({
+        [ROW]: {
+          index: rowIndex,
+        },
+        [COLUMN]: {
+          index: columnIndex,
+        },
+        prop: 'value',
+        value,
+      }));
+    });
+  });
+
+  return store;
+}
 
 describe('merge in', () => {
   // Testing in regular workflow style.
@@ -209,22 +242,7 @@ describe('move pointer', () => {
       ['' , ''  , ''  , ''  , '' , ''   , '' , ''   , ''   , ''],
       ['' , ''  , ''  , ''  , '' , ''   , '' , ''   , ''   , ''],
     ];
-    store.dispatch(TableActions.insertLines({ lineType: ROW, index: cells.length - 1 }));
-    store.dispatch(TableActions.insertLines({ lineType: COLUMN, index: cells[0].length - 1 }));
-    cells.forEach((row, rowIndex) => {
-      row.forEach((value, columnIndex) => {
-        store.dispatch(TableActions.setProp({
-          [ROW]: {
-            index: rowIndex,
-          },
-          [COLUMN]: {
-            index: columnIndex,
-          },
-          prop: 'value',
-          value,
-        }));
-      });
-    });
+    setCellsValues(store, cells);
 
     it('should move pointer with basic keys + ctrl through rows when available', () => {
       process.logBelow = false;
@@ -1215,5 +1233,97 @@ describe('cell history', () => {
     ]);
 
     expect(actualCellHistory).to.equal(expectedCellHistory);
+  });
+});
+
+describe('sort', () => {
+  const state = Core.initialState();
+  const store = configureStore(state);
+
+  const cells = [
+    ['10', '2'  , 'header'],
+    ['00', 'ab' , ''],
+    ['20', 'aa' , ''],
+    ['30', ''   , ''],
+    ['40', '1'  , ''],
+    ['50', 'aaa', ''],
+  ];
+  setCellsValues(store, cells);
+
+  let expectedCells;
+  let actualCells;
+
+  // TODO: test case with empty cells.
+
+  it('should sort correctly in presense of header', () => {
+    // store.dispatch(SettingsActions.setSettings({
+    //   ...Core.initialSettings.toJS(),
+    //   tableHasHeader: true,
+    // }));
+
+    store.dispatch(TableActions.sort({
+      lineType: COLUMN,
+      index: 1,
+      order: ASCENDING,
+      fixFirstLine: true,
+    }));
+
+    expectedCells = [
+      ['10', '2'  , 'header'],
+      ['30', ''   , ''],
+      ['40', '1'  , ''],
+      ['20', 'aa' , ''],
+      ['50', 'aaa', ''],
+      ['00', 'ab' , ''],
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+
+  it('should sort rows ascending', () => {
+    store.dispatch(TableActions.sort({
+      lineType: COLUMN,
+      index: 1,
+      order: ASCENDING,
+    }));
+
+    expectedCells = [
+      ['30', ''   , ''],
+      ['40', '1'  , ''],
+      ['10', '2'  , 'header'],
+      ['20', 'aa' , ''],
+      ['50', 'aaa', ''],
+      ['00', 'ab' , ''],
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+
+  it('should sort rows descending', () => {
+    store.dispatch(TableActions.sort({
+      lineType: COLUMN,
+      index: 1,
+      order: DESCENDING,
+    }));
+
+    expectedCells = [
+      ['00', 'ab' , ''],
+      ['50', 'aaa', ''],
+      ['20', 'aa' , ''],
+      ['10', '2'  , 'header'],
+      ['40', '1'  , ''],
+      ['30', ''   , ''],
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
   });
 });

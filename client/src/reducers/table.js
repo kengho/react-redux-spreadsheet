@@ -9,6 +9,8 @@ import {
   COLUMN,
   FORWARD,
   BACKWARD,
+  ASCENDING,
+  DESCENDING,
 } from '../constants';
 import {
   composeCell,
@@ -549,6 +551,37 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
+    // TODO: manage to put tableHasHeader to table branch somehow.
+    case ActionTypes.SORT: {
+      // NOTE: sorting only rows for now (corresponds to columns in terms of UI).
+      if (action.lineType !== COLUMN) {
+        return state;
+      }
+
+      const firstRowId = state.getIn(['major', 'layout', ROW, 'list', 0, 'id']);
+
+      return state.updateIn(
+        ['major', 'layout', ROW, 'list'],
+        (list) => list.sort(
+          (line1, line2) => {
+            if (action.fixFirstLine && line1.get('id') === firstRowId) {
+              return false;
+            }
+
+            const value1 = line1.getIn(['cells', action.index, ...action.propPath], '');
+            const value2 = line2.getIn(['cells', action.index, ...action.propPath], '');
+            switch (action.order) {
+              case ASCENDING:
+                return value1 > value2;
+              case DESCENDING:
+                return value1 < value2;
+              default:
+                return false;
+            }
+          }
+        )
+      );
+    }
 
     // TODO: optimize setIn.
     // HACK: after actions sequence SETpointer (edit: true), SET_PROP, (MOVEpointer)

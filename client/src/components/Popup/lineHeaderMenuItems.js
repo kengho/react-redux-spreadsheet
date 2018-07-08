@@ -1,11 +1,14 @@
 import {
   COLUMN,
   ROW,
+  ASCENDING,
+  DESCENDING,
 } from '../../constants';
 
 export default function lineHeaderMenuItems(props) {
   const {
     actions,
+    settings,
     ui,
   } = props;
   const popup = ui.get('popup');
@@ -69,7 +72,45 @@ export default function lineHeaderMenuItems(props) {
           index: popup.getIn([COLUMN, 'index']),
           number: 1,
         }),
-      }
+      },
+      {
+        label: 'Sort A to Z',
+        action: () => actions.sort({
+          lineType: COLUMN,
+          index: popup.getIn([COLUMN, 'index']),
+          order: ASCENDING,
+          fixFirstLine: settings.get('tableHasHeader'),
+        }),
+      },
+      {
+        label: 'Sort Z to A',
+        action: () => actions.sort({
+          lineType: COLUMN,
+          index: popup.getIn([COLUMN, 'index']),
+          order: DESCENDING,
+          fixFirstLine: settings.get('tableHasHeader'),
+        }),
+      },
+      {
+        label: 'Sort old to new',
+        action: () => actions.sort({
+          lineType: COLUMN,
+          index: popup.getIn([COLUMN, 'index']),
+          order: ASCENDING,
+          propPath: ['history', 0, 'time'],
+          fixFirstLine: settings.get('tableHasHeader'),
+        }),
+      },
+      {
+        label: 'Sort new to old',
+        action: () => actions.sort({
+          lineType: COLUMN,
+          index: popup.getIn([COLUMN, 'index']),
+          order: DESCENDING,
+          propPath: ['history', 0, 'time'],
+          fixFirstLine: settings.get('tableHasHeader'),
+        }),
+      },
     ];
   }
 };

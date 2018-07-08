@@ -46,3 +46,7 @@ export const ERROR = 'ERROR';
 // directions
 export const FORWARD = 'FORWARD';
 export const BACKWARD = 'BACKWARD';
+
+// sortOrders
+export const ASCENDING = 'ASCENDING';
+export const DESCENDING = 'DESCENDING';

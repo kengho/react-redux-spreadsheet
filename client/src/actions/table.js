@@ -260,6 +260,24 @@ export function mergeServerState(serverState, changesData = false) {
   };
 }
 
+export function sort({
+  lineType,
+  index,
+  order, // sortOrders
+  propPath = ['value'],
+  fixFirstLine = false,
+}) {
+  return {
+    type: ActionTypes.SORT,
+    lineType,
+    index,
+    order,
+    propPath,
+    fixFirstLine,
+    changesData,
+  };
+}
+
 export function batchActions(actions) {
   return {
     type: ActionTypes.BATCH_ACTIONS,
