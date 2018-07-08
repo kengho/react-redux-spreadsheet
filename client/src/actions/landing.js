@@ -6,10 +6,3 @@ export function setLandingMessages(messages) {
     messages,
   };
 }
-
-export function disableLandingButton(disable) {
-  return {
-    type: ActionTypes.DISABLE_LANDING_BUTTON,
-    disable,
-  };
-}

@@ -103,7 +103,7 @@ class Spreadsheet extends React.Component {
           }
         });
     } else {
-      actions.setLandingMessages([]); // for not to show previous messages after goinh back in history
+      actions.setLandingMessages([]); // for not to show previous messages after going back in history
       actions.setShortId(OFFLINE.toLowerCase()); // shortIds
       actions.setSync(false);
       actions.mergeServerState(initialState().toJS());

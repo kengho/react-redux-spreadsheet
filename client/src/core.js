@@ -243,7 +243,6 @@ export function initialState() {
     state = fromJS({
       landing: {
         messages: [],
-        buttonIsDisabled: false,
       },
       server: {
         shortId: null,

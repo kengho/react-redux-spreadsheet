@@ -26,21 +26,30 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Landing extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      buttonIsDisabled: false,
+    };
+  }
+
   render() {
     const {
       actions,
-      buttonIsDisabled,
       history,
       messages,
     } = this.props;
 
+    const buttonIsDisabled = this.state.buttonIsDisabled;
+
     return (
       <div className="landing">
         <SpreadsheetCreator
-          beforeRecaptchaExecute={() => actions.disableLandingButton(true)}
+          beforeRecaptchaExecute={() => this.setState({ buttonIsDisabled: true })}
           history={history}
           onErrors={(errors) => actions.setLandingMessages(errors)}
-          onRecaptchaResolved={() => actions.disableLandingButton(false)}
+          onRecaptchaResolved={() => this.setState({ buttonIsDisabled: false })}
           openInNewTab={false}
           recaptchaSitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
         >
