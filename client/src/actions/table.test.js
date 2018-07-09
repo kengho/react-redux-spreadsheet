@@ -1196,6 +1196,7 @@ describe('cell history', () => {
     store.dispatch(TableActions.pushCellHistory(cell, 123, 'b'));
     store.dispatch(TableActions.pushCellHistory(cell, 124, 'c'));
     store.dispatch(TableActions.pushCellHistory(cell, 125, 'd'));
+    store.dispatch(TableActions.pushCellHistory(cell, 126, 'e'));
 
     const expectedCellHistory = fromJS([
       {
@@ -1210,6 +1211,10 @@ describe('cell history', () => {
         time: 125,
         value: 'd',
       },
+      {
+        time: 126,
+        value: 'e',
+      },
     ]);
     const actualCellHistory = store.getState().get('table').present.getIn(
       ['major', 'layout', ROW, 'list', 1, 'cells', 2, 'history']
@@ -1218,7 +1223,7 @@ describe('cell history', () => {
     expect(actualCellHistory).to.equal(expectedCellHistory);
   });
 
-  it('delete cell history', () => {
+  it('should delete cell history', () => {
     store.dispatch(TableActions.deleteCellHistory(cell, 0));
     store.dispatch(TableActions.deleteCellHistory(cell, 1)); // former [2]
 
@@ -1230,7 +1235,22 @@ describe('cell history', () => {
         time: 124,
         value: 'c',
       },
+      {
+        time: 126,
+        value: 'e',
+      },
     ]);
+
+    expect(actualCellHistory).to.equal(expectedCellHistory);
+  });
+
+  it('should delete cell all history if index is not specified', () => {
+    store.dispatch(TableActions.deleteCellHistory(cell));
+
+    const actualCellHistory = store.getState().get('table').present.getIn(
+      ['major', 'layout', ROW, 'list', 1, 'cells', 2, 'history']
+    );
+    const expectedCellHistory = fromJS([]);
 
     expect(actualCellHistory).to.equal(expectedCellHistory);
   });

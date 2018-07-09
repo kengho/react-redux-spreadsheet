@@ -533,7 +533,13 @@ export default (state = initialState().get('table'), action) => {
 
       return state.updateIn(
         historyPath,
-        (value) => value.delete(action.historyIndex)
+        (value) => {
+          if (Number.isInteger(action.historyIndex)) {
+            return value.delete(action.historyIndex);
+          } else {
+            return fromJS([]);
+          }
+        }
       )
     }
 

@@ -1,9 +1,11 @@
+import DeleteAllIcon from 'material-ui-icons/DeleteSweep';
 import DeleteIcon from 'material-ui-icons/Delete';
 import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
 import React from 'react';
 import RestoreIcon from 'material-ui-icons/Restore';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import Tooltip from 'material-ui/Tooltip';
 
 import datetime from '../../lib/datetime';
 import rippleButtonAction from '../../lib/rippleButtonAction';
@@ -24,13 +26,19 @@ class CellHistoryRecords extends React.PureComponent {
     return rippleButtonAction(() => {
       this.props.actions.deleteCellHistory(this.props.popup.toJS(), historyIndex);
     });
-  }
+  };
+
+  deleteAllRecordsButtonHandler = () => {
+    return rippleButtonAction(() => {
+      this.props.actions.deleteCellHistory(this.props.popup.toJS());
+    });
+  };
 
   restoreRecordButtonHandler = (historyValue) => {
     return rippleButtonAction(() => {
       this.props.actions.setProp({...this.props.popup.toJS(), prop: 'value', value: historyValue });
     });
-  }
+  };
 
   render() {
     const {
@@ -38,9 +46,6 @@ class CellHistoryRecords extends React.PureComponent {
       value,
     } = this.props;
 
-    // TODO: "forget all" button.
-    // TODO: add option to not save history somewhere (spreadsheet settings?).
-    //   Think about default value.
     if (!(history && history.size > 0)) {
       return <div className="cell-history-no-records">No records.</div>;
     } else {
@@ -48,7 +53,13 @@ class CellHistoryRecords extends React.PureComponent {
         <Table className="cell-history">
           <TableHead>
             <TableRow>
-              <TableCell>Forget</TableCell>
+              <TableCell>
+                <Tooltip title="Forget all">
+                  <IconButton onClick={this.deleteAllRecordsButtonHandler()}>
+                    <DeleteAllIcon />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
               <TableCell>Restore</TableCell>
               <TableCell>Value</TableCell>
               <TableCell>Added at</TableCell>
