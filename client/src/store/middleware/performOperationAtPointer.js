@@ -108,13 +108,14 @@ export default store => next => action => {
 
           tabSplit.forEach((value, columnIndex) => {
             const currentColumnIndex = pointerColumnIndex + columnIndex;
-            actionsToBatch.push(setCell({
+            actionsToBatch.push(setProp({
               [ROW]: {
                 index: currentRowIndex,
               },
               [COLUMN]: {
                 index: currentColumnIndex,
               },
+              prop: 'value',
               value,
             }))
           });
