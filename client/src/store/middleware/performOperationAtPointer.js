@@ -10,6 +10,7 @@ import {
   ROW,
 } from '../../constants';
 import {
+  batchActions,
   insertColumns,
   insertRows,
   setCell,
@@ -78,13 +79,17 @@ export default store => next => action => {
       tabSplit = value.split('\t');
     }
 
+    // NOTE: PERF: splitted text without batchActions: ~350ms. With batchActions: ~100ms.
+    // console.time('performOperationAtPointer paste');
+    const actionsToBatch = [];
     if (value && value.length > 0) {
       if (tabSplit && tabSplit.length > 1) {
+        const nextLeastColumnIndex = pointerColumnIndex + tabSplit.length - 1;
+        actionsToBatch.push(insertRows({ index: pointerRowIndex }));
+        actionsToBatch.push(insertColumns({ index: nextLeastColumnIndex }));
         tabSplit.forEach((value, i) => {
           const currentPointerColumnIndex = pointerColumnIndex + i;
-          store.dispatch(insertRows({ index: pointerRowIndex }));
-          store.dispatch(insertColumns({ index: currentPointerColumnIndex }));
-          store.dispatch(setCell({
+          actionsToBatch.push(setCell({
             [ROW]: {
               index: pointerRowIndex,
             },
@@ -92,22 +97,27 @@ export default store => next => action => {
               index: currentPointerColumnIndex,
             },
             value,
-          }));
+          }))
         });
       } else {
-        store.dispatch(insertRows({ index: pointerRowIndex }));
-        store.dispatch(insertColumns({ index: pointerColumnIndex }));
-        store.dispatch(setCell({
-          [ROW]: {
-            index: pointerRowIndex,
-          },
-          [COLUMN]: {
-            index: pointerColumnIndex,
-          },
-          value,
-        }));
+        actionsToBatch.push(
+          insertRows({ index: pointerRowIndex }),
+          insertColumns({ index: pointerColumnIndex }),
+          setCell({
+            [ROW]: {
+              index: pointerRowIndex,
+            },
+            [COLUMN]: {
+              index: pointerColumnIndex,
+            },
+            value,
+          })
+        );
       }
+
+      store.dispatch(batchActions(actionsToBatch));
     }
+    // console.timeEnd('performOperationAtPointer paste');
   }
 
   if (action.operation === CLEAR) {
