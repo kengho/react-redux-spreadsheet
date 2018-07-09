@@ -102,6 +102,8 @@ export default store => next => action => {
 
           // Insert columns if only they wasn't inserted before.
           if (nextLeastColumnIndex > maxNextLeastColumnIndex) {
+            // NOTE: this doesn't break grouping for undo-redo (client/src/reducers/index.js)
+            //   because inserting lines is filtered there for it considered not changing date.
             actionsToBatch.push(insertColumns({ index: nextLeastColumnIndex }));
             maxNextLeastColumnIndex = nextLeastColumnIndex;
           }
