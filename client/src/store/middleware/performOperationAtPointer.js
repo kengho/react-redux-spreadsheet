@@ -70,25 +70,43 @@ export default store => next => action => {
 
     // NOTE: app's clipboard have priority over system's.
     let value;
+    let tabSplit;
     if (clipboard.get('cells')) {
       value = clipboard.getIn(['cells', 0, 0, 'value'], '');
     } else if (action.text) {
       value = action.text;
+      tabSplit = value.split('\t');
     }
 
-    // TODO: spread tabbed text through nearby cells (like Calc).
     if (value && value.length > 0) {
-      store.dispatch(insertRows({ index: pointerRowIndex }));
-      store.dispatch(insertColumns({ index: pointerColumnIndex }));
-      store.dispatch(setCell({
-        [ROW]: {
-          index: pointerRowIndex,
-        },
-        [COLUMN]: {
-          index: pointerColumnIndex,
-        },
-        value,
-      }));
+      if (tabSplit && tabSplit.length > 1) {
+        tabSplit.forEach((value, i) => {
+          const currentPointerColumnIndex = pointerColumnIndex + i;
+          store.dispatch(insertRows({ index: pointerRowIndex }));
+          store.dispatch(insertColumns({ index: currentPointerColumnIndex }));
+          store.dispatch(setCell({
+            [ROW]: {
+              index: pointerRowIndex,
+            },
+            [COLUMN]: {
+              index: currentPointerColumnIndex,
+            },
+            value,
+          }));
+        });
+      } else {
+        store.dispatch(insertRows({ index: pointerRowIndex }));
+        store.dispatch(insertColumns({ index: pointerColumnIndex }));
+        store.dispatch(setCell({
+          [ROW]: {
+            index: pointerRowIndex,
+          },
+          [COLUMN]: {
+            index: pointerColumnIndex,
+          },
+          value,
+        }));
+      }
     }
   }
 
