@@ -71,33 +71,54 @@ export default store => next => action => {
 
     // NOTE: app's clipboard have priority over system's.
     let value;
-    let tabSplit;
+    let newlineSplit;
     if (clipboard.get('cells')) {
       value = clipboard.getIn(['cells', 0, 0, 'value'], '');
     } else if (action.text) {
       value = action.text;
-      tabSplit = value.split('\t');
     }
 
     // NOTE: PERF: splitted text without batchActions: ~350ms. With batchActions: ~100ms.
     // console.time('performOperationAtPointer paste');
     const actionsToBatch = [];
     if (value && value.length > 0) {
-      if (tabSplit && tabSplit.length > 1) {
-        const nextLeastColumnIndex = pointerColumnIndex + tabSplit.length - 1;
-        actionsToBatch.push(insertRows({ index: pointerRowIndex }));
-        actionsToBatch.push(insertColumns({ index: nextLeastColumnIndex }));
-        tabSplit.forEach((value, i) => {
-          const currentPointerColumnIndex = pointerColumnIndex + i;
-          actionsToBatch.push(setCell({
-            [ROW]: {
-              index: pointerRowIndex,
-            },
-            [COLUMN]: {
-              index: currentPointerColumnIndex,
-            },
-            value,
-          }))
+      if (action.text) {
+        // NOTE: inserting "\t" and "\n" splitted text as array.
+        //   Test text1:
+        //     1	2	3
+        //     4	5
+        //     6	7	8	9
+        //   Test text2:
+        //     1	2	3
+        const newlineSplit = value.split('\n');
+
+        const nextLeastRowIndex = pointerRowIndex + newlineSplit.length - 1;
+        actionsToBatch.push(insertRows({ index: nextLeastRowIndex }));
+
+        let maxNextLeastColumnIndex = -1;
+        newlineSplit.forEach((line, lineIndex) => {
+          const currentRowIndex = pointerRowIndex + lineIndex;
+          const tabSplit = line.split('\t');
+          const nextLeastColumnIndex = pointerColumnIndex + tabSplit.length - 1;
+
+          // Insert columns if only they wasn't inserted before.
+          if (nextLeastColumnIndex > maxNextLeastColumnIndex) {
+            actionsToBatch.push(insertColumns({ index: nextLeastColumnIndex }));
+            maxNextLeastColumnIndex = nextLeastColumnIndex;
+          }
+
+          tabSplit.forEach((value, columnIndex) => {
+            const currentColumnIndex = pointerColumnIndex + columnIndex;
+            actionsToBatch.push(setCell({
+              [ROW]: {
+                index: currentRowIndex,
+              },
+              [COLUMN]: {
+                index: currentColumnIndex,
+              },
+              value,
+            }))
+          });
         });
       } else {
         actionsToBatch.push(
