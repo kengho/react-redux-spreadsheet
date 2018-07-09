@@ -71,7 +71,6 @@ export default store => next => action => {
 
     // NOTE: app's clipboard have priority over system's.
     let value;
-    let newlineSplit;
     if (clipboard.get('cells')) {
       value = clipboard.getIn(['cells', 0, 0, 'value'], '');
     } else if (action.text) {

@@ -96,8 +96,6 @@ TODO: this.
 
 TODO: this.
 * after showing menu first element should be active
-
-TODO: Enter currently doesn't work
 * after dialog appearing, Enter and Escape keys should work
 
 * on document, pressing regular key should start editing currently pointed cell with value equals to that key
