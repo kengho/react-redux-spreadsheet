@@ -73,6 +73,7 @@ class Table extends React.PureComponent {
     // NOTE: preventing browser's regular context menu.
     //   https://stackoverflow.com/a/9214499/6376451
     window.addEventListener('contextmenu', this.contextMenuHandler, false);
+    document.addEventListener('paste', this.pasteHandler);
 
     // TODO: catch page zoom event via VisualViewport API when available.
     // TODO: to settings.
@@ -112,6 +113,7 @@ class Table extends React.PureComponent {
     window.removeEventListener('input', this.throttledInputHandler);
     window.removeEventListener('scroll', this.throttledOnScrollHandler);
     window.removeEventListener('contextmenu', this.contextMenuHandler);
+    document.removeEventListener('paste', this.pasteHandler);
 
     this.cancelWindowResizeHandler();
 
@@ -122,6 +124,10 @@ class Table extends React.PureComponent {
   contextMenuHandler(evt) {
     evt.preventDefault();
   }
+
+  pasteHandler = (evt) => {
+    this.props.actions.pasteAtPointer(evt.clipboardData.getData('text'));
+  };
 
   onScrollHandler = (evt) => {
     const cellProps = getCellProps(this.pointedCell);

@@ -12,7 +12,6 @@ import findKeyAction from '../../lib/findKeyAction';
 export default function bodyKeyDownHandler(evt) {
   const {
     actions,
-    table,
   } = this.props;
 
   const action = findKeyAction(evt, [
@@ -106,35 +105,33 @@ export default function bodyKeyDownHandler(evt) {
         actions.cutAtPointer();
       },
     },
-    {
-      which: 86, // Ctrl+V
-      ctrlKey: true,
-      action: () => {
-        // TODO: paste from real clipboard.
-        evt.preventDefault();
-        actions.pasteAtPointer();
-      },
-    },
+    // NOTE: see pasteHandler() in Table.
+    // {
+    //   which: 86, // Ctrl+V
+    //   ctrlKey: true,
+    //   action: () => {
+    //     evt.preventDefault();
+    //     actions.pasteAtPointer();
+    //   },
+    // },
     {
       key: 'Escape',
       action: () => {
-        // REVIEW: should Escape clear cells or just hide clipboard position?
-        //   Now it mimics Calc behaviour (just hiding), making clipboarded
-        //   cells still pastable. If this behaviour is "set in stone", appropriate
-        //   action should be added instead of using plain setClipboard().
-        const clipboard = table.getIn(['session', 'clipboard']);
-        if (clipboard.get('cells')) {
-          actions.setClipboard({
-            [ROW]: {
-              index: null,
-            },
-            [COLUMN]: {
-              index: null,
-            },
-            cells: clipboard.get('cells').toJS(),
-          });
-        }
-
+        // NOTE: if we don't clear clipboard here, after pressing Ctrl+C and Escape
+        //   there is no way to set clipboard from other source (since app's clipboard
+        //   is not empty). App's clipboard have priority over systems
+        //   (see performOperationAtPointer()). The best UX would be watching system
+        //   clipboard changes and clearing app's clipboard if there are any,
+        //   but it seems too complicated and unsecure.
+        actions.setClipboard({
+          [ROW]: {
+            index: null,
+          },
+          [COLUMN]: {
+            index: null,
+          },
+          cells: null,
+        });
         actions.closeSearchBar();
       },
     },

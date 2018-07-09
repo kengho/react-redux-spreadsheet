@@ -226,11 +226,12 @@ export function cutAtPointer() {
   };
 }
 
-export function pasteAtPointer() {
+export function pasteAtPointer(text = '') {
   return {
     type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
     subType: ActionTypes.PASTE_AT_POINTER,
     operation: PASTE,
+    text,
   };
 }
 

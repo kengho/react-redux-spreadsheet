@@ -67,22 +67,29 @@ export default store => next => action => {
 
   if (action.operation === PASTE) {
     const clipboard = table.getIn(['session', 'clipboard']);
-    if (!clipboard.get('cells')) {
-      return;
+
+    // NOTE: app's clipboard have priority over system's.
+    let value;
+    if (clipboard.get('cells')) {
+      value = clipboard.getIn(['cells', 0, 0, 'value'], '');
+    } else if (action.text) {
+      value = action.text;
     }
 
-    // TODO: handle multiple cells selection.
-    store.dispatch(insertRows({ index: pointerRowIndex }));
-    store.dispatch(insertColumns({ index: pointerColumnIndex }));
-    store.dispatch(setCell({
-      [ROW]: {
-        index: pointerRowIndex,
-      },
-      [COLUMN]: {
-        index: pointerColumnIndex,
-      },
-      ...clipboard.getIn(['cells', 0, 0]).toJS(),
-    }));
+    // TODO: spread tabbed text through nearby cells (like Calc).
+    if (value && value.length > 0) {
+      store.dispatch(insertRows({ index: pointerRowIndex }));
+      store.dispatch(insertColumns({ index: pointerColumnIndex }));
+      store.dispatch(setCell({
+        [ROW]: {
+          index: pointerRowIndex,
+        },
+        [COLUMN]: {
+          index: pointerColumnIndex,
+        },
+        value,
+      }));
+    }
   }
 
   if (action.operation === CLEAR) {
