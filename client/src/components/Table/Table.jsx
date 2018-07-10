@@ -4,6 +4,7 @@ import Grid from 'react-infinite-2d-grid';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './Table.css';
 import getCellProps from '../../lib/getCellProps';
 import {
   BODY,
@@ -360,6 +361,7 @@ class Table extends React.PureComponent {
     return (
       <Grid
         cellRenderer={this.cellRenderer}
+        className="table"
         columnHeaderRenderer={this.columnHeaderRenderer}
         columnsNumber={columns.get('list').size}
         columnsSizes={this.columnsSizes}
