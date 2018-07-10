@@ -39,10 +39,14 @@ const undefinedMerger = (oldVal, newVal) => newVal !== undefined ? newVal : oldV
 //   componentDidMount() in Spreadsheet to fetch data from server.
 export default (state = initialState().get('table'), action) => {
   switch (action.type) {
+    case ActionTypes.SET_IN:
+      return state.setIn(action.path, fromJS(action.object));
+
+    // TODO: explain.
     case ActionTypes.MERGE_IN: {
       const {
-        object,
         defaults,
+        object,
         path,
       } = action;
 

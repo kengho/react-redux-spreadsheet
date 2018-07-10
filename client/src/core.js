@@ -11,6 +11,8 @@ import {
   ROW,
   FORWARD,
   BACKWARD,
+  BEGIN,
+  END,
 } from './constants';
 
 if (process.env.NODE_ENV !== 'test') {
@@ -66,6 +68,7 @@ export function composeRow({
 //   offset - offset of something from coordinates begginning; pixels
 //   index - position of some element in ordeled list; positive integer number
 //   length - number of elements between one and the other (last not included); positive integer number
+//   anchor - "begin" or "end" point of something 2d
 export function initialTable() {
   const table = {
     // NOTE: changing major branch props forces Table to rerender.
@@ -129,14 +132,21 @@ export function initialTable() {
           cells: null, // see layout's cells, here we just have a full copy of some range from there
         },
         selection: {
-          [ROW]: {
-            index: null,
-            length: null,
-          },
-          [COLUMN]: {
-            index: null,
-            length: null,
-          },
+          rectangles: [
+            {
+              [BEGIN]: null,
+              // {
+              //   [ROW]: {
+              //     index: null,
+              //   },
+              //   [COLUMN]: {
+              //     index: null,
+              //   },
+              // },
+
+              [END]: null,
+            },
+          ],
         },
       },
 

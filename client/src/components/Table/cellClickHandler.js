@@ -2,6 +2,8 @@ import {
   CELL,
   COLUMN,
   ROW,
+  BEGIN,
+  END,
 } from '../../constants';
 import getCellProps, {
   getCellPosition,
@@ -10,18 +12,69 @@ import getCellProps, {
 import * as TableActions from '../../actions/table';
 import getMousePosition from '../../lib/getMousePosition';
 
+const LEFT_BUTTON = 0;
+const RIGHT_BUTTON = 2;
+
 export default function cellClickHandler({ evt, pointedCell }) {
-  this.props.actions.setSearchBarFocus(false);
+  // TODO: PERF: batch all actions here.
 
-  // NOTE: if we just use plain closePopup(), menu closes several times
-  //   because of how mouse events firing (mousedown, click, doubleclick, etc.).
-  this.props.actions.closePopupOnlyIfVisible();
+  const {
+    actions,
+    table,
+  } = this.props;
 
+  if (evt.type === 'mousedown') {
+    this.props.actions.setSearchBarFocus(false);
+  }
+
+  const cellPosition = getCellPosition({ evt });
+  if (!cellPosition) {
+    return;
+  }
+
+  // Selection.
+  console.time('selection');
+  // TODO: add ability to select several rectangles with ctrl.
+  const firstSelectionRectangle = table.getIn(['session', 'selection', 'rectangles', 0]);
+  const selectingInProgress = this.state.selectingInProgress;
+  if (!selectingInProgress && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
+    this.setState({ selectingInProgress: true });
+    actions.clearSelection();
+    actions.setSelectionRectangleAnchor({
+      rectangleIndex: 0,
+      selectionAnchorType: BEGIN,
+      anchor: cellPosition,
+    });
+  } else if (selectingInProgress && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
+    actions.setSelectionRectangleAnchor({
+      rectangleIndex: 0,
+      selectionAnchorType: END,
+      anchor: cellPosition,
+    });
+  } else if (selectingInProgress && (evt.type === 'mouseup') && (evt.button === LEFT_BUTTON)) {
+    this.setState({ selectingInProgress: false });
+
+    // Clear single-cell selection.
+    if (
+      (
+        firstSelectionRectangle.getIn([BEGIN, ROW, 'index']) ===
+        firstSelectionRectangle.getIn([END,   ROW, 'index'])
+      ) &&
+      (
+        firstSelectionRectangle.getIn([BEGIN, COLUMN, 'index']) ===
+        firstSelectionRectangle.getIn([END,   COLUMN, 'index'])
+      )
+    ) {
+      actions.clearSelection();
+    }
+  }
+  console.timeEnd('selection');
+
+  // Clicks.
   // HACK: in Chrome "click" not fired when user rightclicks,
   //   so we just call menu not on click, but mousedown.
   //   Should probably catch calling context menu instead.
-  if ((evt.type === 'mousedown') && (evt.button === 2)) { // right click
-    const actions = this.props.actions;
+  if ((evt.type === 'mousedown') && (evt.button === RIGHT_BUTTON)) {
     const cellPosition = getCellPosition({ evt });
 
     actions.setMenu({
@@ -35,7 +88,7 @@ export default function cellClickHandler({ evt, pointedCell }) {
           [COLUMN]: {
             offset: getMousePosition(evt).page.x,
           },
-        }
+        },
       ),
     })
     actions.openPopup();
@@ -59,22 +112,18 @@ export default function cellClickHandler({ evt, pointedCell }) {
       cellPosition,
     ));
 
-    return;
-  }
-
+  // Leftclick.
   // NOTE: we catch "mousedown" instead of "click" for faster UI response.
   //   Ditching regular click just not to fire this action twice.
   // TODO: break this apart somehow, it's hard to read.
-  if ((['dblclick', 'mousedown'].includes(evt.type)) && evt.button === 0) { // left click
-    const cellPosition = getCellPosition({ evt });
-    if (!cellPosition) {
-      return;
-    }
+  } else if ((['dblclick', 'mousedown'].includes(evt.type)) && evt.button === LEFT_BUTTON) {
+    // if (!cellPosition) {
+    //   return;
+    // }
 
-    const {
-      actions,
-      table,
-    } = this.props;
+    // const {
+    //   table,
+    // } = this.props;
     const pointer = table.getIn(['session', 'pointer']);
 
     const userWantsToEditCell = (evt.type === 'dblclick');
@@ -147,7 +196,5 @@ export default function cellClickHandler({ evt, pointedCell }) {
       },
       cellPosition,
     ));
-
-    return;
   }
 }

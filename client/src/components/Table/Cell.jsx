@@ -77,6 +77,7 @@ class Cell extends React.PureComponent {
       columnIndex,
       isEditing,
       isInClipboard,
+      isInSelection,
       isPointed,
       rowIndex,
       styleJSON,
@@ -95,6 +96,7 @@ class Cell extends React.PureComponent {
     if (isPointed) { classNames.push('pointed'); }
     if (isEditing) { classNames.push('editing'); }
     if (isInClipboard) { classNames.push('clipboard'); }
+    if (isInSelection) { classNames.push('selection'); }
     if (tableHasHeader && (rowIndex === 0)) { classNames.push('header'); }
     if (value !== '') { classNames.push('non-empty'); }
 

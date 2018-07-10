@@ -19,7 +19,7 @@ export const CSV = 'CSV';
 export const JSON_FORMAT = 'JSON'; // JSON is already a keyword
 export const ConvertFormats = [CSV, JSON_FORMAT];
 
-// pointerPperations
+// pointerOperations
 export const COPY = 'COPY';
 export const CUT = 'CUT';
 export const PASTE = 'PASTE';
@@ -50,3 +50,7 @@ export const BACKWARD = 'BACKWARD';
 // sortOrders
 export const ASCENDING = 'ASCENDING';
 export const DESCENDING = 'DESCENDING';
+
+// selectionAnchorTypes
+export const BEGIN = 'BEGIN';
+export const END = 'END';

@@ -1,3 +1,5 @@
+import { fromJS } from 'immutable';
+
 import * as ActionTypes from '../actionTypes';
 import {
   ROW,
@@ -7,9 +9,31 @@ import {
   PASTE,
   CLEAR,
   DELETE,
+  BEGIN,
+  END,
 } from '../constants';
 
 const changesData = true;
+
+// NOTE: please add subType prop when calling mergeIn for debugging purpose.
+// REVIEW: consider replacing all simple actions with that.
+export function setIn(path, object) {
+  return {
+    type: ActionTypes.SET_IN,
+    object,
+    path,
+  };
+}
+
+// NOTE: please add subType prop when calling mergeIn for debugging purpose.
+export function mergeIn(path, object, defaults) {
+  return {
+    type: ActionTypes.MERGE_IN,
+    object,
+    path,
+    defaults,
+  };
+}
 
 export function setCell(cell) {
   return {
@@ -45,16 +69,6 @@ export function setLinesOffsets(offsets) {
   return {
     type: ActionTypes.SET_LINES_OFFSETS,
     offsets,
-  };
-}
-
-// NOTE: please add subType prop when calling mergeIn for debugging purpose.
-export function mergeIn(path, object, defaults) {
-  return {
-    type: ActionTypes.MERGE_IN,
-    object,
-    path,
-    defaults,
   };
 }
 
@@ -248,6 +262,35 @@ export function deleteAtPointer() {
     type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
     subType: ActionTypes.DELETE_AT_POINTER,
     operation: DELETE,
+  };
+}
+
+export function setSelectionRectangleAnchor({
+  rectangleIndex,
+  selectionAnchorType,
+  anchor,
+}) {
+  return {
+    type: ActionTypes.SET_IN,
+    subType: ActionTypes.SET_SELECTION_RECTANGLE_ANCHOR,
+    path: ['major', 'session', 'selection', 'rectangles', rectangleIndex, selectionAnchorType],
+    object: fromJS(anchor),
+  };
+}
+
+export function clearSelection() {
+  return {
+    type: ActionTypes.SET_IN,
+    subType: ActionTypes.CLEAR_SELECTION,
+    path: ['major', 'session', 'selection', 'rectangles'],
+
+    // TODO: use data from initialTable().
+    object: fromJS([
+      {
+        [BEGIN]: null,
+        [END]: null,
+      },
+    ]),
   };
 }
 

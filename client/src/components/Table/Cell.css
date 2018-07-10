@@ -51,3 +51,8 @@
 .cell.header {
   font-weight: 600;
 }
+
+.cell.selection {
+  background-color: #d0d0df;
+  transition: background-color 0.2s;
+}

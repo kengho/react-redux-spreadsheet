@@ -12,6 +12,8 @@ import {
   GRID_HEADER,
   LINE_HEADER,
   ROW,
+  BEGIN,
+  END,
 } from '../../constants';
 import bodyKeyDownHandler from './bodyKeyDownHandler';
 import Cell from './Cell';
@@ -58,6 +60,10 @@ class Table extends React.PureComponent {
     // HACK: pointedCellRefSetter uses to "pop" current pointed cell ref here.
     this.pointedCellRefSetter = (ref) => this.pointedCell = ref;
     this.pointedCell = null;
+
+    this.state = {
+      selectingInProgress: false,
+    };
   }
 
   componentDidMount() {
@@ -67,6 +73,8 @@ class Table extends React.PureComponent {
     window.addEventListener('click', this.clickHandler);
     window.addEventListener('mousedown', this.clickHandler);
     window.addEventListener('dblclick', this.clickHandler);
+    window.addEventListener('mouseup', this.clickHandler);
+    window.addEventListener('mouseover', this.clickHandler);
     window.addEventListener('input', this.throttledInputHandler);
     window.addEventListener('scroll', this.throttledOnScrollHandler);
 
@@ -110,6 +118,8 @@ class Table extends React.PureComponent {
     window.removeEventListener('click', this.clickHandler);
     window.removeEventListener('mousedown', this.clickHandler);
     window.removeEventListener('dblclick', this.clickHandler);
+    window.removeEventListener('mouseup', this.clickHandler);
+    window.removeEventListener('mouseover', this.clickHandler);
     window.removeEventListener('input', this.throttledInputHandler);
     window.removeEventListener('scroll', this.throttledOnScrollHandler);
     window.removeEventListener('contextmenu', this.contextMenuHandler);
@@ -198,6 +208,32 @@ class Table extends React.PureComponent {
   }) => {
     const table = this.props.table;
     const cellProps = { rowIndex, columnIndex };
+
+    const isCellInSelection = (selection) => {
+      if (!selection) {
+        return;
+      }
+      if (!selection.get(BEGIN) || !selection.get(END)) {
+        return;
+      }
+
+      const selectionBeginRowIndex = selection.getIn([BEGIN, ROW, 'index'], -1);
+      const selectionEndRowIndex = selection.getIn([END, ROW, 'index'], -1);
+      const selectionBeginColumnIndex = selection.getIn([BEGIN, COLUMN, 'index'], -1);
+      const selectionEndColumnIndex = selection.getIn([END, COLUMN, 'index'], -1);
+      const rowInSelection = (
+        (rowIndex >= Math.min(selectionBeginRowIndex, selectionEndRowIndex)) &&
+        (rowIndex <= Math.max(selectionBeginRowIndex, selectionEndRowIndex))
+      );
+      const columnInSelection = (
+        (columnIndex >= Math.min(selectionBeginColumnIndex, selectionEndColumnIndex)) &&
+        (columnIndex <= Math.max(selectionBeginColumnIndex, selectionEndColumnIndex))
+      );
+
+      return (rowInSelection && columnInSelection);
+    }
+    const firstSelectionRectangle = table.getIn(['session', 'selection', 'rectangles', 0]);
+    cellProps.isInSelection = isCellInSelection(firstSelectionRectangle);
 
     if (isReal) {
       const rowId = table.getIn(['layout', ROW, 'list', rowIndex, 'id']);

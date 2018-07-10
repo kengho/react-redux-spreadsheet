@@ -9,6 +9,8 @@ export const DISABLE_LANDING_BUTTON = 'landing/DISABLE_LANDING_BUTTON';
 export const SET_SETTINGS = 'settings/SET_SETTINGS';
 
 // table
+export const SET_IN = 'table/SET_IN';
+export const MERGE_IN = 'table/MERGE_IN';
 export const SET_CELL = 'table/SET_CELL';
 export const SET_PROP = 'table/SET_PROP';
 export const SET_LINES_OFFSETS = 'table/SET_LINES_OFFSETS';
@@ -20,7 +22,6 @@ export const UPDATE_CELL_SIZE = 'table/UPDATE_CELL_SIZE';
 export const SET_LINE_SIZE = 'table/SET_LINE_SIZE';
 export const SET_SCROLL_SIZE = 'table/SET_SCROLL_SIZE';
 export const SET_SCREEN_SIZE = 'table/SET_SCREEN_SIZE';
-export const MERGE_IN = 'table/MERGE_IN';
 export const INSERT_LINES = 'table/INSERT_LINES';
 export const DELETE_LINES = 'table/DELETE_LINES';
 export const SET_CLIPBOARD = 'table/SET_CLIPBOARD';
@@ -30,6 +31,8 @@ export const CUT_AT_POINTER = 'table/CUT_AT_POINTER';
 export const PASTE_AT_POINTER = 'table/PASTE_AT_POINTER';
 export const CLEAR_AT_POINTER = 'table/CLEAR_AT_POINTER';
 export const DELETE_AT_POINTER = 'table/DELETE_AT_POINTER';
+export const SET_SELECTION_RECTANGLE_ANCHOR = 'table/SET_SELECTION_RECTANGLE_ANCHOR';
+export const CLEAR_SELECTION = 'table/CLEAR_SELECTION';
 export const MERGE_SERVER_STATE = 'table/MERGE_SERVER_STATE';
 export const SORT = 'table/SORT';
 export const BATCH_ACTIONS = 'table/BATCH_ACTIONS';
