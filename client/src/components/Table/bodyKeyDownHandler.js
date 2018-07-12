@@ -74,7 +74,7 @@ export default function bodyKeyDownHandler(evt) {
     {
       keys: 'Delete',
       action: () => {
-        actions.clearAtPointer();
+        actions.clearArea();
       },
     },
     {
@@ -82,7 +82,7 @@ export default function bodyKeyDownHandler(evt) {
       action: () => {
         // Prevents going back in history via Backspace.
         evt.preventDefault();
-        actions.deleteAtPointer();
+        actions.deleteArea();
       },
     },
     {
@@ -94,14 +94,14 @@ export default function bodyKeyDownHandler(evt) {
         }
 
         evt.preventDefault();
-        actions.copyAtPointer();
+        actions.copyArea();
       },
     },
     {
       which: 88, // Ctrl+X
       action: () => {
         evt.preventDefault();
-        actions.cutAtPointer();
+        actions.cutArea();
       },
     },
     // NOTE: see pasteHandler() in Table.
@@ -110,7 +110,7 @@ export default function bodyKeyDownHandler(evt) {
     //   ctrlKey: true,
     //   action: () => {
     //     evt.preventDefault();
-    //     actions.pasteAtPointer();
+    //     actions.pasteArea();
     //   },
     // },
     {
@@ -119,7 +119,7 @@ export default function bodyKeyDownHandler(evt) {
         // NOTE: if we don't clear clipboard here, after pressing Ctrl+C and Escape
         //   there is no way to set clipboard from other source (since app's clipboard
         //   is not empty). App's clipboard have priority over systems
-        //   (see performOperationAtPointer()). The best UX would be watching system
+        //   (see workOnUserSpecifiedArea()). The best UX would be watching system
         //   clipboard changes and clearing app's clipboard if there are any,
         //   but it seems too complicated and unsecure.
         actions.setClipboard({

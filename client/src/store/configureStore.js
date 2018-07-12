@@ -23,9 +23,9 @@ import copyToRealClipboardOnSetClipboard from './middleware/copyToRealClipboardO
 import handleDataChanges from './middleware/handleDataChanges';
 import handleServerRequests from './middleware/handleServerRequests';
 import logger from './middleware/logger';
-import performOperationAtPointer from './middleware/performOperationAtPointer';
 import pushCellHistoryOnValueChanges from './middleware/pushCellHistoryOnValueChanges';
 import rootReducer from '../reducers';
+import workOnUserSpecifiedArea from './middleware/workOnUserSpecifiedArea';
 
 const composeEnhancer = compose;
 
@@ -42,7 +42,7 @@ const configureMiddleware = (history) => {
     throttleMiddleware,
     batchActions,
     // batchDispatchMiddleware,
-    performOperationAtPointer,
+    workOnUserSpecifiedArea,
     pushCellHistoryOnValueChanges,
     ...(process.env.NODE_ENV !== 'test' ? [
       copyToRealClipboardOnSetClipboard,

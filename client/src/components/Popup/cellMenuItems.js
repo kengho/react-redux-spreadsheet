@@ -78,24 +78,24 @@ export default function cellMenuItems(props) {
     },
     {
       label: 'Copy',
-      action: () => actions.copyAtPointer(),
+      action: () => actions.copyArea(),
     },
     {
       label: 'Cut',
-      action: () => actions.cutAtPointer(),
+      action: () => actions.cutArea(),
     },
     {
       label: 'Paste',
-      action: () => actions.pasteAtPointer(),
+      action: () => actions.pasteArea(),
     },
     {
       label: 'Clear',
-      action: () => actions.clearAtPointer(),
+      action: () => actions.clearArea(),
     },
     // TODO: add confirmation dialog and proceed,
     // {
     //   label: 'Delete...',
-    //   action: () => actions.deleteAtPointer(),
+    //   action: () => actions.deleteArea(),
     // },
   ];
 };

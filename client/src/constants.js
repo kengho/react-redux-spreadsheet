@@ -19,7 +19,7 @@ export const CSV = 'CSV';
 export const JSON_FORMAT = 'JSON'; // JSON is already a keyword
 export const ConvertFormats = [CSV, JSON_FORMAT];
 
-// pointerOperations
+// areaOperations
 export const COPY = 'COPY';
 export const CUT = 'CUT';
 export const PASTE = 'PASTE';

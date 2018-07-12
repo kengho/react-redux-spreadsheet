@@ -217,50 +217,50 @@ export function setClipboard(clipboard) {
   };
 }
 
-export function performOperationAtPointer(operation) { // pointerPperations
+export function workOnUserSpecifiedArea(operation) { // areaOperations
   return {
-    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
     operation,
   };
 }
 
-export function copyAtPointer() {
+export function copyArea() {
   return {
-    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
-    subType: ActionTypes.COPY_AT_POINTER,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.COPY_AREA,
     operation: COPY,
   };
 }
 
-export function cutAtPointer() {
+export function cutArea() {
   return {
-    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
-    subType: ActionTypes.CUT_AT_POINTER,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.CUT_AREA,
     operation: CUT,
   };
 }
 
-export function pasteAtPointer(text = '') {
+export function pasteArea(text = '') {
   return {
-    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
-    subType: ActionTypes.PASTE_AT_POINTER,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.PASTE_AREA,
     operation: PASTE,
     text,
   };
 }
 
-export function clearAtPointer() {
+export function clearArea() {
   return {
-    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
-    subType: ActionTypes.CLEAR_AT_POINTER,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.CLEAR_AREA,
     operation: CLEAR,
   };
 }
 
-export function deleteAtPointer() {
+export function deleteArea() {
   return {
-    type: ActionTypes.PERFORM_OPERATION_AT_POINTER,
-    subType: ActionTypes.DELETE_AT_POINTER,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.DELETE_AREA,
     operation: DELETE,
   };
 }

@@ -23,7 +23,7 @@ import * as ActionTypes from '../../actionTypes';
 //   It calls by ContextMenu and by hotkeys, so we don't want
 //   to mess things in one place while changing code in another.
 export default store => next => action => {
-  if (action.type !== ActionTypes.PERFORM_OPERATION_AT_POINTER) {
+  if (action.type !== ActionTypes.WORK_ON_USER_SPECIFIED_AREA) {
     return next(action);
   }
 
@@ -78,7 +78,7 @@ export default store => next => action => {
     }
 
     // NOTE: PERF: splitted text without batchActions: ~350ms. With batchActions: ~100ms.
-    // console.time('performOperationAtPointer paste');
+    // console.time('workOnUserSpecifiedArea paste');
     const actionsToBatch = [];
     if (value && value.length > 0) {
       if (action.text) {
@@ -140,7 +140,7 @@ export default store => next => action => {
 
       store.dispatch(batchActions(actionsToBatch));
     }
-    // console.timeEnd('performOperationAtPointer paste');
+    // console.timeEnd('workOnUserSpecifiedArea paste');
   }
 
   if (action.operation === CLEAR) {
