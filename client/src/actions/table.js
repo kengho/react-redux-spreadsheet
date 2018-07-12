@@ -296,13 +296,15 @@ export function clearSelection() {
   return {
     type: ActionTypes.SET_IN,
     subType: ActionTypes.CLEAR_SELECTION,
-    path: ['major', 'session', 'selection', 'boundaries'],
+    path: ['major', 'session', 'selection'],
 
     // TODO: use data from initialTable().
-    object: fromJS([{
-      [ROW]: null,
-      [COLUMN]: null,
-    }]),
+    object: fromJS({
+      boundary: {
+        [ROW]: null,
+        [COLUMN]: null,
+      },
+    }),
   };
 }
 

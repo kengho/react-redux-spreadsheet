@@ -206,33 +206,33 @@ class Table extends React.PureComponent {
     const table = this.props.table;
     const cellProps = { rowIndex, columnIndex };
 
-    const getSelectionProps = (rowIndex, columnIndex, selection) => {
-      if (!selection) {
+    const getSelectionProps = (rowIndex, columnIndex, boundary) => {
+      if (!boundary) {
         return;
       }
-      if (!selection.get(ROW) || !selection.get(COLUMN)) {
+      if (!boundary.get(ROW) || !boundary.get(COLUMN)) {
         return;
       }
 
       const rowInSelection = (
-        (rowIndex >= selection.getIn([ROW, BEGIN, 'index'], -1)) &&
-        (rowIndex <= selection.getIn([ROW, END, 'index'], -1))
+        (rowIndex >= boundary.getIn([ROW, BEGIN, 'index'], -1)) &&
+        (rowIndex <= boundary.getIn([ROW, END, 'index'], -1))
       );
       const columnInSelection = (
-        (columnIndex >= selection.getIn([COLUMN, BEGIN, 'index'], -1)) &&
-        (columnIndex <= selection.getIn([COLUMN, END, 'index'], -1))
+        (columnIndex >= boundary.getIn([COLUMN, BEGIN, 'index'], -1)) &&
+        (columnIndex <= boundary.getIn([COLUMN, END, 'index'], -1))
       );
       const isInSelection = rowInSelection && columnInSelection;
 
       return {
         isInSelection,
-        isOnSelectionTopBorder: isInSelection && (rowIndex === selection.getIn([ROW, BEGIN, 'index'])),
-        isOnSelectionRightBorder: isInSelection && (columnIndex === selection.getIn([COLUMN, END, 'index'])),
-        isOnSelectionBottomBorder: isInSelection && (rowIndex === selection.getIn([ROW, END, 'index'])),
-        isOnSelectionLeftBorder: isInSelection && (columnIndex === selection.getIn([COLUMN, BEGIN, 'index'])),
+        isOnSelectionTopBorder: isInSelection && (rowIndex === boundary.getIn([ROW, BEGIN, 'index'])),
+        isOnSelectionRightBorder: isInSelection && (columnIndex === boundary.getIn([COLUMN, END, 'index'])),
+        isOnSelectionBottomBorder: isInSelection && (rowIndex === boundary.getIn([ROW, END, 'index'])),
+        isOnSelectionLeftBorder: isInSelection && (columnIndex === boundary.getIn([COLUMN, BEGIN, 'index'])),
       };
-    }
-    const firstSelectionBoundary = table.getIn(['session', 'selection', 'boundaries', 0]);
+    };
+    const firstSelectionBoundary = table.getIn(['session', 'selection', 0, 'boundary']);
     const selectionProps = getSelectionProps(rowIndex, columnIndex, firstSelectionBoundary);
     Object.assign(cellProps, selectionProps);
 

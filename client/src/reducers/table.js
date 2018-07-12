@@ -606,8 +606,8 @@ export default (state = initialState().get('table'), action) => {
       });
 
       return state.setIn(
-        ['major', 'session', 'selection', 'boundaries'],
-        fromJS([filteredBoundary])
+        ['major', 'session', 'selection', 0, 'boundary'],
+        fromJS(filteredBoundary)
       );
     }
 

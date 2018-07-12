@@ -119,41 +119,34 @@ export function initialTable() {
           edit: false,
           selectOnFocus: false,
         },
-        clipboard: {
-          [ROW]: {
-            index: null,
-            length: null,
+        clipboard: [{
+          boundary: {
+            [ROW]: null,
+            // {
+            //   [BEGIN]: {
+            //     index: null,
+            //   },
+            //   [END]: {
+            //     index: null,
+            //   },
+            // },
+            [COLUMN]: null,
           },
-          [COLUMN]: {
-            index: null,
-            length: null,
+          cells: [[]],
+        }],
+        selection: [{
+          boundary: { // see clipboard boundary
+            [ROW]: null,
+            [COLUMN]: null,
           },
-          cells: null, // see layout's cells, here we just have a full copy of some range from there
-        },
-        selection: {
-          boundaries: [
-            {
-              [ROW]: null,
-              // {
-              //   [BEGIN]: {
-              //     index: null,
-              //   },
-              //   [END]: {
-              //     index: null,
-              //   },
-              // },
-
-              [COLUMN]: null,
-            },
-          ],
-        },
+        }],
       },
 
       // NOTE: why vision is in table? In order to move pointer correctly with, say,
       //   PageUp, we should know screen size. In order to move pointer with Ctrl
       //   we should know table data (aka layout). So, because of pointer we can't
       //   separate vision and table (unless we want to get ugly middleware).
-      //   In the end, it makes sense, because entire table view directly rely on vision.
+      //   In the end, it makes sense, because entire table view directly relies on vision.
       //   It also answers the question "why have vision in redux state at all" - vision is crucial.
       vision: {
         [ROW]: {
@@ -173,27 +166,18 @@ export function initialTable() {
         [ROW]: [],
         [COLUMN]: [],
       },
-      // renderedCellsRange: {
-      //   [BEGIN]: null,
-      //   [END]: null,
-      // },
       currentSelection: {
-        // boundaries: [
-          // {
-            visibility: false,
-            [BEGIN]: null,
-            // {
-            //   [ROW]: {
-            //     index: null,
-            //   },
-            //   [COLUMN]: {
-            //     index: null,
-            //   },
-            // },
-
-            [END]: null,
-          // },
-        // ],
+        visibility: false,
+        [BEGIN]: null,
+        // {
+        //   [ROW]: {
+        //     index: null,
+        //   },
+        //   [COLUMN]: {
+        //     index: null,
+        //   },
+        // },
+        [END]: null,
       },
     },
   };
