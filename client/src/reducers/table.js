@@ -11,6 +11,8 @@ import {
   BACKWARD,
   ASCENDING,
   DESCENDING,
+  BEGIN,
+  END,
 } from '../constants';
 import {
   composeCell,
@@ -21,6 +23,7 @@ import {
   initialState,
   initialTable,
   isLineScrolledIntoView,
+  getSelectionBoundary,
 } from '../core';
 
 // For dev.
@@ -544,7 +547,7 @@ export default (state = initialState().get('table'), action) => {
             return fromJS([]);
           }
         }
-      )
+      );
     }
 
     case ActionTypes.SET_CLIPBOARD:
@@ -568,6 +571,43 @@ export default (state = initialState().get('table'), action) => {
       ).setIn(
         ['major', 'session'],
         initialSession
+      );
+    }
+
+    case ActionTypes.FIXATE_CURRENT_SELECTION: {
+      const currentSelection = state.getIn(['minor', 'currentSelection']);
+
+      // Delete single-celled selections.
+      if (
+        (
+          currentSelection.getIn([BEGIN, ROW, 'index']) ===
+          currentSelection.getIn([END, ROW, 'index'])
+        ) &&
+        (
+          currentSelection.getIn([BEGIN, COLUMN, 'index']) ===
+          currentSelection.getIn([END, COLUMN, 'index'])
+        )
+      ) {
+        return state;
+      }
+
+      const boundary = getSelectionBoundary(currentSelection);
+      const filteredBoundary = {
+        ROW: {},
+        COLUMN: {},
+      };
+      [ROW, COLUMN].forEach((lineType) => {
+        [BEGIN, END].forEach((anchorType) => {
+          // Keep only index for everything else is already in the state.
+          filteredBoundary[lineType][anchorType] = {
+            index: boundary[lineType][anchorType].index,
+          };
+        });
+      });
+
+      return state.setIn(
+        ['major', 'session', 'selection', 'boundaries'],
+        fromJS([filteredBoundary])
       );
     }
 

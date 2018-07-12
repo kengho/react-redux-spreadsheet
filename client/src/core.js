@@ -66,9 +66,8 @@ export function composeRow({
 // NOTE: Legend:
 //   size - visible size of something; pixels
 //   offset - offset of something from coordinates begginning; pixels
-//   index - position of some element in ordeled list; positive integer number
-//   length - number of elements between one and the other (last not included); positive integer number
-//   anchor - "begin" or "end" point of something 2d
+//   index - position of some element in ordeled list; non-negative integer number
+//   length - number of elements between one and the other (last not included); non-negative integer number
 export function initialTable() {
   const table = {
     // NOTE: changing major branch props forces Table to rerender.
@@ -132,19 +131,19 @@ export function initialTable() {
           cells: null, // see layout's cells, here we just have a full copy of some range from there
         },
         selection: {
-          rectangles: [
+          boundaries: [
             {
-              [BEGIN]: null,
+              [ROW]: null,
               // {
-              //   [ROW]: {
+              //   [BEGIN]: {
               //     index: null,
               //   },
-              //   [COLUMN]: {
+              //   [END]: {
               //     index: null,
               //   },
               // },
 
-              [END]: null,
+              [COLUMN]: null,
             },
           ],
         },
@@ -173,6 +172,28 @@ export function initialTable() {
       linesOffsets: {
         [ROW]: [],
         [COLUMN]: [],
+      },
+      // renderedCellsRange: {
+      //   [BEGIN]: null,
+      //   [END]: null,
+      // },
+      currentSelection: {
+        // boundaries: [
+          // {
+            visibility: false,
+            [BEGIN]: null,
+            // {
+            //   [ROW]: {
+            //     index: null,
+            //   },
+            //   [COLUMN]: {
+            //     index: null,
+            //   },
+            // },
+
+            [END]: null,
+          // },
+        // ],
       },
     },
   };
@@ -296,6 +317,38 @@ export function initialState() {
   }
 
   return state;
+}
+
+export function getSelectionBoundary(immutableSelection) {
+  const selection = immutableSelection.toJS();
+  const boundary = {
+    [ROW]: {
+      [BEGIN]: null,
+      [END]: null,
+    },
+    [COLUMN]: {
+      [BEGIN]: null,
+      [END]: null,
+    },
+  };
+
+  if (selection[BEGIN][ROW].offset < selection[END][ROW].offset) {
+    boundary[ROW][BEGIN] = selection[BEGIN][ROW];
+    boundary[ROW][END] = selection[END][ROW];
+  } else {
+    boundary[ROW][BEGIN] = selection[END][ROW];
+    boundary[ROW][END] = selection[BEGIN][ROW];
+  }
+
+  if (selection[BEGIN][COLUMN].offset < selection[END][COLUMN].offset) {
+    boundary[COLUMN][BEGIN] = selection[BEGIN][COLUMN];
+    boundary[COLUMN][END] = selection[END][COLUMN];
+  } else {
+    boundary[COLUMN][BEGIN] = selection[END][COLUMN];
+    boundary[COLUMN][END] = selection[BEGIN][COLUMN];
+  }
+
+  return boundary;
 }
 
 // NOTE: all props are immutable.

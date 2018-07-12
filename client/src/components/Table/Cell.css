@@ -53,6 +53,31 @@
 }
 
 .cell.selection {
-  background-color: #d0d0df;
-  transition: background-color 0.2s;
+  /*
+    Imitation of .current-selection blending with default cell.
+      Colors gotten via color picker tool in Gimp.
+  */
+  background-color: #ededf0 !important;
+  color: #08080b !important;
+  border-color: #dedee1;
+}
+
+.cell.pointed.selection {
+  border-color: #48e;
+}
+
+.selection-top {
+  border-top: 1px solid #48e !important; /* .cell.pointed */
+}
+
+.selection-right {
+  border-right: 1px solid #48e !important;
+}
+
+.selection-bottom {
+  border-bottom: 1px solid #48e !important;
+}
+
+.selection-left {
+  border-left: 1px solid #48e !important;
 }

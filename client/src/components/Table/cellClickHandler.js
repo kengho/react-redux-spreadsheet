@@ -6,8 +6,10 @@ import {
   END,
 } from '../../constants';
 import getCellProps, {
-  getCellPosition,
   composeCellProps,
+  getCellOffsets,
+  getCellPosition,
+  getCellSize,
 } from '../../lib/getCellProps';
 import * as TableActions from '../../actions/table';
 import getMousePosition from '../../lib/getMousePosition';
@@ -21,6 +23,7 @@ export default function cellClickHandler({ evt, pointedCell }) {
   const {
     actions,
     table,
+    currentSelectionVisibility,
   } = this.props;
 
   if (evt.type === 'mousedown') {
@@ -32,43 +35,41 @@ export default function cellClickHandler({ evt, pointedCell }) {
     return;
   }
 
-  // Selection.
-  console.time('selection');
-  // TODO: add ability to select several rectangles with ctrl.
-  const firstSelectionRectangle = table.getIn(['session', 'selection', 'rectangles', 0]);
-  const selectingInProgress = this.state.selectingInProgress;
-  if (!selectingInProgress && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
-    this.setState({ selectingInProgress: true });
-    actions.clearSelection();
-    actions.setSelectionRectangleAnchor({
-      rectangleIndex: 0,
-      selectionAnchorType: BEGIN,
-      anchor: cellPosition,
-    });
-  } else if (selectingInProgress && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
-    actions.setSelectionRectangleAnchor({
-      rectangleIndex: 0,
-      selectionAnchorType: END,
-      anchor: cellPosition,
-    });
-  } else if (selectingInProgress && (evt.type === 'mouseup') && (evt.button === LEFT_BUTTON)) {
-    this.setState({ selectingInProgress: false });
+  const cellSelector =
+    `[data-component-name="${CELL}"]` +
+    `[data-row-index="${cellPosition[ROW].index}"]` +
+    `[data-column-index="${cellPosition[COLUMN].index}"]`;
+  const cell = document.querySelector(cellSelector);
+  const cellOffsets = getCellOffsets(cell);
+  const cellSize = getCellSize(cell);
 
-    // Clear single-cell selection.
-    if (
-      (
-        firstSelectionRectangle.getIn([BEGIN, ROW, 'index']) ===
-        firstSelectionRectangle.getIn([END,   ROW, 'index'])
-      ) &&
-      (
-        firstSelectionRectangle.getIn([BEGIN, COLUMN, 'index']) ===
-        firstSelectionRectangle.getIn([END,   COLUMN, 'index'])
-      )
-    ) {
-      actions.clearSelection();
-    }
+  // NOTE: cellPosition here is required for fixateCurrentSelection().
+  const cellPlacement = composeCellProps(cellOffsets, cellSize, cellPosition);
+
+  // Selection.
+  // console.time('selection');
+  // TODO: add ability to select several boundaries with ctrl.
+  if (!currentSelectionVisibility && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
+    actions.clearSelection();
+    actions.setCurrentSelectionAnchor({
+      selectionAnchorType: BEGIN,
+      anchor: cellPlacement,
+    });
+    actions.setCurrentSelectionAnchor({
+      selectionAnchorType: END,
+      anchor: cellPlacement,
+    });
+    actions.setCurrentSelectionVisibility(true);
+  } else if (currentSelectionVisibility && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
+    actions.setCurrentSelectionAnchor({
+      selectionAnchorType: END,
+      anchor: cellPlacement,
+    });
+  } else if (currentSelectionVisibility && (evt.type === 'mouseup') && (evt.button === LEFT_BUTTON)) {
+    actions.fixateCurrentSelection();
+    actions.setCurrentSelectionVisibility(false);
   }
-  console.timeEnd('selection');
+  // console.timeEnd('selection');
 
   // Clicks.
   // HACK: in Chrome "click" not fired when user rightclicks,
@@ -117,13 +118,6 @@ export default function cellClickHandler({ evt, pointedCell }) {
   //   Ditching regular click just not to fire this action twice.
   // TODO: break this apart somehow, it's hard to read.
   } else if ((['dblclick', 'mousedown'].includes(evt.type)) && evt.button === LEFT_BUTTON) {
-    // if (!cellPosition) {
-    //   return;
-    // }
-
-    // const {
-    //   table,
-    // } = this.props;
     const pointer = table.getIn(['session', 'pointer']);
 
     const userWantsToEditCell = (evt.type === 'dblclick');

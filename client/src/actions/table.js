@@ -265,16 +265,30 @@ export function deleteAtPointer() {
   };
 }
 
-export function setSelectionRectangleAnchor({
-  rectangleIndex,
+export function setCurrentSelectionAnchor({
   selectionAnchorType,
   anchor,
 }) {
   return {
     type: ActionTypes.SET_IN,
-    subType: ActionTypes.SET_SELECTION_RECTANGLE_ANCHOR,
-    path: ['major', 'session', 'selection', 'rectangles', rectangleIndex, selectionAnchorType],
+    subType: ActionTypes.SET_CURRENT_SELECTION_ANCHOR,
+    path: ['minor', 'currentSelection', selectionAnchorType],
     object: fromJS(anchor),
+  };
+}
+
+export function setCurrentSelectionVisibility(visibility) {
+  return {
+    type: ActionTypes.SET_IN,
+    subType: ActionTypes.SET_CURRENT_SELECTION_VISIBILITY,
+    path: ['minor', 'currentSelection', 'visibility'],
+    object: visibility,
+  };
+}
+
+export function fixateCurrentSelection() {
+  return {
+    type: ActionTypes.FIXATE_CURRENT_SELECTION,
   };
 }
 
@@ -282,15 +296,13 @@ export function clearSelection() {
   return {
     type: ActionTypes.SET_IN,
     subType: ActionTypes.CLEAR_SELECTION,
-    path: ['major', 'session', 'selection', 'rectangles'],
+    path: ['major', 'session', 'selection', 'boundaries'],
 
     // TODO: use data from initialTable().
-    object: fromJS([
-      {
-        [BEGIN]: null,
-        [END]: null,
-      },
-    ]),
+    object: fromJS([{
+      [ROW]: null,
+      [COLUMN]: null,
+    }]),
   };
 }
 

@@ -61,10 +61,6 @@ class Table extends React.PureComponent {
     // HACK: pointedCellRefSetter uses to "pop" current pointed cell ref here.
     this.pointedCellRefSetter = (ref) => this.pointedCell = ref;
     this.pointedCell = null;
-
-    this.state = {
-      selectingInProgress: false,
-    };
   }
 
   componentDidMount() {
@@ -210,31 +206,35 @@ class Table extends React.PureComponent {
     const table = this.props.table;
     const cellProps = { rowIndex, columnIndex };
 
-    const isCellInSelection = (selection) => {
+    const getSelectionProps = (rowIndex, columnIndex, selection) => {
       if (!selection) {
         return;
       }
-      if (!selection.get(BEGIN) || !selection.get(END)) {
+      if (!selection.get(ROW) || !selection.get(COLUMN)) {
         return;
       }
 
-      const selectionBeginRowIndex = selection.getIn([BEGIN, ROW, 'index'], -1);
-      const selectionEndRowIndex = selection.getIn([END, ROW, 'index'], -1);
-      const selectionBeginColumnIndex = selection.getIn([BEGIN, COLUMN, 'index'], -1);
-      const selectionEndColumnIndex = selection.getIn([END, COLUMN, 'index'], -1);
       const rowInSelection = (
-        (rowIndex >= Math.min(selectionBeginRowIndex, selectionEndRowIndex)) &&
-        (rowIndex <= Math.max(selectionBeginRowIndex, selectionEndRowIndex))
+        (rowIndex >= selection.getIn([ROW, BEGIN, 'index'], -1)) &&
+        (rowIndex <= selection.getIn([ROW, END, 'index'], -1))
       );
       const columnInSelection = (
-        (columnIndex >= Math.min(selectionBeginColumnIndex, selectionEndColumnIndex)) &&
-        (columnIndex <= Math.max(selectionBeginColumnIndex, selectionEndColumnIndex))
+        (columnIndex >= selection.getIn([COLUMN, BEGIN, 'index'], -1)) &&
+        (columnIndex <= selection.getIn([COLUMN, END, 'index'], -1))
       );
+      const isInSelection = rowInSelection && columnInSelection;
 
-      return (rowInSelection && columnInSelection);
+      return {
+        isInSelection,
+        isOnSelectionTopBorder: isInSelection && (rowIndex === selection.getIn([ROW, BEGIN, 'index'])),
+        isOnSelectionRightBorder: isInSelection && (columnIndex === selection.getIn([COLUMN, END, 'index'])),
+        isOnSelectionBottomBorder: isInSelection && (rowIndex === selection.getIn([ROW, END, 'index'])),
+        isOnSelectionLeftBorder: isInSelection && (columnIndex === selection.getIn([COLUMN, BEGIN, 'index'])),
+      };
     }
-    const firstSelectionRectangle = table.getIn(['session', 'selection', 'rectangles', 0]);
-    cellProps.isInSelection = isCellInSelection(firstSelectionRectangle);
+    const firstSelectionBoundary = table.getIn(['session', 'selection', 'boundaries', 0]);
+    const selectionProps = getSelectionProps(rowIndex, columnIndex, firstSelectionBoundary);
+    Object.assign(cellProps, selectionProps);
 
     if (isReal) {
       const rowId = table.getIn(['layout', ROW, 'list', rowIndex, 'id']);

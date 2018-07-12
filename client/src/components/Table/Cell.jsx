@@ -12,6 +12,11 @@ const propTypes = {
   columnIndex: PropTypes.number.isRequired,
   isEditing: PropTypes.bool.isRequired,
   isInClipboard: PropTypes.bool.isRequired,
+  isInSelection: PropTypes.bool.isRequired,
+  isOnSelectionBottomBorder: PropTypes.bool.isRequired,
+  isOnSelectionLeftBorder: PropTypes.bool.isRequired,
+  isOnSelectionRightBorder: PropTypes.bool.isRequired,
+  isOnSelectionTopBorder: PropTypes.bool.isRequired,
   isPointed: PropTypes.bool.isRequired,
   rowIndex: PropTypes.number.isRequired,
   selectOnFocus: PropTypes.bool.isRequired,
@@ -78,6 +83,10 @@ class Cell extends React.PureComponent {
       isEditing,
       isInClipboard,
       isInSelection,
+      isOnSelectionBottomBorder,
+      isOnSelectionLeftBorder,
+      isOnSelectionRightBorder,
+      isOnSelectionTopBorder,
       isPointed,
       rowIndex,
       styleJSON,
@@ -98,6 +107,10 @@ class Cell extends React.PureComponent {
     if (isInClipboard) { classNames.push('clipboard'); }
     if (isInSelection) { classNames.push('selection'); }
     if (tableHasHeader && (rowIndex === 0)) { classNames.push('header'); }
+    if (isOnSelectionTopBorder) { classNames.push('selection-top'); }
+    if (isOnSelectionRightBorder) { classNames.push('selection-right'); }
+    if (isOnSelectionBottomBorder) { classNames.push('selection-bottom'); }
+    if (isOnSelectionLeftBorder) { classNames.push('selection-left'); }
     if (value !== '') { classNames.push('non-empty'); }
 
     // NOTE: events handeled in Table.

@@ -16,6 +16,10 @@ import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
 import Table from '../components/Table/Table';
 
+const CurrentSelection = Loadable({
+  loader: () => import('../components/CurrentSelection'),
+  loading: () => <div />,
+});
 const CellHistory = Loadable({
   loader: () => import('../components/Popup/CellHistory'),
   loading: () => <div />,
@@ -51,6 +55,8 @@ const mapStateToProps = (state, ownProps) => {
     shortId: ownProps.match.params.shortId,
     table: table.present.get('major'),
     ui: state.get('ui'),
+    currentSelection: table.present.getIn(['minor', 'currentSelection']),
+    currentSelectionVisibility: table.present.getIn(['minor', 'currentSelection', 'visibility']),
   };
 };
 
@@ -126,13 +132,20 @@ class Spreadsheet extends React.Component {
   }
 
   render() {
+    const {
+      currentSelection, // so it won't pass to Table
+      ...other,
+    } = this.props;
+    const headerHeight = this.props.table.getIn(['layout', ROW, 'marginSize']);
+
     if (this.state.loaded) {
       return (
         <React.Fragment>
-          <Table {...this.props} />
-          <Menu {...this.props} />
-          <CellHistory {...this.props} />
+          <Table {...other} />
+          <Menu {...other} />
+          <CellHistory {...other} />
           <SyncIndicator server={this.props.server} />
+          <CurrentSelection currentSelection={currentSelection} headerHeight={headerHeight} />
 
           {/*
             NOTE: key prop allows to reset internal SearchBar state
@@ -141,7 +154,7 @@ class Spreadsheet extends React.Component {
               and reliable approach.
           */}
           <SearchBar
-            {...this.props}
+            {...other}
             key={this.props.table.getIn(['layout', ROW, 'list'])}
           />
         </React.Fragment>
