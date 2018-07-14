@@ -1,7 +1,7 @@
 import { ROW, COLUMN } from '../../constants';
+import * as TableActions from '../../actions/table';
 import findKeyAction from '../../lib/findKeyAction';
 import getCellProps, { getCellPosition } from '../../lib/getCellProps';
-import * as TableActions from '../../actions/table';
 
 // TODO: use one export style for entire codebase.
 export default function cellKeyDownHandler({ evt, elem }) {

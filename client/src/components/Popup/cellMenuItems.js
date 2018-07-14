@@ -98,4 +98,4 @@ export default function cellMenuItems(props) {
     //   action: () => actions.deleteUserSpecifiedArea(),
     // },
   ];
-};
+}

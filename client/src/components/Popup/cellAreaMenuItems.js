@@ -1,14 +1,5 @@
-import {
-  COLUMN,
-  ROW,
-} from '../../constants';
-
 export default function cellAreaMenuItems(props) {
-  const {
-    actions,
-    ui,
-  } = props;
-  const popup = ui.get('popup');
+  const actions = props.actions;
 
   return [
     {
