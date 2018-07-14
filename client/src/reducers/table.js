@@ -550,12 +550,125 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
-    case ActionTypes.SET_CLIPBOARD:
-      return state.setIn([
-        'major',
-        'session',
-        'clipboard',
-      ], fromJS(action.clipboard));
+    // NOTE: described areas should exist.
+    case ActionTypes.DELETE_AREA: {
+      return state.updateIn(
+        ['major', 'layout', ROW, 'list'],
+        (list) => list.map(
+          (row, rowIndex) => {
+            if (
+              (rowIndex < action.area[ROW].index) ||
+              (rowIndex >= action.area[ROW].index + action.area[ROW].length)
+            ) {
+              return row;
+            } else {
+              return row.update(
+                'cells',
+                (cells) => {
+                  const before = cells.slice(0, action.area[COLUMN].index);
+                  const after = cells.slice(action.area[COLUMN].index + action.area[COLUMN].length);
+                  const newCells = List.of(
+                    ...Array
+                      .from(Array(action.area[COLUMN].length))
+                      .map(() => composeCell())
+                  );
+
+                  return before.concat(newCells).concat(after);
+                }
+              )
+            }
+          }
+        )
+      );
+    }
+
+    // TODO: it's hard to read, need rewriting.
+    // TODO: not all conditions tested for now.
+    case ActionTypes.SET_AREA: {
+      const {
+        area,
+        anchorCell,
+      } = action;
+
+      const areaRowsLength = area.size;
+      const areaColumnsLength = area.getIn([0, 'cells']).size;
+
+      let nextState = state;
+
+      // Inserting new linew if necessary.
+      const areaMaxLineIndexes = {
+        [ROW]: areaRowsLength - 1,
+        [COLUMN]: areaColumnsLength - 1,
+      };
+      [ROW, COLUMN].forEach((lineType) => {
+        const currentMaxLineIndex = state.getIn(['major', 'layout', lineType, 'list']).size - 1;
+        const shiftedAreaMaxLineIndex = areaMaxLineIndexes[lineType] + anchorCell[lineType].index;
+        const insertingLinesNumber = Math.max(shiftedAreaMaxLineIndex - currentMaxLineIndex, 0);
+        const insertingLines = List.of(
+          ...Array
+            .from(Array(insertingLinesNumber))
+            .map(() => composeLine({ lineType }))
+        );
+
+        nextState = nextState.updateIn(
+          ['major', 'layout', lineType, 'list'],
+          (list) => list.concat(insertingLines)
+        );
+      });
+
+      // Updating cells.
+      return nextState.updateIn(
+        ['major', 'layout', ROW, 'list'],
+        (list) => list.map((row, rowIndex) => {
+          const currentColumnsNumber = row.get('cells').size;
+          const areaRelativeRowIndex = rowIndex - anchorCell[ROW].index;
+          const cellsToSet = area.getIn([areaRelativeRowIndex, 'cells']);
+          const shiftedColumnsLength = anchorCell[COLUMN].index + areaColumnsLength;
+          let paddingRightLength = shiftedColumnsLength - currentColumnsNumber;
+
+          let updatedRow = row;
+          if (rowIndex < anchorCell[ROW].index) {
+            if (paddingRightLength > 0) {
+              const paddingRight = List.of(
+                ...Array
+                  .from(Array(paddingRightLength))
+                  .map(() => composeCell())
+              );
+
+              updatedRow = row.update(
+                'cells',
+                (cells) => cells.concat(paddingRight)
+              );
+            }
+          } else if (
+              (rowIndex >= anchorCell[ROW].index) &&
+              (rowIndex < anchorCell[ROW].index + areaRowsLength)
+            ) {
+            updatedRow = row.update(
+              'cells',
+              (cells) => {
+                let before = cells.slice(0, anchorCell[COLUMN].index);
+                const after = cells.slice(shiftedColumnsLength);
+
+                paddingRightLength -= areaColumnsLength;
+                if (paddingRightLength > 0) {
+                  const paddingRight = List.of(
+                    ...Array
+                      .from(Array(paddingRightLength))
+                      .map(() => composeCell())
+                  );
+                  before = before.concat(paddingRight);
+                }
+
+                return before.concat(cellsToSet).concat(after);
+              }
+            );
+          }
+
+          return updatedRow;
+        })
+      );
+    }
 
     case ActionTypes.MERGE_SERVER_STATE: {
       const initialSession = initialTable().getIn(['major', 'session']);
