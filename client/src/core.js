@@ -22,6 +22,7 @@ if (process.env.NODE_ENV !== 'test') {
 export function composeLine({
   lineType,
   cellsNumber = 0,
+  cellsValues = [],
   size = null,
   index = null,
 }) {
@@ -38,30 +39,35 @@ export function composeLine({
   };
 
   if (lineType === ROW) {
-    line.cells = Array.from(Array(cellsNumber)).map(() => composeCell());
+    if (cellsValues.length > 0) {
+      line.cells = cellsValues.map((value) => composeCell({ value }));
+    } else {
+      line.cells = Array.from(Array(cellsNumber)).map(() => composeCell());
+    }
   }
 
   return fromJS(line);
 }
 
-export function composeCell() {
-  return Map({});
+export function composeCell(props = {}) {
+  return Map(props);
 }
 
-export function composeRow({
-    size = null,
-    index = null,
-    cellsNumber = 0,
-} = {}) {
-  return composeLine({
-    lineType: ROW,
-    index,
-    size,
-  }).set(
-    'cells',
-    List(Array.from(Array(cellsNumber)).map(() => composeCell()))
-  );
-}
+// export function composeRow({
+//     size = null,
+//     index = null,
+//     cellsNumber = 0,
+//     // cellsValues = [],
+// } = {}) {
+//   return composeLine({
+//     lineType: ROW,
+//     index,
+//     size,
+//   }).set(
+//     'cells',
+//     List(Array.from(Array(cellsNumber)).map(() => composeCell()))
+//   );
+// }
 
 // NOTE: Legend:
 //   size - visible size of something; pixels
@@ -89,7 +95,7 @@ export function initialTable() {
           //   },
           //   ...
           // ]
-          // //  see composeRow()
+          // //  see composeLine()
         },
         [COLUMN]: {
           defaultSize: 60,
@@ -132,7 +138,7 @@ export function initialTable() {
             // },
             [COLUMN]: null,
           },
-          cells: [[]],
+          rows: null, // slice from [ROW, 'list']
         }],
         selection: [{
           boundary: { // see clipboard boundary
@@ -188,10 +194,11 @@ export function initialTable() {
     const rowsSizes = [150, 200, 175, 200, 225, 200, 200, 150, 150, 200];
     const columnsSizes = [125, 150, 200, 150, 175, 125, 200, 150];
     const rowsList = rowsSizes.map((size, index) => {
-      return composeRow({
+      return composeLine({
         size,
         index,
         cellsNumber: columnsSizes.length,
+        lineType: ROW,
       });
     });
     const columnsList = columnsSizes.map((size, index) => {
@@ -531,7 +538,13 @@ export function findLineByOffset({
 //   has no minor and major branches, it's just "table".
 export const convertTableToPlainArray = (
   table,
-  cellCallback = (cell) => cell.get('value')
+  cellCallback = (cell) => {
+    if (cell && cell.get && typeof cell.get('value') === 'string') {
+      return cell.get('value');
+    } else {
+      return null;
+    }
+  }
 ) => {
   const tableArray = [];
   const rowsSize = table.getIn(['layout', ROW, 'list']).size;
@@ -566,7 +579,7 @@ const convertPlainArrayToState = (array, cellCallback) => {
       }
     });
 
-    let emptyStateRow = composeRow();
+    let emptyStateRow = composeLine({ lineType: ROW });
     const stateRow = emptyStateRow.set('cells', fromJS(cells));
 
     updatedState = updatedState.updateIn(
