@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import cellMenuItems from './cellMenuItems';
+import cellAreaMenuItems from './cellAreaMenuItems';
 import findKeyAction from '../../lib/findKeyAction';
 import gridMenuItems from './gridMenuItems';
 import lineHeaderMenuItems from './lineHeaderMenuItems';
@@ -11,6 +12,7 @@ import Popup from './Popup';
 import rippleButtonAction from '../../lib/rippleButtonAction';
 
 import {
+  CELL_AREA,
   CELL,
   COLUMN,
   GRID_HEADER,
@@ -98,6 +100,16 @@ class Menu extends React.Component {
           `[data-row-index="${rowIndex}"]` +
           `[data-column-index="${columnIndex}"]`;
         menuItems = cellMenuItems(this.props);
+
+        break;
+      }
+
+      case CELL_AREA: {
+        popupAnchorSelector =
+          `[data-component-name="${CELL}"]` +
+          `[data-row-index="${popup.getIn([ROW, 'index'])}"]` +
+          `[data-column-index="${popup.getIn([COLUMN, 'index'])}"]`;
+        menuItems = cellAreaMenuItems(this.props);
 
         break;
       }

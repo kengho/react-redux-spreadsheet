@@ -1,10 +1,12 @@
 import {
   CELL,
+  CELL_AREA,
   COLUMN,
   ROW,
   BEGIN,
   END,
 } from '../../constants';
+import { getBoundaryProps } from '../../core';
 import getCellProps, {
   composeCellProps,
   getCellOffsets,
@@ -90,44 +92,58 @@ export default function cellClickHandler({ evt, pointedCell }) {
   //   so we just call menu not on click, but mousedown.
   //   Should probably catch calling context menu instead.
   if ((evt.type === 'mousedown') && (evt.button === RIGHT_BUTTON)) {
-    const cellPosition = getCellPosition({ evt });
+    const firstSelectionBoundary = table.getIn(['session', 'selection', 0, 'boundary']);
+    const { isInBoundary: isInSelection} = getBoundaryProps(firstSelectionBoundary, cellPosition);
 
-    actionsToBatch.push(
-      UiActions.setMenu({
-        place: CELL,
-        ...composeCellProps(
-          cellPosition,
+    const cellProps = composeCellProps(
+      cellPosition,
+      {
+        [ROW]: {
+          offset: getMousePosition(evt).page.y,
+        },
+        [COLUMN]: {
+          offset: getMousePosition(evt).page.x,
+        },
+      },
+    );
+
+    if (isInSelection) {
+      actionsToBatch.push(
+        UiActions.setMenu({
+          place: CELL_AREA,
+          ...cellProps,
+        }),
+        UiActions.openPopup(),
+      );
+    } else {
+      actionsToBatch.push(
+        UiActions.setMenu({
+          place: CELL,
+          ...cellProps,
+        }),
+        UiActions.openPopup(),
+
+        // TODO: don't set pointer if there are selection (when there is code for selection).
+        TableActions.setPointer(composeCellProps(
+          // NOTE: if we don't wipe lines' sizes, if we set pointer on non-default size cell,
+          //   scroll it out of sight, and then point some empty cell, it's size will change.
           {
             [ROW]: {
-              offset: getMousePosition(evt).page.y,
+              size: null,
             },
             [COLUMN]: {
-              offset: getMousePosition(evt).page.x,
+              size: null,
             },
           },
-        ),
-      }),
-      UiActions.openPopup(),
+          {
+            edit: false,
+            selectOnFocus: false,
+          },
+          cellPosition,
+        )),
+      );
+    }
 
-      // TODO: don't set pointer if there are selection (when there is code for selection).
-      TableActions.setPointer(composeCellProps(
-        // NOTE: if we don't wipe lines' sizes, if we set pointer on non-default size cell,
-        //   scroll it out of sight, and then point some empty cell, it's size will change.
-        {
-          [ROW]: {
-            size: null,
-          },
-          [COLUMN]: {
-            size: null,
-          },
-        },
-        {
-          edit: false,
-          selectOnFocus: false,
-        },
-        cellPosition,
-      )),
-    );
 
   // Leftclick.
   // NOTE: we catch "mousedown" instead of "click" for faster UI response.

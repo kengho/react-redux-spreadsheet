@@ -7,6 +7,7 @@ export const CELL = 'CELL';
 export const BODY = 'BODY';
 export const LINE_HEADER = 'LINE_HEADER';
 export const GRID_HEADER = 'GRID_HEADER';
+export const CELL_AREA = 'CELL_AREA';
 
 // lineTypes
 export const ROW = 'ROW';
