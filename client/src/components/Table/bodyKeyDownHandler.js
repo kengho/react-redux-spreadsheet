@@ -132,6 +132,7 @@ export default function bodyKeyDownHandler(evt) {
           cells: null,
         });
         actions.closeSearchBar();
+        actions.clearSelection();
       },
     },
     {
