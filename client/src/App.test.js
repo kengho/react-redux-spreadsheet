@@ -154,6 +154,12 @@ TODO: Backspace.
 * when "info" dialog appears, after pressing "Enter" should close it
 * in "import" dialog after importing and processing data "OK" button should focus
 * in "destroy spreadsheet" dialog pressing "Enter" shouldn't have effect unless user manually "tabbed" there
+* drawing rectangle from cell to cell should make selection
+* (test_816) if there is editing cell making selection should make it unediting
+* if there is already selection new creating new selection should make it disappear
+* Ctlr+C/Ctrl+X/Ctlr+V/Delete with selection should do exactly the same as with single pointer
+* Ctlr+V on body should paste-spread \n- \t-formatted text to cells
+* Ctlr+C on body should copy selected cells' values to real clipboard making it \n- \t-formatted if there are many of them
 
 TODO: more tests.
 */
