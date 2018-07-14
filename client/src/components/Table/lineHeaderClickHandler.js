@@ -11,8 +11,6 @@ import {
 import getMousePosition from '../../lib/getMousePosition';
 
 export default function lineHeaderClickHandler({ evt }) {
-  this.props.actions.closePopupOnlyIfVisible();
-
   if ((evt.type === 'mousedown') && (evt.button === 2)) { // right click
     const cellPosition = getCellPosition({ evt, allowPartial: true });
 

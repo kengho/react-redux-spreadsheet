@@ -50,7 +50,6 @@ export const SET_REQUEST_FAILED = 'server/SET_REQUEST_FAILED';
 // ui
 export const OPEN_POPUP = 'ui/OPEN_POPUP';
 export const CLOSE_POPUP = 'ui/CLOSE_POPUP';
-export const CLOSE_POPUP_ONLY_IF_VISIBLE = 'ui/CLOSE_POPUP_ONLY_IF_VISIBLE';
 export const SET_POPUP = 'ui/SET_POPUP';
 export const SET_POPUP_KIND = 'ui/SET_POPUP_KIND';
 export const SET_MENU = 'ui/SET_MENU';

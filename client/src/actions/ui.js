@@ -21,12 +21,6 @@ export function closePopup() {
   };
 }
 
-export function closePopupOnlyIfVisible() {
-  return {
-    type: ActionTypes.CLOSE_POPUP_ONLY_IF_VISIBLE,
-  };
-}
-
 export function setPopupKind(kind) {
   return {
     type: ActionTypes.SET_POPUP_KIND,

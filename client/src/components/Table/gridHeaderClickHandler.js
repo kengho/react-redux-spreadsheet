@@ -7,8 +7,6 @@ import { composeCellProps } from '../../lib/getCellProps';
 import getMousePosition from '../../lib/getMousePosition';
 
 export default function gridHeaderClickHandler({ evt }) {
-  this.props.actions.closePopupOnlyIfVisible();
-
   if ((evt.type === 'mousedown') && (evt.button === 2)) { // right click
     this.props.actions.setMenu({
       place: GRID_HEADER,
