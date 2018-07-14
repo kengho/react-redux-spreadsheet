@@ -56,9 +56,7 @@
   user-select: text;
 }
 
-.cell.pointed {
-  border: 1px solid #48e;
-}
+
 
 .cell.editing {
   border: 1px solid #4e8;
@@ -82,6 +80,11 @@
 
 .cell.pointed.selection {
   border-color: #48e;
+}
+
+.cell.pointed {
+  border: 1px solid #48e;
+  background-color: white !important;
 }
 
 /* TODO: figure out how not to important everything. */
