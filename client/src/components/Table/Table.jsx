@@ -206,35 +206,70 @@ class Table extends React.PureComponent {
     const table = this.props.table;
     const cellProps = { rowIndex, columnIndex };
 
-    const getSelectionProps = (rowIndex, columnIndex, boundary) => {
-      if (!boundary) {
-        return;
-      }
-      if (!boundary.get(ROW) || !boundary.get(COLUMN)) {
-        return;
-      }
+    // REVIEW: this probably could be simplified.
+    //   We're not grouping props in objects in order to take advantage
+    //   of PureComponent Cell (proven to be faster benchmarkably).
+    const getBoundaryProps = (rowIndex, columnIndex, boundary) => {
+      if (boundary && boundary.get(ROW) && boundary.get(COLUMN)) {
+        const rowInBoundary = (
+          (rowIndex >= boundary.getIn([ROW, BEGIN, 'index'], -1)) &&
+          (rowIndex <= boundary.getIn([ROW, END, 'index'], -1))
+        );
+        const columnInBoundary = (
+          (columnIndex >= boundary.getIn([COLUMN, BEGIN, 'index'], -1)) &&
+          (columnIndex <= boundary.getIn([COLUMN, END, 'index'], -1))
+        );
+        const isInBoundary = rowInBoundary && columnInBoundary;
 
-      const rowInSelection = (
-        (rowIndex >= boundary.getIn([ROW, BEGIN, 'index'], -1)) &&
-        (rowIndex <= boundary.getIn([ROW, END, 'index'], -1))
-      );
-      const columnInSelection = (
-        (columnIndex >= boundary.getIn([COLUMN, BEGIN, 'index'], -1)) &&
-        (columnIndex <= boundary.getIn([COLUMN, END, 'index'], -1))
-      );
-      const isInSelection = rowInSelection && columnInSelection;
-
-      return {
-        isInSelection,
-        isOnSelectionTopBorder: isInSelection && (rowIndex === boundary.getIn([ROW, BEGIN, 'index'])),
-        isOnSelectionRightBorder: isInSelection && (columnIndex === boundary.getIn([COLUMN, END, 'index'])),
-        isOnSelectionBottomBorder: isInSelection && (rowIndex === boundary.getIn([ROW, END, 'index'])),
-        isOnSelectionLeftBorder: isInSelection && (columnIndex === boundary.getIn([COLUMN, BEGIN, 'index'])),
-      };
+        return {
+          isInBoundary,
+          isOnBoundaryTop: isInBoundary && (rowIndex === boundary.getIn([ROW, BEGIN, 'index'])),
+          isOnBoundaryRight: isInBoundary && (columnIndex === boundary.getIn([COLUMN, END, 'index'])),
+          isOnBoundaryBottom: isInBoundary && (rowIndex === boundary.getIn([ROW, END, 'index'])),
+          isOnBoundaryLeft: isInBoundary && (columnIndex === boundary.getIn([COLUMN, BEGIN, 'index'])),
+        };
+      } else {
+        return {
+          isInBoundary: false,
+          isOnBoundaryTop: false,
+          isOnBoundaryRight: false,
+          isOnBoundaryBottom: false,
+          isOnBoundaryLeft: false,
+        };
+      }
     };
+
     const firstSelectionBoundary = table.getIn(['session', 'selection', 0, 'boundary']);
-    const selectionProps = getSelectionProps(rowIndex, columnIndex, firstSelectionBoundary);
-    Object.assign(cellProps, selectionProps);
+    const {
+      isInBoundary: isInSelection,
+      isOnBoundaryTop: isOnSelectionTop,
+      isOnBoundaryRight: isOnSelectionRight,
+      isOnBoundaryBottom: isOnSelectionBottom,
+      isOnBoundaryLeft: isOnSelectionLeft,
+    } = getBoundaryProps(rowIndex, columnIndex, firstSelectionBoundary);
+    Object.assign(cellProps, {
+      isInSelection,
+      isOnSelectionTop,
+      isOnSelectionRight,
+      isOnSelectionBottom,
+      isOnSelectionLeft,
+    });
+
+    const firstClipboardBoundary = table.getIn(['session', 'clipboard', 0, 'boundary']);
+    const {
+      isInBoundary: isInClipboard,
+      isOnBoundaryTop: isOnClipboardTop,
+      isOnBoundaryRight: isOnClipboardRight,
+      isOnBoundaryBottom: isOnClipboardBottom,
+      isOnBoundaryLeft: isOnClipboardLeft,
+    } = getBoundaryProps(rowIndex, columnIndex, firstClipboardBoundary);
+    Object.assign(cellProps, {
+      isInClipboard,
+      isOnClipboardTop,
+      isOnClipboardRight,
+      isOnClipboardBottom,
+      isOnClipboardLeft,
+    });
 
     if (isReal) {
       const rowId = table.getIn(['layout', ROW, 'list', rowIndex, 'id']);
@@ -267,13 +302,6 @@ class Table extends React.PureComponent {
 
     cellProps.isEditing = (cellProps.isPointed && pointer.get('edit') === true);
     cellProps.selectOnFocus = (cellProps.isPointed && pointer.get('selectOnFocus') === true);
-
-    const clipboard = table.getIn(['session', 'clipboard']);
-    cellProps.isInClipboard = (
-      rowIndex === clipboard.getIn([ROW, 'index']) &&
-      columnIndex === clipboard.getIn([COLUMN, 'index'])
-    );
-
     cellProps.tableHasHeader = this.props.settings.get('tableHasHeader');
 
     // HACK (?): stringifying style is the easiest way to make use of

@@ -11,12 +11,16 @@ const propTypes = {
   ]).isRequired,
   columnIndex: PropTypes.number.isRequired,
   isEditing: PropTypes.bool.isRequired,
-  isInClipboard: PropTypes.bool.isRequired,
-  isInSelection: PropTypes.bool.isRequired,
-  isOnSelectionBottomBorder: PropTypes.bool.isRequired,
-  isOnSelectionLeftBorder: PropTypes.bool.isRequired,
-  isOnSelectionRightBorder: PropTypes.bool.isRequired,
-  isOnSelectionTopBorder: PropTypes.bool.isRequired,
+  isInClipboard: PropTypes.bool,
+  isInSelection: PropTypes.bool,
+  isOnClipboardBottom: PropTypes.bool,
+  isOnClipboardLeft: PropTypes.bool,
+  isOnClipboardRight: PropTypes.bool,
+  isOnClipboardTop: PropTypes.bool,
+  isOnSelectionBottom: PropTypes.bool,
+  isOnSelectionLeft: PropTypes.bool,
+  isOnSelectionRight: PropTypes.bool,
+  isOnSelectionTop: PropTypes.bool,
   isPointed: PropTypes.bool.isRequired,
   rowIndex: PropTypes.number.isRequired,
   selectOnFocus: PropTypes.bool.isRequired,
@@ -26,6 +30,16 @@ const propTypes = {
 };
 
 const defaultProps = {
+  isInClipboard: false,
+  isInSelection: false,
+  isOnClipboardBottom: false,
+  isOnClipboardLeft: false,
+  isOnClipboardRight: false,
+  isOnClipboardTop: false,
+  isOnSelectionBottom: false,
+  isOnSelectionLeft: false,
+  isOnSelectionRight: false,
+  isOnSelectionTop: false,
   tableHasHeader: false,
   value: '',
 };
@@ -83,10 +97,14 @@ class Cell extends React.PureComponent {
       isEditing,
       isInClipboard,
       isInSelection,
-      isOnSelectionBottomBorder,
-      isOnSelectionLeftBorder,
-      isOnSelectionRightBorder,
-      isOnSelectionTopBorder,
+      isOnClipboardBottom,
+      isOnClipboardLeft,
+      isOnClipboardRight,
+      isOnClipboardTop,
+      isOnSelectionBottom,
+      isOnSelectionLeft,
+      isOnSelectionRight,
+      isOnSelectionTop,
       isPointed,
       rowIndex,
       styleJSON,
@@ -104,13 +122,20 @@ class Cell extends React.PureComponent {
     const classNames = ['cell'];
     if (isPointed) { classNames.push('pointed'); }
     if (isEditing) { classNames.push('editing'); }
-    if (isInClipboard) { classNames.push('clipboard'); }
-    if (isInSelection) { classNames.push('selection'); }
     if (tableHasHeader && (rowIndex === 0)) { classNames.push('header'); }
-    if (isOnSelectionTopBorder) { classNames.push('selection-top'); }
-    if (isOnSelectionRightBorder) { classNames.push('selection-right'); }
-    if (isOnSelectionBottomBorder) { classNames.push('selection-bottom'); }
-    if (isOnSelectionLeftBorder) { classNames.push('selection-left'); }
+
+    if (isInSelection) { classNames.push('selection'); }
+    if (isOnSelectionTop) { classNames.push('selection-top'); }
+    if (isOnSelectionRight) { classNames.push('selection-right'); }
+    if (isOnSelectionBottom) { classNames.push('selection-bottom'); }
+    if (isOnSelectionLeft) { classNames.push('selection-left'); }
+
+    if (isInClipboard) { classNames.push('clipboard'); }
+    if (isOnClipboardTop) { classNames.push('clipboard-top'); }
+    if (isOnClipboardRight) { classNames.push('clipboard-right'); }
+    if (isOnClipboardBottom) { classNames.push('clipboard-bottom'); }
+    if (isOnClipboardLeft) { classNames.push('clipboard-left'); }
+
     if (value !== '') { classNames.push('non-empty'); }
 
     // NOTE: events handeled in Table.
