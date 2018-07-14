@@ -4,7 +4,6 @@ import Grid from 'react-infinite-2d-grid';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import './Table.css';
 import getCellProps from '../../lib/getCellProps';
 import {
   BODY,

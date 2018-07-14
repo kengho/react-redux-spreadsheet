@@ -22,12 +22,38 @@
   padding-left: 1px;
 }
 
+* {
+  /*
+    Prevents browser text selecting messing with app's cells' rectangle selecion.
+      https://stackoverflow.com/a/16805743/6376451
+      https://stackoverflow.com/a/4358620/6376451 (inheritance)
+  */
+  /*
+    NOTE: doesn't work with select-link-text addon.
+      https://addons.mozilla.org/en-US/firefox/addon/select-link-text/
+  */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .cell.editing .cell-content {
   overflow: visible;
 
   /* Makes div width to be as big as text in order to fill background properly. */
   display: inline;
   background-color: white;
+
+  /* See "* {" above. Couldn't do it with :not because it don't work with complex selctors. */
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 .cell.pointed {
@@ -38,14 +64,6 @@
   border: 1px solid #4e8;
   cursor: inherit;
   z-index: 700;
-}
-
-.cell.clipboard {
-  border: 1px dashed #777;
-}
-
-.cell.pointed.clipboard {
-  border: 1px dashed #48e;
 }
 
 .cell.header {
@@ -66,6 +84,7 @@
   border-color: #48e;
 }
 
+/* TODO: figure out how not to important everything. */
 .selection-top {
   border-top: 1px solid #48e !important; /* .cell.pointed */
 }
@@ -80,4 +99,27 @@
 
 .selection-left {
   border-left: 1px solid #48e !important;
+}
+
+.cell.clipboard {
+}
+
+.clipboard-top {
+  border-top: 1px dashed #777 !important;
+}
+
+.clipboard-right {
+  border-right: 1px dashed #777 !important;
+}
+
+.clipboard-bottom {
+  border-bottom: 1px dashed #777 !important;
+}
+
+.clipboard-left {
+  border-left: 1px dashed #777 !important;
+}
+
+.cell.pointed.clipboard {
+  border-color: #48e !important;
 }
