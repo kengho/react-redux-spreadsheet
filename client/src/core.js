@@ -1,4 +1,4 @@
-import { fromJS, Map, List } from 'immutable';
+import { fromJS, Map } from 'immutable';
 import uuid from 'uuid/v4';
 
 import getSufficientState from './lib/getSufficientState';

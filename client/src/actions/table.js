@@ -9,8 +9,6 @@ import {
   PASTE,
   CLEAR,
   DELETE,
-  BEGIN,
-  END,
 } from '../constants';
 
 const changesData = true;

@@ -402,8 +402,8 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
+    // NOTE: could be called with just index within existing range without harm.
     case ActionTypes.INSERT_LINES: {
-      // NOTE: could be called with just index within existing range without harm.
       const {
         lineType,
       } = action;
@@ -426,8 +426,8 @@ export default (state = initialState().get('table'), action) => {
       if (number <= 0) {
         return state;
       }
-      let nextState = state;
 
+      let nextState = state;
       if (lineType === COLUMN) {
         // Compose and insert new cells into existing rows.
         const newCells = List(Array.from(Array(number)).map(() => composeCell()));
