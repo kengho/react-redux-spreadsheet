@@ -61,12 +61,26 @@ export default function bodyKeyDownHandler(evt) {
         // Prevents native scrollbar movement.
         evt.preventDefault();
 
+        // console.time('bodyKeyDownHandler arrowkeys');
         // REVIEW: can we just pass "evt" to movePointer?
         actions.movePointer({
           key: evt.key,
           altKey: evt.altKey,
           ctrlKey: evt.ctrlKey,
         });
+
+        // NOTE: PERF: without selection check: ~250ms. With: ~100ms.
+        // TODO: issue flows from SET_IN action being inefficient for objects,
+        //   bacause setting object to state make Table to rerender even
+        //   it's essentially the same.
+        const selection = this.props.table.getIn(['session', 'selection', 0]);
+        const thereIsSelection =
+          selection.getIn(['boundary', ROW]) &&
+          selection.getIn(['boundary', COLUMN]);
+        if (thereIsSelection) {
+          actions.clearSelection();
+        }
+        // console.timeEnd('bodyKeyDownHandler arrowkeys');
       },
     },
     {
