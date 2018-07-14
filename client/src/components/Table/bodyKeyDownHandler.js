@@ -1,3 +1,5 @@
+import * as TableActions from '../../actions/table';
+import * as UiActions from '../../actions/ui';
 import {
   CELL,
   COLUMN,
@@ -122,17 +124,23 @@ export default function bodyKeyDownHandler(evt) {
         //   (see workOnUserSpecifiedArea()). The best UX would be watching system
         //   clipboard changes and clearing app's clipboard if there are any,
         //   but it seems too complicated and unsecure.
-        actions.setClipboard({
-          [ROW]: {
-            index: null,
-          },
-          [COLUMN]: {
-            index: null,
-          },
-          cells: null,
-        });
-        actions.closeSearchBar();
-        actions.clearSelection();
+        // NOTE: PERF: without batchActions: ~275ms. With batchActions: ~100ms.
+        // console.time('bodyKeyDownHandler Escape');
+        // REVIEW: should we import actions one by one or TableActions and ect. is OK?
+        actions.batchActions([
+          TableActions.setClipboard({
+            [ROW]: {
+              index: null,
+            },
+            [COLUMN]: {
+              index: null,
+            },
+            cells: null,
+          }),
+          UiActions.closeSearchBar(),
+          TableActions.clearSelection(),
+        ]);
+        // console.timeEnd('bodyKeyDownHandler Escape');
       },
     },
     {
