@@ -342,6 +342,40 @@ export function getSelectionBoundary(immutableSelection) {
   return boundary;
 }
 
+// REVIEW: this probably could be simplified.
+//   We're not grouping props in objects in order to take advantage
+//   of PureComponent Cell (proven to be faster benchmarkably)
+//   (see cellRenderer()).
+export function getBoundaryProps(boundary, cellPosition) {
+  if (boundary && boundary.get(ROW) && boundary.get(COLUMN)) {
+    const rowInBoundary = (
+      (cellPosition[ROW].index >= boundary.getIn([ROW, BEGIN, 'index'], -1)) &&
+      (cellPosition[ROW].index <= boundary.getIn([ROW, END, 'index'], -1))
+    );
+    const columnInBoundary = (
+      (cellPosition[COLUMN].index >= boundary.getIn([COLUMN, BEGIN, 'index'], -1)) &&
+      (cellPosition[COLUMN].index <= boundary.getIn([COLUMN, END, 'index'], -1))
+    );
+    const isInBoundary = rowInBoundary && columnInBoundary;
+
+    return {
+      isInBoundary,
+      isOnBoundaryTop: isInBoundary && (cellPosition[ROW].index === boundary.getIn([ROW, BEGIN, 'index'])),
+      isOnBoundaryRight: isInBoundary && (cellPosition[COLUMN].index === boundary.getIn([COLUMN, END, 'index'])),
+      isOnBoundaryBottom: isInBoundary && (cellPosition[ROW].index === boundary.getIn([ROW, END, 'index'])),
+      isOnBoundaryLeft: isInBoundary && (cellPosition[COLUMN].index === boundary.getIn([COLUMN, BEGIN, 'index'])),
+    };
+  } else {
+    return {
+      isInBoundary: false,
+      isOnBoundaryTop: false,
+      isOnBoundaryRight: false,
+      isOnBoundaryBottom: false,
+      isOnBoundaryLeft: false,
+    };
+  }
+}
+
 // NOTE: all props are immutable.
 export function findLastNonemptyAdjacentCell({
   layout,

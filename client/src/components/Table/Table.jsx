@@ -12,9 +12,8 @@ import {
   GRID_HEADER,
   LINE_HEADER,
   ROW,
-  BEGIN,
-  END,
 } from '../../constants';
+import { getBoundaryProps } from '../../core';
 import bodyKeyDownHandler from './bodyKeyDownHandler';
 import Cell from './Cell';
 import cellClickHandler from './cellClickHandler';
@@ -205,39 +204,14 @@ class Table extends React.PureComponent {
     const table = this.props.table;
     const cellProps = { rowIndex, columnIndex };
 
-    // REVIEW: this probably could be simplified.
-    //   We're not grouping props in objects in order to take advantage
-    //   of PureComponent Cell (proven to be faster benchmarkably).
-    const getBoundaryProps = (rowIndex, columnIndex, boundary) => {
-      if (boundary && boundary.get(ROW) && boundary.get(COLUMN)) {
-        const rowInBoundary = (
-          (rowIndex >= boundary.getIn([ROW, BEGIN, 'index'], -1)) &&
-          (rowIndex <= boundary.getIn([ROW, END, 'index'], -1))
-        );
-        const columnInBoundary = (
-          (columnIndex >= boundary.getIn([COLUMN, BEGIN, 'index'], -1)) &&
-          (columnIndex <= boundary.getIn([COLUMN, END, 'index'], -1))
-        );
-        const isInBoundary = rowInBoundary && columnInBoundary;
-
-        return {
-          isInBoundary,
-          isOnBoundaryTop: isInBoundary && (rowIndex === boundary.getIn([ROW, BEGIN, 'index'])),
-          isOnBoundaryRight: isInBoundary && (columnIndex === boundary.getIn([COLUMN, END, 'index'])),
-          isOnBoundaryBottom: isInBoundary && (rowIndex === boundary.getIn([ROW, END, 'index'])),
-          isOnBoundaryLeft: isInBoundary && (columnIndex === boundary.getIn([COLUMN, BEGIN, 'index'])),
-        };
-      } else {
-        return {
-          isInBoundary: false,
-          isOnBoundaryTop: false,
-          isOnBoundaryRight: false,
-          isOnBoundaryBottom: false,
-          isOnBoundaryLeft: false,
-        };
-      }
+    const cellPosition = {
+      [ROW]: {
+        index: rowIndex,
+      },
+      [COLUMN]: {
+        index: columnIndex,
+      },
     };
-
     const firstSelectionBoundary = table.getIn(['session', 'selection', 0, 'boundary']);
     const {
       isInBoundary: isInSelection,
@@ -245,7 +219,7 @@ class Table extends React.PureComponent {
       isOnBoundaryRight: isOnSelectionRight,
       isOnBoundaryBottom: isOnSelectionBottom,
       isOnBoundaryLeft: isOnSelectionLeft,
-    } = getBoundaryProps(rowIndex, columnIndex, firstSelectionBoundary);
+    } = getBoundaryProps(firstSelectionBoundary, cellPosition);
     Object.assign(cellProps, {
       isInSelection,
       isOnSelectionTop,
@@ -261,7 +235,7 @@ class Table extends React.PureComponent {
       isOnBoundaryRight: isOnClipboardRight,
       isOnBoundaryBottom: isOnClipboardBottom,
       isOnBoundaryLeft: isOnClipboardLeft,
-    } = getBoundaryProps(rowIndex, columnIndex, firstClipboardBoundary);
+    } = getBoundaryProps(firstClipboardBoundary, cellPosition);
     Object.assign(cellProps, {
       isInClipboard,
       isOnClipboardTop,
