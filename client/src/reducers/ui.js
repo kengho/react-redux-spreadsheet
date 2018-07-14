@@ -17,18 +17,6 @@ export default (state = initialState().get('ui') || null, action) => {
         false
       );
 
-    case ActionTypes.CLOSE_POPUP_ONLY_IF_VISIBLE: {
-      const currentVisibility = state.getIn(['popup', 'visibility']);
-      if (currentVisibility) {
-        return state.setIn(
-          ['popup', 'visibility'],
-          false
-        );
-      } else {
-        return state;
-      }
-    }
-
     // NOTE: action is supposed to fire rarely, no need for optimizations.
     case ActionTypes.SET_POPUP: {
       const currentVisibility = state.getIn(['popup', 'visibility']);
