@@ -1347,3 +1347,188 @@ describe('sort', () => {
     expect(actualCells).to.deep.equal(expectedCells);
   });
 });
+
+describe('area operations', () => {
+  const state = Core.initialState();
+  const store = configureStore(state);
+
+  const cellsToSet = [
+    ['i00', 'i01'],
+    ['i10', 'i11'],
+    ['i20', 'i21'],
+  ];
+  setCellsValues(store, cellsToSet);
+  const areaToSet = store.getState().get('table').present.getIn(['major', 'layout', ROW, 'list']);
+
+  const cells = [
+    ['00', '01', '02'],
+    ['10', '11', '12'],
+    ['20', '21', '22'],
+    ['30', '31', '32'],
+  ];
+  setCellsValues(store, cells);
+
+  let expectedCells;
+  let actualCells;
+
+  it('should insert area (no overlap)', () => {
+    process.logBelow = false;
+
+    store.dispatch(TableActions.setArea(
+      {
+        [ROW]: {
+          index: 1,
+        },
+        [COLUMN]: {
+          index: 0,
+        },
+      },
+      areaToSet,
+    ));
+
+    expectedCells = [
+      ['00' , '01' , '02'],
+      ['i00', 'i01', '12'],
+      ['i10', 'i11', '22'],
+      ['i20', 'i21', '32'],
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+
+  it('should insert area (overlap)', () => {
+    process.logBelow = false;
+
+    store.dispatch(TableActions.setArea(
+      {
+        [ROW]: {
+          index: 3,
+        },
+        [COLUMN]: {
+          index: 2,
+        },
+      },
+      areaToSet,
+    ));
+
+    expectedCells = [
+      //          inserting inserting
+      ['00' , '01' , '02' , null ],
+      ['i00', 'i01', '12' , null ],
+      ['i10', 'i11', '22' , null ],
+      ['i20', 'i21', 'i00', 'i01'], // inserting
+      [null , null , 'i10', 'i11'], // inserting
+      [null , null , 'i20', 'i21'], // inserting
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+
+  it('should insert area (out of real cells)', () => {
+    process.logBelow = false;
+
+    store.dispatch(TableActions.setArea(
+      {
+        [ROW]: {
+          index: 7,
+        },
+        [COLUMN]: {
+          index: 5,
+        },
+      },
+      areaToSet,
+    ));
+
+    expectedCells = [
+      //                             inserting inserting
+      ['00' , '01' , '02' , null , null, null , null ],
+      ['i00', 'i01', '12' , null , null, null , null ],
+      ['i10', 'i11', '22' , null , null, null , null ],
+      ['i20', 'i21', 'i00', 'i01', null, null , null ],
+      [null , null , 'i10', 'i11', null, null , null ],
+      [null , null , 'i20', 'i21', null, null , null ],
+      [null , null , null , null , null, null , null ],
+      [null , null , null , null , null, 'i00', 'i01'], // inserting
+      [null , null , null , null , null, 'i10', 'i11'], // inserting
+      [null , null , null , null , null, 'i20', 'i21'], // inserting
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+
+  it('should insert area (out of real columns)', () => {
+    process.logBelow = true;
+
+    store.dispatch(TableActions.setArea(
+      {
+        [ROW]: {
+          index: 0,
+        },
+        [COLUMN]: {
+          index: 8,
+        },
+      },
+      areaToSet,
+    ));
+
+    expectedCells = [
+      //                                                 inserting inserting
+      ['00' , '01' , '02' , null , null, null , null , null, 'i00', 'i01'], // inserting
+      ['i00', 'i01', '12' , null , null, null , null , null, 'i10', 'i11'], // inserting
+      ['i10', 'i11', '22' , null , null, null , null , null, 'i20', 'i21'], // inserting
+      ['i20', 'i21', 'i00', 'i01', null, null , null , null, null , null ],
+      [null , null , 'i10', 'i11', null, null , null , null, null , null ],
+      [null , null , 'i20', 'i21', null, null , null , null, null , null ],
+      [null , null , null , null , null, null , null , null, null , null ],
+      [null , null , null , null , null, 'i00', 'i01', null, null , null ],
+      [null , null , null , null , null, 'i10', 'i11', null, null , null ],
+      [null , null , null , null , null, 'i20', 'i21', null, null , null ],
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+
+  it('should delete area', () => {
+    store.dispatch(TableActions.deleteArea({
+      [ROW]: {
+        index: 3,
+        length: 2
+      },
+      [COLUMN]: {
+        index: 2,
+        length: 2,
+      },
+    }));
+
+    expectedCells = [
+      //          deleting deleting
+      ['00' , '01' , '02' , null , null, null , null , null, 'i00', 'i01'],
+      ['i00', 'i01', '12' , null , null, null , null , null, 'i10', 'i11'],
+      ['i10', 'i11', '22' , null , null, null , null , null, 'i20', 'i21'],
+      ['i20', 'i21', null , null , null, null , null , null, null , null ], // deleting
+      [null , null , null , null , null, null , null , null, null , null ], // deleting
+      [null , null , 'i20', 'i21', null, null , null , null, null , null ],
+      [null , null , null , null , null, null , null , null, null , null ],
+      [null , null , null , null , null, 'i00', 'i01', null, null , null ],
+      [null , null , null , null , null, 'i10', 'i11', null, null , null ],
+      [null , null , null , null , null, 'i20', 'i21', null, null , null ],
+    ];
+    actualCells = Core.convertTableToPlainArray(
+      store.getState().get('table').present.get('major')
+    );
+
+    expect(actualCells).to.deep.equal(expectedCells);
+  });
+});

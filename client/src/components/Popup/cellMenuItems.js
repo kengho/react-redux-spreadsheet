@@ -78,24 +78,24 @@ export default function cellMenuItems(props) {
     },
     {
       label: 'Copy',
-      action: () => actions.copyArea(),
+      action: () => actions.copyUserSpecifiedArea(),
     },
     {
       label: 'Cut',
-      action: () => actions.cutArea(),
+      action: () => actions.cutUserSpecifiedArea(),
     },
     {
       label: 'Paste',
-      action: () => actions.pasteArea(),
+      action: () => actions.pasteUserSpecifiedArea(),
     },
     {
       label: 'Clear',
-      action: () => actions.clearArea(),
+      action: () => actions.clearUserSpecifiedArea(),
     },
     // TODO: add confirmation dialog and proceed,
     // {
     //   label: 'Delete...',
-    //   action: () => actions.deleteArea(),
+    //   action: () => actions.deleteUserSpecifiedArea(),
     // },
   ];
 };

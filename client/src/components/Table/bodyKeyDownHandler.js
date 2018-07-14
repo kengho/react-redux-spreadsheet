@@ -74,7 +74,7 @@ export default function bodyKeyDownHandler(evt) {
     {
       keys: 'Delete',
       action: () => {
-        actions.clearArea();
+        actions.clearUserSpecifiedArea();
       },
     },
     {
@@ -82,7 +82,7 @@ export default function bodyKeyDownHandler(evt) {
       action: () => {
         // Prevents going back in history via Backspace.
         evt.preventDefault();
-        actions.deleteArea();
+        actions.deleteUserSpecifiedArea();
       },
     },
     {
@@ -94,14 +94,14 @@ export default function bodyKeyDownHandler(evt) {
         }
 
         evt.preventDefault();
-        actions.copyArea();
+        actions.copyUserSpecifiedArea();
       },
     },
     {
       which: 88, // Ctrl+X
       action: () => {
         evt.preventDefault();
-        actions.cutArea();
+        actions.cutUserSpecifiedArea();
       },
     },
     // NOTE: see pasteHandler() in Table.
@@ -110,7 +110,7 @@ export default function bodyKeyDownHandler(evt) {
     //   ctrlKey: true,
     //   action: () => {
     //     evt.preventDefault();
-    //     actions.pasteArea();
+    //     actions.pasteUserSpecifiedArea();
     //   },
     // },
     {

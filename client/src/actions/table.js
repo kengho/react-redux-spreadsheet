@@ -210,10 +210,29 @@ export function deleteCellHistory(cell, historyIndex) {
   };
 }
 
-export function setClipboard(clipboard) {
+export function setClipboard(props) {
   return {
-    type: ActionTypes.SET_CLIPBOARD,
-    clipboard,
+    type: ActionTypes.SET_IN,
+    subType: ActionTypes.SET_CLIPBOARD,
+    path: ['major', 'session', 'clipboard', 0],
+    object: props,
+  };
+}
+
+export function deleteArea(area) {
+  return {
+    type: ActionTypes.DELETE_AREA,
+    area,
+    changesData,
+  };
+}
+
+export function setArea(anchorCell, area) {
+  return {
+    type: ActionTypes.SET_AREA,
+    anchorCell,
+    area,
+    changesData,
   };
 }
 
@@ -221,46 +240,47 @@ export function workOnUserSpecifiedArea(operation) { // areaOperations
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
     operation,
+    changesData,
   };
 }
 
-export function copyArea() {
+export function copyUserSpecifiedArea() {
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.COPY_AREA,
+    subType: ActionTypes.COPY_USER_SPECIFIED_AREA,
     operation: COPY,
   };
 }
 
-export function cutArea() {
+export function cutUserSpecifiedArea() {
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.CUT_AREA,
+    subType: ActionTypes.CUT_USER_SPECIFIED_AREA,
     operation: CUT,
   };
 }
 
-export function pasteArea(text = '') {
+export function pasteUserSpecifiedArea(text = '') {
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.PASTE_AREA,
+    subType: ActionTypes.PASTE_USER_SPECIFIED_AREA,
     operation: PASTE,
     text,
   };
 }
 
-export function clearArea() {
+export function clearUserSpecifiedArea() {
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.CLEAR_AREA,
+    subType: ActionTypes.CLEAR_USER_SPECIFIED_AREA,
     operation: CLEAR,
   };
 }
 
-export function deleteArea() {
+export function deleteUserSpecifiedArea() {
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.DELETE_AREA,
+    subType: ActionTypes.DELETE_USER_SPECIFIED_AREA,
     operation: DELETE,
   };
 }
@@ -299,12 +319,12 @@ export function clearSelection() {
     path: ['major', 'session', 'selection'],
 
     // TODO: use data from initialTable().
-    object: fromJS({
+    object: fromJS([{
       boundary: {
         [ROW]: null,
         [COLUMN]: null,
       },
-    }),
+    }]),
   };
 }
 
