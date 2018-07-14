@@ -58,6 +58,8 @@ TODO: mark all tests with numbers (probably, rand 1000) and put labels un the co
 Run in all browsers:
 * rightclick on grid header should show spreadsheet menu
 * rightclick on cell should show cell menu
+* rightclick on selected cells' area should show area menu
+* rightclick on lines headers show lines headers menu
 * line headers corresponding to pointed cell should have different style
 * "insert row above menu item should insert row above
 * "insert row below" menu item should insert row below
