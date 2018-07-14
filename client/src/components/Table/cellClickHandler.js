@@ -64,10 +64,20 @@ export default function cellClickHandler({ evt, pointedCell }) {
       TableActions.setCurrentSelectionVisibility(true),
     );
   } else if (currentSelectionVisibility && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
-    actionsToBatch.push(TableActions.setCurrentSelectionAnchor({
-      selectionAnchorType: END,
-      anchor: cellPlacement,
-    }));
+    actionsToBatch.push(
+      TableActions.setCurrentSelectionAnchor({
+        selectionAnchorType: END,
+        anchor: cellPlacement,
+      }),
+
+      // test_816
+      // NOTE: PERF: because it doesn't chang state most of the time,
+      //   Table don't rerender and performance doesn't degrade.
+      TableActions.setPointer({
+        edit: false,
+        selectOnFocus: false,
+      }),
+    );
   } else if (currentSelectionVisibility && (evt.type === 'mouseup') && (evt.button === LEFT_BUTTON)) {
     actionsToBatch.push(
       TableActions.fixateCurrentSelection(),
