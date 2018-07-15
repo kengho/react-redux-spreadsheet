@@ -140,7 +140,7 @@ export default function bodyKeyDownHandler(evt) {
         //   but it seems too complicated and unsecure.
         // NOTE: PERF: without batchActions: ~275ms. With batchActions: ~100ms.
         // console.time('bodyKeyDownHandler Escape');
-        // REVIEW: should we import actions one by one or TableActions and ect. is OK?
+        // REVIEW: should we import actions one by one or TableActions and etc. is OK?
         actions.batchActions([
           TableActions.setClipboard({
             [ROW]: {

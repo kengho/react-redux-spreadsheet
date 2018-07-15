@@ -132,7 +132,7 @@ class SearchBar extends React.Component {
       evt.nativeEvent.stopImmediatePropagation();
       action();
     }
-  }
+  };
 
   handleInputChange = (evt) => {
     this.setState({
@@ -140,7 +140,7 @@ class SearchBar extends React.Component {
       searchResults: null,
       currentSearchResultIndex: 0,
     });
-  }
+  };
 
   search = (rows, searchQuery, flags = {}) => {
     const matcher = (string, searchQuery, flags) => {
@@ -183,7 +183,7 @@ class SearchBar extends React.Component {
     });
 
     return searchResults;
-  }
+  };
 
   performSearch = (callback) => {
     const searchResults = this.search(
@@ -192,7 +192,7 @@ class SearchBar extends React.Component {
       this.state.flags
     );
     this.setState({ searchResults }, callback);
-  }
+  };
 
   gotoCurrentSearchResult = () => {
     const currentSearchResult = this.state.searchResults[this.state.currentSearchResultIndex];
@@ -204,13 +204,13 @@ class SearchBar extends React.Component {
     this.incrementCurrentSearchResultIndex(() => {
       this.gotoCurrentSearchResult();
     });
-  }
+  };
 
   gotoPreviousSearchResult = () => {
     this.decrementCurrentSearchResultIndex(() => {
       this.gotoCurrentSearchResult();
     });
-  }
+  };
 
   incrementCurrentSearchResultIndex = (callback) => {
     let nextSearchResultIndex = this.state.currentSearchResultIndex + 1;
@@ -219,7 +219,7 @@ class SearchBar extends React.Component {
     }
 
     this.setState({ currentSearchResultIndex: nextSearchResultIndex }, callback);
-  }
+  };
 
   decrementCurrentSearchResultIndex = (callback) => {
     let previousSearchResultIndex = this.state.currentSearchResultIndex - 1;
@@ -228,7 +228,7 @@ class SearchBar extends React.Component {
     }
 
     this.setState({ currentSearchResultIndex: previousSearchResultIndex }, callback);
-  }
+  };
 
   searchInDirection = (direction) => {
     if (this.state.searchQuery === '') {
@@ -250,7 +250,7 @@ class SearchBar extends React.Component {
         this.gotoPreviousSearchResult();
       }
     }
-  }
+  };
 
   handleSubmit = (evt) => {
     // Prevents reloading page on submit.
@@ -261,7 +261,7 @@ class SearchBar extends React.Component {
     }
 
     this.searchInDirection(FORWARD);
-  }
+  };
 
   render() {
     const {
