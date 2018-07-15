@@ -19,7 +19,6 @@ import { enableBatching, /* batchDispatchMiddleware */ } from 'redux-batched-act
 import throttle from 'redux-throttle';
 
 import batchActions from './middleware/batchActions';
-import copyToRealClipboardOnSetClipboard from './middleware/copyToRealClipboardOnSetClipboard';
 import handleDataChanges from './middleware/handleDataChanges';
 import handleServerRequests from './middleware/handleServerRequests';
 import logger from './middleware/logger';
@@ -45,7 +44,6 @@ const configureMiddleware = (history) => {
     workOnUserSpecifiedArea,
     pushCellHistoryOnValueChanges,
     ...(process.env.NODE_ENV !== 'test' ? [
-      copyToRealClipboardOnSetClipboard,
       handleServerRequests,
     ] : []),
     ...(process.env.NODE_ENV === 'development' ? [
