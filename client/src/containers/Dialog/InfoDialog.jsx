@@ -18,9 +18,9 @@ const InfoDialog = (props) => {
   const hotkeysMap = [
     ['Ctrl+Z', 'undo'],
     ['Ctrl+Y', 'redo'],
-    ['Ctrl+X', 'cut'],
-    ['Ctrl+C', 'copy'],
-    ['Ctrl+V', 'paste'],
+    ['Ctrl+X', 'cut (works on selection)'],
+    ['Ctrl+C', 'copy (works on selection)'],
+    ['Ctrl+V', 'paste (works on selection)'],
     ['Enter / Shift+Enter', 'save and move cursor down/up'],
     ['Tab / Shift+Tab', 'save and move cursor to the right/left'],
     ['Escape or Backspace', 'delete cell\'s value'],
@@ -29,6 +29,7 @@ const InfoDialog = (props) => {
     ['PgUp, PgDn', 'move cursor fast up and down'],
     ['PgUp, PgDn with Alt', 'move cursor fast to the left and right '],
     ['Ctrl+Enter (while editing)', 'insert new line'],
+    ['Right-click', 'show context menu'],
   ];
 
   return (
