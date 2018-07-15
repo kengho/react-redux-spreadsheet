@@ -16,7 +16,7 @@
 * auto saving cells' values history
 * export/import to/from CSV/JSON
 * basic hotkeys handlers (`ArrowX`, `Enter`, `Escape`, `F2`, `PageDown`, `PageUp`, `Delete`)
-* copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`)
+* copy/cut/paste cells (`Ctrl+C`, `Ctrl+X`, `Ctrl+V`) (works on rectangle selection as well)
 * [redux-undo](https://github.com/omnidan/redux-undo)-powered undo/redo (`Ctrl+Z`, `Ctrl+Y`)
 * multiline text (`Ctrl+Enter`)
 * infinite 2D grid
@@ -93,7 +93,6 @@ http://localhost:3000/spreadsheet should display landing page.
 
 * mobile browsers support
 * scripting (aka "functions")
-* cut/copy/paste multiple cells/columns/rows
 * cells, linked with other spreadsheets
 * lists (in form of just links to other spreadsheets)
 * consider users' auth
