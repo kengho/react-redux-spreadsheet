@@ -97,10 +97,12 @@ export default store => next => action => {
       // NOTE: placed here bacause middleware does't work correctly with
       //   batchActions and should be adjusted, and this action happens only
       //   once and it is probably waste of code in this case.
-      const plainTableArray = clipboardedRows
-        .map((row) =>
-          row.get('cells').map((cell) =>
-            cell.get('value') || '').join('\t')
+      const plainTableArray =
+        clipboardedRows
+          .map((row) =>
+            row.get('cells').map((cell) =>
+              cell.get('value') || ''
+            ).join('\t')
           );
       copy(plainTableArray.join('\n'));
 
@@ -187,7 +189,6 @@ export default store => next => action => {
           return lineSplit;
         });
 
-        // area = fromJS([]);
         area = List.of(...textSplit.map((cells) => {
           const cellsPadding = Array
             .from(Array(maxSplitColumnsLength - cells.length))

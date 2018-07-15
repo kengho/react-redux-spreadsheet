@@ -66,6 +66,7 @@ export default function cellClickHandler({ evt, pointedCell }) {
       TableActions.setCurrentSelectionVisibility(true),
     );
   } else if (currentSelectionVisibility && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
+    // TODO: scroll screen if mouse reaches border.
     actionsToBatch.push(
       TableActions.setCurrentSelectionAnchor({
         selectionAnchorType: END,

@@ -342,6 +342,8 @@ class Table extends React.PureComponent {
   }
 
   onSectionRendered = (linesDivision) => {
+    // TODO: PERF: figure out, isn't this slowing down app.
+    //   Maybe we should run it only if offsets changed?
     this.props.actions.setLinesOffsets({
       ROW: linesDivision.rows.offsets,
       COLUMN: linesDivision.columns.offsets,
