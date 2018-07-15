@@ -196,6 +196,10 @@ class SearchBar extends React.Component {
 
   gotoCurrentSearchResult = () => {
     const currentSearchResult = this.state.searchResults[this.state.currentSearchResultIndex];
+    if (!currentSearchResult) {
+      return;
+    }
+
     this.props.actions.movePointer({ cell: { ROW: { index: currentSearchResult[ROW].index }}});
     this.props.actions.movePointer({ cell: { COLUMN: { index: currentSearchResult[COLUMN].index }}});
   }
