@@ -96,11 +96,6 @@ export default store => next => action => {
 
   switch (action.requestType) {
     case SYNC: {
-      const sync = store.getState().getIn(['server', 'sync']);
-      if (!sync) {
-        return next(action);
-      }
-
       const request = composeSyncRequest(store);
       handleRequest(store, request);
 

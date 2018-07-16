@@ -18,10 +18,17 @@ export default store => next => action => {
     return nextAction;
   }
 
-  store.dispatch({
-    ...makeServerRequest(SYNC),
-    meta: { throttle: true },
-  });
+  if (nextTableLayout === previousTableLayout && nextSettings === previousSettings) {
+    return nextAction;
+  }
+
+  const sync = store.getState().getIn(['server', 'sync']);
+  if (sync) {
+    store.dispatch({
+      ...makeServerRequest(SYNC),
+      meta: { throttle: true },
+    });
+  }
 
   return nextAction;
 };
