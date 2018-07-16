@@ -1,3 +1,4 @@
+import domready from 'domready';
 import MaterialMenu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
@@ -30,10 +31,8 @@ const propTypes = {
 };
 
 class Menu extends React.Component {
-  keyDownHandler = (evt) => {
-    // Prevents firing body's keyDownHandler().
-    evt.nativeEvent.stopImmediatePropagation();
-
+  componentDidUpdate() {
+    // test_420
     // HACK: for some reason (c), somewhere between MaterialMenu's handleEnter()
     //   and Menu keyDownHandler() the focus in lost. But we need it in order todo
     //   MUI keyboard handlers to work (ArrowDown, ArrowUp) (see findKeyAction).
@@ -41,10 +40,22 @@ class Menu extends React.Component {
     //   * document.activeElement in MaterialMenu's handleEnter(): ul
     //   * document.activeElement in Menu's componentDidUpdate(): body (sic!)
     //   * document.activeElement in Menu's keyDownHandler(): MuiPaper (Popover)
-    const menuList = document.activeElement.querySelector('ul > li');
-    if (menuList) {
-      menuList.focus();
-    }
+    // NOTE: domready required because element doesn't exist
+    //   until open is true and it's rendered.
+    domready(() => {
+      const menuListElem = document.querySelector('#menu ul > li');
+      const popup = this.props.ui.get('popup');
+      const open = (popup.get('visibility') && (popup.get('kind') === MENU));
+
+      if (open && menuListElem) {
+        menuListElem.focus();
+      }
+    });
+  }
+
+  keyDownHandler = (evt) => {
+    // Prevents firing body's keyDownHandler().
+    evt.nativeEvent.stopImmediatePropagation();
 
     const action = findKeyAction(evt, [
       {
@@ -151,7 +162,7 @@ class Menu extends React.Component {
 
     return (
       <Popup
-        className="material-menu"
+        id="menu"
         kind={MENU}
         offsetX={popup.getIn([COLUMN, 'offset'])}
         offsetY={popup.getIn([ROW, 'offset'])}
