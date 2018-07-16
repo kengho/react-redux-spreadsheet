@@ -37,7 +37,7 @@ class CellHistory extends React.PureComponent {
         },
       },
 
-      // NOTE: allow Ctrl+C and ect, exit only by Escape.
+      // NOTE: allow Ctrl+C and etc., exit only by Escape.
       {
         key: 'Escape',
         action: () => {

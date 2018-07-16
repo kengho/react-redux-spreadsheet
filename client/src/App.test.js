@@ -74,7 +74,7 @@ Run in all browsers:
 * "import" grid menu item should show dialog with "Choose file" button and inactive 'Import' button
 * when user selects CSV file, "Import button" should become active and file name should appear
 * when user selects incorrect file, errors should appear
-* when data is imported, spreadsheet should sync data with server
+* when data is imported, spreadsheet should sync data with server (unless offline mode)
 * when user is trying to import bad format file, errors should occur
 * import from JSON string should work regardless of settings key in it
 * making one line extra large shouldn't break grid layout
@@ -82,6 +82,7 @@ Run in all browsers:
 * grid should be infinite
 * grid should update on scroll or changing screen size
 * table should have row labels 1, 2, 3 starting with first row if parameter 'tableHasHeader' is true and with second otherwise
+* (test_957) after changin any cells' data sync request should be sent (unless offline mode)
 
 TODO: this.
 * "new" button on table menu should show captcha (if necessary) and show link that should open new spreadsheet in new tab
@@ -92,9 +93,6 @@ TODO: this.
 TODO: this.
 * if new spreadsheet is created using "new" button on table menu, it shouldn't let user to create another one until he follows link
 * lines addressing should update after adding/removing rows/columns
-
-TODO: this.
-* after showing menu first element should be active
 * after dialog appearing, Enter and Escape keys should work
 
 * on document, pressing regular key should start editing currently pointed cell with value equals to that key
@@ -129,6 +127,7 @@ TODO: Backspace.
 * (test_134) if user presses ArrowUp when second row cell is selected and first row cell isn't visible, scroll should be to the top of the page (the same with columns)
 * after pressing any arrow key appropriate cell should always became visible, even if previous cell wasn't fitting the screen entirely or wasn't visible at all
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
+* undo/redo should consider pasting area as single action
 * when user sets cell's value and then do undo, that cell's history should be removed with the value
 * if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
 * on landing, when errors while creating spreadsheet occurs, they should be shown near 'create' button
@@ -138,6 +137,9 @@ TODO: Backspace.
 * back and forward history movements between Landing and Spreadsheet should work
 * after deleting spreadsheet user should be redirected to Landing
 * each cell's value's change should be saved in cell history if "autoSaveHistory" is true, and not saved otherwise
+
+TODO: first element isn't highlighted yet.
+* (test_420) after calling any menu first item should focus and arrowkeys should work
 * cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
 * when cell history if empty, show cell history button should be inactive
 * when cell history is shown, document click or Escape should close it
@@ -148,7 +150,7 @@ TODO: Backspace.
 * cell menu should have clear cell button, which clears cell value
 * in grid menu item "settings" should be present
 * in table menu, when user clicks on "settings", appropriate dialog should pop up
-* when user changes something in settings dialog and presses OK update request should sync it with server
+* when user changes something in settings dialog and presses OK update request should sync it with server (unless offline mode)
 * when "settings" dialog opens first input should focus
 * when "info" dialog appears, after pressing "Enter" should close it
 * in "import" dialog after importing and processing data "OK" button should focus

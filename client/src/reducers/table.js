@@ -756,10 +756,9 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
-    // TODO: optimize setIn.
-    // HACK: after actions sequence SETpointer (edit: true), SET_PROP, (MOVEpointer)
-    //   state with 'pointer.modifiers.edit === true' adds to history, thus pressing Ctrl+Z
-    //   enters DataCell. But Ctrl+Z won't work while you are in DataCell,
+    // HACK: after actions sequence SET_POINTER (edit: true), SET_PROP, (MOVE_POINTER)
+    //   state with 'pointer.edit === true' adds to history, thus pressing Ctrl+Z
+    //   enters Cell. But Ctrl+Z won't work while you are in Cell,
     //   and next Ctrl+Z won't work until you press Esc, which is uncomfortable.
     //   So, here we delete 'edit: true' from pointer's modifiers after undo/redo actions.
     // REVIEW: could it be done by undoable() filter or groupBy?

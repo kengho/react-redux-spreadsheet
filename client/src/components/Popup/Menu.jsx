@@ -97,8 +97,8 @@ class Menu extends React.Component {
       actions,
       ui,
     } = this.props;
-
     const popup = ui.get('popup');
+    const open = (popup.get('visibility') && (popup.get('kind') === MENU));
 
     let popupAnchorSelector;
     let menuItems = [];
@@ -157,8 +157,6 @@ class Menu extends React.Component {
 
       default:
     }
-
-    const open = (popup.get('visibility') && (popup.get('kind') === MENU));
 
     return (
       <Popup

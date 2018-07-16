@@ -23,6 +23,8 @@ export default store => next => action => {
   }
 
   const sync = store.getState().getIn(['server', 'sync']);
+
+  // test_957
   if (sync) {
     store.dispatch({
       ...makeServerRequest(SYNC),
