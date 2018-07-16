@@ -77,10 +77,7 @@ Run in all browsers:
 * when data is imported, spreadsheet should sync data with server
 * when user is trying to import bad format file, errors should occur
 * import from JSON string should work regardless of settings key in it
-
-TODO: this.
 * making one line extra large shouldn't break grid layout
-
 * table should have column labels A, B, C, ... AA, ...
 * grid should be infinite
 * grid should update on scroll or changing screen size

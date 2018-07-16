@@ -47,7 +47,7 @@
   display: inline;
   background-color: white;
 
-  /* See "* {" above. Couldn't do it with :not because it don't work with complex selctors. */
+  /* See "* {" above. Couldn't do it with :not because it don't work with complex selectors. */
   -webkit-touch-callout: text;
   -webkit-user-select: text;
   -khtml-user-select: text;

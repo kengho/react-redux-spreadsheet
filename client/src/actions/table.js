@@ -123,6 +123,7 @@ export function setLineSize({
 }
 
 // NOTE: if number not specified, inserting lines from last one to 'index'.
+// TODO: adding lines at the end shouldn't change data.
 export function insertLines({
   lineType,
   index,
