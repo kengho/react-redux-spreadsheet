@@ -22,7 +22,7 @@
   padding-left: 1px;
 }
 
-* {
+.table * {
   /*
     Prevents browser text selecting messing with app's cells' rectangle selecion.
       https://stackoverflow.com/a/16805743/6376451
