@@ -765,11 +765,19 @@ export default (state = initialState().get('table'), action) => {
     // REVIEW: could it be done by undoable() filter or groupBy?
     //   We need to insert state without pointer to history somehow.
     case ActionTypes.UNDO:
-    case ActionTypes.REDO:
+    case ActionTypes.REDO: {
+      // test_933
+      // REVIEW: this.
+      const scrollTop = state.getIn(['major', 'table', 'vision', ROW, 'screenSize']);
+      const scrollLeft = state.getIn(['major', 'table', 'vision', COLUMN, 'screenSize']);
+      document.documentElement.scrollTop = scrollTop;
+      document.documentElement.scrollLeft = scrollLeft;
+
       return state.setIn(
         ['session', 'pointer', 'edit'],
         false
       );
+    }
 
     default:
       return state;
