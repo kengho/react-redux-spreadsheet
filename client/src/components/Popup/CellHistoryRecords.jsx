@@ -1,11 +1,15 @@
-import DeleteAllIcon from 'material-ui-icons/DeleteSweep';
-import DeleteIcon from 'material-ui-icons/Delete';
-import IconButton from 'material-ui/IconButton';
+import DeleteAllIcon from '@material-ui/icons/DeleteSweep';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
 import React from 'react';
-import RestoreIcon from 'material-ui-icons/Restore';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import Tooltip from 'material-ui/Tooltip';
+import RestoreIcon from '@material-ui/icons/Restore';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import datetime from '../../lib/datetime';
 import rippleButtonAction from '../../lib/rippleButtonAction';
@@ -55,7 +59,10 @@ class CellHistoryRecords extends React.PureComponent {
             <TableRow>
               <TableCell>
                 <Tooltip title="Forget all">
-                  <IconButton onClick={this.deleteAllRecordsButtonHandler()}>
+                  <IconButton
+                    onClick={this.deleteAllRecordsButtonHandler()}
+                    tabIndex="1"
+                  >
                     <DeleteAllIcon />
                   </IconButton>
                 </Tooltip>
@@ -85,7 +92,7 @@ class CellHistoryRecords extends React.PureComponent {
                   <TableCell>
                     <IconButton
                       onClick={this.deleteRecordButtonHandler(historyIndex)}
-                      tabIndex={2 * historyIndex + 1}
+                      tabIndex={1 + 2*historyIndex + 1}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -94,7 +101,7 @@ class CellHistoryRecords extends React.PureComponent {
                     <IconButton
                       disabled={historyValue === value}
                       onClick={this.restoreRecordButtonHandler(historyValue)}
-                      tabIndex={2 * historyIndex + 2}
+                      tabIndex={1 + 2*historyIndex + 2}
                     >
                       <RestoreIcon />
                     </IconButton>

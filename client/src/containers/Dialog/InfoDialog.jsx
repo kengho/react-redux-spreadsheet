@@ -1,10 +1,10 @@
-import {
-  DialogActions as MaterialDialogActions,
-  DialogContent as MaterialDialogContent,
-  DialogTitle as MaterialDialogTitle,
-} from 'material-ui/Dialog';
-import Button from 'material-ui/Button';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import Button from '@material-ui/core/Button';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -34,10 +34,10 @@ const InfoDialog = (props) => {
 
   return (
     <React.Fragment>
-      <MaterialDialogTitle>
+      <DialogTitle>
         Help
-      </MaterialDialogTitle>
-      <MaterialDialogContent>
+      </DialogTitle>
+      <DialogContent>
         <List dense={true}>
           {hotkeysMap.map((hotkeyMap) =>
             <ListItem key={hotkeyMap[0]}>
@@ -48,15 +48,15 @@ const InfoDialog = (props) => {
             </ListItem>
           )}
         </List>
-      </MaterialDialogContent>
-      <MaterialDialogActions>
+      </DialogContent>
+      <DialogActions>
         <Button
           autoFocus={true}
           onClick={() => actions.closeDialog()}
         >
           OK
         </Button>
-      </MaterialDialogActions>
+      </DialogActions>
     </React.Fragment>
   );
 };

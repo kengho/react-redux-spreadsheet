@@ -1,14 +1,14 @@
-import ArrowDownward from 'material-ui-icons/ArrowDownward';
-import ArrowUpward from 'material-ui-icons/ArrowUpward';
-import Button from 'material-ui/Button';
-import Close from 'material-ui-icons/Close';
-import IconButton from 'material-ui/IconButton';
-import Input from 'material-ui/Input';
-import Paper from 'material-ui/Paper';
+import ArrowDownward from '@material-ui/icons/ArrowDownward';
+import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import Button from '@material-ui/core/Button';
+import Close from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
+import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Tooltip from 'material-ui/Tooltip';
-import Typography from 'material-ui/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
 import './SearchBar.css';
 import rippleButtonAction from '../lib/rippleButtonAction';
@@ -326,21 +326,9 @@ class SearchBar extends React.Component {
               Object.keys(this.flagsMap).map((flag) =>
                 <Button
                   size="small"
-                  className="search-bar-flag-button"
+                  className={`search-bar-flag-button ${this.state.flags[flag] ? 'on' : 'off'}`}
                   key={`search-bar-${flag}-button`}
-                  style={
-                    // TODO: use outlined variant when available.
-                    //   https://github.com/mui-org/material-ui/blob/3353f440053222b4eed36f575593b5bfcfa7a0f3/pages/api/button.md
-
-                    // Temp outlined implementation:
-                    this.state.flags[flag] ? {
-                      border: '1px solid rgba(0, 0, 0, 0.23)',
-                      borderRadius: '4px',
-                    } : {
-                      border: '1px solid rgba(0, 0, 0, 0)',
-                    }
-                  }
-                  variant={/* this.state.flags[flag] ? 'outlined' : */ 'flat'}
+                  variant={this.state.flags[flag] ? 'outlined' : 'flat'}
                   onClick={() => {
                     this.setState(
                       (prevState) => {

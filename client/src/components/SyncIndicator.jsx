@@ -1,10 +1,10 @@
-import IconButton from 'material-ui/IconButton';
-import Paper from 'material-ui/Paper';
+import IconButton from '@material-ui/core/IconButton';
+import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
-import SyncDisabled from 'material-ui-icons/SyncDisabled';
-import SyncProblem from 'material-ui-icons/SyncProblem';
-import Tooltip from 'material-ui/Tooltip';
+import SyncDisabled from '@material-ui/icons/SyncDisabled';
+import SyncProblem from '@material-ui/icons/SyncProblem';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import './SyncIndicator.css';
 

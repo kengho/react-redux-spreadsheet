@@ -1,9 +1,7 @@
-import {
-  DialogActions as MaterialDialogActions,
-  DialogContent as MaterialDialogContent,
-  DialogTitle as MaterialDialogTitle,
-} from 'material-ui/Dialog';
-import Button from 'material-ui/Button';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -95,10 +93,10 @@ class ImportDialog extends React.PureComponent {
     // TODO: describe json format.
     return (
       <React.Fragment>
-        <MaterialDialogTitle>
+        <DialogTitle>
           Select file ({ConvertFormats.join(', ')})
-        </MaterialDialogTitle>
-        <MaterialDialogContent>
+        </DialogTitle>
+        <DialogContent>
           <div className="dialog-import">
             <input
               accept={acceptedFormats}
@@ -120,8 +118,8 @@ class ImportDialog extends React.PureComponent {
           <ul className="dialog-messages">
             {messages.map((message) => <li key={message}>{message}</li>)}
           </ul>
-        </MaterialDialogContent>
-        <MaterialDialogActions className="dialog-buttons">
+        </DialogContent>
+        <DialogActions className="dialog-buttons">
           <Button onClick={() => actions.closeDialog()}>Cancel</Button>
           {withCircularProgress(
             /* NOTE: autoFocus don't work. */
@@ -141,7 +139,7 @@ class ImportDialog extends React.PureComponent {
             </Button>,
             isProcessing
           )}
-        </MaterialDialogActions>
+        </DialogActions>
       </React.Fragment>
     );
   }

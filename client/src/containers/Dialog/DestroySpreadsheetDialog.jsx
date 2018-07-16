@@ -1,9 +1,7 @@
-import {
-  DialogActions as MaterialDialogActions,
-  DialogContent as MaterialDialogContent,
-  DialogTitle as MaterialDialogTitle,
-} from 'material-ui/Dialog';
-import Button from 'material-ui/Button';
+import Button from '@material-ui/core/Button';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -34,10 +32,10 @@ class DestroySpreadsheetDialog extends React.PureComponent {
 
     return (
       <React.Fragment>
-        <MaterialDialogTitle>
+        <DialogTitle>
           Confirm action
-        </MaterialDialogTitle>
-        <MaterialDialogContent>
+        </DialogTitle>
+        <DialogContent>
           Are you sure you want to destroy spreadsheet?<br />
           This action cannot be undone.
           {requestFailed &&
@@ -45,8 +43,8 @@ class DestroySpreadsheetDialog extends React.PureComponent {
               Sorry, unable to destroy spreadsheet, please try later.
             </div>
           }
-        </MaterialDialogContent>
-        <MaterialDialogActions className="dialog-buttons">
+        </DialogContent>
+        <DialogActions className="dialog-buttons">
           <Button
             onClick={() => {
               actions.closeDialog();
@@ -71,7 +69,7 @@ class DestroySpreadsheetDialog extends React.PureComponent {
             </Button>,
             isProcessing
           )}
-        </MaterialDialogActions>
+        </DialogActions>
       </React.Fragment>
     );
   }

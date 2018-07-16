@@ -1,4 +1,4 @@
-import { LinearProgress } from 'material-ui/Progress';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import React from 'react';
 
 const LoadingScreen = () => (

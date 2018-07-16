@@ -1,6 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import MaterialDialog from 'material-ui/Dialog';
+import MaterialDialog from '@material-ui/core/Dialog';
 import React from 'react';
 
 import './Dialog.css';

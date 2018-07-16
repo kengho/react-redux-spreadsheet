@@ -19,9 +19,13 @@
   transition: opacity 0.4s;
 }
 
-#search-bar-flag-buttons button {
+.search-bar-flag-button {
   white-space: pre;
   margin: 4px !important;
+}
+
+.search-bar-flag-button.off {
+  border: 1px solid transparent;
 }
 
 #search-bar-close-button {

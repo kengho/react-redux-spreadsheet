@@ -1,14 +1,13 @@
-import {
-  DialogActions as MaterialDialogActions,
-  DialogContent as MaterialDialogContent,
-  DialogTitle as MaterialDialogTitle,
-} from 'material-ui/Dialog';
-import { FormControlLabel, FormGroup } from 'material-ui/Form';
-import Button from 'material-ui/Button';
+import Button from '@material-ui/core/Button';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Switch from 'material-ui/Switch';
-import TextField from 'material-ui/TextField';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
 
 import './Dialog.css';
 import { initialSettings } from '../../core';
@@ -71,10 +70,10 @@ class SettingsDialog extends React.PureComponent {
     // TODO: reset to defaults button.
     return (
       <React.Fragment>
-        <MaterialDialogTitle>
+        <DialogTitle>
           Settings
-        </MaterialDialogTitle>
-        <MaterialDialogContent>
+        </DialogTitle>
+        <DialogContent>
           <FormGroup onKeyDown={this.keyDownHandler}>
             {this.settingsMap.map((item, itemIndex) => {
               switch (item.type) {
@@ -149,8 +148,8 @@ class SettingsDialog extends React.PureComponent {
               }
             })}
           </FormGroup>
-        </MaterialDialogContent>
-        <MaterialDialogActions>
+        </DialogContent>
+        <DialogActions>
           <Button onClick={() => actions.closeDialog()}>
             Cancel
           </Button>
@@ -164,7 +163,7 @@ class SettingsDialog extends React.PureComponent {
           >
             OK
           </Button>
-        </MaterialDialogActions>
+        </DialogActions>
       </React.Fragment>
     );
   }

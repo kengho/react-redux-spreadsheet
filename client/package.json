@@ -13,6 +13,8 @@
   },
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^1.4.0",
+    "@material-ui/icons": "^1.1.0",
     "connected-react-router": "^4.2.3",
     "copy-to-clipboard": "^3.0.8",
     "excel-column-name": "^1.0.0",
@@ -23,8 +25,6 @@
     "jss-nested": "^6.0.1",
     "jss-preset-default": "^4.5.0",
     "lodash": "^4.17.5",
-    "material-ui": "^1.0.0-beta.47",
-    "material-ui-icons": "^1.0.0-beta.5",
     "papaparse": "^4.3.6",
     "prop-types": "^15.6.1",
     "react": "^16.3.1",

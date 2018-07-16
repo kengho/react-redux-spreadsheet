@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { fromJS } from 'immutable';
-import Button from 'material-ui/Button';
+import Button from '@material-ui/core/Button';
 import React from 'react';
 
 import './Landing.css';

@@ -1,4 +1,4 @@
-import Popover from 'material-ui/Popover';
+import Popover from '@material-ui/core/Popover';
 import PropTypes from 'prop-types';
 import React from 'react';
 
