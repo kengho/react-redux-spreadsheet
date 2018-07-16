@@ -48,15 +48,7 @@ class Popup extends React.Component {
       ...other,
     } = this.props;
 
-    let visibility = 'visible';
-    if (!popupAnchorSelector) {
-      visibility = 'hidden';
-    }
-
     const anchorEl = document.querySelector(popupAnchorSelector);
-    if (!anchorEl) {
-      visibility = 'hidden';
-    }
 
     let relativeOffsetX = 0;
     let relativeOffsetY = 0;
@@ -74,7 +66,6 @@ class Popup extends React.Component {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         getContentAnchorEl={null}
         transformOrigin={{ vertical: -relativeOffsetY, horizontal: -relativeOffsetX }}
-        style={{ visibility }}
         {...other}
       >
         {children}
