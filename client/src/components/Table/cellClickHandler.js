@@ -1,5 +1,4 @@
 import {
-  BODY,
   CELL,
   CELL_AREA,
   COLUMN,

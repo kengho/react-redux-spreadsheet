@@ -134,6 +134,8 @@ class Table extends React.PureComponent {
 
   pasteHandler = (evt) => {
     const componentName = getComponentName(evt);
+
+    // test_636
     if (componentName === BODY) {
       evt.preventDefault();
       this.props.actions.pasteUserSpecifiedArea(evt.clipboardData.getData('text'));

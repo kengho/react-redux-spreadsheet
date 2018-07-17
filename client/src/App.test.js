@@ -161,6 +161,7 @@ TODO: first element isn't highlighted yet.
 * if there is already selection new creating new selection should make it disappear
 * Ctlr+C/Ctrl+X/Ctlr+V/Delete with selection should do exactly the same as with single pointer
 * Ctlr+V on body should paste-spread \n- \t-formatted text to cells
+* (test_636) Ctlr+V on settings or any other input shouldn't lead to pasting into cells
 * Ctlr+C on body should copy selected cells' values to real clipboard making it \n- \t-formatted if there are many of them
 * (test_933) after scrolling down, changing some cell and pressing Ctrl+Z layout shouldn't break
 
