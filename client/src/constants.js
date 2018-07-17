@@ -4,6 +4,7 @@ export const HISTORY = 'HISTORY';
 
 // componentsNames
 export const CELL = 'CELL';
+export const CELL_CONTENT = 'CELL_CONTENT';
 export const BODY = 'BODY';
 export const LINE_HEADER = 'LINE_HEADER';
 export const GRID_HEADER = 'GRID_HEADER';

@@ -2,7 +2,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import './Cell.css';
-import { CELL } from '../../constants';
+import {
+  CELL,
+  CELL_CONTENT,
+} from '../../constants';
 
 const propTypes = {
   bubbleCellRef: PropTypes.oneOfType([
@@ -163,7 +166,7 @@ class Cell extends React.PureComponent {
             autoFocus={isEditing}
             contentEditable={isEditing.toString()}
             data-column-index={columnIndex}
-            data-component-name={CELL}
+            data-component-name={CELL_CONTENT}
             data-row-index={rowIndex}
             ref={(c) => {
               this.cell = c;

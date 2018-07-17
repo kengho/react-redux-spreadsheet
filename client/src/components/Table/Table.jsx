@@ -8,6 +8,7 @@ import getCellProps from '../../lib/getCellProps';
 import {
   BODY,
   CELL,
+  CELL_CONTENT,
   COLUMN,
   GRID_HEADER,
   LINE_HEADER,
@@ -18,6 +19,7 @@ import bodyKeyDownHandler from './bodyKeyDownHandler';
 import Cell from './Cell';
 import cellClickHandler from './cellClickHandler';
 import cellKeyDownHandler from './cellKeyDownHandler';
+import getComponentName from '../../lib/getComponentName';
 import GridHeader from './GridHeader';
 import gridHeaderClickHandler from './gridHeaderClickHandler';
 import LineHeader from './LineHeader';
@@ -131,7 +133,7 @@ class Table extends React.PureComponent {
   }
 
   pasteHandler = (evt) => {
-    const componentName = this.getComponentName(evt);
+    const componentName = getComponentName(evt);
     if (componentName === BODY) {
       evt.preventDefault();
       this.props.actions.pasteUserSpecifiedArea(evt.clipboardData.getData('text'));
@@ -154,16 +156,8 @@ class Table extends React.PureComponent {
     });
   };
 
-  getComponentName(evt) {
-    if (!evt.target || !evt.target.dataset) {
-      return;
-    }
-
-    return evt.target.dataset.componentName || BODY;
-  }
-
   keyDownHandler = (evt) => {
-    const componentName = this.getComponentName(evt);
+    const componentName = getComponentName(evt);
 
     switch (componentName) {
       case BODY:
@@ -171,6 +165,7 @@ class Table extends React.PureComponent {
         break;
 
       case CELL:
+      case CELL_CONTENT:
         this.cellKeyDownHandler({ evt, elem: this.pointedCell });
         break;
 
@@ -179,10 +174,11 @@ class Table extends React.PureComponent {
   }
 
   clickHandler = (evt) => {
-    const componentName = this.getComponentName(evt);
+    const componentName = getComponentName(evt);
 
     switch (componentName) {
       case CELL:
+      case CELL_CONTENT:
         this.cellClickHandler({ evt, pointedCell: this.pointedCell });
         break;
 

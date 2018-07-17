@@ -1,4 +1,5 @@
 import {
+  BODY,
   CELL,
   CELL_AREA,
   COLUMN,
@@ -15,6 +16,7 @@ import getCellProps, {
 } from '../../lib/getCellProps';
 import * as TableActions from '../../actions/table';
 import * as UiActions from '../../actions/ui';
+import getComponentName from '../../lib/getComponentName';
 import getMousePosition from '../../lib/getMousePosition';
 
 const LEFT_BUTTON = 0;
@@ -49,43 +51,47 @@ export default function cellClickHandler({ evt, pointedCell }) {
 
   // NOTE: cellPosition here is required for fixateCurrentSelection().
   const cellPlacement = composeCellProps(cellOffsets, cellSize, cellPosition);
+  const componentName = getComponentName(evt);
 
   // Selection.
   // TODO: add ability to select several boundaries with ctrl.
-  if (!currentSelectionVisibility && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
-    actionsToBatch.push(
-      TableActions.clearSelection(),
-      TableActions.setCurrentSelectionAnchor({
-        selectionAnchorType: BEGIN,
-        anchor: cellPlacement,
-      }),
-      TableActions.setCurrentSelectionAnchor({
-        selectionAnchorType: END,
-        anchor: cellPlacement,
-      }),
-      TableActions.setCurrentSelectionVisibility(true),
-    );
-  } else if (currentSelectionVisibility && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
-    // TODO: scroll screen if mouse reaches border.
-    actionsToBatch.push(
-      TableActions.setCurrentSelectionAnchor({
-        selectionAnchorType: END,
-        anchor: cellPlacement,
-      }),
+  // test_465
+  if (componentName === CELL) {
+    if (!currentSelectionVisibility && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
+      actionsToBatch.push(
+        TableActions.clearSelection(),
+        TableActions.setCurrentSelectionAnchor({
+          selectionAnchorType: BEGIN,
+          anchor: cellPlacement,
+        }),
+        TableActions.setCurrentSelectionAnchor({
+          selectionAnchorType: END,
+          anchor: cellPlacement,
+        }),
+        TableActions.setCurrentSelectionVisibility(true),
+      );
+    } else if (currentSelectionVisibility && (evt.type === 'mouseover') && (evt.button === LEFT_BUTTON)) {
+      // TODO: scroll screen if mouse reaches border.
+      actionsToBatch.push(
+        TableActions.setCurrentSelectionAnchor({
+          selectionAnchorType: END,
+          anchor: cellPlacement,
+        }),
 
-      // test_816
-      // NOTE: PERF: because it doesn't chang state most of the time,
-      //   Table don't rerender and performance doesn't degrade.
-      TableActions.setPointer({
-        edit: false,
-        selectOnFocus: false,
-      }),
-    );
-  } else if (currentSelectionVisibility && (evt.type === 'mouseup') && (evt.button === LEFT_BUTTON)) {
-    actionsToBatch.push(
-      TableActions.fixateCurrentSelection(),
-      TableActions.setCurrentSelectionVisibility(false),
-    );
+        // test_816
+        // NOTE: PERF: because it doesn't chang state most of the time,
+        //   Table don't rerender and performance doesn't degrade.
+        TableActions.setPointer({
+          edit: false,
+          selectOnFocus: false,
+        }),
+      );
+    } else if (currentSelectionVisibility && (evt.type === 'mouseup') && (evt.button === LEFT_BUTTON)) {
+      actionsToBatch.push(
+        TableActions.fixateCurrentSelection(),
+        TableActions.setCurrentSelectionVisibility(false),
+      );
+    }
   }
 
   // Clicks.
