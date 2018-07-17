@@ -8,7 +8,6 @@ import getCellProps from '../../lib/getCellProps';
 import {
   BODY,
   CELL,
-  CELL_CONTENT,
   COLUMN,
   GRID_HEADER,
   LINE_HEADER,
@@ -167,7 +166,6 @@ class Table extends React.PureComponent {
         break;
 
       case CELL:
-      case CELL_CONTENT:
         this.cellKeyDownHandler({ evt, elem: this.pointedCell });
         break;
 
@@ -180,7 +178,6 @@ class Table extends React.PureComponent {
 
     switch (componentName) {
       case CELL:
-      case CELL_CONTENT:
         this.cellClickHandler({ evt, pointedCell: this.pointedCell });
         break;
 

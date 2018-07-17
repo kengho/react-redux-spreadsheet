@@ -104,11 +104,6 @@ export default function bodyKeyDownHandler(evt) {
     {
       which: 67, // Ctrl+C
       action: () => {
-        // Don't hanlde if there is native selection.
-        if (window.getSelection().toString().length > 0) {
-          return;
-        }
-
         evt.preventDefault();
         actions.copyUserSpecifiedArea();
       },
