@@ -87,7 +87,8 @@ class ImportDialog extends React.PureComponent {
     // =>
     // csv,CSV,json,JSON
     const acceptedFormats = ConvertFormats.map((format) => {
-      return [format.toLowerCase(), format].join(',');
+      const dotFormat = '.' + format;
+      return [dotFormat.toLowerCase(), dotFormat].join(',');
     }).join(',');
 
     // TODO: describe json format.
