@@ -11,6 +11,7 @@ import TextField from '@material-ui/core/TextField';
 
 import './Dialog.css';
 import { initialSettings } from '../../core';
+import { SETTINGS } from '../../constants';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -121,6 +122,7 @@ class SettingsDialog extends React.PureComponent {
                     <TextField
                       autoFocus={autoFocus}
                       helperText={`(default: ${initialSettings.get(item.param)})`}
+                      inputProps={{ 'data-component-name': SETTINGS }}
                       key={item.param}
                       label={item.label}
                       margin="dense"

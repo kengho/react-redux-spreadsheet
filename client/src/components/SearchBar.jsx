@@ -15,6 +15,7 @@ import rippleButtonAction from '../lib/rippleButtonAction';
 import {
   COLUMN,
   ROW,
+  SEARCH_BAR,
 } from '../constants';
 import findKeyAction from '../lib/findKeyAction';
 
@@ -302,6 +303,7 @@ class SearchBar extends React.Component {
               // NOTE: for some reason it still requires ::after selector.
               underline: 'search-bar-input'
             }}
+            inputProps={{ 'data-component-name': SEARCH_BAR }}
             id="search-bar-field"
             inputRef={(c) => { this.textInput = c; }}
             onChange={this.handleInputChange}

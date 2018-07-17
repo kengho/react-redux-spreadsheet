@@ -131,7 +131,11 @@ class Table extends React.PureComponent {
   }
 
   pasteHandler = (evt) => {
-    this.props.actions.pasteUserSpecifiedArea(evt.clipboardData.getData('text'));
+    const componentName = this.getComponentName(evt);
+    if (componentName === BODY) {
+      evt.preventDefault();
+      this.props.actions.pasteUserSpecifiedArea(evt.clipboardData.getData('text'));
+    }
   };
 
   onScrollHandler = (evt) => {
