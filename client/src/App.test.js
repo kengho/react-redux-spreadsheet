@@ -159,6 +159,7 @@ TODO: first element isn't highlighted yet.
 * (test_465) selecting overflowing cell text shouldn't create cells area selection
 * (test_205) selecting cell text, replacing it with some value and moving pointer out of cell shouldn't create cells area selection
 * (test_816) if there is editing cell making selection should make it unediting
+* (test_772) Shift+Leftclick on non-pointed cell should create rectangle selection
 * if there is already selection new creating new selection should make it disappear
 * Ctlr+C/Ctrl+X/Ctlr+V/Delete with selection should do exactly the same as with single pointer
 * Ctlr+V on body should paste-spread \n- \t-formatted text to cells

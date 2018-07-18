@@ -172,66 +172,82 @@ export default function cellClickHandler({ evt, pointedCell }) {
     );
     const isCellEditing = (isCellPointed && pointer.get('edit') === true);
 
-    if (
-      !(userWantsToPointCell && isCellPointed) &&
-      !(userWantsToEditCell && isCellEditing)
-    ) {
-      // HACK: saving previously pointed cell's value if it changed.
-      // NOTE: order of actions is important: at first we save value is necessary,
-      //   then we move pointer (otherwise pointed cell changes and value is lost).
-      let pointedCellProps;
-      if (pointedCell) {
-        pointedCellProps = getCellProps(pointedCell);
-      }
-
-      // HACK: if cell was editing, when scrolled out of sight
-      //   and then scrolled back again, cell.innerText (see getCellValue())
-      //   is '' despite being not empty, so we getting data from store.
-      if (!pointedCellProps || (pointedCellProps && pointedCellProps.value === '')) {
-        const savedPointedCell = table.getIn(['session', 'pointer']);
-        pointedCellProps = savedPointedCell.toJS();
-      }
-      if (pointedCellProps) {
-        const previousPointedCellValue = table.getIn([
-          'layout',
-          ROW,
-          'list',
-          pointedCellProps[ROW].index,
-          'cells',
-          pointedCellProps[COLUMN].index,
-          'value',
-        ], '');
-
-        if (pointedCellProps.value !== previousPointedCellValue) {
-          actionsToBatch.push(
-            TableActions.insertRows(pointedCellProps[ROW]),
-            TableActions.insertColumns(pointedCellProps[COLUMN]),
-            TableActions.setProp({
-              ...pointedCellProps,
-              prop: 'value',
-            }),
-          );
-        }
-      }
-
-      // Main action.
-      actionsToBatch.push(TableActions.setPointer(
-        composeCellProps(
-          {
-            [ROW]: {
-              size: null,
-            },
-            [COLUMN]: {
-              size: null,
-            },
-          },
-          {
-            edit: userWantsToEditCell,
-            selectOnFocus: false,
-          },
-          cellPosition,
-        ))
+    if (!isCellPointed && evt.shiftKey) {
+      // test_772
+      // REVIEW: maybe create separate action for this?
+      actionsToBatch.push(
+        TableActions.setCurrentSelectionAnchor({
+          selectionAnchorType: BEGIN,
+          anchor: pointer.toJS(),
+        }),
+        TableActions.setCurrentSelectionAnchor({
+          selectionAnchorType: END,
+          anchor: cellPlacement,
+        }),
+        TableActions.fixateCurrentSelection(),
       );
+    } else {
+      if (
+        !(userWantsToPointCell && isCellPointed) &&
+        !(userWantsToEditCell && isCellEditing)
+      ) {
+        // HACK: saving previously pointed cell's value if it changed.
+        // NOTE: order of actions is important: at first we save value is necessary,
+        //   then we move pointer (otherwise pointed cell changes and value is lost).
+        let pointedCellProps;
+        if (pointedCell) {
+          pointedCellProps = getCellProps(pointedCell);
+        }
+
+        // HACK: if cell was editing, when scrolled out of sight
+        //   and then scrolled back again, cell.innerText (see getCellValue())
+        //   is '' despite being not empty, so we getting data from store.
+        if (!pointedCellProps || (pointedCellProps && pointedCellProps.value === '')) {
+          const savedPointedCell = table.getIn(['session', 'pointer']);
+          pointedCellProps = savedPointedCell.toJS();
+        }
+        if (pointedCellProps) {
+          const previousPointedCellValue = table.getIn([
+            'layout',
+            ROW,
+            'list',
+            pointedCellProps[ROW].index,
+            'cells',
+            pointedCellProps[COLUMN].index,
+            'value',
+          ], '');
+
+          if (pointedCellProps.value !== previousPointedCellValue) {
+            actionsToBatch.push(
+              TableActions.insertRows(pointedCellProps[ROW]),
+              TableActions.insertColumns(pointedCellProps[COLUMN]),
+              TableActions.setProp({
+                ...pointedCellProps,
+                prop: 'value',
+              }),
+            );
+          }
+        }
+
+        // Main action.
+        actionsToBatch.push(TableActions.setPointer(
+          composeCellProps(
+            {
+              [ROW]: {
+                size: null,
+              },
+              [COLUMN]: {
+                size: null,
+              },
+            },
+            {
+              edit: userWantsToEditCell,
+              selectOnFocus: false,
+            },
+            cellPosition,
+          ))
+        );
+      }
     }
   }
 
