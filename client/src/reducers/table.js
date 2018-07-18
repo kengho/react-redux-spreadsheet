@@ -767,8 +767,8 @@ export default (state = initialState().get('table'), action) => {
     case ActionTypes.REDO: {
       // test_933
       // REVIEW: this.
-      const scrollTop = state.getIn(['major', 'table', 'vision', ROW, 'screenSize']);
-      const scrollLeft = state.getIn(['major', 'table', 'vision', COLUMN, 'screenSize']);
+      const scrollTop = state.getIn(['major', 'vision', ROW, 'scrollSize']);
+      const scrollLeft = state.getIn(['major', 'vision', COLUMN, 'scrollSize']);
       document.documentElement.scrollTop = scrollTop;
       document.documentElement.scrollLeft = scrollLeft;
 
