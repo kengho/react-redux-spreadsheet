@@ -759,7 +759,7 @@ export async function convert({
               }
             });
           });
-          state.setting = parsedJSON.settings;
+          state.settings = parsedJSON.settings;
           result.data = getSufficientState(fromJS(state));
 
           break;
