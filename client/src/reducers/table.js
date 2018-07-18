@@ -117,22 +117,6 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
-    case ActionTypes.SET_SCREEN_SIZE: {
-      return state.updateIn(
-        ['major', 'vision'],
-        (value) => value.mergeDeep(action.screenSize)
-      );
-    }
-
-    case ActionTypes.SET_LINES_OFFSETS: {
-      // NOTE: no need for optimizing minor branch reduceres
-      //   for they don't triggers rerenders anyway.
-      return state.setIn(
-        ['minor', 'linesOffsets'],
-        fromJS(action.offsets)
-      );
-    }
-
     case ActionTypes.MOVE_POINTER: {
       const {
         key,
@@ -399,13 +383,6 @@ export default (state = initialState().get('table'), action) => {
       });
 
       return nextState;
-    }
-
-    case ActionTypes.SET_LINE_SIZE: {
-      return state.setIn(
-        ['major', 'layout', action.lineType, 'list', action.index, 'size'],
-        action.size
-      );
     }
 
     // NOTE: could be called with just index within existing range without harm.

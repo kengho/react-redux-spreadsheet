@@ -1,5 +1,3 @@
-import { fromJS } from 'immutable';
-
 import * as ActionTypes from '../actionTypes';
 import {
   ROW,
@@ -13,7 +11,7 @@ import {
 
 const changesData = true;
 
-// NOTE: please add subType prop when calling mergeIn for debugging purpose.
+// NOTE: please add subType prop when calling those meta actions for debugging purpose.
 // REVIEW: consider replacing all simple actions with that.
 export function setIn(path, object) {
   return {
@@ -23,7 +21,6 @@ export function setIn(path, object) {
   };
 }
 
-// NOTE: please add subType prop when calling mergeIn for debugging purpose.
 export function mergeIn(path, object, defaults) {
   return {
     type: ActionTypes.MERGE_IN,
@@ -65,15 +62,19 @@ export function setScrollSize(scrollSize) {
 
 export function setScreenSize(screenSize) {
   return {
-    type: ActionTypes.SET_SCREEN_SIZE,
-    screenSize,
+    type: ActionTypes.MERGE_IN,
+    subType: ActionTypes.SET_SCREEN_SIZE,
+    path: ['major', 'vision'],
+    object: screenSize,
   };
 }
 
 export function setLinesOffsets(offsets) {
   return {
-    type: ActionTypes.SET_LINES_OFFSETS,
-    offsets,
+    type: ActionTypes.SET_IN,
+    subType: ActionTypes.SET_LINES_OFFSETS,
+    path: ['minor', 'linesOffsets'],
+    object: offsets,
   };
 }
 
@@ -122,10 +123,10 @@ export function setLineSize({
   size,
 }) {
   return {
-    type: ActionTypes.SET_LINE_SIZE,
-    lineType,
-    index,
-    size,
+    type: ActionTypes.SET_IN,
+    subType: ActionTypes.SET_LINE_SIZE,
+    path: ['major', 'layout', lineType, 'list', index, 'size'],
+    object: size,
   };
 }
 
@@ -299,7 +300,7 @@ export function setCurrentSelectionAnchor({
     type: ActionTypes.SET_IN,
     subType: ActionTypes.SET_CURRENT_SELECTION_ANCHOR,
     path: ['minor', 'currentSelection', selectionAnchorType],
-    object: fromJS(anchor),
+    object: anchor,
   };
 }
 
@@ -320,17 +321,9 @@ export function fixateCurrentSelection() {
 
 export function clearSelection() {
   return {
-    type: ActionTypes.SET_IN,
+    type: ActionTypes.DEFAULTIZE_IN,
     subType: ActionTypes.CLEAR_SELECTION,
     path: ['major', 'session', 'selection'],
-
-    // TODO: use data from initialTable().
-    object: fromJS([{
-      boundary: {
-        [ROW]: null,
-        [COLUMN]: null,
-      },
-    }]),
   };
 }
 
