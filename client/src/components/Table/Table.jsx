@@ -71,7 +71,6 @@ class Table extends React.PureComponent {
     window.addEventListener('dblclick', this.clickHandler);
     window.addEventListener('mouseup', this.clickHandler);
     window.addEventListener('mouseover', this.clickHandler);
-    window.addEventListener('input', this.throttledInputHandler);
     window.addEventListener('scroll', this.throttledOnScrollHandler);
 
     // NOTE: preventing browser's regular context menu.
@@ -116,7 +115,6 @@ class Table extends React.PureComponent {
     window.removeEventListener('dblclick', this.clickHandler);
     window.removeEventListener('mouseup', this.clickHandler);
     window.removeEventListener('mouseover', this.clickHandler);
-    window.removeEventListener('input', this.throttledInputHandler);
     window.removeEventListener('scroll', this.throttledOnScrollHandler);
     window.removeEventListener('contextmenu', this.contextMenuHandler);
     document.removeEventListener('paste', this.pasteHandler);

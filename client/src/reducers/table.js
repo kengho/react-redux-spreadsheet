@@ -38,8 +38,6 @@ const undefinedMerger = (oldVal, newVal) => newVal !== undefined ? newVal : oldV
 // TODO: PERF: use withMutations.
 //   https://facebook.github.io/immutable-js/docs/#/Map/withMutations
 
-// NOTE: default table size is set to (0, 0) to make
-//   componentDidMount() in Spreadsheet to fetch data from server.
 export default (state = initialState().get('table'), action) => {
   switch (action.type) {
     case ActionTypes.SET_IN:
