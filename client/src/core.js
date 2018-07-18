@@ -323,7 +323,7 @@ export function getSelectionBoundary(immutableSelection) {
     },
   };
 
-  if (selection[BEGIN][ROW].offset < selection[END][ROW].offset) {
+  if (selection[BEGIN][ROW].index < selection[END][ROW].index) {
     boundary[ROW][BEGIN] = selection[BEGIN][ROW];
     boundary[ROW][END] = selection[END][ROW];
   } else {
@@ -331,7 +331,7 @@ export function getSelectionBoundary(immutableSelection) {
     boundary[ROW][END] = selection[BEGIN][ROW];
   }
 
-  if (selection[BEGIN][COLUMN].offset < selection[END][COLUMN].offset) {
+  if (selection[BEGIN][COLUMN].index < selection[END][COLUMN].index) {
     boundary[COLUMN][BEGIN] = selection[BEGIN][COLUMN];
     boundary[COLUMN][END] = selection[END][COLUMN];
   } else {
