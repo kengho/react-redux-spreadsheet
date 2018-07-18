@@ -11,6 +11,7 @@ export const SET_SETTINGS = 'settings/SET_SETTINGS';
 // table
 export const SET_IN = 'table/SET_IN';
 export const MERGE_IN = 'table/MERGE_IN';
+export const DEFAULTIZE_IN = 'table/DEFAULTIZE_IN';
 export const SET_CELL = 'table/SET_CELL';
 export const SET_PROP = 'table/SET_PROP';
 export const SET_LINES_OFFSETS = 'table/SET_LINES_OFFSETS';
@@ -39,6 +40,7 @@ export const FIXATE_CURRENT_SELECTION = 'table/FIXATE_CURRENT_SELECTION';
 export const CLEAR_SELECTION = 'table/CLEAR_SELECTION';
 export const MERGE_SERVER_STATE = 'table/MERGE_SERVER_STATE';
 export const SORT = 'table/SORT';
+export const CLEAR_SPREADSHEET = 'table/CLEAR_SPREADSHEET';
 export const BATCH_ACTIONS = 'table/BATCH_ACTIONS';
 
 // server

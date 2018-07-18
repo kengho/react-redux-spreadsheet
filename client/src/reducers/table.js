@@ -59,6 +59,12 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
+    case ActionTypes.DEFAULTIZE_IN:
+      return state.setIn(
+        action.path,
+        initialState().getIn(['table', ...action.path])
+      );
+
     case ActionTypes.SET_CELL: {
       const { [ROW]: _, [COLUMN]: __, ...cellProps } = action.cell;
 

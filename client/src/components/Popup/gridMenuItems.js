@@ -73,6 +73,10 @@ export default function gridMenuItems(props) {
       action: () => actions.redo(),
       disabled: (props) => !props.canRedo,
     },
+    {
+      label: 'Clear',
+      action: () => actions.clearSpreadsheet(),
+    },
     ...(server.get('sync') ? [
       {
         label: 'Destroy...',

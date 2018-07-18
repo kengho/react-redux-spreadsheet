@@ -33,6 +33,13 @@ export function mergeIn(path, object, defaults) {
   };
 }
 
+export function defaultizeIn(path) {
+  return {
+    type: ActionTypes.DEFAULTIZE_IN,
+    path,
+  };
+}
+
 export function setCell(cell) {
   return {
     type: ActionTypes.SET_CELL,
@@ -351,6 +358,15 @@ export function sort({
     order,
     propPath,
     fixFirstLine,
+    changesData,
+  };
+}
+
+export function clearSpreadsheet() {
+  return {
+    type: ActionTypes.DEFAULTIZE_IN,
+    subType: ActionTypes.CLEAR_SPREADSHEET,
+    path: ['major', 'layout'],
     changesData,
   };
 }
