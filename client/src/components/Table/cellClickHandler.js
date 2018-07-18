@@ -49,12 +49,19 @@ export default function cellClickHandler({ evt, pointedCell }) {
 
   // NOTE: cellPosition here is required for fixateCurrentSelection().
   const cellPlacement = composeCellProps(cellOffsets, cellSize, cellPosition);
-  const thereIsTextSelection = window.getSelection().toString().length > 0;
+
+  const pointer = table.getIn(['session', 'pointer']);
+  const cellIsPointed = (
+    cellPosition[ROW].index === pointer.getIn([ROW, 'index']) &&
+    cellPosition[COLUMN].index === pointer.getIn([COLUMN, 'index'])
+  );
+  const cellIsEditing = (cellIsPointed && pointer.get('edit') === true);
 
   // Selection.
   // TODO: add ability to select several boundaries with ctrl.
   // test_465
-  if (!thereIsTextSelection) {
+  // test_205
+  if (!cellIsEditing) {
     if (!currentSelectionVisibility && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
       actionsToBatch.push(
         TableActions.clearSelection(),
