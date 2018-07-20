@@ -44,10 +44,13 @@ class SpreadsheetCreator extends React.PureComponent {
       openInNewTab,
     } = this.props;
 
+    onRecaptchaResolved();
+
     const state = initialState();
     let params = { state: getSufficientState(state) };
     if (this.recaptcha) {
       params['g-recaptcha-response'] = this.recaptcha.getResponse();
+      this.recaptcha.reset();
     }
 
     fetchServer('POST', 'create', params)
@@ -65,11 +68,6 @@ class SpreadsheetCreator extends React.PureComponent {
             // actions.setNewSpreadsheetPath(spreadsheetPath);
           }
         }
-
-        if (this.recaptcha) {
-          this.recaptcha.reset();
-        }
-        onRecaptchaResolved();
       });
   };
 
