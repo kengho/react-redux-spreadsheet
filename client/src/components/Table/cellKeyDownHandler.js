@@ -89,8 +89,14 @@ export default function cellKeyDownHandler({ evt, elem }) {
       ],
       action: () => {
         // Prevent screen scrolling when caret can't move.
-        // const cell = evt.target;
+
+        // Don't hanle if there is text selection (arrow key don't move screen then).
         const selection = document.getSelection();
+        if (selection.toString().length !== 0) {
+          return;
+        }
+
+        // REVIEW: this max() construction.
         const caretUpperBoundary = Math.max(selection.focusOffset, selection.anchorOffset);
         const value = cell.innerText;
         if (
