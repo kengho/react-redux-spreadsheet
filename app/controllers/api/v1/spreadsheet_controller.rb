@@ -26,21 +26,29 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
   end
 
   def update
-    state = params.permit!.to_h['state']
-    client_timestamp = params.permit!.to_h['client_timestamp']
-    short_id = params.permit!.to_h['short_id']
-    # TODO: data check, errors.
+    # NOTE: PERF: with "update_attributes(state: state.to_json)": 6s
+    #   (most time spending at calculating permitted_params),
+    #   with update_attributes(state: state): 0.12s (serializing data on client).
+    # start = Time.now
+    permitted_params = params.permit!.to_h
+    state = permitted_params['state']
+    client_timestamp = permitted_params['client_timestamp']
+    short_id = permitted_params['short_id']
 
+    # TODO: data check, errors.
     # TODO: import response codes from constants.js somehow (or store them elsewhere).
     status =
       if @spreadsheet.client_timestamp > client_timestamp
         'ERROR'
-      elsif @spreadsheet.update_attributes(state: state.to_json)
+      elsif @spreadsheet.update_attributes(state: state)
         @spreadsheet.update_attributes!(client_timestamp: Time.at(client_timestamp/1000.0))
         'OK'
       else
         'ERROR'
       end
+    # finish = Time.now
+    # diff = finish - start
+    # p diff
 
     @response['data'] = { 'status' => status }
     render json: @response

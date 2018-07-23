@@ -23,7 +23,8 @@ const composeSyncRequest = (store) => {
     action: 'update',
     method: 'PATCH',
     params: {
-      state: getSufficientState(store.getState()),
+      // NOTE: serializing data here for rails not to parse json while updating.
+      state: JSON.stringify(getSufficientState(store.getState())),
       client_timestamp: Date.now(),
       short_id: store.getState().get('server').get('shortId'),
     },
