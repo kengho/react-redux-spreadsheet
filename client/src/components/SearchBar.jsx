@@ -154,13 +154,13 @@ class SearchBar extends React.Component {
 
       if (flags.matchWholeWord) {
         if (flags.matchRegexp) {
-          return string.match(`^${searchQuery}$`);
+          return effectiveString.match(`^${effectiveSearchQuery}$`);
         } else {
           return (effectiveString === effectiveSearchQuery);
         }
       } else {
         if (flags.matchRegexp) {
-          return string.match(searchQuery);
+          return effectiveString.match(effectiveSearchQuery);
         } else {
           return effectiveString.includes(effectiveSearchQuery);
         }
