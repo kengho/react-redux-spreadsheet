@@ -93,9 +93,19 @@ class SearchBar extends React.Component {
     const action = findKeyAction(evt, [
       {
         key: 'Enter',
+        shiftKey: false,
         action: () => {
           evt.preventDefault();
           this.searchInDirection(FORWARD);
+          this.textInput.focus();
+        },
+      },
+      {
+        key: 'Enter',
+        shiftKey: true,
+        action: () => {
+          evt.preventDefault();
+          this.searchInDirection(BACKWARD);
           this.textInput.focus();
         },
       },
