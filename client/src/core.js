@@ -739,12 +739,16 @@ export async function convert({
         case '2': {
           const state = initialState().toJS();
 
+          // Checking data and converting history timestamps.
           // TODO: fill lines' ids if there are none.
-
-          // Convert history timestamps.
           state.table.major.layout = parsedJSON.table;
           state.table.major.layout[ROW].list.forEach((row, rowIndex) => {
             row.cells.forEach((cell, columnIndex) => {
+              if (!cell) {
+                cell = composeCell().toJS();
+                row[columnIndex] = cell;
+              }
+
               if (cell.history) {
                 cell.history.forEach((record) => {
                   // 2017-12-19T01:02:03.000Z
