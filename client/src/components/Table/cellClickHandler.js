@@ -137,16 +137,6 @@ export default function cellClickHandler({ evt, pointedCell }) {
 
         // TODO: don't set pointer if there are selection (when there is code for selection).
         TableActions.setPointer(composeCellProps(
-          // NOTE: if we don't wipe lines' sizes, if we set pointer on non-default size cell,
-          //   scroll it out of sight, and then point some empty cell, it's size will change.
-          {
-            [ROW]: {
-              size: null,
-            },
-            [COLUMN]: {
-              size: null,
-            },
-          },
           {
             edit: false,
             selectOnFocus: false,
@@ -176,6 +166,7 @@ export default function cellClickHandler({ evt, pointedCell }) {
       // test_772
       // REVIEW: maybe create separate action for this?
       actionsToBatch.push(
+        TableActions.clearSelection(),
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: BEGIN,
           anchor: pointer.toJS(),
@@ -232,14 +223,6 @@ export default function cellClickHandler({ evt, pointedCell }) {
         // Main action.
         actionsToBatch.push(TableActions.setPointer(
           composeCellProps(
-            {
-              [ROW]: {
-                size: null,
-              },
-              [COLUMN]: {
-                size: null,
-              },
-            },
             {
               edit: userWantsToEditCell,
               selectOnFocus: false,
