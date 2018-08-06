@@ -4,10 +4,10 @@ import Grid from 'react-infinite-2d-grid';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import getCellProps from '../../lib/getCellProps';
 import {
   BODY,
   CELL,
+  EDITING_CELL,
   COLUMN,
   GRID_HEADER,
   LINE_HEADER,
@@ -56,10 +56,6 @@ class Table extends React.PureComponent {
       scrollThrottleTimeout,
       { leading: false }
     );
-
-    // HACK: pointedCellRefSetter uses to "pop" current pointed cell ref here.
-    this.pointedCellRefSetter = (ref) => this.pointedCell = ref;
-    this.pointedCell = null;
   }
 
   componentDidMount() {
@@ -140,11 +136,6 @@ class Table extends React.PureComponent {
   };
 
   onScrollHandler = (evt) => {
-    const cellProps = getCellProps(this.pointedCell);
-    if (cellProps) {
-      this.props.actions.setPointer(cellProps);
-    }
-
     this.props.actions.setScrollSize({
       ROW: {
         scrollSize: document.documentElement.scrollTop,
@@ -163,8 +154,8 @@ class Table extends React.PureComponent {
         this.bodyKeyDownHandler(evt);
         break;
 
-      case CELL:
-        this.cellKeyDownHandler({ evt, elem: this.pointedCell });
+      case EDITING_CELL:
+        this.cellKeyDownHandler({ evt });
         break;
 
       default:
@@ -176,7 +167,7 @@ class Table extends React.PureComponent {
 
     switch (componentName) {
       case CELL:
-        this.cellClickHandler({ evt, pointedCell: this.pointedCell });
+        this.cellClickHandler({ evt });
         break;
 
       case LINE_HEADER:
@@ -264,43 +255,19 @@ class Table extends React.PureComponent {
       rowIndex === pointer.getIn([ROW, 'index']) &&
       columnIndex === pointer.getIn([COLUMN, 'index'])
     );
-    // HACK
-    const pointedCellValue = table.getIn(['session', 'pointer', 'value']);
-    if (cellProps.isPointed && pointedCellValue !== '' && pointedCellValue !== null) {
-      cellProps.value = pointedCellValue;
-    }
 
-    cellProps.isEditing = (cellProps.isPointed && pointer.get('edit') === true);
     cellProps.selectOnFocus = (cellProps.isPointed && pointer.get('selectOnFocus') === true);
-    cellProps.tableHasHeader = this.props.settings.get('tableHasHeader');
+    cellProps.inOnHeader = this.props.settings.get('tableHasHeader') && (rowIndex === 0);
 
     // HACK (?): stringifying style is the easiest way to make use of
     //   PureComponent Cell regarding desirably "independence" from styles
     //   returned by Grid (we don't want to deconstruct them).
     return (
       <Cell
-        bubbleCellRef={cellProps.isPointed && this.pointedCellRefSetter}
         styleJSON={JSON.stringify(style)}
         {...cellProps}
       />
     );
-  }
-
-  rowRenderer = ({
-    cells,
-    index,
-    isReal,
-    style,
-  }) => {
-    let key;
-    if (isReal) {
-      const rowKey = this.props.table.getIn(['layout', ROW, 'list', index, 'id']);
-      key = `row-${rowKey}`;
-    } else {
-      key = `row-c${index}`;
-    }
-
-    return <div key={key} style={style}>{cells}</div>;
   }
 
   gridHeaderRenderer = ({ style }) => <GridHeader style={style} />;
@@ -376,7 +343,6 @@ class Table extends React.PureComponent {
         headerWidth={columns.get('marginSize')}
         onSectionRendered={this.throttledOnSectionRendered}
         rowHeaderRenderer={this.rowHeaderRenderer}
-        rowRenderer={this.rowRenderer}
         rowsNumber={rows.get('list').size}
         rowsSizes={this.rowsSizes}
         screenHeight={vision.getIn([ROW, 'screenSize'])}

@@ -1,10 +1,9 @@
 import { ROW, COLUMN } from '../../constants';
 import * as TableActions from '../../actions/table';
 import findKeyAction from '../../lib/findKeyAction';
-import getCellProps, { getCellPosition } from '../../lib/getCellProps';
 
 // TODO: use one export style for entire codebase.
-export default function cellKeyDownHandler({ evt, elem }) {
+export default function cellKeyDownHandler({ evt }) {
   // TODO: for some reason, pressing ContextMenu doesn't open browser
   //   context menu, though it's not catched here.
 
@@ -12,7 +11,7 @@ export default function cellKeyDownHandler({ evt, elem }) {
   evt.stopImmediatePropagation();
 
   const actions = this.props.actions;
-  const cell = evt.target.parentNode.parentNode;
+  const pointer = this.props.table.getIn(['session', 'pointer']);
 
   const action = findKeyAction(evt, [
     {
@@ -35,27 +34,13 @@ export default function cellKeyDownHandler({ evt, elem }) {
           default:
         }
 
-        const cellProps = getCellProps(cell);
-        if (!cellProps) {
-          return;
-        }
-
         // NOTE: PERF: without batchActions: ~700ms. With batchActions: ~150ms.
         // console.time('cellKeyDownHandler Enter');
+        // NOTE: actions should be batched until there are saveEditingCellValue middleware
+        //   which works better with batched actions (there are many of them).
         actions.batchActions([
-          TableActions.insertRows(cellProps[ROW]),
-          TableActions.insertColumns(cellProps[COLUMN]),
-          TableActions.setPointer({
-            edit: false,
-            value: null,
-          }),
+          TableActions.setPointer({ edit: false }),
           TableActions.movePointer({ key: effectiveKey }),
-
-          // NOTE: see VERY IMPORTANT NOTE in configureStore().
-          TableActions.setProp({
-            ...cellProps,
-            prop: 'value',
-          }),
         ]);
         // console.timeEnd('cellKeyDownHandler Enter');
       },
@@ -71,15 +56,18 @@ export default function cellKeyDownHandler({ evt, elem }) {
     {
       key: 'Escape',
       action: () => {
-        const cellPosition = getCellPosition({ elem });
+        // NOTE: PERF: without batchActions: ~140ms. With batchActions: ~100ms (insignificant).
+        // console.time('cellKeyDownHandler Escape');
+        const cellPosition = pointer.toJS();
         if (cellPosition) {
           const previousValue = this.props.table.getIn(
             ['layout', ROW, 'list', cellPosition[ROW].index, 'cells', cellPosition[COLUMN].index, 'value'],
             ''
           );
-          elem.innerHTML = previousValue;
+          actions.setPointer({ value: previousValue });
         }
         actions.setPointer({ edit: false });
+        // console.timeEnd('cellKeyDownHandler Escape');
       },
     },
     {
@@ -98,7 +86,7 @@ export default function cellKeyDownHandler({ evt, elem }) {
 
         // REVIEW: this max() construction.
         const caretUpperBoundary = Math.max(selection.focusOffset, selection.anchorOffset);
-        const value = cell.innerText;
+        const value = pointer.get('value');
         if (
           (evt.key === 'ArrowLeft' && caretUpperBoundary === 0) ||
           (evt.key === 'ArrowRight' && value.length === caretUpperBoundary)

@@ -24,6 +24,7 @@ import handleServerRequests from './middleware/handleServerRequests';
 import logger from './middleware/logger';
 import pushCellHistoryOnValueChanges from './middleware/pushCellHistoryOnValueChanges';
 import rootReducer from '../reducers';
+import saveEditingCellValue from './middleware/saveEditingCellValue';
 import workOnUserSpecifiedArea from './middleware/workOnUserSpecifiedArea';
 
 const composeEnhancer = compose;
@@ -41,6 +42,7 @@ const configureMiddleware = (history) => {
     throttleMiddleware,
     batchActions,
     // batchDispatchMiddleware,
+    saveEditingCellValue,
     workOnUserSpecifiedArea,
     pushCellHistoryOnValueChanges,
     ...(process.env.NODE_ENV !== 'test' ? [

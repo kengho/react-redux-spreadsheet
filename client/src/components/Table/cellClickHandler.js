@@ -7,7 +7,7 @@ import {
   END,
 } from '../../constants';
 import { getBoundaryProps } from '../../core';
-import getCellProps, {
+import {
   composeCellProps,
   getCellOffsets,
   getCellPosition,
@@ -20,7 +20,7 @@ import getMousePosition from '../../lib/getMousePosition';
 const LEFT_BUTTON = 0;
 const RIGHT_BUTTON = 2;
 
-export default function cellClickHandler({ evt, pointedCell }) {
+export default function cellClickHandler({ evt }) {
   const {
     actions,
     table,
@@ -136,13 +136,13 @@ export default function cellClickHandler({ evt, pointedCell }) {
         UiActions.openPopup(),
 
         // TODO: don't set pointer if there are selection (when there is code for selection).
-        TableActions.setPointer(composeCellProps(
-          {
+        TableActions.setPointer({
+          ...cellPosition,
+          ...{
             edit: false,
             selectOnFocus: false,
           },
-          cellPosition,
-        )),
+        }),
       );
     }
 
@@ -163,10 +163,11 @@ export default function cellClickHandler({ evt, pointedCell }) {
     const isCellEditing = (isCellPointed && pointer.get('edit') === true);
 
     if (!isCellPointed && evt.shiftKey) {
+      // Create selection with shift+click.
       // test_772
       // REVIEW: maybe create separate action for this?
       actionsToBatch.push(
-        TableActions.clearSelection(),
+        TableActions.setCurrentSelectionVisibility(false),
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: BEGIN,
           anchor: pointer.toJS(),
@@ -182,54 +183,13 @@ export default function cellClickHandler({ evt, pointedCell }) {
         !(userWantsToPointCell && isCellPointed) &&
         !(userWantsToEditCell && isCellEditing)
       ) {
-        // HACK: saving previously pointed cell's value if it changed.
-        // NOTE: order of actions is important: at first we save value is necessary,
-        //   then we move pointer (otherwise pointed cell changes and value is lost).
-        let pointedCellProps;
-        if (pointedCell) {
-          pointedCellProps = getCellProps(pointedCell);
-        }
-
-        // HACK: if cell was editing, when scrolled out of sight
-        //   and then scrolled back again, cell.innerText (see getCellValue())
-        //   is '' despite being not empty, so we getting data from store.
-        if (!pointedCellProps || (pointedCellProps && pointedCellProps.value === '')) {
-          const savedPointedCell = table.getIn(['session', 'pointer']);
-          pointedCellProps = savedPointedCell.toJS();
-        }
-        if (pointedCellProps) {
-          const previousPointedCellValue = table.getIn([
-            'layout',
-            ROW,
-            'list',
-            pointedCellProps[ROW].index,
-            'cells',
-            pointedCellProps[COLUMN].index,
-            'value',
-          ], '');
-
-          if (pointedCellProps.value !== previousPointedCellValue) {
-            actionsToBatch.push(
-              TableActions.insertRows(pointedCellProps[ROW]),
-              TableActions.insertColumns(pointedCellProps[COLUMN]),
-              TableActions.setProp({
-                ...pointedCellProps,
-                prop: 'value',
-              }),
-            );
-          }
-        }
-
-        // Main action.
-        actionsToBatch.push(TableActions.setPointer(
-          composeCellProps(
-            {
-              edit: userWantsToEditCell,
-              selectOnFocus: false,
-            },
-            cellPosition,
-          ))
-        );
+        actionsToBatch.push(TableActions.setPointer({
+          ...cellPosition,
+          ...{
+            edit: userWantsToEditCell,
+            selectOnFocus: false,
+          },
+        }));
       }
     }
   }

@@ -11,6 +11,11 @@ import {
 import getMousePosition from '../../lib/getMousePosition';
 
 export default function lineHeaderClickHandler({ evt }) {
+  // test_845
+  if (evt.type !== 'mouseover') {
+    this.props.actions.setPointer({ edit: false });
+  }
+
   if ((evt.type === 'mousedown') && (evt.button === 2)) { // right click
     const cellPosition = getCellPosition({ evt, allowPartial: true });
 

@@ -62,11 +62,9 @@ describe('merge in', () => {
     object = {
       [ROW]: {
         index: 1,
-        size: 20,
       },
       [COLUMN]: {
         index: 2,
-        size: 30,
       },
       edit: true,
       selectOnFocus: true,
@@ -76,11 +74,9 @@ describe('merge in', () => {
     expectedPointer = fromJS({
       [ROW]: {
         index: 1,
-        size: 20,
       },
       [COLUMN]: {
         index: 2,
-        size: 30,
       },
       value: '',
       edit: true,
@@ -105,11 +101,9 @@ describe('merge in', () => {
     expectedPointer = fromJS({
       [ROW]: {
         index: 3,
-        size: 20,
       },
       [COLUMN]: {
         index: 2,
-        size: 30,
       },
       value: 'asd',
       edit: false,
@@ -129,17 +123,21 @@ describe('set pointer', () => {
   let pointer;
   let expectedPointer;
 
+  const cells = [
+    ['00' , '01', '02'],
+    ['10' , '11', '12'],
+  ];
+  setCellsValues(store, cells);
+
   it('should set pointer if all args are present', () => {
     process.logBelow = false;
 
     pointer = {
       [ROW]: {
         index: 1,
-        size: 20,
       },
       [COLUMN]: {
         index: 2,
-        size: 30,
       },
       value: 'asd',
       edit: true,
@@ -150,13 +148,62 @@ describe('set pointer', () => {
     expectedPointer = fromJS({
       [ROW]: {
         index: 1,
-        size: 20,
       },
       [COLUMN]: {
         index: 2,
-        size: 30,
       },
       value: 'asd',
+      edit: true,
+      selectOnFocus: true,
+    });
+
+    expect(getPointer(store)).to.deep.equal(expectedPointer);
+  });
+
+  it('should set pointer and value from table if value not passed', () => {
+    process.logBelow = false;
+
+    pointer = {
+      [ROW]: {
+        index: 1,
+      },
+      [COLUMN]: {
+        index: 2,
+      },
+      edit: true,
+      selectOnFocus: true,
+    };
+    store.dispatch(TableActions.setPointer(pointer));
+
+    expectedPointer = fromJS({
+      [ROW]: {
+        index: 1,
+      },
+      [COLUMN]: {
+        index: 2,
+      },
+      value: '12',
+      edit: true,
+      selectOnFocus: true,
+    });
+
+    expect(getPointer(store)).to.deep.equal(expectedPointer);
+  });
+
+  it('should set only value if only value is passed', () => {
+    process.logBelow = false;
+
+    pointer = { value: '12-2' };
+    store.dispatch(TableActions.setPointer(pointer));
+
+    expectedPointer = fromJS({
+      [ROW]: {
+        index: 1,
+      },
+      [COLUMN]: {
+        index: 2,
+      },
+      value: '12-2',
       edit: true,
       selectOnFocus: true,
     });

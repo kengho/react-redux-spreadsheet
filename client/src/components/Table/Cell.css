@@ -41,6 +41,7 @@
 }
 
 .cell.editing .cell-content {
+  white-space: pre-line;
   overflow: visible;
 
   /* Makes div width to be as big as text in order to fill background properly. */
@@ -61,7 +62,8 @@
 .cell.editing {
   border: 1px solid #4e8;
   cursor: inherit;
-  z-index: 700;
+  z-index: 750;
+  background-color: white;
 }
 
 .cell.header {

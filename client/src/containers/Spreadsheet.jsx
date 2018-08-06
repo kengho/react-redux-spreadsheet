@@ -11,6 +11,7 @@ import * as SettingsActions from '../actions/settings';
 import * as TableActions from '../actions/table';
 import * as UiActions from '../actions/ui';
 import * as UndoRedoActions from '../actions/undoRedo';
+import EditingCell from '../components/Table/EditingCell';
 import fetchServer from '../lib/fetchServer';
 import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
@@ -57,6 +58,7 @@ const mapStateToProps = (state, ownProps) => {
     ui: state.get('ui'),
     currentSelection: table.present.getIn(['minor', 'currentSelection']),
     currentSelectionVisibility: table.present.getIn(['minor', 'currentSelection', 'visibility']),
+    linesOffsets: table.present.getIn(['minor', 'linesOffsets']),
   };
 };
 
@@ -134,6 +136,7 @@ class Spreadsheet extends React.Component {
   render() {
     const {
       currentSelection, // so it won't pass to Table
+      linesOffsets, // so it won't pass to Table
       ...other,
     } = this.props;
     const headerHeight = this.props.table.getIn(['layout', ROW, 'marginSize']);
@@ -142,6 +145,10 @@ class Spreadsheet extends React.Component {
       return (
         <React.Fragment>
           <Table {...other} />
+          <EditingCell
+            {...other}
+            linesOffsets={linesOffsets}
+          />
           <Menu {...other} />
           <CellHistory {...other} />
           <SyncIndicator server={this.props.server} />

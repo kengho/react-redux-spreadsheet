@@ -96,8 +96,8 @@ TODO: this.
 * after dialog appearing, Enter and Escape keys should work
 
 * on document, pressing regular key should start editing currently pointed cell with value equals to that key
-* on document, if regular key pressed while there are no pointed cells, [0, 0] cell should become pointed
-* pressing Enter while there are pointer should make pointed cell editable and select all it's content
+* editing cell should always be visible and all it's text should fit screen
+* pressing Enter while there is pointer should make pointed cell editable and select all it's content
 * pressing F2 while there are pointer should make pointed cell editable and move cursor to the end of cell's content
 * pressing Delete while there are pointer should delete pointed cell's value
 
@@ -121,9 +121,12 @@ TODO: Backspace.
 * pressing Enter/Shift+Enter/Tab/Shift+Tab should make next pointer non-editing
 * pressing Ctrl+Enter while editing should add new line after cursor
 * pressing Escape while editing should make cell uneditable and leave cell's value as it was before
+* (test_241) pressing Escape while editing shouldn't affect cell's history
 * clicking on other cell or document while there are editable cell should save content of editing cell and move pointer accordingly
+* (test_804) after editing cell and clicking on another previously out-of-range cell and doubleclicking it it's value shouldn't be previous pointer's value
+
+// TODO: Alt+PageUp/PageDown don't work as intened.
 * moving pointer using any hotkey should scroll page if necessary (even after 100 key presses)
-* (text_777) after pointing cell, scrolling it out of sight and back again, and moving pointer, next pointed cell's value shouldn't be copied from previous one
 * (test_134) if user presses ArrowUp when second row cell is selected and first row cell isn't visible, scroll should be to the top of the page (the same with columns)
 * after pressing any arrow key appropriate cell should always became visible, even if previous cell wasn't fitting the screen entirely or wasn't visible at all
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
@@ -141,7 +144,6 @@ TODO: Backspace.
 TODO: first element isn't highlighted yet.
 * (test_420) after calling any menu first item should focus and arrowkeys should work
 * cell menu should contain cell history button, which show cell history if it's not shown already and vice versa
-* when cell history if empty, show cell history button should be inactive
 * when cell history is shown, document click or Escape should close it
 * each record in cell history should have delete button
 * user should be able to select/copy/paste text from cell history
@@ -166,6 +168,8 @@ TODO: first element isn't highlighted yet.
 * (test_636) Ctlr+V on settings or any other input shouldn't lead to pasting into cells
 * Ctlr+C on body should copy selected cells' values to real clipboard making it \n- \t-formatted if there are many of them
 * (test_933) after scrolling down, changing some cell and pressing Ctrl+Z layout shouldn't break
+* (test_845) if there is editing cell and user clicks anywhere but that cell, current value should be saved and pointed should become unediting (shouldn't work on just moving mouse there)
+* (test_752) context menu button should show context menu on pointer
 
 TODO: more tests.
 */

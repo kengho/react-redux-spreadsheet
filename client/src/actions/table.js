@@ -78,19 +78,10 @@ export function setLinesOffsets(offsets) {
   };
 }
 
-// NOTE: this is really complex action which I don't want to divide.
-//   MERGE_IN is allowed to use only here.
 export function setPointer(pointer) {
   return {
-    type: ActionTypes.MERGE_IN,
-    subType: ActionTypes.SET_POINTER,
-    object: pointer,
-    path: ['major', 'session', 'pointer'],
-
-    // NOTE: fixes issue when you have editing cell and scroll it ouf of vision
-    //   and click on other cell after this copying editing cell's value to new
-    //   cell because of saving pointed cell's vlaue after scroll mechanism.
-    defaults: { value: '' },
+    type: ActionTypes.SET_POINTER,
+    pointer,
   };
 }
 

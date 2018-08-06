@@ -1,3 +1,6 @@
+// TODO: REVIEW: probably not everying here is needed since we don't
+//   have this.pointedCell in Table and using EditingCell instead.
+
 import { ROW, COLUMN } from '../constants';
 
 export function getCellSize(cell) {

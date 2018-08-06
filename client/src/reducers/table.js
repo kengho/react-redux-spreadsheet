@@ -115,6 +115,36 @@ export default (state = initialState().get('table'), action) => {
       );
     }
 
+    case ActionTypes.SET_POINTER: {
+      let value;
+      if (action.pointer[ROW] && action.pointer[COLUMN]) {
+        value = state.getIn(
+          [
+            'major',
+            'layout',
+            ROW,
+            'list',
+            action.pointer[ROW].index,
+            'cells',
+            action.pointer[COLUMN].index,
+            'value',
+          ],
+
+          // test_804
+          ''
+        );
+      }
+      const mergingObject = {
+        value,
+        ...action.pointer,
+      };
+
+      return state.updateIn(
+        ['major', 'session', 'pointer'],
+        (value) => value.mergeDeepWith(undefinedMerger, mergingObject)
+      );
+    }
+
     case ActionTypes.MOVE_POINTER: {
       const {
         key,
@@ -356,9 +386,7 @@ export default (state = initialState().get('table'), action) => {
         );
       }
 
-      return nextState
-        .setIn(workingPointerPath, nextLineIndex)
-        .setIn(['major', 'session', 'pointer', 'value'], ''); // text_777
+      return nextState.setIn(workingPointerPath, nextLineIndex);
     }
 
     case ActionTypes.UPDATE_CELL_SIZE: {

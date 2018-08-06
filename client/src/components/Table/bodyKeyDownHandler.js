@@ -5,10 +5,7 @@ import {
   COLUMN,
   ROW,
 } from '../../constants';
-import {
-  composeCellProps,
-  getCellPosition,
-} from '../../lib/getCellProps';
+import { composeCellProps } from '../../lib/getCellProps';
 import findKeyAction from '../../lib/findKeyAction';
 
 export default function bodyKeyDownHandler(evt) {
@@ -170,11 +167,13 @@ export default function bodyKeyDownHandler(evt) {
         }
       },
     },
+
+    // test_752
     {
       key: 'ContextMenu',
       action: () => {
         const actions = this.props.actions;
-        const cellPosition = getCellPosition({ elem: this.pointedCell });
+        const cellPosition = this.props.table.getIn(['session', 'pointer']).toJS();
 
         actions.setMenu({
           place: CELL,

@@ -115,11 +115,9 @@ export function initialTable() {
         pointer: {
           [ROW]: {
             index: 0,
-            size: null,
           },
           [COLUMN]: {
             index: 0,
-            size: null,
           },
           value: '',
           edit: false,
