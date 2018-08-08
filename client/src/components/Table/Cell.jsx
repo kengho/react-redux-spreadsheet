@@ -6,6 +6,7 @@ import { CELL } from '../../constants';
 
 const propTypes = {
   columnIndex: PropTypes.number.isRequired,
+  inOnHeader: PropTypes.bool,
   isInClipboard: PropTypes.bool,
   isInSelection: PropTypes.bool,
   isOnClipboardBottom: PropTypes.bool,
@@ -20,11 +21,11 @@ const propTypes = {
   rowIndex: PropTypes.number.isRequired,
   selectOnFocus: PropTypes.bool.isRequired,
   styleJSON: PropTypes.string.isRequired,
-  tableHasHeader: PropTypes.bool,
   value: PropTypes.string,
 };
 
 const defaultProps = {
+  inOnHeader: false,
   isInClipboard: false,
   isInSelection: false,
   isOnClipboardBottom: false,
@@ -35,7 +36,6 @@ const defaultProps = {
   isOnSelectionLeft: false,
   isOnSelectionRight: false,
   isOnSelectionTop: false,
-  tableHasHeader: false,
   value: '',
 };
 
@@ -43,6 +43,7 @@ class Cell extends React.PureComponent {
   render() {
     const {
       columnIndex,
+      inOnHeader,
       isInClipboard,
       isInSelection,
       isOnClipboardBottom,
@@ -56,7 +57,6 @@ class Cell extends React.PureComponent {
       isPointed,
       rowIndex,
       styleJSON,
-      tableHasHeader,
       value,
     } = this.props;
 
@@ -64,7 +64,7 @@ class Cell extends React.PureComponent {
 
     const classNames = ['cell'];
     if (isPointed) { classNames.push('pointed'); }
-    if (tableHasHeader && (rowIndex === 0)) { classNames.push('header'); }
+    if (inOnHeader) { classNames.push('header'); }
 
     if (isInSelection) { classNames.push('selection'); }
     if (isOnSelectionTop) { classNames.push('selection-top'); }
