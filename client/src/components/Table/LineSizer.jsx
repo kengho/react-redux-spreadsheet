@@ -48,6 +48,8 @@ class LineSizer extends React.PureComponent {
 
     const HANDLE_SIZE = 8;
     const HELPER_WIDTH = 3;
+
+    // TODO: get from state (default cells' sizes).
     const MIN_COLIMN_WIDTH = 60;
     const MIN_ROW_HEIGHT = 40;
     const HELPER_BORDER = `${HELPER_WIDTH}px dashed #777`;

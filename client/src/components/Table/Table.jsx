@@ -314,7 +314,7 @@ class Table extends React.PureComponent {
     });
   }
 
-  linesSizes = lineType => lineIndex => this.props.table.getIn(['layout', lineType, 'list', lineIndex, 'size'])
+  linesSizes = lineType => lineIndex => this.props.table.getIn(['layout', lineType, 'list', lineIndex, 'size']);
 
   render() {
     const table = this.props.table;

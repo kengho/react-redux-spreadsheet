@@ -110,14 +110,12 @@ class SettingsDialog extends React.PureComponent {
                 }
 
                 case STRING: {
-                  // Autofocus first STRING element.
+                  // Autofocusing first STRING element.
                   const autoFocus = !autoFocusSet;
                   if (!autoFocusSet) {
                     autoFocusSet = true;
                   };
 
-                  // TODO: PERF: fix lag when user types fast.
-                  //   Possible approach: save settings on close or using throttle.
                   return (
                     <TextField
                       autoFocus={autoFocus}
@@ -138,7 +136,7 @@ class SettingsDialog extends React.PureComponent {
                               [item.param]: value,
                             }
                           })
-                        )
+                        );
                       }}
                       value={this.state.settings[item.param]}
                     />

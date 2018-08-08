@@ -554,8 +554,6 @@ describe('move pointer', () => {
         },
       }));
     });
-
-
   });
 
   describe('numpad keys', () => {

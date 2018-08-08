@@ -5,7 +5,7 @@ export default (
   WrappedComponent,
   progress,
   circlularProgressSize = 32,
-) => (
+) =>
   <div style={{ position: 'relative' }}>
     {WrappedComponent}
     {progress &&
@@ -20,5 +20,4 @@ export default (
         }}
       />
     }
-  </div>
-);
+  </div>;

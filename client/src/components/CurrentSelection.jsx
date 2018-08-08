@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './CurrentSelection.css'
 import { getSelectionBoundary } from '../core';
 import {
   COLUMN,
@@ -8,8 +9,6 @@ import {
   BEGIN,
   END,
 } from '../constants';
-
-import './CurrentSelection.css'
 
 const propTypes = {
   currentSelection: PropTypes.object.isRequired,

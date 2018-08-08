@@ -458,12 +458,12 @@ export function findLastNonemptyAdjacentCell({
     const currentValue = getCellValue(currentCell);
     const nextValue = getCellValue(nextCell);
 
-    if (currentValue !== '' && nextValue === '' && lineIndex !== startSearchIndex) {
+    if ((currentValue !== '') && (nextValue === '') && (lineIndex !== startSearchIndex)) {
       result = lineIndex;
       break;
     }
 
-    if (currentValue === '' && nextValue !== '') {
+    if ((currentValue === '') && (nextValue !== '')) {
       result = lineIndex + indexIncrement;
       break;
     }
@@ -484,7 +484,7 @@ export function isLineScrolledIntoView({
   screenSize,
   marginSize,
 }) {
-  // NOTE: hanles situations when all things considered line is visible,
+  // NOTE: handles situations when all things considered line is visible,
   //   but something (like, scrollbar) in a way. Also allows to set
   //   comfortable visible gap from bottom of the screen.
   const MAX_MARGIN_UNTIL_LINE_CONSIDERED_OUT_OF_VIEW_SIZE = 20;
