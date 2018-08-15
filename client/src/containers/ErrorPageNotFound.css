@@ -1,4 +1,4 @@
-.error-404 {
+#error-404 {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -6,7 +6,7 @@
   text-align: center;
 }
 
-.error-404-main-text {
+#error-404-main-text {
   font-size: 480px;
   color: #3f51b5;
 }

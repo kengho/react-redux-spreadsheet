@@ -53,7 +53,7 @@ class SyncIndicator extends React.PureComponent {
     return (
       <Paper
         style={{ zIndex: '1000', position: 'fixed', top: '0', right: '0' }}
-        className="sync-indicator-wrapper"
+        id="sync-indicator-wrapper"
       >
         {syncIndicatorBody}
       </Paper>

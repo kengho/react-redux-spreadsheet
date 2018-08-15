@@ -328,7 +328,7 @@ class Table extends React.PureComponent {
     return (
       <Grid
         cellRenderer={this.cellRenderer}
-        className="table"
+        id="table"
         columnHeaderRenderer={this.columnHeaderRenderer}
         columnsNumber={columns.get('list').size}
         columnsSizes={this.columnsSizes}

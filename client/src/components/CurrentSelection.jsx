@@ -49,7 +49,8 @@ class CurrentSelection extends React.PureComponent {
       // NOTE: classes defined in Cell.css.
       return (
         <div
-          className="current-selection selection-top selection-right selection-bottom selection-left"
+          className="selection-top selection-right selection-bottom selection-left"
+          id="current-selection"
           style={{
             pointerEvents: 'none', // so it don't messes with cellClickHandler()
             position: 'absolute',

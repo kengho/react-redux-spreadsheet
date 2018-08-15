@@ -10,7 +10,7 @@ const propTypes = {
 
 const GridHeader = (props) =>
   <div
-    className="grid-header"
+    id="grid-header"
     style={props.style}
     data-component-name={GRID_HEADER}
   />;

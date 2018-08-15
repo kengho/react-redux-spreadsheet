@@ -1,5 +1,5 @@
 /* TODO: hide scrollbar (maybe use ErrorPageNotFound.css translate approach?) */
-.landing {
+#landing {
   background-color: #eee;
   display: flex;
   flex-direction: column;
@@ -8,11 +8,11 @@
   height: 100vh;
 }
 
-.landing .messages {
+#landing #messages {
   color: #333;
   text-align: center; }
 
-.landing .messages ul {
+#landing #messages ul {
   list-style-type: none;
   padding: 8px 0 0 0;
   margin: 0;

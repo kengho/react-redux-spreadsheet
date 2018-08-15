@@ -51,7 +51,7 @@ class CellHistoryRecords extends React.PureComponent {
     } = this.props;
 
     if (!(history && history.size > 0)) {
-      return <div className="cell-history-no-records">No records.</div>;
+      return <div id="cell-history-no-records">No records.</div>;
     } else {
       return (
         <Table className="cell-history">

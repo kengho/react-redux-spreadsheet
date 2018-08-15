@@ -1,4 +1,4 @@
-.current-selection {
+#current-selection {
   box-sizing: border-box;
   background-color: rgba(80, 80, 111, 0.1); /* #50506f */
 }

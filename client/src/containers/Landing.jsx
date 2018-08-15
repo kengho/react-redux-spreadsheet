@@ -45,7 +45,7 @@ class Landing extends React.Component {
     const buttonIsDisabled = this.state.buttonIsDisabled;
 
     return (
-      <div className="landing">
+      <div id="landing">
         <SpreadsheetCreator
           beforeRecaptchaExecute={() => this.setState({ buttonIsDisabled: true })}
           history={history}
@@ -76,7 +76,7 @@ class Landing extends React.Component {
         >
           try offline
         </Button>
-        <div className="messages">
+        <div id="messages">
           <ul>{messages.map((message) => <li key={message}>{message}</li>)}</ul>
         </div>
       </div>

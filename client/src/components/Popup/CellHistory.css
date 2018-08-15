@@ -21,6 +21,6 @@
   min-width: 6em;
 }
 
-.cell-history-no-records {
+#cell-history-no-records {
   padding: 16px;
 }

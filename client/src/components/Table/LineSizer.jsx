@@ -2,12 +2,11 @@ import Draggable from 'react-draggable';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './LineSizer.css'
 import {
   COLUMN,
   ROW,
 } from '../../constants';
-
-import './LineSizer.css'
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
