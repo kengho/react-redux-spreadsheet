@@ -29,11 +29,11 @@ const FORWARD = true;
 const BACKWARD = false;
 const ANIMATION_TIME_MS = 200;
 
-class SearchBar extends React.Component {
+class SearchBar extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    // REVIEW: experimenting with some madvanced internal
+    // REVIEW: experimenting with some advanced internal
     //   state here, doesn't it seems too complicated?
     this.state = {
       searchQuery: '',
@@ -62,18 +62,21 @@ class SearchBar extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const focus = this.props.ui.getIn(['search', 'focus']);
+    const previousFocus = prevProps.ui.getIn(['search', 'focus']);
+    const currentFocus = this.props.ui.getIn(['search', 'focus']);
+    const focusBecameFalse = previousFocus && !currentFocus;
 
     // NOTE: immediate focus required in order not to lose it while
     //   pressing Enter hopping from one search result to another.
-    if (focus && this.textInput) {
+    //   Not using some kind of focusBecameTrue because of the same reason.
+    if (currentFocus && this.textInput) {
       this.textInput.focus();
     }
 
     // NOTE: setTimeout is required for focus after
     //   appearing SearchBar if there is css transition.
     setTimeout(() => {
-      if (focus && this.textInput) {
+      if (currentFocus && this.textInput) {
         this.textInput.focus();
       }
     }, ANIMATION_TIME_MS);
@@ -81,7 +84,7 @@ class SearchBar extends React.Component {
     // NOTE: if there is css transition, textInput don't lose focus after closing SearchBar.
     // NOTE: this is also required if there are no visibility css prop (in order to animate disappear).
     setTimeout(() => {
-      if (!focus && this.textInput) {
+      if (focusBecameFalse && this.textInput) {
         this.textInput.blur();
       }
     }, ANIMATION_TIME_MS);
