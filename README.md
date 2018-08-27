@@ -8,7 +8,7 @@
 
 ## Live
 
-[https://kengho.tech/spreadsheet](https://kengho.tech/spreadsheet/)
+[https://spreadsheet.kengho.tech](https://spreadsheet.kengho.tech)
 
 ## Features
 
@@ -80,8 +80,6 @@ http://localhost:3000/spreadsheet should display landing page.
 ### Production
 
 [kengho.tech spreadsheet deploy instructions](https://gist.github.com/kengho/33a3e3da78006be1c9176af419f77063) (Puma + Nginx).
-
-[kengho.tech ssl deploy instructions](https://gist.github.com/kengho/35114761b5ba338ed260a20c063df209) (Let’s Encrypt).
 
 [get reCAPTCHA keys](https://www.google.com/recaptcha/admin)
 
