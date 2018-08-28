@@ -85,14 +85,16 @@ http://localhost:3000/spreadsheet should display landing page.
 
 ## Known issues
 
-* may be slow on really large spreadsheets (>100x100)
+* it's impossible to set caret in cell's place where aren't any text using mouse
+* it could be hard to select text "to the end" while editing
+* unable to create new spreadsheet anywhere but using landing page
 
 ## TODO (random order)
 
 * mobile browsers support
 * scripting (aka "functions")
 * cells, linked with other spreadsheets
-* lists (in form of just links to other spreadsheets)
+* sheets (in form of just links to other spreadsheets)
 * consider users' auth
 * private spreadsheets
 * password protect (preferably the way even server owner can't access user data)
@@ -106,7 +108,6 @@ http://localhost:3000/spreadsheet should display landing page.
 * fix all code imperfections
 * consider RLE compression for data (see ODS format)
 * i18n
-* add/delete lines' and other animations (?)
 * to perfect lines sizing (double click for optimal size, consider returning autogrowth)
 * more spreadsheeting
 * full xlsx compatibility (just a joke)
