@@ -1,6 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Loadable from 'react-loadable';
+import loadable from 'loadable-components';
 import React from 'react';
 
 import { initialState } from '../core';
@@ -17,26 +17,11 @@ import getRootPath from '../lib/getRootPath';
 import LoadingScreen from '../components/LoadingScreen';
 import Table from '../components/Table/Table';
 
-const CurrentSelection = Loadable({
-  loader: () => import('../components/CurrentSelection'),
-  loading: () => <div />,
-});
-const CellHistory = Loadable({
-  loader: () => import('../components/Popup/CellHistory'),
-  loading: () => <div />,
-});
-const Menu = Loadable({
-  loader: () => import('../components/Popup/Menu'),
-  loading: () => <div />,
-});
-const SearchBar = Loadable({
-  loader: () => import('../components/SearchBar'),
-  loading: () => <div />,
-});
-const SyncIndicator = Loadable({
-  loader: () => import('../components/SyncIndicator'),
-  loading: () => <div />,
-});
+const CellHistory = loadable(() => import('../components/Popup/CellHistory'));
+const CurrentSelection = loadable(() => import('../components/CurrentSelection'));
+const Menu = loadable(() => import('../components/Popup/Menu'));
+const SearchBar = loadable(() => import('../components/SearchBar'));
+const SyncIndicator = loadable(() => import('../components/SyncIndicator'));
 
 const mapStateToProps = (state, ownProps) => {
   // (?) TODO: canUndo and canRedo to table.

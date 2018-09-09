@@ -1,30 +1,18 @@
 import { ConnectedRouter } from 'connected-react-router/immutable';
 import { Route, Switch } from 'react-router';
 import GithubMark from 'react-github-mark';
-import Loadable from 'react-loadable';
+import loadable from 'loadable-components';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import './App.css';
 import getRootPath, { getSpreadsheetPathTemplate } from './lib/getRootPath';
 
-const Dialog = Loadable({
-  loader: () => import('./containers/Dialog/Dialog'),
-  loading: () => <div />,
-});
-const ErrorPageNotFound = Loadable({
-  loader: () => import('./containers/ErrorPageNotFound'),
-  loading: () => <div />,
-});
-const Landing = Loadable({
-  loader: () => import('./containers/Landing'),
-  loading: () => <div />,
-});
-const Spreadsheet = Loadable({
-  loader: () => import('./containers/Spreadsheet'),
-  loading: () => <div />,
-});
-Spreadsheet.preload();
+const Dialog = loadable(() => import('./containers/Dialog/Dialog'));
+const ErrorPageNotFound = loadable(() => import('./containers/ErrorPageNotFound'));
+const Landing = loadable(() => import('./containers/Landing'));
+const Spreadsheet = loadable(() => import('./containers/Spreadsheet'));
+Spreadsheet.load();
 
 const propTypes = {
   history: PropTypes.object.isRequired,
