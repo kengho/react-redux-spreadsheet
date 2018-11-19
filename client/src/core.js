@@ -571,10 +571,14 @@ export function findLineByOffset({
 export const convertTableToPlainArray = ({
   table,
   cellCallback = (cell) => {
-    if (cell && cell.get && typeof cell.get('value') === 'string') {
-      return cell.get('value');
+    if (cell && cell.get) {
+      if (typeof cell.get('value') === 'string') {
+        return cell.get('value');
+      } else {
+        return null;
+      }
     } else {
-      return null;
+      throw new Error('Invalid "cell" in "convertTableToPlainArray()"')
     }
   },
 }) => {
@@ -585,7 +589,8 @@ export const convertTableToPlainArray = ({
     const row = [];
     for (let j = 0; j < columnsSize; j += 1) {
       const currentCell = table.getIn(['layout', ROW, 'list', i, 'cells', j]);
-      row.push(cellCallback(currentCell));
+      const plainCell = cellCallback(currentCell);
+      row.push(plainCell);
     }
     tableArray.push(row);
   }
@@ -633,10 +638,13 @@ export async function convert({
   if (inputFormat === APP) {
     // APP => CSV
     if (outputFormat === CSV) {
-      const tableArray = convertTableToPlainArray(
+      // TODO: test.
+      const tableArray = convertTableToPlainArray({
         table,
-        (cell) => cell.get('value') || ''
-      );
+
+        // Fail-proof callback.
+        cellCallback: (cell) => cell.get('value') || '',
+      });
 
       const Papa = await import('papaparse');
 
