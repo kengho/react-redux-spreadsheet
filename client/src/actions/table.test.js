@@ -1341,9 +1341,9 @@ describe('sort', () => {
       ['50', 'aaa', ''],
       ['00', 'ab' , ''],
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
@@ -1363,9 +1363,9 @@ describe('sort', () => {
       ['50', 'aaa', ''],
       ['00', 'ab' , ''],
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
@@ -1385,9 +1385,9 @@ describe('sort', () => {
       ['40', '1'  , ''],
       ['30', ''   , ''],
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
@@ -1437,9 +1437,9 @@ describe('area operations', () => {
       ['i10', 'i11', '22'],
       ['i20', 'i21', '32'],
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
@@ -1468,14 +1468,14 @@ describe('area operations', () => {
       [null , null , 'i10', 'i11'], // inserting
       [null , null , 'i20', 'i21'], // inserting
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
 
-  it('should insert area (out of real cells)', () => {
+  it('should insert area (out of real rows)', () => {
     process.logBelow = false;
 
     store.dispatch(TableActions.setArea(
@@ -1503,15 +1503,15 @@ describe('area operations', () => {
       [null , null , null , null , null, 'i10', 'i11'], // inserting
       [null , null , null , null , null, 'i20', 'i21'], // inserting
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
 
   it('should insert area (out of real columns)', () => {
-    process.logBelow = true;
+    process.logBelow = false;
 
     store.dispatch(TableActions.setArea(
       {
@@ -1538,14 +1538,16 @@ describe('area operations', () => {
       [null , null , null , null , null, 'i10', 'i11', null, null , null ],
       [null , null , null , null , null, 'i20', 'i21', null, null , null ],
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });
 
   it('should delete area', () => {
+    process.logBelow = false;
+
     store.dispatch(TableActions.deleteArea({
       [ROW]: {
         index: 3,
@@ -1570,9 +1572,9 @@ describe('area operations', () => {
       [null , null , null , null , null, 'i10', 'i11', null, null , null ],
       [null , null , null , null , null, 'i20', 'i21', null, null , null ],
     ];
-    actualCells = Core.convertTableToPlainArray(
-      store.getState().get('table').present.get('major')
-    );
+    actualCells = Core.convertTableToPlainArray({
+      table: store.getState().get('table').present.get('major')
+    });
 
     expect(actualCells).to.deep.equal(expectedCells);
   });

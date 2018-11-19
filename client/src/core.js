@@ -568,7 +568,7 @@ export function findLineByOffset({
 
 // NOTE: this function uses in component, so table
 //   has no minor and major branches, it's just "table".
-export const convertTableToPlainArray = (
+export const convertTableToPlainArray = ({
   table,
   cellCallback = (cell) => {
     if (cell && cell.get && typeof cell.get('value') === 'string') {
@@ -576,8 +576,8 @@ export const convertTableToPlainArray = (
     } else {
       return null;
     }
-  }
-) => {
+  },
+}) => {
   const tableArray = [];
   const rowsSize = table.getIn(['layout', ROW, 'list']).size;
   const columnsSize = table.getIn(['layout', COLUMN, 'list']).size;
