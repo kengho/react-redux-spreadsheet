@@ -604,27 +604,6 @@ export default (state = initialState().get('table'), action) => {
 
       let nextState = state;
 
-      // Inserting new linew if necessary.
-      const areaMaxLineIndexes = {
-        [ROW]: areaRowsLength - 1,
-        [COLUMN]: areaColumnsLength - 1,
-      };
-      [ROW, COLUMN].forEach((lineType) => {
-        const currentMaxLineIndex = state.getIn(['major', 'layout', lineType, 'list']).size - 1;
-        const shiftedAreaMaxLineIndex = areaMaxLineIndexes[lineType] + anchorCell[lineType].index;
-        const insertingLinesNumber = Math.max(shiftedAreaMaxLineIndex - currentMaxLineIndex, 0);
-        const insertingLines = List.of(
-          ...Array
-            .from(Array(insertingLinesNumber))
-            .map(() => composeLine({ lineType }))
-        );
-
-        nextState = nextState.updateIn(
-          ['major', 'layout', lineType, 'list'],
-          (list) => list.concat(insertingLines)
-        );
-      });
-
       // Updating cells.
       return nextState.updateIn(
         ['major', 'layout', ROW, 'list'],

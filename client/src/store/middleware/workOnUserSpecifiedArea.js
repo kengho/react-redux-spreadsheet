@@ -16,6 +16,8 @@ import {
   batchActions,
   clearSelection,
   deleteArea,
+  insertColumns,
+  insertRows,
   setArea,
   setClipboard,
   setProp,
@@ -29,6 +31,7 @@ import * as ActionTypes from '../../actionTypes';
 //   It calls by ContextMenu and by hotkeys, so we don't want
 //   to mess things in one place while changing code in another.
 // REVIEW: lib? Never heard of it.
+// TODO: test properly somehow.
 export default store => next => action => {
   if (action.type !== ActionTypes.WORK_ON_USER_SPECIFIED_AREA) {
     return next(action);
@@ -203,7 +206,14 @@ export default store => next => action => {
     }
 
     if (anchorCell && area && area.size > 0) {
-      actionsToBatch.push(setArea(anchorCell, area));
+      const nextMaxRowIndexCandidate = anchorCell[ROW].index + area.size;
+      const nextMaxColumnIndexCandidate = anchorCell[COLUMN].index + area.get(0).size;
+
+      actionsToBatch.push(
+        insertRows({ index: nextMaxRowIndexCandidate }),
+        insertColumns({ index: nextMaxColumnIndexCandidate }),
+        setArea(anchorCell, area)
+      );
     }
   }
 
