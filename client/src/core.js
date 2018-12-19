@@ -643,7 +643,7 @@ export async function convert({
         table,
 
         // Fail-proof callback.
-        cellCallback: (cell) => cell.get('value') || '',
+        cellCallback: (cell) => (cell && cell.get) ? cell.get('value') :  '',
       });
 
       const Papa = await import('papaparse');
