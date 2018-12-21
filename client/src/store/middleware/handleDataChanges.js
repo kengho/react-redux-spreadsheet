@@ -4,7 +4,18 @@ import { SYNC } from '../../constants';
 
 export default store => next => action => {
   // Prevent sending update request after initial render.
-  if (action.type === ActionTypes.MERGE_SERVER_STATE && !action.changesData) {
+  if (action.type === ActionTypes.MERGE_SERVER_STATE) {
+    return next(action);
+  }
+
+  // Don't process data unless action changes data.
+  let changesData;
+  if (action.type === ActionTypes.VENDOR_BATCH_ACTIONS) {
+    changesData = action.payload.some((batchedAction) => batchedAction.changesData);
+  } else {
+    changesData = action.changesData;
+  }
+  if (!changesData) {
     return next(action);
   }
 
