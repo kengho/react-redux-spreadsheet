@@ -18,10 +18,6 @@ export default store => next => action => {
     return nextAction;
   }
 
-  if (nextTableLayout === previousTableLayout && nextSettings === previousSettings) {
-    return nextAction;
-  }
-
   const sync = store.getState().getIn(['server', 'sync']);
 
   // test_957
