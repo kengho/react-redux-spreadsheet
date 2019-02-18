@@ -1566,7 +1566,6 @@ describe('area operations', () => {
 //     actualCells = Core.convertTableToPlainArray({
 //       table: store.getState().get('table').present.get('major')
 //     });
-// process.log(actualCells)
 //     expect(actualCells).to.deep.equal(expectedCells);
 //   });
 
