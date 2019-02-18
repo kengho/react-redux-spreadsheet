@@ -387,7 +387,7 @@ export default (state = initialState().get('table'), action) => {
         );
       }
 
-      // Changing pointer value for EditingCell to show proper value.
+      // Finding out pointer value for EditingCell to show proper value.
       let nextRowIndex;
       let nextColumnIndex;
       if (lineType === ROW) {
@@ -397,7 +397,7 @@ export default (state = initialState().get('table'), action) => {
         nextColumnIndex = nextLineIndex
         nextRowIndex = state.getIn(['major', 'session', 'pointer', ROW, 'index']);
       }
-      const nextPointerValue = state.getIn([
+      let nextPointerValue = state.getIn([
         'major',
         'layout',
         ROW,
@@ -407,11 +407,13 @@ export default (state = initialState().get('table'), action) => {
         nextColumnIndex,
         'value',
       ]);
-      if (typeof nextPointerValue === 'string') {
-        nextState = nextState.setIn([...pointerPath, 'value'], nextPointerValue);
+      if (typeof nextPointerValue !== 'string') {
+        nextPointerValue = null;
       }
 
-      return nextState.setIn(workingPointerPath, nextLineIndex);
+      return nextState
+        .setIn([...pointerPath, 'value'], nextPointerValue)
+        .setIn(workingPointerPath, nextLineIndex);
     }
 
     case ActionTypes.UPDATE_CELL_SIZE: {
