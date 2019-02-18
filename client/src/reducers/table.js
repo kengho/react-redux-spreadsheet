@@ -206,7 +206,8 @@ export default (state = initialState().get('table'), action) => {
 
       // REVIEW: maybe get rid of this? Those are leftovers
       //   from revisions without lines-symmetrical state.
-      workingPointerPath = ['major', 'session', 'pointer', lineType, 'index'];
+      const pointerPath = ['major', 'session', 'pointer'];
+      workingPointerPath = [...pointerPath, lineType, 'index'];
       workingScrollPath = ['major', 'vision', lineType, 'scrollSize'];
       linesList = state.getIn(['major', 'layout', lineType, 'list']);
       defaultLineSize = state.getIn(['major', 'layout', lineType, 'defaultSize']);
@@ -384,6 +385,30 @@ export default (state = initialState().get('table'), action) => {
           workingScrollPath,
           nextLineOffset
         );
+      }
+
+      // Changing pointer value for EditingCell to show proper value.
+      let nextRowIndex;
+      let nextColumnIndex;
+      if (lineType === ROW) {
+        nextColumnIndex = state.getIn(['major', 'session', 'pointer', COLUMN, 'index']);
+        nextRowIndex = nextLineIndex;
+      } else {
+        nextColumnIndex = nextLineIndex
+        nextRowIndex = state.getIn(['major', 'session', 'pointer', ROW, 'index']);
+      }
+      const nextPointerValue = state.getIn([
+        'major',
+        'layout',
+        ROW,
+        'list',
+        nextRowIndex,
+        'cells',
+        nextColumnIndex,
+        'value',
+      ]);
+      if (typeof nextPointerValue === 'string') {
+        nextState = nextState.setIn([...pointerPath, 'value'], nextPointerValue);
       }
 
       return nextState.setIn(workingPointerPath, nextLineIndex);

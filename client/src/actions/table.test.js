@@ -243,6 +243,7 @@ describe('move pointer', () => {
       // 1 [b] [a]
       store.dispatch(TableActions.movePointer({ key: 'ArrowRight' }));
       expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 1, columnIndex: 1 }));
+
       //
       //    0   1
       // 0 ... [a]
@@ -740,6 +741,26 @@ describe('move pointer', () => {
       store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
       expect(getPointerPosition(store)).to.deep.equal(fromJS({ rowIndex: 10, columnIndex: 0 }));
       store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
+    });
+  });
+
+  describe('side effects', () => {
+    it('should set new appropriate pointer value', () => {
+      process.logBelow = false;
+
+      const cells = [
+        ['00', '01'],
+        ['10', '11'],
+      ];
+      setCellsValues(store, cells);
+
+      store.dispatch(TableActions.movePointer({ key: 'ArrowDown' }));
+      const expectedValue = '10';
+      const actualValue = getPointer(store).get('value');
+      expect(actualValue).to.equal(expectedValue);
+
+      // Restoring position for later tests.
+      store.dispatch(TableActions.movePointer({ key: 'ArrowUp' }));
     });
   });
 });
