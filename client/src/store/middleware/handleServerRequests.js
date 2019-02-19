@@ -4,6 +4,7 @@ import { closeDialog } from '../../actions/ui';
 import {
   makeServerRequest,
   setRequestFailed,
+  setSyncInProgress,
 } from '../../actions/server';
 import {
   SYNC,
@@ -57,6 +58,8 @@ const sendRequest = (request) => {
 
 
 const handleRequest = (store, request) => {
+  store.dispatch(setSyncInProgress(true));
+
   sendRequest(request).then(
     (response) => {
       handleResponse(
@@ -69,25 +72,28 @@ const handleRequest = (store, request) => {
 };
 
 const handleResponse = (store, request, response) => {
-  if (response.errors) {
-    setTimeout(() => store.dispatch({
-      ...makeServerRequest(),
-      meta: { throttle: true },
-    }), REQUEST_RETRY_TIMEOUT);
+  let success = false;
 
-    store.dispatch(setRequestFailed(true));
-  } else if (response.data) {
-    if (response.data.status === ERROR) {
-      store.dispatch(setRequestFailed(true));
-    } else {
-      store.dispatch(setRequestFailed(false));
+  if (!response.errors && response.data && (response.data.status !== ERROR)) {
+    success = true;
 
-      if (request.type === DESTROY_SPREADSHEET) {
-        store.dispatch(closeDialog());
-        store.dispatch(push(getRootPath()));
-      }
+    if (request.type === DESTROY_SPREADSHEET) {
+      store.dispatch(closeDialog());
+      store.dispatch(push(getRootPath()));
     }
   }
+
+  if (success) {
+    store.dispatch(setRequestFailed(false));
+  } else {
+    setTimeout(() => store.dispatch({
+      ...makeServerRequest(SYNC),
+      meta: { throttle: true },
+    }), REQUEST_RETRY_TIMEOUT);
+    store.dispatch(setRequestFailed(true));
+  }
+
+  store.dispatch(setSyncInProgress(false));
 };
 
 export default store => next => action => {

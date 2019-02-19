@@ -1,3 +1,33 @@
 #sync-indicator-wrapper {
   border-radius: 5% 0 5% 50% !important;
 }
+
+#sync-indicator:before {
+  content: ' \25CF';
+  font-size: 24px;
+}
+
+#sync-indicator.sync-disabled {
+  visibility: hidden;
+}
+
+#sync-indicator.sync-ok {
+  /* Color from .MuiButton-containedPrimary-112 */
+  color: #3f51b5;
+}
+
+#sync-indicator.sync-in-progress {
+  animation: sync-color-animation 1s infinite;
+}
+
+#sync-indicator.request-failed {
+  /* Color from .MuiButton-containedSecondary-113 */
+  color: #f50057;
+}
+
+
+@keyframes sync-color-animation {
+    0% { color: #70707f; }
+    50% { color: #aab; }
+    100% { color: #70707f; }
+}

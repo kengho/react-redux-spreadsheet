@@ -1,9 +1,5 @@
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
-import SyncDisabled from '@material-ui/icons/SyncDisabled';
-import SyncProblem from '@material-ui/icons/SyncProblem';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import './SyncIndicator.css';
@@ -16,47 +12,45 @@ class SyncIndicator extends React.PureComponent {
   render() {
     const server = this.props.server;
 
-    let syncIndicatorBody;
-    if (!server.get('sync')) {
-      // TODO: go online on click (if not offline).
-      syncIndicatorBody = (
-        <Tooltip
-          placement="left"
-          title="Synchronization with server is disabled."
-        >
-          <div>
-            <IconButton disabled>
-              <SyncDisabled />
-            </IconButton>
-          </div>
-        </Tooltip>
-      );
-    } else if (!server.get('requestFailed')) {
-      syncIndicatorBody = '';
+    const requestFailed = server.get('requestFailed');
+    const syncInProgress = server.get('syncInProgress');
+    const sync = server.get('sync');
+
+    let indicatorClassname;
+    let tooltipTitle;
+    if (!sync) {
+      indicatorClassname = 'sync-disabled';
+      tooltipTitle = 'Synchronization with server is disabled in offline mode.';
+    } else if (syncInProgress) {
+      indicatorClassname = 'sync-in-progress';
+      tooltipTitle = 'Synchronization with server is in progress...';
+    } else if (requestFailed) {
+      indicatorClassname = 'request-failed';
+      tooltipTitle = 'Synchronization with server failed, waiting until retrying...';
     } else {
-      syncIndicatorBody = (
-        <Tooltip
-          placement="left"
-          title="Synchronization with server is in progress..."
-        >
-          {/* NOTE: without div tooltip not showing. */}
-          {/*   https://github.com/mui-org/material-ui/issues/8416#issuecomment-332556082 */}
-          <div>
-            <IconButton disabled>
-              <SyncProblem />
-            </IconButton>
-          </div>
-        </Tooltip>
-      );
+      indicatorClassname = 'sync-ok';
+      tooltipTitle = 'Synchronization with server is OK.';
     }
 
+    const syncIndicatorBody = (
+      <Tooltip
+        placement="left"
+        title={tooltipTitle}
+      >
+        <div
+          className={indicatorClassname}
+          id="sync-indicator"
+        />
+      </Tooltip>
+    );
+
     return (
-      <Paper
+      <div
         style={{ zIndex: '1000', position: 'fixed', top: '0', right: '0' }}
         id="sync-indicator-wrapper"
       >
         {syncIndicatorBody}
-      </Paper>
+      </div>
     );
   }
 }

@@ -27,3 +27,10 @@ export function setRequestFailed(requestFailed) {
     requestFailed,
   };
 }
+
+export function setSyncInProgress(syncInProgress) {
+  return {
+    type: ActionTypes.SET_SYNC_IN_PROGRESS,
+    syncInProgress,
+  };
+}

@@ -14,6 +14,9 @@ export default (state = initialState().get('server') || fromJS({}), action) => {
     case ActionTypes.SET_REQUEST_FAILED:
       return state.set('requestFailed', action.requestFailed);
 
+    case ActionTypes.SET_SYNC_IN_PROGRESS:
+      return state.set('syncInProgress', action.syncInProgress);
+
     case ActionTypes.MAKE_SERVER_REQUEST:
       return state;
 

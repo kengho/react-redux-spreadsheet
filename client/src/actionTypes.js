@@ -48,6 +48,7 @@ export const SET_SHORT_ID = 'server/SET_SHORT_ID';
 export const SET_SYNC = 'meta/SET_SYNC';
 export const MAKE_SERVER_REQUEST = 'server/MAKE_SERVER_REQUEST';
 export const SET_REQUEST_FAILED = 'server/SET_REQUEST_FAILED';
+export const SET_SYNC_IN_PROGRESS = 'server/SET_SYNC_IN_PROGRESS';
 
 // ui
 export const OPEN_POPUP = 'ui/OPEN_POPUP';

@@ -268,6 +268,7 @@ export function initialState() {
         shortId: null,
         sync: null,
         requestFailed: false,
+        syncInProgress: false,
       },
       settings: initialSettings,
       table,
