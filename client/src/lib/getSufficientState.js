@@ -11,7 +11,7 @@ export default (args) => {
 
   // TODO: use isImmutable (or whatever) when available.
   //   https://stackoverflow.com/a/31919411/6376451
-  if (Iterable.isIterable(args)) { // handleServerRequests(), SpreadsheetCreator, Core.convert() (* => APP)
+  if (Iterable.isIterable(args)) { // handleServerRequests, SpreadsheetCreator, Core.convert() (* => APP)
     const state = args;
 
     const stateTable = state.get('table');

@@ -53,22 +53,6 @@ export function composeCell(props = {}) {
   return Map(props);
 }
 
-// export function composeRow({
-//     size = null,
-//     index = null,
-//     cellsNumber = 0,
-//     // cellsValues = [],
-// } = {}) {
-//   return composeLine({
-//     lineType: ROW,
-//     index,
-//     size,
-//   }).set(
-//     'cells',
-//     List(Array.from(Array(cellsNumber)).map(() => composeCell()))
-//   );
-// }
-
 // NOTE: Legend:
 //   size - visible size of something; pixels
 //   offset - offset of something from coordinates begginning; pixels
@@ -186,9 +170,7 @@ export function initialTable() {
     },
   };
 
-  if (process.env.NODE_ENV !== 'test') {
-    return fromJS(table);
-  } else {
+  if (process.env.NODE_ENV === 'test') {
     const rowsSizes = [150, 200, 175, 200, 225, 200, 200, 150, 150, 200];
     const columnsSizes = [125, 150, 200, 150, 175, 125, 200, 150];
     const rowsList = rowsSizes.map((size, index) => {
@@ -229,9 +211,9 @@ export function initialTable() {
     table.minor.linesOffsets.COLUMN = columnsOffsets;
     table.major.vision.ROW.screenSize = 1000;
     table.major.vision.COLUMN.screenSize = 800;
-
-    return fromJS(table);
   }
+
+  return fromJS(table);
 }
 
 // Using in containers/Dialog/SettingsDialog.jsx.

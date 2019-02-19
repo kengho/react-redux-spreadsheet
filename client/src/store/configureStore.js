@@ -34,7 +34,7 @@ const configureMiddleware = (history) => {
   const defaultThrottleOption = { // https://lodash.com/docs#throttle
     leading: false,
     trailing: true,
-  }
+  };
 
   const throttleMiddleware = throttle(defaultWait, defaultThrottleOption);
   const middleware = [
