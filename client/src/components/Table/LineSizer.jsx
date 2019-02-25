@@ -98,7 +98,11 @@ class LineSizer extends React.PureComponent {
     }
 
     return (
+      // test_127
+      // enableUserSelectHack fixes issue with losing focus on EditingCell.
+      // https://github.com/mzabriskie/react-draggable/issues/315#issuecomment-368553593
       <Draggable
+        enableUserSelectHack={false}
         axis={lineType === ROW ? 'y' : 'x'}
         bounds={{
           left: -columnWidth + MIN_COLIMN_WIDTH,
