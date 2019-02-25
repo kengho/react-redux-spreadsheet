@@ -46,7 +46,7 @@ class SyncIndicator extends React.PureComponent {
 
     return (
       <div
-        style={{ zIndex: '1000', position: 'fixed', top: '0', right: '0' }}
+        style={{ zIndex: '1000', position: 'fixed', top: '5px', right: '0' }}
         id="sync-indicator-wrapper"
       >
         {syncIndicatorBody}

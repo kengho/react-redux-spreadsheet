@@ -1,11 +1,14 @@
 #sync-indicator-wrapper {
-  border-radius: 5% 0 5% 50% !important;
+  /* border-radius: 5% 0 5% 50% !important; */
 }
 
-#sync-indicator:before {
-  content: ' \25CF';
-  font-size: 24px;
+#sync-indicator {
+  /* table.major.layout[ROW].marginSize */
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
 }
+
 
 #sync-indicator.sync-disabled {
   visibility: hidden;
@@ -13,7 +16,7 @@
 
 #sync-indicator.sync-ok {
   /* Color from .MuiButton-containedPrimary-112 */
-  color: #3f51b5;
+  background: #3f51b5;
 }
 
 #sync-indicator.sync-in-progress {
@@ -22,12 +25,12 @@
 
 #sync-indicator.request-failed {
   /* Color from .MuiButton-containedSecondary-113 */
-  color: #f50057;
+  background: #f50057;
 }
 
 
 @keyframes sync-color-animation {
-    0% { color: #70707f; }
-    50% { color: #aab; }
-    100% { color: #70707f; }
+    0% { background: #70707f; }
+    50% { background: #aab; }
+    100% { background: #70707f; }
 }
