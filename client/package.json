@@ -50,7 +50,7 @@
     "chai-immutable": "^1.6.0",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
-    "react-scripts": "^1.1.4"
+    "react-scripts": "^2.1.8"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -58,5 +58,11 @@
     "postbuild": "echo \"<!--`git log -n 1 --pretty=format:\"%H\"`-->\" >> build/index.html",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
