@@ -51,7 +51,7 @@ class LineSizer extends React.PureComponent {
     // TODO: get from state (default cells' sizes).
     const MIN_COLIMN_WIDTH = 60;
     const MIN_ROW_HEIGHT = 40;
-    const HELPER_BORDER = `${HELPER_WIDTH}px dashed #777`;
+    const HELPER_BORDER_STYLE = `${HELPER_WIDTH}px dashed #777`;
 
     let onStopHandler;
     let handleStyle;
@@ -70,7 +70,7 @@ class LineSizer extends React.PureComponent {
         width: '100%',
       };
       helperStyle = {
-        borderTop: HELPER_BORDER,
+        borderTop: HELPER_BORDER_STYLE,
         height: '3px',
         left: rowsHeaderWidth,
         width: '100vw',
@@ -90,7 +90,7 @@ class LineSizer extends React.PureComponent {
         top: 0,
       };
       helperStyle = {
-        borderRight: HELPER_BORDER,
+        borderRight: HELPER_BORDER_STYLE,
         height: '100vh',
         top: columnsHeaderHeight,
         width: '3px',
@@ -115,7 +115,7 @@ class LineSizer extends React.PureComponent {
           this.setState({ helperVisibility: false });
           onStopHandler(data);
 
-          // NOTE: onStop should return false in ordet to prevent
+          // NOTE: onStop should return false in order to prevent
           //   "Warning: Can't call setState (or forceUpdate) on an unmounted component." error in firefox.
           //   Code: https://github.com/mzabriskie/react-draggable/blob/1043b9973ead7d7f70314634dcfcb49f9ec510ba/lib/Draggable.js#L283
           // REVIEW: or we shouldn't do it? Works fine for now.
