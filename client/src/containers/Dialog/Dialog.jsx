@@ -53,7 +53,7 @@ class Dialog extends React.Component {
     const {
       variant,
       visibility,
-      ...other,
+      ...other
     } = this.props;
 
     // Non-extracting props (should be passed to children as well).

@@ -31,7 +31,7 @@ class LineHeader extends React.PureComponent {
       lineType,
       style,
       tableHasHeader,
-      ...other,
+      ...other
     } = this.props;
 
     let address;

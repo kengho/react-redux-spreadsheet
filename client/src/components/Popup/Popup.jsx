@@ -45,7 +45,7 @@ class Popup extends React.Component {
       PopoverComponent, // should be inherited from MUI Popover
       popup,
       popupAnchorSelector,
-      ...other,
+      ...other
     } = this.props;
 
     const anchorEl = document.querySelector(popupAnchorSelector);

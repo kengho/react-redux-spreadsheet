@@ -122,7 +122,7 @@ class Spreadsheet extends React.Component {
     const {
       currentSelection, // so it won't pass to Table
       linesOffsets, // so it won't pass to Table
-      ...other,
+      ...other
     } = this.props;
     const headerHeight = this.props.table.getIn(['layout', ROW, 'marginSize']);
 
