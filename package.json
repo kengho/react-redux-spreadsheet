@@ -15,8 +15,5 @@
     "dev": "foreman start -f Procfile.dev",
     "dev:offline": "foreman start client -f Procfile.dev",
     "test": "cd client && npm run test"
-  },
-  "dependencies": {
-    "lodash": "^4.17.5"
   }
 }
