@@ -334,8 +334,8 @@ class Table extends React.PureComponent {
         columnsSizes={this.columnsSizes}
         defaultCellHeight={defaultCellHeight}
         defaultCellWidth={defaultCellWidth}
-        extraHeight={'300vh'}
-        extraWidth={'300vw'}
+        extraHeight={'100vh'}
+        extraWidth={'100vw'}
         gridHeaderRenderer={this.gridHeaderRenderer}
         gridRoundingLength={3}
         hasHeader={true}
