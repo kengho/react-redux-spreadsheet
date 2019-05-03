@@ -102,6 +102,10 @@ class Table extends React.PureComponent {
       window.focus();
       window.getSelection().removeAllRanges();
     }
+
+    const vision = this.props.table.get('vision');
+    document.documentElement.scrollTop = vision.getIn([ROW, 'scrollSize']);
+    document.documentElement.scrollLeft = vision.getIn([COLUMN, 'scrollSize']);
   }
 
   componentWillUnmount() {

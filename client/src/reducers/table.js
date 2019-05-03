@@ -100,15 +100,7 @@ export default (state = initialState().get('table'), action) => {
     }
 
     case ActionTypes.SET_SCROLL_SIZE: {
-      // NOTE: here we make two-way binding document.documentElement.scroll*
-      //   and state: onScroll in Table fires this action, and dispatching
-      //   this action leads to scroll changes.
-      //
-      //   In most browsers onScroll isn't fired if props are equal,
-      //   no need to check it manually.
-      document.documentElement.scrollTop = action.scrollSize[ROW].scrollSize;
-      document.documentElement.scrollLeft = action.scrollSize[COLUMN].scrollSize;
-
+      // NOTE: changing "document.documentElement.scroll*" is now side effect of Table.
       return state.updateIn(
         ['major', 'vision'],
         (value) => value.mergeDeep(action.scrollSize)
@@ -373,14 +365,12 @@ export default (state = initialState().get('table'), action) => {
           linesOffsetsDiff = nextLineOffset - currentLineOffset;
         }
 
-        document.documentElement[documentScrollProp] += linesOffsetsDiff;
         nextState = state.updateIn(
           workingScrollPath,
           (value) => value + linesOffsetsDiff
         );
       }
       if (!isCurrentLineScrolledIntoView && !isNextLineScrolledIntoView) {
-        document.documentElement[documentScrollProp] = nextLineOffset;
         nextState = state.setIn(
           workingScrollPath,
           nextLineOffset
@@ -780,13 +770,6 @@ export default (state = initialState().get('table'), action) => {
     //   We need to insert state without pointer to history somehow.
     case ActionTypes.UNDO:
     case ActionTypes.REDO: {
-      // test_933
-      // REVIEW: this.
-      const scrollTop = state.getIn(['major', 'vision', ROW, 'scrollSize']);
-      const scrollLeft = state.getIn(['major', 'vision', COLUMN, 'scrollSize']);
-      document.documentElement.scrollTop = scrollTop;
-      document.documentElement.scrollLeft = scrollLeft;
-
       return state.setIn(
         ['session', 'pointer', 'edit'],
         false
