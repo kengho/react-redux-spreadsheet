@@ -217,23 +217,6 @@ export function setClipboard(props) {
   };
 }
 
-export function deleteArea(area) {
-  return {
-    type: ActionTypes.DELETE_AREA,
-    area,
-    changesData,
-  };
-}
-
-export function setArea(anchorCell, area) {
-  return {
-    type: ActionTypes.SET_AREA,
-    anchorCell,
-    area,
-    changesData,
-  };
-}
-
 export function workOnUserSpecifiedArea(operation) { // areaOperations
   return {
     type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,

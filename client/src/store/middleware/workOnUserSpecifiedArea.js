@@ -1,4 +1,4 @@
-import { fromJS, Map, List } from 'immutable';
+import { fromJS, Map } from 'immutable';
 import copy from 'copy-to-clipboard';
 
 import {
@@ -15,16 +15,11 @@ import {
 import {
   batchActions,
   clearSelection,
-  deleteArea,
   insertColumns,
   insertRows,
-  setArea,
   setClipboard,
   setProp,
 } from '../../actions/table';
-import {
-  composeLine,
-} from '../../core';
 import * as ActionTypes from '../../actionTypes';
 
 // NOTE: this action handles in middleware for sake of DRY.
@@ -39,6 +34,8 @@ export default store => next => action => {
 
   // NOTE: PERF: splitted text without batchActions: ~350ms...Infinity (depends on selection size).
   //   With batchActions: ~165ms.
+  // NOTE: PERF: with setArea() action (you'll find it in the git): ~100ms (after pasting test text 1 several times to cell A1).
+  //   With separate setProp(): ~5ms with pasting in the same place and ~100ms when pating to random place.
   // console.time('workOnUserSpecifiedArea');
   const actionsToBatch = [];
 
@@ -109,24 +106,25 @@ export default store => next => action => {
           );
       copy(plainTableArray.join('\n'));
 
-      if (action.operation === CUT) {
-        // Clear cell immediately.
-        const slicedRowsNumber = clipboardedRows.size;
-        const slicedColumnsNumber = clipboardedRows.getIn([0, 'cells']).size;
-        actionsToBatch.push(deleteArea({
-          [ROW]: {
-            index: clipboardBoundary.getIn([ROW, BEGIN, 'index']),
-            length: slicedRowsNumber,
-          },
-          [COLUMN]: {
-            index: clipboardBoundary.getIn([COLUMN, BEGIN, 'index']),
-            length: slicedColumnsNumber,
-          },
-        }));
-      }
+      // if (action.operation === CUT) {
+      //   // Clear cell immediately.
+      //   const slicedRowsNumber = clipboardedRows.size;
+      //   const slicedColumnsNumber = clipboardedRows.getIn([0, 'cells']).size;
+      //   actionsToBatch.push(deleteArea({
+      //     [ROW]: {
+      //       index: clipboardBoundary.getIn([ROW, BEGIN, 'index']),
+      //       length: slicedRowsNumber,
+      //     },
+      //     [COLUMN]: {
+      //       index: clipboardBoundary.getIn([COLUMN, BEGIN, 'index']),
+      //       length: slicedColumnsNumber,
+      //     },
+      //   }));
+      // }
     }
 
-    if (action.operation === CLEAR) {
+    // test_992
+    if (action.operation === CUT ||  action.operation === CLEAR) {
       for (
         let rowIndex = clipboardBoundary.getIn([ROW, BEGIN, 'index']);
         rowIndex <= clipboardBoundary.getIn([ROW, END, 'index']);
@@ -166,53 +164,70 @@ export default store => next => action => {
         index: pointer.getIn([COLUMN, 'index']),
       },
     };
-    let area;
 
     // NOTE: app's clipboard have priority over system's.
+    let textSplit = [[]];
     if (thereIsClipboard) {
-      area = clipboard.get('rows');
+      // REVIEW: PERF: this is probably ineficient, to measure.
+      // NOTE: relying on the fact that clipboard is already rectangular
+      //   which should be true because it comes from table itself.
+      textSplit = clipboard
+        .get('rows')
+        .map((row) => row.get('cells').map((cell) => cell.get('value')))
+        .toJS();
+    } else if (action.text) {
+      // NOTE: inserting "\t" and "\n" splitted text as array.
+      //   Test text 1:
+      //     1	2	3
+      //     4	5
+      //     6	7	8	9
+      //   Test text 2:
+      //     1	2	3
+
+      const value = action.text;
+      let maxSplitColumnsLength = -1;
+      textSplit = value.split('\n').map((row) => {
+        const lineSplit = row.split('\t');
+        if (lineSplit.length > maxSplitColumnsLength) {
+          maxSplitColumnsLength = lineSplit.length;
+        }
+
+        return lineSplit;
+      });
     } else {
-      if (action.text) {
-        // NOTE: inserting "\t" and "\n" splitted text as array.
-        //   Test text 1:
-        //     1	2	3
-        //     4	5
-        //     6	7	8	9
-        //   Test text 2:
-        //     1	2	3
-
-        const value = action.text;
-        let maxSplitColumnsLength = -1;
-        const textSplit = value.split('\n').map((line) => {
-          const lineSplit = line.split('\t');
-          if (lineSplit.length > maxSplitColumnsLength) {
-            maxSplitColumnsLength = lineSplit.length;
-          }
-
-          return lineSplit;
-        });
-
-        area = List.of(...textSplit.map((cells) => {
-          const cellsPadding = Array
-            .from(Array(maxSplitColumnsLength - cells.length))
-            .map(() => '');
-          cells.push(...cellsPadding);
-          return composeLine({
-            lineType: ROW,
-            cellsValues: cells,
-          });
-        }));
-      }
+      // REVIEW: then what? Should we care?
     }
 
-    if (anchorCell && area && area.size > 0) {
-      const nextMaxRowIndexCandidate = anchorCell[ROW].index + area.size;
-      const nextMaxColumnIndexCandidate = anchorCell[COLUMN].index + area.get(0).size;
+    const setPropActions = [];
+    textSplit.forEach((row, rowIndex) => {
+      row.forEach((value, columnIndex) => {
+        setPropActions.push(
+          setProp({
+            [ROW]: {
+              index: anchorCell[ROW].index + rowIndex,
+            },
+            [COLUMN]: {
+              index: anchorCell[COLUMN].index + columnIndex,
+            },
+            prop: 'value',
+            value,
+          })
+        );
+      });
+    });
+
+    const areaHeight = textSplit.length;
+    const areaWidth = textSplit[0].length;
+    if (anchorCell && areaHeight > 0 && areaWidth > 0) {
+      const nextMaxRowIndexCandidate = anchorCell[ROW].index + areaHeight;
+      const nextMaxColumnIndexCandidate = anchorCell[COLUMN].index + areaWidth;
 
       actionsToBatch.push(
         insertRows({ index: nextMaxRowIndexCandidate }),
         insertColumns({ index: nextMaxColumnIndexCandidate }),
-        setArea(anchorCell, area)
+
+        // test_992
+        ...setPropActions,
       );
     }
   }
