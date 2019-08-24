@@ -25,7 +25,7 @@ export default store => next => action => {
     // NOTE: we don't test that value changes in reducer bacause it makes no sense,
     //   and not before dispatching actions because it's easier to do it once here
     //   than N times there. In terms of performance, we rely on the assumption that
-    //   user's will change values more frequently than just leaving them as is.
+    //   users will change values more frequently than just leaving them as is.
     if (action.cell.value !== historyValue) {
       const time = Date.now();
       return pushCellHistory(action.cell, time, historyValue);

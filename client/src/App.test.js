@@ -53,7 +53,7 @@ it('renders spreadsheet when passed root path + spreadsheet shortId', () => {
 
 /*
 TODO: automate.
-TODO: mark all tests with numbers (probably, rand 1000) and put labels un the code.
+TODO: mark all tests with numbers (probably, rand 1000) and put labels in the code.
 
 Run in all browsers:
 * rightclick on grid header should show spreadsheet menu
