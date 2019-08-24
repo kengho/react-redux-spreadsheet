@@ -55,7 +55,7 @@ class DestroySpreadsheetDialog extends React.PureComponent {
           </Button>
           {withCircularProgress(
             <Button
-              variant="raised"
+              variant="contained"
               color="secondary"
               disabled={requestFailed || isProcessing}
               onClick={

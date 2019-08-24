@@ -154,7 +154,7 @@ class SettingsDialog extends React.PureComponent {
             Cancel
           </Button>
           <Button
-            variant="raised"
+            variant="contained"
             color="primary"
             onClick={() => {
               actions.setSettings(this.state.settings);

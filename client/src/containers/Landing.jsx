@@ -63,7 +63,7 @@ class Landing extends React.Component {
               color="primary"
               disabled={buttonIsDisabled}
               raised="true"
-              variant="raised"
+              variant="contained"
             >
               create spreadsheet
             </Button>,

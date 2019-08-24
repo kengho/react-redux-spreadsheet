@@ -68,7 +68,7 @@ const createStoreWithMiddleware = history => composeEnhancer(
 
 export default (initialState, history = createBrowserHistory()) => {
   return createStoreWithMiddleware(history)(
-    connectRouter(history)(enableBatching(rootReducer)),
+    connectRouter(history)(enableBatching(rootReducer(history))),
     initialState
   );
 };

@@ -21,6 +21,8 @@ import findKeyAction from '../lib/findKeyAction';
 
 const propTypes = {
   ui: PropTypes.object.isRequired,
+
+  // TODO: pass only layout.
   table: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
 };
@@ -39,11 +41,13 @@ class SearchBar extends React.PureComponent {
       searchQuery: '',
       searchResults: null,
       currentSearchResultIndex: 0,
-      flags: {
-        matchCase: false,
-        matchWholeWord: false,
-        matchRegexp: false,
-      },
+
+      // Flags.
+      //   https://stackoverflow.com/a/51136076
+      //   "you shouldn't want to work with nested state in React"
+      matchCase: false,
+      matchWholeWord: false,
+      matchRegexp: false,
     };
 
     this.flagsMap = {
@@ -156,23 +160,23 @@ class SearchBar extends React.PureComponent {
     });
   };
 
-  search = (rows, searchQuery, flags = {}) => {
-    const matcher = (string, searchQuery, flags) => {
+  search = (rows, searchQuery, state = {}) => {
+    const matcher = (string, searchQuery, state) => {
       let effectiveString = string;
       let effectiveSearchQuery = searchQuery;
-      if (!flags.matchCase) {
+      if (!state.matchCase) {
         effectiveString = effectiveString.toLowerCase();
         effectiveSearchQuery = effectiveSearchQuery.toLowerCase();
       }
 
-      if (flags.matchWholeWord) {
-        if (flags.matchRegexp) {
+      if (state.matchWholeWord) {
+        if (state.matchRegexp) {
           return effectiveString.match(`^${effectiveSearchQuery}$`);
         } else {
           return (effectiveString === effectiveSearchQuery);
         }
       } else {
-        if (flags.matchRegexp) {
+        if (state.matchRegexp) {
           return effectiveString.match(effectiveSearchQuery);
         } else {
           return effectiveString.includes(effectiveSearchQuery);
@@ -183,7 +187,7 @@ class SearchBar extends React.PureComponent {
     const searchResults = [];
     rows.forEach((row, rowIndex) => {
       row.get('cells').forEach((cell, columnIndex) => {
-        if (cell && cell.get('value') && matcher(cell.get('value'), searchQuery, flags)) {
+        if (cell && cell.get('value') && matcher(cell.get('value'), searchQuery, state)) {
           searchResults.push({
             [ROW]: {
               index: rowIndex,
@@ -203,7 +207,7 @@ class SearchBar extends React.PureComponent {
     const searchResults = this.search(
       this.props.table.getIn(['layout', ROW, 'list']),
       this.state.searchQuery,
-      this.state.flags
+      this.state
     );
     this.setState({ searchResults }, callback);
   };
@@ -341,9 +345,9 @@ class SearchBar extends React.PureComponent {
               Object.keys(this.flagsMap).map((flag) =>
                 <Button
                   size="small"
-                  className={`search-bar-flag-button ${this.state.flags[flag] ? 'on' : 'off'}`}
+                  className={`search-bar-flag-button ${this.state[flag] ? 'on' : 'off'}`}
                   key={`search-bar-${flag}-button`}
-                  variant={this.state.flags[flag] ? 'outlined' : 'flat'}
+                  variant={this.state[flag] ? 'outlined' : 'text'}
                   onClick={() => {
                     this.setState(
                       (prevState) => {
@@ -354,7 +358,7 @@ class SearchBar extends React.PureComponent {
                             currentSearchResultIndex: 0,
                           },
                         };
-                        nextState.flags[flag] = !nextState.flags[flag];
+                        nextState[flag] = !nextState[flag];
 
                         return nextState;
                       },

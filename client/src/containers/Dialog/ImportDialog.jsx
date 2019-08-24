@@ -109,7 +109,7 @@ class ImportDialog extends React.PureComponent {
               <Button
                 color="primary"
                 component="span"
-                variant="raised"
+                variant="contained"
               >
                 Choose file
               </Button>
@@ -128,7 +128,7 @@ class ImportDialog extends React.PureComponent {
               buttonRef={(c) => this.yesButton = c}
               color="primary"
               disabled={!Boolean(importedState)}
-              variant="raised"
+              variant="contained"
               onClick={
                 () => {
                   actions.mergeServerState(importedState, true);

@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux-immutable';
+import { connectRouter } from 'connected-react-router';
 import undoable from 'redux-undo';
 
 import * as ActionTypes from '../actionTypes';
@@ -8,7 +9,8 @@ import settings from './settings';
 import table from './table';
 import ui from './ui';
 
-export default combineReducers({
+export default (history) => combineReducers({
+  router: connectRouter(history),
   landing,
   settings,
   server,

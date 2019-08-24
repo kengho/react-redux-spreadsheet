@@ -10,7 +10,7 @@ const propTypes = {
   onKeyDown: PropTypes.func,
   open: PropTypes.bool,
   overrideShouldComponentUpdate: PropTypes.bool,
-  PopoverComponent: PropTypes.func.isRequired,
+  PopoverComponent: PropTypes.object.isRequired,
   popupAnchorSelector: PropTypes.string,
 };
 
