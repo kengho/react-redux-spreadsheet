@@ -1,6 +1,6 @@
 /* Parent div inside dialog. */
 .dialog div[role="document"]>div {
-  width: 400px !important;
+  width: 500px !important;
   padding: 16px;
 }
 
