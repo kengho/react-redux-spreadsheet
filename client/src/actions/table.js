@@ -8,116 +8,121 @@ import {
   CLEAR,
   DELETE,
 } from '../constants';
+import { initialTable } from '../core';
 
 const changesData = true;
+const branch = 'table';
 
 // NOTE: please add subType prop when calling those meta actions for debugging purpose.
-// REVIEW: consider replacing all simple actions with that.
-export function setIn(path, object) {
+// TODO: TEST: check all side effects for all actions with "changesData" flag equals true.
+
+export function batchActions(actions) {
   return {
-    type: ActionTypes.SET_IN,
-    object,
-    path,
+    type: ActionTypes.BATCH_ACTIONS,
+    actions,
   };
 }
 
-export function mergeIn(path, object, defaults) {
+export function clearClipboard() {
   return {
-    type: ActionTypes.MERGE_IN,
-    object,
-    path,
-    defaults,
+    type: ActionTypes.UPDATE,
+    subType: ActionTypes.CLEAR_CLIPBOARD,
+    branch,
+    updater: (state) => state.major.session.clipboard[0] = initialTable().major.session.clipboard[0],
   };
 }
 
-export function defaultizeIn(path) {
+export function clearSelection() {
+  // REVIEW: maybe break initialTable into peaces and use them separately?
   return {
-    type: ActionTypes.DEFAULTIZE_IN,
-    path,
+    type: ActionTypes.UPDATE,
+    subType: ActionTypes.CLEAR_SELECTION,
+    branch,
+    updater: (state) => state.major.session.selection = initialTable().major.session.selection,
   };
 }
 
-export function setCell(cell) {
+export function clearSpreadsheet() {
   return {
-    type: ActionTypes.SET_CELL,
-    cell,
+    type: ActionTypes.UPDATE,
+    subType: ActionTypes.CLEAR_SPREADSHEET,
+    branch,
+    updater: (state) => state.major.layout = initialTable().major.layout,
     changesData,
   };
 }
 
-export function setProp(cell) {
+export function clearUserSpecifiedArea() {
   return {
-    type: ActionTypes.SET_PROP,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.CLEAR_USER_SPECIFIED_AREA,
+    operation: CLEAR,
+  };
+}
+
+export function copyUserSpecifiedArea() {
+  return {
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.COPY_USER_SPECIFIED_AREA,
+    operation: COPY,
+  };
+}
+
+export function cutUserSpecifiedArea() {
+  return {
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.CUT_USER_SPECIFIED_AREA,
+    operation: CUT,
+  };
+}
+
+export function deleteCellHistory(cell, historyIndex) {
+  return {
+    type: ActionTypes.DELETE_CELL_HISTORY,
     cell,
+    historyIndex,
     changesData,
   };
 }
 
-export function setScrollSize(scrollSize) {
-  return {
-    type: ActionTypes.SET_SCROLL_SIZE,
-    scrollSize,
-  };
-}
-
-export function setScreenSize(screenSize) {
-  return {
-    type: ActionTypes.MERGE_IN,
-    subType: ActionTypes.SET_SCREEN_SIZE,
-    path: ['major', 'vision'],
-    object: screenSize,
-  };
-}
-
-export function setLinesOffsets(offsets) {
-  return {
-    type: ActionTypes.SET_IN,
-    subType: ActionTypes.SET_LINES_OFFSETS,
-    path: ['minor', 'linesOffsets'],
-    object: offsets,
-  };
-}
-
-export function setPointer(pointer) {
-  return {
-    type: ActionTypes.SET_POINTER,
-    pointer,
-  };
-}
-
-// REVIEW: do we really need default params here?
-export function movePointer({
-  key,
-  altKey = false,
-  ctrlKey = false,
-  cell,
-}) {
-  return {
-    type: ActionTypes.MOVE_POINTER,
-    key,
-    altKey,
-    ctrlKey,
-    cell,
-  };
-}
-
-export function updateCellSize(cellSize) {
-  return {
-    type: ActionTypes.UPDATE_CELL_SIZE,
-    cellSize,
-  };
-}
-
-export function setLineSize({
+export function deleteLines({
   lineType,
   index,
-  size,
+  number,
 }) {
   return {
-    type: ActionTypes.SET_IN,
-    subType: ActionTypes.SET_LINE_SIZE,
-    path: ['major', 'layout', lineType, 'list', index, 'size'],
-    object: size,
+    type: ActionTypes.DELETE_LINES,
+    lineType,
+    index,
+    number,
+    changesData,
+  };
+}
+
+export function deleteUserSpecifiedArea() {
+  return {
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.DELETE_USER_SPECIFIED_AREA,
+    operation: DELETE,
+  };
+}
+
+export function fixateCurrentSelection() {
+  return {
+    type: ActionTypes.FIXATE_CURRENT_SELECTION,
+  };
+}
+
+export function insertColumns({
+  index,
+  number,
+}) {
+  return {
+    type: ActionTypes.INSERT_LINES,
+    subType: ActionTypes.INSERT_COLUMNS,
+    lineType: COLUMN,
+    index,
+    number,
   };
 }
 
@@ -130,6 +135,7 @@ export function insertLines({
 }) {
   return {
     type: ActionTypes.INSERT_LINES,
+    subType:ActionTypes.INSERT_ROWS,
     lineType,
     index,
     number,
@@ -149,29 +155,28 @@ export function insertRows({
   };
 }
 
-export function insertColumns({
-  index,
-  number,
+// REVIEW: do we really need default params here?
+export function movePointer({
+  key,
+  altKey = false,
+  ctrlKey = false,
+  cell,
 }) {
   return {
-    type: ActionTypes.INSERT_LINES,
-    lineType: COLUMN,
-    index,
-    number,
+    type: ActionTypes.MOVE_POINTER,
+    key,
+    altKey,
+    ctrlKey,
+    cell,
   };
 }
 
-export function deleteLines({
-  lineType,
-  index,
-  number,
-}) {
+export function pasteUserSpecifiedArea(text = '') {
   return {
-    type: ActionTypes.DELETE_LINES,
-    lineType,
-    index,
-    number,
-    changesData,
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    subType: ActionTypes.PASTE_USER_SPECIFIED_AREA,
+    operation: PASTE,
+    text,
   };
 }
 
@@ -199,70 +204,12 @@ export function pushCellHistory(cell, time, value = '') {
   };
 }
 
-export function deleteCellHistory(cell, historyIndex) {
+export function setClipboard(clipboard) {
   return {
-    type: ActionTypes.DELETE_CELL_HISTORY,
-    cell,
-    historyIndex,
-    changesData,
-  };
-}
-
-export function setClipboard(props) {
-  return {
-    type: ActionTypes.SET_IN,
+    type: ActionTypes.UPDATE,
     subType: ActionTypes.SET_CLIPBOARD,
-    path: ['major', 'session', 'clipboard', 0],
-    object: props,
-  };
-}
-
-export function workOnUserSpecifiedArea(operation) { // areaOperations
-  return {
-    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    operation,
-    changesData,
-  };
-}
-
-export function copyUserSpecifiedArea() {
-  return {
-    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.COPY_USER_SPECIFIED_AREA,
-    operation: COPY,
-  };
-}
-
-export function cutUserSpecifiedArea() {
-  return {
-    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.CUT_USER_SPECIFIED_AREA,
-    operation: CUT,
-  };
-}
-
-export function pasteUserSpecifiedArea(text = '') {
-  return {
-    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.PASTE_USER_SPECIFIED_AREA,
-    operation: PASTE,
-    text,
-  };
-}
-
-export function clearUserSpecifiedArea() {
-  return {
-    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.CLEAR_USER_SPECIFIED_AREA,
-    operation: CLEAR,
-  };
-}
-
-export function deleteUserSpecifiedArea() {
-  return {
-    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
-    subType: ActionTypes.DELETE_USER_SPECIFIED_AREA,
-    operation: DELETE,
+    branch,
+    updater: (state) => state.major.session.clipboard[0] = clipboard,
   };
 }
 
@@ -271,43 +218,78 @@ export function setCurrentSelectionAnchor({
   anchor,
 }) {
   return {
-    type: ActionTypes.SET_IN,
+    type: ActionTypes.UPDATE,
     subType: ActionTypes.SET_CURRENT_SELECTION_ANCHOR,
-    path: ['minor', 'currentSelection', selectionAnchorType],
-    object: anchor,
+    branch,
+    updater: (state) => state.minor.currentSelection[selectionAnchorType] = anchor,
   };
 }
 
 export function setCurrentSelectionVisibility(visibility) {
   return {
-    type: ActionTypes.SET_IN,
+    type: ActionTypes.UPDATE,
     subType: ActionTypes.SET_CURRENT_SELECTION_VISIBILITY,
-    path: ['minor', 'currentSelection', 'visibility'],
-    object: visibility,
+    branch,
+    updater: (state) => state.minor.currentSelection.visibility = visibility,
   };
 }
 
-export function fixateCurrentSelection() {
+export function setLineSize({
+  lineType,
+  index,
+  size,
+}) {
   return {
-    type: ActionTypes.FIXATE_CURRENT_SELECTION,
+    type: ActionTypes.UPDATE,
+    subType: ActionTypes.SET_LINE_SIZE,
+    changesData, // test_9985
+    branch,
+    updater: (state) => state.major.layout[lineType].list[index].size = size,
   };
 }
 
-export function clearSelection() {
+export function setLinesOffsets(offsets) {
   return {
-    type: ActionTypes.DEFAULTIZE_IN,
-    subType: ActionTypes.CLEAR_SELECTION,
-    path: ['major', 'session', 'selection'],
+    type: ActionTypes.UPDATE,
+    subType: ActionTypes.SET_LINES_OFFSETS,
+    branch,
+    updater: (state) => state.minor.linesOffsets = offsets,
   };
 }
 
-// changesData should be true for import and false for initial data load.
-// NOTE: serverState should be plain object.
-export function mergeServerState(serverState, changesData = false) {
+
+export function setPointer(pointer) {
   return {
-    type: ActionTypes.MERGE_SERVER_STATE,
-    serverState,
+    type: ActionTypes.SET_POINTER,
+    pointer,
+  };
+}
+
+export function setProp(cell) {
+  return {
+    type: ActionTypes.SET_PROP,
+    cell,
     changesData,
+  };
+}
+
+export function setScreenSize(screenHeight, screenWidth) {
+  return {
+    type: ActionTypes.UPDATE,
+    subType: ActionTypes.SET_SCREEN_SIZE,
+    branch,
+    updater: (state) => {
+      state.major.vision[ROW].screenSize = screenHeight;
+      state.major.vision[COLUMN].screenSize = screenWidth;
+    },
+  };
+}
+
+export function setScrollSize(scrollTop, scrollLeft) {
+  return {
+    type: ActionTypes.SET_SCROLL_SIZE,
+    scrollTop,
+    scrollLeft,
   };
 }
 
@@ -315,7 +297,6 @@ export function sort({
   lineType,
   index,
   order, // sortOrders
-  propPath = ['value'],
   fixFirstLine = false,
 }) {
   return {
@@ -323,24 +304,16 @@ export function sort({
     lineType,
     index,
     order,
-    propPath,
     fixFirstLine,
     changesData,
   };
 }
 
-export function clearSpreadsheet() {
+// NOTE: middleware-only action.
+export function workOnUserSpecifiedArea(operation) { // areaOperations
   return {
-    type: ActionTypes.DEFAULTIZE_IN,
-    subType: ActionTypes.CLEAR_SPREADSHEET,
-    path: ['major', 'layout'],
+    type: ActionTypes.WORK_ON_USER_SPECIFIED_AREA,
+    operation,
     changesData,
-  };
-}
-
-export function batchActions(actions) {
-  return {
-    type: ActionTypes.BATCH_ACTIONS,
-    actions,
   };
 }

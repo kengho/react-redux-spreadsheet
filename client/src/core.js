@@ -1,5 +1,5 @@
-import { fromJS, Map } from 'immutable';
 import uuid from 'uuid/v4';
+import produce from 'immer';
 
 import getSufficientState from './lib/getSufficientState';
 
@@ -46,11 +46,11 @@ export function composeLine({
     }
   }
 
-  return fromJS(line);
+  return (line);
 }
 
 export function composeCell(props = {}) {
-  return Map(props);
+  return props;
 }
 
 // NOTE: Legend:
@@ -193,7 +193,7 @@ export function initialTable() {
       let currentOffset = offsets[0];
       let nextOffset;
       linesList.forEach((line, index) => {
-        nextOffset = line.get('size') + currentOffset;
+        nextOffset = line.size + currentOffset;
         offsets.push(nextOffset);
         currentOffset = nextOffset;
       });
@@ -213,12 +213,13 @@ export function initialTable() {
     table.major.vision.COLUMN.screenSize = 800;
   }
 
-  return fromJS(table);
+  return (table);
 }
 
 // Using in containers/Dialog/SettingsDialog.jsx.
 // TODO: make everything immutable by default.
-export const initialSettings = Map({
+// NOTE: review tests if you change default values.
+export const initialSettings = {
   autoSaveHistory: true,
   tableHasHeader: false,
   spreadsheetName: 'Spreadsheet',
@@ -235,30 +236,25 @@ export const initialSettings = Map({
   //     additionalScrollSize: 300,
   //   },
   // },
-})
+}
 
 export function initialState() {
-  const table = initialTable();
-
-  let state;
-  if (process.env.NODE_ENV !== 'test') {
-    state = fromJS({
-      landing: {
-        messages: [],
-      },
-      server: {
-        shortId: null,
-        sync: null,
-        requestFailed: false,
-        syncInProgress: false,
-      },
-      settings: initialSettings,
-      table,
-      ui: {
-        popup: {
-          visibility: false,
-          place: null, // componentsNames, lineTypes
-          kind: null, // uiKinds
+  return {
+    server: {
+      errors: [],
+      requestFailed: false,
+      shortId: null,
+      sync: null,
+      syncInProgress: false,
+    },
+    settings: initialSettings,
+    table: initialTable(),
+    ui: {
+      popup: {
+        visibility: false,
+        place: null, // componentsNames, lineTypes
+        kind: null, // uiKinds
+        cellProps: {
           [ROW]: {
             index: null,
             offset: null,
@@ -268,31 +264,20 @@ export function initialState() {
             offset: null,
           },
         },
-        dialog: {
-          variant: null, // dialogVariants
-          visibility: false,
-        },
-        search: {
-          visibility: false,
-          focus: false,
-        },
       },
-    });
-  } else {
-    state = Map({
-      table: {
-        past: [],
-        present: fromJS(table),
-        future: [],
+      dialog: {
+        variant: null, // dialogVariants
+        visibility: false,
       },
-    });
-  }
-
-  return state;
+      searchBar: {
+        visibility: false,
+        focus: false,
+      },
+    },
+  };
 }
 
-export function getSelectionBoundary(immutableSelection) {
-  const selection = immutableSelection.toJS();
+export function getSelectionBoundary(selection) {
   const boundary = {
     [ROW]: {
       [BEGIN]: null,
@@ -328,23 +313,23 @@ export function getSelectionBoundary(immutableSelection) {
 //   of PureComponent Cell (proven to be faster benchmarkably)
 //   (see cellRenderer()).
 export function getBoundaryProps(boundary, cellPosition) {
-  if (boundary && boundary.get(ROW) && boundary.get(COLUMN)) {
+  if (boundary && boundary[ROW] && boundary[COLUMN]) {
     const rowInBoundary = (
-      (cellPosition[ROW].index >= boundary.getIn([ROW, BEGIN, 'index'], -1)) &&
-      (cellPosition[ROW].index <= boundary.getIn([ROW, END, 'index'], -1))
+      (cellPosition[ROW].index >= (boundary[ROW][BEGIN].index)) &&
+      (cellPosition[ROW].index <= (boundary[ROW][END].index))
     );
     const columnInBoundary = (
-      (cellPosition[COLUMN].index >= boundary.getIn([COLUMN, BEGIN, 'index'], -1)) &&
-      (cellPosition[COLUMN].index <= boundary.getIn([COLUMN, END, 'index'], -1))
+      (cellPosition[COLUMN].index >= (boundary[COLUMN][BEGIN].index)) &&
+      (cellPosition[COLUMN].index <= (boundary[COLUMN][END].index))
     );
     const isInBoundary = rowInBoundary && columnInBoundary;
 
     return {
       isInBoundary,
-      isOnBoundaryTop: isInBoundary && (cellPosition[ROW].index === boundary.getIn([ROW, BEGIN, 'index'])),
-      isOnBoundaryRight: isInBoundary && (cellPosition[COLUMN].index === boundary.getIn([COLUMN, END, 'index'])),
-      isOnBoundaryBottom: isInBoundary && (cellPosition[ROW].index === boundary.getIn([ROW, END, 'index'])),
-      isOnBoundaryLeft: isInBoundary && (cellPosition[COLUMN].index === boundary.getIn([COLUMN, BEGIN, 'index'])),
+      isOnBoundaryTop: isInBoundary && (cellPosition[ROW].index === boundary[ROW][BEGIN].index),
+      isOnBoundaryRight: isInBoundary && (cellPosition[COLUMN].index === boundary[COLUMN][END].index),
+      isOnBoundaryBottom: isInBoundary && (cellPosition[ROW].index === boundary[ROW][END].index),
+      isOnBoundaryLeft: isInBoundary && (cellPosition[COLUMN].index === boundary[COLUMN][BEGIN].index),
     };
   } else {
     return {
@@ -357,21 +342,25 @@ export function getBoundaryProps(boundary, cellPosition) {
   }
 }
 
-// NOTE: all props are immutable.
+// REVIEW: isn't it too complicated?
 export function findLastNonemptyAdjacentCell({
   layout,
   startingCell,
   lineType,
   direction, // directions
 }) {
-  const rows = layout.getIn([ROW, 'list']);
+  const rows = layout[ROW].list;
   const getCellValue = (cell) => {
-    return rows.getIn(
-      [cell[ROW].index, 'cells', cell[COLUMN].index, 'value'],
-      ''
-    );
+    let cellValue;
+    try {
+      cellValue = rows[cell[ROW].index].cells[cell[COLUMN].index].value;
+    } catch (e) {
+      cellValue = '';
+    }
+
+    return cellValue || '';
   };
-  const workingLines = layout.get(lineType);
+  const workingLines = layout[lineType];
 
   let result;
   let firstNonemptyCellSearchIndex;
@@ -381,17 +370,17 @@ export function findLastNonemptyAdjacentCell({
   let fallbackResult;
   switch (direction) {
     case FORWARD: {
-      firstNonemptyCellSearchIndex = startingCell.getIn([lineType, 'index']);
-      stopSearchIndex = workingLines.get('list').size - 1;
+      firstNonemptyCellSearchIndex = startingCell[lineType].index;
+      stopSearchIndex = workingLines.list.length - 1;
       indexIncrement = +1;
       loopCondition = (index) => (index <= stopSearchIndex);
-      fallbackResult = startingCell.getIn([lineType, 'index']);
+      fallbackResult = startingCell[lineType].index;
 
       break;
     }
 
     case BACKWARD: {
-      firstNonemptyCellSearchIndex = startingCell.getIn([lineType, 'index']);
+      firstNonemptyCellSearchIndex = startingCell[lineType].index;
       stopSearchIndex = 0;
       indexIncrement = -1;
       loopCondition = (index) => (index >= stopSearchIndex);
@@ -404,8 +393,9 @@ export function findLastNonemptyAdjacentCell({
       break;
   }
 
-  const currentCell = startingCell.toJS();
-  const nextCell = startingCell.toJS();
+  // HACK: NOTE: cell is 2-level deep object, so naive Object.assign won't work properly.
+  const currentCell = JSON.parse(JSON.stringify(startingCell));
+  const nextCell = JSON.parse(JSON.stringify(startingCell));
 
   const currentValue = getCellValue(currentCell);
   let startSearchIndex;
@@ -488,7 +478,7 @@ export function getLineOffset({
   index,
   defaultSize,
 }) {
-  const maxOffsetsIndex = offsets.size - 1;
+  const maxOffsetsIndex = offsets.length - 1;
 
   // NOTE: though offsets shouldn't be empty, as tested in Grid,
   //   we return some number in case there are still error occur just
@@ -498,9 +488,9 @@ export function getLineOffset({
   }
 
   if (index <= maxOffsetsIndex) {
-    return offsets.get(index);
+    return offsets[index];
   } else {
-    const lastOffset = offsets.get(maxOffsetsIndex);
+    const lastOffset = offsets[maxOffsetsIndex];
     const indexOverflow = index - maxOffsetsIndex;
 
     return lastOffset + defaultSize * indexOverflow;
@@ -546,7 +536,7 @@ export function findLineByOffset({
     }
   }
 
-  return stopSearchIndex; // in case callback condition is never met
+  return stopSearchIndex; // in case callback condition was never met
 }
 
 // NOTE: this function uses in component, so table
@@ -554,24 +544,24 @@ export function findLineByOffset({
 export const convertTableToPlainArray = ({
   table,
   cellCallback = (cell) => {
-    if (cell && cell.get) {
-      if (typeof cell.get('value') === 'string') {
-        return cell.get('value');
+    if (cell) {
+      if (typeof cell.value === 'string') {
+        return cell.value;
       } else {
         return null;
       }
     } else {
-      throw new Error('Invalid "cell" in "convertTableToPlainArray()"')
+      throw new Error('Invalid "cell" in "convertTableToPlainArray()"');
     }
   },
 }) => {
   const tableArray = [];
-  const rowsSize = table.getIn(['layout', ROW, 'list']).size;
-  const columnsSize = table.getIn(['layout', COLUMN, 'list']).size;
+  const rowsSize = table.layout[ROW].list.length;
+  const columnsSize = table.layout[COLUMN].list.length;
   for (let i = 0; i < rowsSize; i += 1) {
     const row = [];
     for (let j = 0; j < columnsSize; j += 1) {
-      const currentCell = table.getIn(['layout', ROW, 'list', i, 'cells', j]);
+      const currentCell = table.layout[ROW].list[i].cells[j];
       const plainCell = cellCallback(currentCell);
       row.push(plainCell);
     }
@@ -583,7 +573,6 @@ export const convertTableToPlainArray = ({
 
 const convertPlainArrayToState = (array, cellCallback) => {
   const state = initialState();
-  let updatedState = state;
 
   array.forEach((arrayRow, rowIndex) => {
     let cells = [];
@@ -592,25 +581,20 @@ const convertPlainArrayToState = (array, cellCallback) => {
       cells.push(cell);
 
       if (rowIndex === 0) {
-        updatedState = updatedState.updateIn(
-          ['table', 'major', 'layout', COLUMN, 'list'],
-          (list) => list.push(composeLine({ lineType: COLUMN })),
-        );
+        state.table.major.layout[COLUMN].list.push(composeLine({ lineType: COLUMN }));
       }
     });
 
-    let emptyStateRow = composeLine({ lineType: ROW });
-    const stateRow = emptyStateRow.set('cells', fromJS(cells));
+    let stateRow = composeLine({ lineType: ROW });
+    stateRow.cells = cells;
 
-    updatedState = updatedState.updateIn(
-      ['table', 'major', 'layout', ROW, 'list'],
-      (list) => list.push(stateRow),
-    );
+    state.table.major.layout[ROW].list.push(stateRow);
   });
 
-  return updatedState;
+  return state;
 };
 
+// REVIEW: storing all this code in one function makes no sense, break it up.
 export async function convert({
   serializedData,
   table,
@@ -626,7 +610,7 @@ export async function convert({
         table,
 
         // Fail-proof callback.
-        cellCallback: (cell) => (cell && cell.get) ? cell.get('value') :  '',
+        cellCallback: (cell) => (cell && cell.value) ? cell.value :  '',
       });
 
       const Papa = await import('papaparse');
@@ -635,23 +619,23 @@ export async function convert({
 
     // APP => JSON
     } else if (outputFormat === JSON_FORMAT) {
-      const layout = table.get('layout').toJS();
-
       // Convert history timestamps.
-      layout[ROW].list.forEach((row, rowIndex) => {
-        row.cells.forEach((cell, columnIndex) => {
-          if (cell.history) {
-            cell.history.forEach((record) => {
-              const formattedTime = new Date(record.time).toISOString();
-              record.time = formattedTime;
-            });
-          }
+      const convertedTable = produce(table, draft => {
+        draft.layout[ROW].list.forEach((row, rowIndex) => {
+          row.cells.forEach((cell, columnIndex) => {
+            if (cell.history) {
+              cell.history.forEach((record) => {
+                const formattedTime = new Date(record.time).toISOString();
+                record.time = formattedTime;
+              });
+            }
+          });
         });
       });
 
       return JSON.stringify({
         version: '2',
-        ...getSufficientState({ table: layout, settings }),
+        ...getSufficientState({ table: convertedTable, settings }),
       });
     }
 
@@ -686,55 +670,20 @@ export async function convert({
 
     if (parsedJSON) {
       switch (parsedJSON.version) {
-        case '1': {
-          const state = convertPlainArrayToState(
-            parsedJSON.table,
-            (jsonCell) => {
-              if (Object.keys(jsonCell).length === 0) {
-                return;
-              }
-
-              const appCell = { ...jsonCell };
-              if (jsonCell.history) {
-                appCell.history = jsonCell.history.map((record, recordIndex) => {
-                  // 2017-12-19T01:02:03.000Z
-                  // =>
-                  // 1513645323000
-                  // TODO: catch errors.
-                  const time = new Date(record.time).getTime();
-
-                  return {
-                    time,
-                    value: record.value,
-                  };
-                });
-
-                // TODO: test.
-                appCell.history.sort((a, b) => a.time > b.time);
-              }
-
-              return appCell;
-            }
-          ).set(
-            'settings',
-            fromJS(parsedJSON.settings)
-          );
-
-          result.data = getSufficientState(state);
-
-          break;
-        }
+        // NOTE: unable to test since v1 isn't using anywhere, better to ditch code.
+        // case '1':
 
         case '2': {
-          const state = initialState().toJS();
+          const state = initialState();
 
           // Checking data and converting history timestamps.
           // TODO: fill lines' ids if there are none.
-          state.table.major.layout = parsedJSON.table;
+          // TODO: check parsedJSON data format.
+          state.table.major.layout = parsedJSON.table.layout;
           state.table.major.layout[ROW].list.forEach((row, rowIndex) => {
             row.cells.forEach((cell, columnIndex) => {
               if (!cell) {
-                cell = composeCell().toJS();
+                cell = composeCell();
                 row[columnIndex] = cell;
               }
 
@@ -753,7 +702,7 @@ export async function convert({
             });
           });
           state.settings = parsedJSON.settings;
-          result.data = getSufficientState(fromJS(state));
+          result.data = getSufficientState(state);
 
           break;
         }

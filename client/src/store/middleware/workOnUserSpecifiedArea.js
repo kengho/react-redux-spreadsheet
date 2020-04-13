@@ -1,5 +1,4 @@
-import { fromJS, Map } from 'immutable';
-import copy from 'copy-to-clipboard';
+import copyToClipboard from 'copy-to-clipboard';
 
 import {
   CLEAR,
@@ -25,7 +24,6 @@ import * as ActionTypes from '../../actionTypes';
 // NOTE: this action handles in middleware for sake of DRY.
 //   It calls by ContextMenu and by hotkeys, so we don't want
 //   to mess things in one place while changing code in another.
-// REVIEW: lib? Never heard of it.
 // TODO: test properly somehow.
 export default store => next => action => {
   if (action.type !== ActionTypes.WORK_ON_USER_SPECIFIED_AREA) {
@@ -39,100 +37,99 @@ export default store => next => action => {
   // console.time('workOnUserSpecifiedArea');
   const actionsToBatch = [];
 
-  const table = store.getState().get('table').present.get('major');
-  const pointer = table.getIn(['session', 'pointer']);
-  const selection = table.getIn(['session', 'selection', 0]);
+  const table = store.getState().table.present.major;
+  const pointer = table.session.pointer;
+  const selection = table.session.selection[0];
   const thereIsSelection =
-    selection.getIn(['boundary', ROW]) &&
-    selection.getIn(['boundary', COLUMN]);
+    selection.boundary[ROW] &&
+    selection.boundary[COLUMN];
 
   if (action.operation === COPY || action.operation === CUT || action.operation === CLEAR) {
     let clipboardBoundary;
     if (thereIsSelection) {
-      clipboardBoundary = selection.get('boundary');
+      clipboardBoundary = selection.boundary;
       actionsToBatch.push(clearSelection());
-    } else {
-      clipboardBoundary = fromJS({
+    } else { // use pointer as one-celled selection
+      clipboardBoundary = {
         [ROW]: {
           [BEGIN]: {
-            index: pointer.getIn([ROW, 'index']),
+            index: pointer[ROW].index,
           },
           [END]: {
-            index: pointer.getIn([ROW, 'index']),
+            index: pointer[ROW].index,
           },
         },
         [COLUMN]: {
           [BEGIN]: {
-            index: pointer.getIn([COLUMN, 'index']),
+            index: pointer[COLUMN].index,
           },
           [END]: {
-            index: pointer.getIn([COLUMN, 'index']),
+            index: pointer[COLUMN].index,
           },
         },
-      });
+      };
     }
 
     if (action.operation === COPY || action.operation === CUT) {
-      const clipboardedRows = table
-        .getIn(['layout', ROW, 'list'])
-        .slice(
-          clipboardBoundary.getIn([ROW, BEGIN, 'index']),
-          clipboardBoundary.getIn([ROW, END, 'index']) + 1
-        ).map(
-          (row) => row.update(
-            'cells',
-            (cells) => cells.slice(
-              clipboardBoundary.getIn([COLUMN, BEGIN, 'index']),
-              clipboardBoundary.getIn([COLUMN, END, 'index']) + 1
-            )
-          )
-        );
+      const clipboardedRows = [];
+      for (
+        let rowIndex = clipboardBoundary[ROW][BEGIN].index;
+        rowIndex <= clipboardBoundary[ROW][END].index;
+        rowIndex += 1
+      ) {
+        let clipboardedRow;
+        try {
+          // NOTE: removing cells from row.
+          Object.assign(clipboardedRow, table.layout[ROW].list[rowIndex]);
+        } catch (e) {
+          clipboardedRow = {};
+        }
+        clipboardedRow.cells = [];
+        for (
+          let columnIndex = clipboardBoundary[COLUMN][BEGIN].index;
+          columnIndex <= clipboardBoundary[COLUMN][END].index;
+          columnIndex += 1
+        ) {
+          let cellInClipboard;
+          try {
+            cellInClipboard = table.layout[ROW].list[rowIndex].cells[columnIndex] || {};
+          } catch (e) {
+            cellInClipboard = {};
+          }
+          clipboardedRow.cells.push(cellInClipboard);
+        }
 
-      actionsToBatch.push(setClipboard(Map({
+        clipboardedRows.push(clipboardedRow);
+      }
+
+      actionsToBatch.push(setClipboard({
         boundary: clipboardBoundary,
         rows: clipboardedRows,
-      })));
+      }));
 
       // Copy to real clipboard.
       // NOTE: placed here bacause middleware does't work correctly with
       //   batchActions and should be adjusted, and this action happens only
       //   once and it is probably waste of code in this case.
-      const plainTableArray =
-        clipboardedRows
-          .map((row) =>
-            row.get('cells').map((cell) =>
-              cell.get('value') || ''
-            ).join('\t')
-          );
-      copy(plainTableArray.join('\n'));
-
-      // if (action.operation === CUT) {
-      //   // Clear cell immediately.
-      //   const slicedRowsNumber = clipboardedRows.size;
-      //   const slicedColumnsNumber = clipboardedRows.getIn([0, 'cells']).size;
-      //   actionsToBatch.push(deleteArea({
-      //     [ROW]: {
-      //       index: clipboardBoundary.getIn([ROW, BEGIN, 'index']),
-      //       length: slicedRowsNumber,
-      //     },
-      //     [COLUMN]: {
-      //       index: clipboardBoundary.getIn([COLUMN, BEGIN, 'index']),
-      //       length: slicedColumnsNumber,
-      //     },
-      //   }));
-      // }
+      const plainTableArray = clipboardedRows.map(
+        (row) => row.cells.map(
+          (cell) => cell.value || '').join('\t')
+        );
+      if (process.env.NODE_ENV !== 'test') {
+        copyToClipboard(plainTableArray.join('\n'));
+      }
     }
 
     // test_992
-    if (action.operation === CUT ||  action.operation === CLEAR) {
+    if (action.operation === CUT || action.operation === CLEAR) {
       for (
-        let rowIndex = clipboardBoundary.getIn([ROW, BEGIN, 'index']);
-        rowIndex <= clipboardBoundary.getIn([ROW, END, 'index']);
+        let rowIndex = clipboardBoundary[ROW][BEGIN].index;
+        rowIndex <= clipboardBoundary[ROW][END].index;
         rowIndex += 1
       ) {
         for (
-          let columnIndex = clipboardBoundary.getIn([COLUMN, BEGIN, 'index']);
-          columnIndex <= clipboardBoundary.getIn([COLUMN, END, 'index']);
+          let columnIndex = clipboardBoundary[COLUMN][BEGIN].index;
+          columnIndex <= clipboardBoundary[COLUMN][END].index;
           columnIndex += 1
         ) {
           actionsToBatch.push(setProp({
@@ -151,17 +148,17 @@ export default store => next => action => {
   }
 
   if (action.operation === PASTE) {
-    const clipboard = table.getIn(['session', 'clipboard', 0]);
+    const clipboard = table.session.clipboard[0];
     const thereIsClipboard =
-      clipboard.getIn(['boundary', ROW]) &&
-      clipboard.getIn(['boundary', COLUMN]);
+      clipboard.boundary[ROW] &&
+      clipboard.boundary[COLUMN];
 
     const anchorCell = {
       [ROW]: {
-        index: pointer.getIn([ROW, 'index']),
+        index: pointer[ROW].index,
       },
       [COLUMN]: {
-        index: pointer.getIn([COLUMN, 'index']),
+        index: pointer[COLUMN].index,
       },
     };
 
@@ -171,29 +168,11 @@ export default store => next => action => {
       // REVIEW: PERF: this is probably ineficient, to measure.
       // NOTE: relying on the fact that clipboard is already rectangular
       //   which should be true because it comes from table itself.
-      textSplit = clipboard
-        .get('rows')
-        .map((row) => row.get('cells').map((cell) => cell.get('value')))
-        .toJS();
+      textSplit = clipboard.rows.map((row) => row.cells.map((cell) => cell.value));
     } else if (action.text) {
       // NOTE: inserting "\t" and "\n" splitted text as array.
-      //   Test text 1:
-      //     1	2	3
-      //     4	5
-      //     6	7	8	9
-      //   Test text 2:
-      //     1	2	3
-
       const value = action.text;
-      let maxSplitColumnsLength = -1;
-      textSplit = value.split('\n').map((row) => {
-        const lineSplit = row.split('\t');
-        if (lineSplit.length > maxSplitColumnsLength) {
-          maxSplitColumnsLength = lineSplit.length;
-        }
-
-        return lineSplit;
-      });
+      textSplit = value.split('\n').map((row) => row.split('\t'));
     } else {
       // REVIEW: then what? Should we care?
     }
@@ -219,8 +198,10 @@ export default store => next => action => {
     const areaHeight = textSplit.length;
     const areaWidth = textSplit[0].length;
     if (anchorCell && areaHeight > 0 && areaWidth > 0) {
-      const nextMaxRowIndexCandidate = anchorCell[ROW].index + areaHeight;
-      const nextMaxColumnIndexCandidate = anchorCell[COLUMN].index + areaWidth;
+      const areasExtraRowIndex = areaHeight - 1;
+      const areasExtraColumnIndex = areaWidth - 1;
+      const nextMaxRowIndexCandidate = anchorCell[ROW].index + areasExtraRowIndex;
+      const nextMaxColumnIndexCandidate = anchorCell[COLUMN].index + areasExtraColumnIndex;
 
       actionsToBatch.push(
         insertRows({ index: nextMaxRowIndexCandidate }),

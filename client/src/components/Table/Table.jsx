@@ -59,7 +59,7 @@ class Table extends React.PureComponent {
   }
 
   componentDidMount() {
-    document.title = this.props.settings.get('spreadsheetName');
+    document.title = this.props.settings.spreadsheetName;
 
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('click', this.clickHandler);
@@ -81,31 +81,22 @@ class Table extends React.PureComponent {
       window,
       ['innerHeight', 'innerWidth'],
       windowResizeWatchTimeout,
-      () => {
-        this.props.actions.setScreenSize({
-          ROW: {
-            screenSize: window.innerHeight,
-          },
-          COLUMN: {
-            screenSize: window.innerWidth,
-          },
-        });
-      }
+      () => this.props.actions.setScreenSize(window.innerHeight, window.innerWidth),
     );
   }
 
   componentDidUpdate() {
-    document.title = this.props.settings.get('spreadsheetName');
+    document.title = this.props.settings.spreadsheetName;
 
-    if (!this.props.table.getIn(['session', 'pointer', 'edit'])) {
+    if (!this.props.table.session.pointer.edit) {
       document.activeElement.blur();
       window.focus();
       window.getSelection().removeAllRanges();
     }
 
-    const vision = this.props.table.get('vision');
-    document.documentElement.scrollTop = vision.getIn([ROW, 'scrollSize']);
-    document.documentElement.scrollLeft = vision.getIn([COLUMN, 'scrollSize']);
+    const vision = this.props.table.vision;
+    document.documentElement.scrollTop = vision[ROW].scrollSize;
+    document.documentElement.scrollLeft = vision[COLUMN].scrollSize;
   }
 
   componentWillUnmount() {
@@ -140,14 +131,10 @@ class Table extends React.PureComponent {
   };
 
   onScrollHandler = (evt) => {
-    this.props.actions.setScrollSize({
-      ROW: {
-        scrollSize: document.documentElement.scrollTop,
-      },
-      COLUMN: {
-        scrollSize: document.documentElement.scrollLeft,
-      },
-    });
+    this.props.actions.setScrollSize(
+      document.documentElement.scrollTop,
+      document.documentElement.scrollLeft
+    );
   };
 
   keyDownHandler = (evt) => {
@@ -204,7 +191,7 @@ class Table extends React.PureComponent {
         index: columnIndex,
       },
     };
-    const firstSelectionBoundary = table.getIn(['session', 'selection', 0, 'boundary']);
+    const firstSelectionBoundary = table.session.selection[0].boundary;
     const {
       isInBoundary: isInSelection,
       isOnBoundaryTop: isOnSelectionTop,
@@ -220,7 +207,7 @@ class Table extends React.PureComponent {
       isOnSelectionLeft,
     });
 
-    const firstClipboardBoundary = table.getIn(['session', 'clipboard', 0, 'boundary']);
+    const firstClipboardBoundary = table.session.clipboard[0].boundary;
     const {
       isInBoundary: isInClipboard,
       isOnBoundaryTop: isOnClipboardTop,
@@ -237,15 +224,15 @@ class Table extends React.PureComponent {
     });
 
     if (isReal) {
-      const rowId = table.getIn(['layout', ROW, 'list', rowIndex, 'id']);
-      const columnId = table.getIn(['layout', COLUMN, 'list', columnIndex, 'id']);
+      const rowId = table.layout[ROW].list[rowIndex].id;
+      const columnId = table.layout[COLUMN].list[columnIndex].id;
       cellProps.key = `cell-${rowId}/${columnId}`;
     } else {
       cellProps.key = `cell-c${rowIndex}/c${columnIndex}`;
     }
 
     if (isReal) {
-      cellProps.value = table.getIn(['layout', ROW, 'list', rowIndex, 'cells', columnIndex, 'value']);
+      cellProps.value = table.layout[ROW].list[rowIndex].cells[columnIndex].value;
     } else {
       // TODO: in firefox cursor don't behave according to padding,
       //   unless default value is '<br />', but <br> leads to even more problems,
@@ -254,14 +241,14 @@ class Table extends React.PureComponent {
       cellProps.value = '';
     }
 
-    const pointer = table.getIn(['session', 'pointer']);
+    const pointer = table.session.pointer;
     cellProps.isPointed = (
-      rowIndex === pointer.getIn([ROW, 'index']) &&
-      columnIndex === pointer.getIn([COLUMN, 'index'])
+      rowIndex === pointer[ROW].index &&
+      columnIndex === pointer[COLUMN].index
     );
 
-    cellProps.selectOnFocus = (cellProps.isPointed && pointer.get('selectOnFocus') === true);
-    cellProps.inOnHeader = this.props.settings.get('tableHasHeader') && (rowIndex === 0);
+    cellProps.selectOnFocus = cellProps.isPointed && (pointer.selectOnFocus === true);
+    cellProps.inOnHeader = this.props.settings.tableHasHeader && (rowIndex === 0);
 
     // HACK (?): stringifying style is the easiest way to make use of
     //   PureComponent Cell regarding desirably "independence" from styles
@@ -292,17 +279,17 @@ class Table extends React.PureComponent {
       };
 
       if (isReal) {
-        const lineKey = this.props.table.getIn(['layout', lineType, 'list', index, 'id']);
+        const lineKey = this.props.table.layout[lineType].list[index].id;
         lineHeaderProps.key = `line-header-${lineType}-${lineKey}`;
       } else {
         lineHeaderProps.key = `line-header-c${lineType}-${index}`;
       }
 
-      const pointer = this.props.table.getIn(['session', 'pointer']);
-      lineHeaderProps.isPointed = (index === pointer.getIn([lineType, 'index']));
+      const pointer = this.props.table.session.pointer;
+      lineHeaderProps.isPointed = (index === pointer[lineType].index);
 
       if (lineType === ROW) {
-        lineHeaderProps.tableHasHeader = this.props.settings.get('tableHasHeader');
+        lineHeaderProps.tableHasHeader = this.props.settings.tableHasHeader;
       }
 
       return <LineHeader {...lineHeaderProps} />;
@@ -313,28 +300,34 @@ class Table extends React.PureComponent {
     // TODO: PERF: figure out, isn't this slowing down app.
     //   Maybe we should run it only if offsets changed?
     this.props.actions.setLinesOffsets({
-      ROW: linesDivision.rows.offsets,
-      COLUMN: linesDivision.columns.offsets,
+      [ROW]: linesDivision.rows.offsets,
+      [COLUMN]: linesDivision.columns.offsets,
     });
   }
 
-  linesSizes = lineType => lineIndex => this.props.table.getIn(['layout', lineType, 'list', lineIndex, 'size']);
+  linesSizes = lineType => lineIndex => {
+    try {
+      return this.props.table.layout[lineType].list[lineIndex].size;
+    } catch (e) {
+      return undefined;
+    }
+  };
 
   render() {
     const table = this.props.table;
-    const layout = table.get('layout');
-    const rows = layout.get(ROW);
-    const columns = layout.get(COLUMN);
-    const vision = table.get('vision');
-    const defaultCellHeight = rows.get('defaultSize');
-    const defaultCellWidth = columns.get('defaultSize');
+    const layout = table.layout;
+    const rows = layout[ROW];
+    const columns = layout[COLUMN];
+    const vision = table.vision;
+    const defaultCellHeight = rows.defaultSize;
+    const defaultCellWidth = columns.defaultSize;
 
     return (
       <Grid
         cellRenderer={this.cellRenderer}
         id="table"
         columnHeaderRenderer={this.columnHeaderRenderer}
-        columnsNumber={columns.get('list').size}
+        columnsNumber={columns.list.length}
         columnsSizes={this.columnsSizes}
         defaultCellHeight={defaultCellHeight}
         defaultCellWidth={defaultCellWidth}
@@ -343,16 +336,16 @@ class Table extends React.PureComponent {
         gridHeaderRenderer={this.gridHeaderRenderer}
         gridRoundingLength={3}
         hasHeader={true}
-        headerHeight={rows.get('marginSize')}
-        headerWidth={columns.get('marginSize')}
+        headerHeight={rows.marginSize}
+        headerWidth={columns.marginSize}
         onSectionRendered={this.throttledOnSectionRendered}
         rowHeaderRenderer={this.rowHeaderRenderer}
-        rowsNumber={rows.get('list').size}
+        rowsNumber={rows.list.length}
         rowsSizes={this.rowsSizes}
-        screenHeight={vision.getIn([ROW, 'screenSize'])}
-        screenWidth={vision.getIn([COLUMN, 'screenSize'])}
-        scrollLeft={vision.getIn([COLUMN, 'scrollSize'])}
-        scrollTop={vision.getIn([ROW, 'scrollSize'])}
+        screenHeight={vision[ROW].screenSize}
+        screenWidth={vision[COLUMN].screenSize}
+        scrollLeft={vision[COLUMN].scrollSize}
+        scrollTop={vision[ROW].scrollSize}
       />
     );
   }

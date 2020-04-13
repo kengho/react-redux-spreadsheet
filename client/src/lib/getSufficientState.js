@@ -4,38 +4,32 @@
 //   (that way you can always tell what data to be expected on the other end).
 // NOTE: if you change this, review "table/MERGE_SERVER_STATE" action.
 
-import { Iterable } from 'immutable';
+import produce from 'immer';
 
-export default (args) => {
+
+export default (state) => {
   let sufficientState;
 
-  // TODO: use isImmutable (or whatever) when available.
-  //   https://stackoverflow.com/a/31919411/6376451
-  if (Iterable.isIterable(args)) { // handleServerRequests, SpreadsheetCreator, Core.convert() (* => APP)
-    const state = args;
-
-    const stateTable = state.get('table');
-    let effectiveTable;
-    if (Iterable.isIterable(stateTable)) { // SpreadsheetCreator (virgin immutable state), Core.convert() (* => APP)
-      effectiveTable = stateTable;
-    } else { // handleServerRequests, undo-redo state
-      effectiveTable = stateTable.present;
-    }
-
-    sufficientState = {
-      settings: state.get('settings').toJS(),
-      table: effectiveTable
-              .delete('minor')
-              .deleteIn(['major', 'session'])
-              .deleteIn(['major', 'vision'])
-              .toJS(),
-    };
-  } else { // Core.convert() (APP => JSON)
-    sufficientState = {
-      settings: args.settings,
-      table: args.table,
-    };
+  let effectiveTable;
+  if (state.table.present) { // handleServerRequests, undo-redo state
+    effectiveTable = state.table.present;
+  } else { // SpreadsheetCreator (virgin immutable state), Core.convert() (* => APP)
+    effectiveTable = state.table;
   }
 
+  sufficientState = {
+    settings: state.settings,
+    table: produce(effectiveTable, draft => {
+      if (draft.minor) { // doesn't exist in Core.convert due to data passing there
+        delete draft.minor;
+      }
+      if (draft.major && draft.major.session) { // the same
+        delete draft.major.session
+      }
+      if (draft.major && draft.major.vision) { // the same
+        delete draft.major.vision;
+      }
+    }),
+  }
   return sufficientState;
 };

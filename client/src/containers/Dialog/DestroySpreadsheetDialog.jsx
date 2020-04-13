@@ -27,7 +27,7 @@ class DestroySpreadsheetDialog extends React.PureComponent {
       actions,
       server,
     } = this.props;
-    const requestFailed = server.get('requestFailed');
+    const requestFailed = server.requestFailed;
     const isProcessing = this.state.isProcessing;
 
     return (

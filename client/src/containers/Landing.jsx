@@ -1,26 +1,24 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { fromJS } from 'immutable';
 import Button from '@material-ui/core/Button';
 import React from 'react';
 
 import './Landing.css';
 import { OFFLINE } from '../constants';
-import * as LandingActions from '../actions/landing';
+import * as ServerActions from '../actions/server';
 import * as TableActions from '../actions/table';
 import getRootPath from '../lib/getRootPath';
 import SpreadsheetCreator from '../components/SpreadsheetCreator';
 import withCircularProgress from '../components/withCircularProgress';
 
 const mapStateToProps = (state) => ({
-  buttonIsDisabled: state.getIn(['landing', 'buttonIsDisabled']),
-  messages: state.getIn(['landing', 'messages']) || fromJS([]), // default value for tests
+  errors: state.server.errors,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
-      ...LandingActions,
+      ...ServerActions,
       ...TableActions,
     }, dispatch),
   },
@@ -31,15 +29,15 @@ class Landing extends React.Component {
     super(props);
 
     this.state = {
-      buttonIsDisabled: true,
+      buttonIsDisabled: false,
     };
   }
 
   render() {
     const {
       actions,
+      errors,
       history,
-      messages,
     } = this.props;
 
     const buttonIsDisabled = this.state.buttonIsDisabled;
@@ -50,7 +48,7 @@ class Landing extends React.Component {
           beforeRecaptchaExecute={() => this.setState({ buttonIsDisabled: true })}
           history={history}
           onErrors={(errors) => {
-            actions.setLandingMessages(errors);
+            actions.setErrors(errors);
             this.setState({ buttonIsDisabled: false });
           }}
           onRecaptchaLoaded={() => this.setState({ buttonIsDisabled: false })}
@@ -76,8 +74,8 @@ class Landing extends React.Component {
         >
           try offline
         </Button>
-        <div id="messages">
-          <ul>{messages.map((message) => <li key={message}>{message}</li>)}</ul>
+        <div id="errors">
+          <ul>{errors.map((message) => <li key={message}>{message}</li>)}</ul>
         </div>
       </div>
     );

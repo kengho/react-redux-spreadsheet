@@ -34,7 +34,7 @@ class Menu extends React.Component {
   componentDidUpdate() {
     // test_420
     // HACK: for some reason (c), somewhere between MaterialMenu's handleEnter()
-    //   and Menu keyDownHandler() the focus in lost. But we need it in order todo
+    //   and Menu keyDownHandler() the focus in lost. But we need it in order to do
     //   MUI keyboard handlers to work (ArrowDown, ArrowUp) (see findKeyAction).
     //   So here we are setting correct focus.
     //   * document.activeElement in MaterialMenu's handleEnter(): ul
@@ -44,8 +44,8 @@ class Menu extends React.Component {
     //   until open is true and it's rendered.
     domready(() => {
       const menuListElem = document.querySelector('#menu ul > li');
-      const popup = this.props.ui.get('popup');
-      const open = (popup.get('visibility') && (popup.get('kind') === MENU));
+      const popup = this.props.ui.popup;
+      const open = popup.visibility && (popup.kind === MENU);
 
       if (open && menuListElem) {
         menuListElem.focus();
@@ -97,29 +97,26 @@ class Menu extends React.Component {
       actions,
       ui,
     } = this.props;
-    const popup = ui.get('popup');
-    const open = (popup.get('visibility') && (popup.get('kind') === MENU));
+    const popup = ui.popup;
+    const open = popup.visibility && (popup.kind === MENU);
+
+    const cellPopupAnchorSelector =
+      `[data-component-name="${CELL}"]` +
+      `[data-row-index="${popup.cellProps[ROW].index}"]` +
+      `[data-column-index="${popup.cellProps[COLUMN].index}"]`;
 
     let popupAnchorSelector;
     let menuItems = [];
-    switch (popup.get('place')) {
+    switch (popup.place) {
       case CELL: {
-        const rowIndex = popup.getIn([ROW, 'index']);
-        const columnIndex = popup.getIn([COLUMN, 'index']);
-        popupAnchorSelector =
-          `[data-component-name="${CELL}"]` +
-          `[data-row-index="${rowIndex}"]` +
-          `[data-column-index="${columnIndex}"]`;
+        popupAnchorSelector = cellPopupAnchorSelector;
         menuItems = cellMenuItems(this.props);
 
         break;
       }
 
       case CELL_AREA: {
-        popupAnchorSelector =
-          `[data-component-name="${CELL}"]` +
-          `[data-row-index="${popup.getIn([ROW, 'index'])}"]` +
-          `[data-column-index="${popup.getIn([COLUMN, 'index'])}"]`;
+        popupAnchorSelector = cellPopupAnchorSelector;
         menuItems = cellAreaMenuItems(this.props);
 
         break;
@@ -127,13 +124,20 @@ class Menu extends React.Component {
 
       case LINE_HEADER: {
         let lineType;
-        if (popup.getIn([ROW, 'index']) >= 0) {
+        if (popup.cellProps[ROW].index >= 0) {
           lineType = ROW;
         }
-        if (popup.getIn([COLUMN, 'index']) >= 0) {
+        if (popup.cellProps[COLUMN].index >= 0) {
           lineType = COLUMN;
         }
-        const index = popup.getIn([lineType, 'index']);
+
+        // test_2340
+        // setPopupPlace could go before setPopupCellProps, causing errors.
+        if (!lineType) {
+          break;
+        }
+
+        const index = popup.cellProps[lineType].index;
 
         let indexSelector;
         if (lineType === ROW) {
@@ -162,8 +166,8 @@ class Menu extends React.Component {
       <Popup
         id="menu"
         kind={MENU}
-        offsetX={popup.getIn([COLUMN, 'offset'])}
-        offsetY={popup.getIn([ROW, 'offset'])}
+        offsetX={popup.cellProps[COLUMN].offset}
+        offsetY={popup.cellProps[ROW].offset}
         onClose={actions.closePopup}
         onKeyDown={this.keyDownHandler}
         open={open}

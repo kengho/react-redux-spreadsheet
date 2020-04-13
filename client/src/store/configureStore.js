@@ -14,7 +14,7 @@
 
 import { applyMiddleware, compose, createStore } from 'redux';
 import { createBrowserHistory } from 'history';
-import { routerMiddleware, connectRouter } from 'connected-react-router/immutable';
+import { routerMiddleware, connectRouter } from 'connected-react-router';
 import { enableBatching, /* batchDispatchMiddleware */ } from 'redux-batched-actions';
 import throttle from 'redux-throttle';
 

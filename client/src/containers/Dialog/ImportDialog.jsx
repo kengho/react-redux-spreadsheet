@@ -65,7 +65,7 @@ class ImportDialog extends React.PureComponent {
         }
       } else {
         this.setState({
-          messages: ['Wrong format file.'],
+          messages: ['Wrong file format.'],
           isProcessing: false,
         });
       }

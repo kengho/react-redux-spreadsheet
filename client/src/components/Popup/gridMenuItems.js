@@ -77,7 +77,7 @@ export default function gridMenuItems(props) {
       label: 'Clear',
       action: () => actions.clearSpreadsheet(),
     },
-    ...(server.get('sync') ? [
+    ...(server.sync ? [
       {
         label: 'Destroy...',
         action: () => actions.openDialog(DESTROY_SPREADSHEET),

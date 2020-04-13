@@ -11,10 +11,10 @@ export default function lineHeaderMenuItems(props) {
     settings,
     ui,
   } = props;
-  const popup = ui.get('popup');
+  const popup = ui.popup;
 
   let lineType;
-  if (Number.isInteger(ui.getIn(['popup', ROW, 'index']))) {
+  if (Number.isInteger(popup.cellProps[ROW].index)) {
     lineType = ROW;
   } else {
     lineType = COLUMN;
@@ -26,7 +26,7 @@ export default function lineHeaderMenuItems(props) {
         label: 'Insert row above',
         action: () => actions.insertLines({
           lineType: ROW,
-          index: popup.getIn([ROW, 'index']),
+          index: popup.cellProps[ROW].index,
           number: 1,
         }),
       },
@@ -34,7 +34,7 @@ export default function lineHeaderMenuItems(props) {
         label: 'Insert row below',
         action: () => actions.insertLines({
           lineType: ROW,
-          index: popup.getIn([ROW, 'index']) + 1,
+          index: popup.cellProps[ROW].index + 1,
           number: 1,
         }),
       },
@@ -42,7 +42,7 @@ export default function lineHeaderMenuItems(props) {
         label: 'Delete row',
         action: () => actions.deleteLines({
           lineType: ROW,
-          index: popup.getIn([ROW, 'index']),
+          index: popup.cellProps[ROW].index,
           number: 1,
         }),
       },
@@ -53,7 +53,7 @@ export default function lineHeaderMenuItems(props) {
         label: 'Insert column at left',
         action: () => actions.insertLines({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']),
+          index: popup.cellProps[COLUMN].index,
           number: 1,
         }),
       },
@@ -61,7 +61,7 @@ export default function lineHeaderMenuItems(props) {
         label: 'Insert column at right',
         action: () => actions.insertLines({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']) + 1,
+          index: popup.cellProps[COLUMN].index + 1,
           number: 1,
         }),
       },
@@ -69,7 +69,7 @@ export default function lineHeaderMenuItems(props) {
         label: 'Delete column',
         action: () => actions.deleteLines({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']),
+          index: popup.cellProps[COLUMN].index,
           number: 1,
         }),
       },
@@ -77,38 +77,36 @@ export default function lineHeaderMenuItems(props) {
         label: 'Sort A to Z',
         action: () => actions.sort({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']),
+          index: popup.cellProps[COLUMN].index,
           order: ASCENDING,
-          fixFirstLine: settings.get('tableHasHeader'),
+          fixFirstLine: settings.tableHasHeader,
         }),
       },
       {
         label: 'Sort Z to A',
         action: () => actions.sort({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']),
+          index: popup.cellProps[COLUMN].index,
           order: DESCENDING,
-          fixFirstLine: settings.get('tableHasHeader'),
+          fixFirstLine: settings.tableHasHeader,
         }),
       },
       {
         label: 'Sort old to new',
         action: () => actions.sort({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']),
+          index: popup.cellProps[COLUMN].index,
           order: ASCENDING,
-          propPath: ['history', 0, 'time'],
-          fixFirstLine: settings.get('tableHasHeader'),
+          fixFirstLine: settings.tableHasHeader,
         }),
       },
       {
         label: 'Sort new to old',
         action: () => actions.sort({
           lineType: COLUMN,
-          index: popup.getIn([COLUMN, 'index']),
+          index: popup.cellProps[COLUMN].index,
           order: DESCENDING,
-          propPath: ['history', 0, 'time'],
-          fixFirstLine: settings.get('tableHasHeader'),
+          fixFirstLine: settings.tableHasHeader,
         }),
       },
     ];

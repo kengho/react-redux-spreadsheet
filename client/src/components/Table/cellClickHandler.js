@@ -5,6 +5,7 @@ import {
   ROW,
   BEGIN,
   END,
+  MENU,
 } from '../../constants';
 import { getBoundaryProps } from '../../core';
 import {
@@ -28,9 +29,11 @@ export default function cellClickHandler({ evt }) {
   } = this.props;
 
   if (evt.type === 'mousedown') {
-    this.props.actions.setSearchBarFocus(false);
+    actions.setSearchBarFocus(false);
   }
 
+  // REVIEW: PERF: capturing mouseover event here even without
+  //   selection could cause problems, probably need to profile.
   const cellPosition = getCellPosition({ evt });
   if (!cellPosition) {
     return;
@@ -48,30 +51,30 @@ export default function cellClickHandler({ evt }) {
   const cellSize = getCellSize(cell);
 
   // NOTE: cellPosition here is required for fixateCurrentSelection().
-  const cellPlacement = composeCellProps(cellOffsets, cellSize, cellPosition);
+  const cellProps = composeCellProps(cellOffsets, cellSize, cellPosition);
 
-  const pointer = table.getIn(['session', 'pointer']);
-  const cellIsPointed = (
-    cellPosition[ROW].index === pointer.getIn([ROW, 'index']) &&
-    cellPosition[COLUMN].index === pointer.getIn([COLUMN, 'index'])
+  const pointer = table.session.pointer;
+  const isCellPointed = (
+    (cellPosition[ROW].index === pointer[ROW].index) &&
+    (cellPosition[COLUMN].index === pointer[COLUMN].index)
   );
-  const cellIsEditing = (cellIsPointed && pointer.get('edit') === true);
+  const isCellEditing = isCellPointed && (pointer.edit === true);
 
   // Selection.
   // TODO: add ability to select several boundaries with ctrl.
   // test_465
   // test_205
-  if (!cellIsEditing) {
+  if (!isCellEditing) {
     if (!currentSelectionVisibility && (evt.type === 'mousedown') && (evt.button === LEFT_BUTTON)) {
       actionsToBatch.push(
         TableActions.clearSelection(),
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: BEGIN,
-          anchor: cellPlacement,
+          anchor: cellProps,
         }),
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: END,
-          anchor: cellPlacement,
+          anchor: cellProps,
         }),
         TableActions.setCurrentSelectionVisibility(true),
       );
@@ -80,11 +83,11 @@ export default function cellClickHandler({ evt }) {
       actionsToBatch.push(
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: END,
-          anchor: cellPlacement,
+          anchor: cellProps,
         }),
 
         // test_816
-        // NOTE: PERF: because it doesn't chang state most of the time,
+        // NOTE: PERF: because it doesn't change state most of the time,
         //   Table don't rerender and performance doesn't degrade.
         TableActions.setPointer({
           edit: false,
@@ -104,9 +107,6 @@ export default function cellClickHandler({ evt }) {
   //   so we just call menu not on click, but mousedown.
   //   Should probably catch calling context menu instead.
   if ((evt.type === 'mousedown') && (evt.button === RIGHT_BUTTON)) {
-    const firstSelectionBoundary = table.getIn(['session', 'selection', 0, 'boundary']);
-    const { isInBoundary: isInSelection} = getBoundaryProps(firstSelectionBoundary, cellPosition);
-
     const cellProps = composeCellProps(
       cellPosition,
       {
@@ -119,23 +119,24 @@ export default function cellClickHandler({ evt }) {
       },
     );
 
+    const firstSelectionBoundary = table.session.selection[0].boundary;
+    const { isInBoundary: isInSelection } = getBoundaryProps(firstSelectionBoundary, cellPosition);
+
     if (isInSelection) {
+      // test_6999
       actionsToBatch.push(
-        UiActions.setMenu({
-          place: CELL_AREA,
-          ...cellProps,
-        }),
-        UiActions.openPopup(),
+        UiActions.setPopupPlace(CELL_AREA),
+        UiActions.setPopupCellProps(cellProps),
+        UiActions.openPopup(MENU),
       );
     } else {
+      // test_2731
       actionsToBatch.push(
-        UiActions.setMenu({
-          place: CELL,
-          ...cellProps,
-        }),
-        UiActions.openPopup(),
+        UiActions.setPopupPlace(CELL),
+        UiActions.setPopupCellProps(cellProps),
+        UiActions.openPopup(MENU),
 
-        // TODO: don't set pointer if there are selection (when there is code for selection).
+        // TODO: don't set pointer if there is selection (when there is code for selection).
         TableActions.setPointer({
           ...cellPosition,
           ...{
@@ -146,21 +147,12 @@ export default function cellClickHandler({ evt }) {
       );
     }
 
-
-  // Leftclick.
   // NOTE: we catch "mousedown" instead of "click" for faster UI response.
   //   Ditching regular click just not to fire this action twice.
   // TODO: break this apart somehow, it's hard to read.
   } else if ((['dblclick', 'mousedown'].includes(evt.type)) && evt.button === LEFT_BUTTON) {
-    const pointer = table.getIn(['session', 'pointer']);
-
     const userWantsToEditCell = (evt.type === 'dblclick');
     const userWantsToPointCell = (evt.type === 'mousedown');
-    const isCellPointed = (
-      cellPosition[ROW].index === pointer.getIn([ROW, 'index']) &&
-      cellPosition[COLUMN].index === pointer.getIn([COLUMN, 'index'])
-    );
-    const isCellEditing = (isCellPointed && pointer.get('edit') === true);
 
     if (!isCellPointed && evt.shiftKey) {
       // Create selection with shift+click.
@@ -170,11 +162,11 @@ export default function cellClickHandler({ evt }) {
         TableActions.setCurrentSelectionVisibility(false),
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: BEGIN,
-          anchor: pointer.toJS(),
+          anchor: pointer,
         }),
         TableActions.setCurrentSelectionAnchor({
           selectionAnchorType: END,
-          anchor: cellPlacement,
+          anchor: cellProps,
         }),
         TableActions.fixateCurrentSelection(),
       );

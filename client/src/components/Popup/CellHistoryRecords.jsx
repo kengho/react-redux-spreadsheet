@@ -16,31 +16,31 @@ import rippleButtonAction from '../../lib/rippleButtonAction';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
-  history: PropTypes.object,
+  history: PropTypes.array,
   popup: PropTypes.object.isRequired,
   value: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
-  history: null,
+  history: [],
 };
 
 class CellHistoryRecords extends React.PureComponent {
   deleteRecordButtonHandler = (historyIndex) => {
     return rippleButtonAction(() => {
-      this.props.actions.deleteCellHistory(this.props.popup.toJS(), historyIndex);
+      this.props.actions.deleteCellHistory(this.props.popup.cellProps, historyIndex);
     });
   };
 
   deleteAllRecordsButtonHandler = () => {
     return rippleButtonAction(() => {
-      this.props.actions.deleteCellHistory(this.props.popup.toJS());
+      this.props.actions.deleteCellHistory(this.props.popup.cellProps);
     });
   };
 
   restoreRecordButtonHandler = (historyValue) => {
     return rippleButtonAction(() => {
-      this.props.actions.setProp({...this.props.popup.toJS(), prop: 'value', value: historyValue });
+      this.props.actions.setProp({...this.props.popup.cellProps, prop: 'value', value: historyValue });
     });
   };
 
@@ -50,7 +50,7 @@ class CellHistoryRecords extends React.PureComponent {
       value,
     } = this.props;
 
-    if (!(history && history.size > 0)) {
+    if (history.length === 0) {
       return <div id="cell-history-no-records">No records.</div>;
     } else {
       return (
@@ -74,7 +74,7 @@ class CellHistoryRecords extends React.PureComponent {
           </TableHead>
           <TableBody>
             {history.map((entry, historyIndex) => {
-              const time = entry.get('time');
+              const time = entry.time;
               const formattedDatetime = datetime({
                 date: new Date(time),
                 format: {
@@ -82,7 +82,7 @@ class CellHistoryRecords extends React.PureComponent {
                   datetimeDelim: ' ',
                 },
               });
-              const historyValue = entry.get('value') || '';
+              const historyValue = entry.value || '';
 
               return (
                 <TableRow

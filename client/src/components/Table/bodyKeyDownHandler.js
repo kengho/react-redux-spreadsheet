@@ -3,6 +3,7 @@ import * as UiActions from '../../actions/ui';
 import {
   CELL,
   COLUMN,
+  MENU,
   ROW,
 } from '../../constants';
 import { composeCellProps } from '../../lib/getCellProps';
@@ -70,10 +71,8 @@ export default function bodyKeyDownHandler(evt) {
         // TODO: issue flows from SET_IN action being inefficient for objects,
         //   bacause setting object to state make Table to rerender even
         //   it's essentially the same.
-        const selection = this.props.table.getIn(['session', 'selection', 0]);
-        const thereIsSelection =
-          selection.getIn(['boundary', ROW]) &&
-          selection.getIn(['boundary', COLUMN]);
+        const selection = this.props.table.session.selection[0];
+        const thereIsSelection = selection.boundary[ROW] && selection.boundary[COLUMN];
         if (thereIsSelection) {
           actions.clearSelection();
         }
@@ -124,6 +123,7 @@ export default function bodyKeyDownHandler(evt) {
     {
       key: 'Escape',
       action: () => {
+        // TODO: move text to test and add numbered comment.
         // NOTE: if we don't clear clipboard here, after pressing Ctrl+C and Escape
         //   there is no way to set clipboard from other source (since app's clipboard
         //   is not empty). App's clipboard have priority over systems
@@ -134,15 +134,7 @@ export default function bodyKeyDownHandler(evt) {
         // console.time('bodyKeyDownHandler Escape');
         // REVIEW: should we import actions one by one or TableActions and etc. is OK?
         actions.batchActions([
-          TableActions.setClipboard({
-            [ROW]: {
-              index: null,
-            },
-            [COLUMN]: {
-              index: null,
-            },
-            cells: null,
-          }),
+          TableActions.clearClipboard(),
           UiActions.closeSearchBar(),
           TableActions.clearSelection(),
         ]);
@@ -173,10 +165,10 @@ export default function bodyKeyDownHandler(evt) {
       key: 'ContextMenu',
       action: () => {
         const actions = this.props.actions;
-        const cellPosition = this.props.table.getIn(['session', 'pointer']).toJS();
+        const cellPosition = this.props.table.session.pointer;
 
-        actions.setMenu({
-          place: CELL,
+        actions.setPopupPlace(CELL);
+        actions.setPopupCellProps({
           ...composeCellProps(
             cellPosition,
             {
@@ -189,7 +181,7 @@ export default function bodyKeyDownHandler(evt) {
             },
           ),
         });
-        actions.openPopup();
+        actions.openPopup(MENU);
       },
     },
     {

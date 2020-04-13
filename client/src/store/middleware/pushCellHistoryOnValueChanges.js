@@ -4,7 +4,7 @@ import * as ActionTypes from '../../actionTypes';
 
 export default store => next => action => {
   // REVIEW: should setting autoSaveHistory to false clear all cells' history?
-  const autoSaveHistory = store.getState().getIn(['settings', 'autoSaveHistory']);
+  const autoSaveHistory = store.getState().settings.autoSaveHistory;
   if (!autoSaveHistory) {
     return next(action);
   }
@@ -16,9 +16,18 @@ export default store => next => action => {
 
     const rowIndex = action.cell[ROW].index;
     const columnIndex = action.cell[COLUMN].index;
-    const historyValue = store.getState().get('table').present.getIn(
-      ['major', 'layout', ROW, 'list', rowIndex, 'cells', columnIndex, 'value']
-    );
+    let historyValue;
+    try {
+      historyValue = store.getState()
+        .table.present.major
+        .layout[ROW]
+        .list[rowIndex]
+        .cells[columnIndex]
+        .value;
+    } catch (e) {
+      historyValue = '';
+    }
+
 
     // REVIEW: should we filter empty value?
     //   It allows you to know when cell was first filled, but it's not that much.
@@ -27,7 +36,12 @@ export default store => next => action => {
     //   than N times there. In terms of performance, we rely on the assumption that
     //   users will change values more frequently than just leaving them as is.
     if (action.cell.value !== historyValue) {
-      const time = Date.now();
+      let time;
+      if (process.env.NODE_ENV === 'test') {
+        time = new Date('1970-01-01');
+      } else {
+        time = Date.now();
+      }
       return pushCellHistory(action.cell, time, historyValue);
     }
   };

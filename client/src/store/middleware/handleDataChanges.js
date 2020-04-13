@@ -14,25 +14,25 @@ export default store => next => action => {
     return next(action);
   }
 
-  const previousTableLayout = store.getState().get('table').present.getIn(['major', 'layout']);
-  const previousSettings = store.getState().get('settings');
+  const previousTableLayout = store.getState().table.present.major.layout;
+  const previousSettings = store.getState().settings;
   const nextAction = next(action); // all other middlewares happens there
-  const nextTableLayout = store.getState().get('table').present.getIn(['major', 'layout']);
-  const nextSettings = store.getState().get('settings');
-
-  if (nextTableLayout === previousTableLayout && nextSettings === previousSettings) {
+  const nextTableLayout = store.getState().table.present.major.layout;
+  const nextSettings = store.getState().settings;
+  if ((nextTableLayout === previousTableLayout) && (nextSettings === previousSettings)) {
     return nextAction;
   }
 
-  const sync = store.getState().getIn(['server', 'sync']);
+  const sync = store.getState().server.sync;
+  if (!sync) {
+    return nextAction;
+  }
 
   // test_957
-  if (sync) {
-    store.dispatch({
-      ...makeServerRequest(SYNC),
-      meta: { throttle: true },
-    });
-  }
+  store.dispatch({
+    ...makeServerRequest(SYNC),
+    meta: { throttle: true },
+  });
 
   return nextAction;
 };

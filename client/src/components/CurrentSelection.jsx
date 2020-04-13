@@ -26,7 +26,7 @@ class CurrentSelection extends React.PureComponent {
       headerHeight,
     } = this.props;
 
-    if (!currentSelection.get('visibility')) {
+    if (!currentSelection.visibility) {
       return <div />;
     } else {
       const boundary = getSelectionBoundary(currentSelection);

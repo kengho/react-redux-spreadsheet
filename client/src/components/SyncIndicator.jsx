@@ -12,19 +12,15 @@ class SyncIndicator extends React.PureComponent {
   render() {
     const server = this.props.server;
 
-    const requestFailed = server.get('requestFailed');
-    const syncInProgress = server.get('syncInProgress');
-    const sync = server.get('sync');
-
     let indicatorClassname;
     let tooltipTitle;
-    if (!sync) {
+    if (!server.sync) {
       indicatorClassname = 'sync-disabled';
       tooltipTitle = 'Synchronization with server is disabled in offline mode.';
-    } else if (syncInProgress) {
+    } else if (server.syncInProgress) {
       indicatorClassname = 'sync-in-progress';
       tooltipTitle = 'Synchronization with server is in progress...';
-    } else if (requestFailed) {
+    } else if (server.requestFailed) {
       indicatorClassname = 'request-failed';
       tooltipTitle = 'Synchronization with server failed, waiting until retrying...';
     } else {

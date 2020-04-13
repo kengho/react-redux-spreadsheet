@@ -1,4 +1,4 @@
-import { ConnectedRouter } from 'connected-react-router/immutable';
+import { ConnectedRouter } from 'connected-react-router';
 import { Route, Switch } from 'react-router';
 import GithubMark from 'react-github-mark';
 import loadable from 'loadable-components';
@@ -22,7 +22,7 @@ const App = ({ history }) => {
   const spreadsheetPathTemplate = getSpreadsheetPathTemplate();
   const rootPath = getRootPath();
 
-  // NOTE: is there is div around everything,
+  // NOTE: if sometime there is div around everything,
   //   it should have height css property in order
   //   for .data to have 100% height.
   return (

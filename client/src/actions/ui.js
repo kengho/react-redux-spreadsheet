@@ -1,38 +1,38 @@
 import * as ActionTypes from '../actionTypes';
 
-import { MENU } from '../constants';
+const branch = 'ui';
 
-export function setPopup({ params }) {
-  return {
-    type: ActionTypes.SET_POPUP,
-    params,
-  };
-}
-
-export function openPopup() {
+export function openPopup(kind) {
   return {
     type: ActionTypes.OPEN_POPUP,
+    kind,
   };
 }
 
 export function closePopup() {
   return {
-    type: ActionTypes.CLOSE_POPUP,
+    type: ActionTypes.UPDATE,
+    subTypee: ActionTypes.CLOSE_POPUP,
+    branch,
+    updater: (state) => state.popup.visibility = false,
   };
 }
 
-export function setPopupKind(kind) {
+export function setPopupPlace(place) {
   return {
-    type: ActionTypes.SET_POPUP_KIND,
-    kind,
+    type: ActionTypes.UPDATE,
+    subTypee: ActionTypes.SET_POPUP_PLACE,
+    branch,
+    updater: (state) => state.popup.place = place,
   };
 }
 
-export function setMenu(menu) {
+export function setPopupCellProps(cellProps) {
   return {
-    type: ActionTypes.SET_POPUP,
-    subType: ActionTypes.SET_MENU,
-    params: { ...menu, kind: MENU },
+    type: ActionTypes.UPDATE,
+    subTypee: ActionTypes.SET_POPUP_CELL_PROPS,
+    branch,
+    updater: (state) => state.popup.cellProps = cellProps,
   };
 }
 
@@ -45,7 +45,10 @@ export function openDialog(variant) {
 
 export function closeDialog() {
   return {
-    type: ActionTypes.CLOSE_DIALOG,
+    type: ActionTypes.UPDATE,
+    subTypee: ActionTypes.CLOSE_DIALOG,
+    branch,
+    updater: (state) => state.dialog.visibility = false,
   };
 }
 
@@ -61,8 +64,11 @@ export function closeSearchBar() {
   };
 }
 
-export function setSearchBarFocus() {
+export function setSearchBarFocus(focus) {
   return {
-    type: ActionTypes.SET_SEARCH_BAR_FOCUS,
+    type: ActionTypes.UPDATE,
+    subTypee: ActionTypes.SET_SEARCH_BAR_FOCUS,
+    branch,
+    updater: (state) => state.searchBar.focus = focus,
   };
 }

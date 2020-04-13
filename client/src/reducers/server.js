@@ -1,29 +1,18 @@
-import { fromJS } from 'immutable';
+import produce from 'immer';
 
 import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-export default (state = initialState().get('server') || fromJS({}), action) => {
+// REVIEW: should such small reducers be moved to "reducers/index.js"
+//   w/o creating separate files for them?
+export default (state = initialState().server, action) => produce(state, draft => {
+  // eslint-disable-next-line default-case
   switch (action.type) {
-    case ActionTypes.SET_SHORT_ID:
-      return state.set('shortId', action.shortId);
-
-    case ActionTypes.SET_SYNC:
-      return state.set('sync', action.sync);
-
-    case ActionTypes.SET_REQUEST_FAILED:
-      return state.set('requestFailed', action.requestFailed);
-
-    case ActionTypes.SET_SYNC_IN_PROGRESS:
-      return state.set('syncInProgress', action.syncInProgress);
-
-    case ActionTypes.MAKE_SERVER_REQUEST:
-      return state;
-
-    case ActionTypes.MERGE_SERVER_STATE:
-      return state.set('requestFailed', false);
-
-    default:
-      return state;
+    case ActionTypes.UPDATE: {
+      if (action.branch === 'server') {
+        action.updater(draft);
+      };
+      break;
+    }
   }
-};
+});

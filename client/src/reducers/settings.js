@@ -1,17 +1,17 @@
-import { fromJS } from 'immutable';
+import produce from 'immer';
 
 import { initialState } from '../core';
 import * as ActionTypes from '../actionTypes';
 
-export default (state = initialState().get('settings') || null, action) => {
+export default (state = initialState().settings, action) => produce(state, draft => {
+  // eslint-disable-next-line default-case
   switch (action.type) {
+    case ActionTypes.SET_SETTINGS: {
+      Object.keys(action.settings).forEach((item) => draft[item] = action.settings[item]);
+      break;
+    }
+
     case ActionTypes.MERGE_SERVER_STATE:
-      return state.mergeDeep(fromJS(action.serverState.settings));
-
-    case ActionTypes.SET_SETTINGS:
-      return fromJS(action.settings)
-
-    default:
-      return state;
+      return action.serverState.settings;
   }
-};
+});

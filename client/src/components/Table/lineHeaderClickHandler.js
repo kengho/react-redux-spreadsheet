@@ -1,6 +1,7 @@
 import {
   COLUMN,
   LINE_HEADER,
+  MENU,
   ROW,
 } from '../../constants';
 
@@ -10,17 +11,21 @@ import {
 } from '../../lib/getCellProps';
 import getMousePosition from '../../lib/getMousePosition';
 
+const RIGHT_BUTTON = 2;
+
 export default function lineHeaderClickHandler({ evt }) {
+  const actions = this.props.actions;
+
   // test_845
   if (evt.type !== 'mouseover') {
     this.props.actions.setPointer({ edit: false });
   }
 
-  if ((evt.type === 'mousedown') && (evt.button === 2)) { // right click
+  if ((evt.type === 'mousedown') && (evt.button === RIGHT_BUTTON)) {
     const cellPosition = getCellPosition({ evt, allowPartial: true });
 
-    this.props.actions.setMenu({
-      place: LINE_HEADER,
+    actions.setPopupPlace(LINE_HEADER);
+    actions.setPopupCellProps({
       ...composeCellProps(
         cellPosition,
         {
@@ -32,7 +37,7 @@ export default function lineHeaderClickHandler({ evt }) {
           },
         },
       ),
-    })
-    this.props.actions.openPopup();
+    });
+    actions.openPopup(MENU);
   }
 }

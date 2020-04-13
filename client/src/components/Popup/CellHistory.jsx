@@ -58,22 +58,28 @@ class CellHistory extends React.PureComponent {
       ui,
     } = this.props;
 
-    const popup = ui.get('popup');
-    const rowIndex = popup.getIn([ROW, 'index']);
-    const columnIndex = popup.getIn([COLUMN, 'index']);
+    const popup = ui.popup;
+    const open = popup.visibility && (popup.kind === HISTORY);
+
+    const rowIndex = popup.cellProps[ROW].index;
+    const columnIndex = popup.cellProps[COLUMN].index;
     const popupAnchorSelector = `[data-row-index="${rowIndex}"][data-column-index="${columnIndex}"]`;
 
-    const cellPath = ['layout', ROW, 'list', rowIndex, 'cells', columnIndex];
-    const history = table.getIn([...cellPath, 'history']);
-    const value = table.getIn([...cellPath, 'value'], '');
-    const open = (popup.get('visibility') && (popup.get('kind') === HISTORY));
+    let cell;
+    try {
+      cell = table.layout[ROW].list[rowIndex].cells[columnIndex] || {};
+    } catch (e) {
+      cell = {};
+    }
+    const history = cell.history;
+    const value = cell.value || '';
 
     return (
       <Popup
         className="cell-history"
         kind={HISTORY}
-        offsetX={popup.getIn([COLUMN, 'offset'])}
-        offsetY={popup.getIn([ROW, 'offset'])}
+        offsetX={popup.cellProps[COLUMN].offset}
+        offsetY={popup.cellProps[ROW].offset}
         onClose={actions.closePopup}
         onKeyDown={this.keyDownHandler}
         open={open}

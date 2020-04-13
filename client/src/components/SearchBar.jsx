@@ -22,7 +22,7 @@ import findKeyAction from '../lib/findKeyAction';
 const propTypes = {
   ui: PropTypes.object.isRequired,
 
-  // TODO: pass only layout.
+  // TODO: PERF: pass only layout.
   table: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
 };
@@ -66,8 +66,8 @@ class SearchBar extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const previousFocus = prevProps.ui.getIn(['search', 'focus']);
-    const currentFocus = this.props.ui.getIn(['search', 'focus']);
+    const previousFocus = prevProps.ui.searchBar.focus;
+    const currentFocus = this.props.ui.searchBar.focus;
     const focusBecameFalse = previousFocus && !currentFocus;
 
     // NOTE: immediate focus required in order not to lose it while
@@ -186,8 +186,8 @@ class SearchBar extends React.PureComponent {
 
     const searchResults = [];
     rows.forEach((row, rowIndex) => {
-      row.get('cells').forEach((cell, columnIndex) => {
-        if (cell && cell.get('value') && matcher(cell.get('value'), searchQuery, state)) {
+      row.cells.forEach((cell, columnIndex) => {
+        if (cell && cell.value && matcher(cell.value, searchQuery, state)) {
           searchResults.push({
             [ROW]: {
               index: rowIndex,
@@ -205,7 +205,7 @@ class SearchBar extends React.PureComponent {
 
   performSearch = (callback) => {
     const searchResults = this.search(
-      this.props.table.getIn(['layout', ROW, 'list']),
+      this.props.table.layout[ROW].list,
       this.state.searchQuery,
       this.state
     );
@@ -290,7 +290,7 @@ class SearchBar extends React.PureComponent {
       actions,
       ui,
     } = this.props;
-    const visibility = ui.getIn(['search', 'visibility']);
+    const visibility = ui.searchBar.visibility;
 
     let searchResultsSummary;
     if (this.state.searchResults !== null) {

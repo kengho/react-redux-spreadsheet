@@ -11,7 +11,7 @@ export default function cellKeyDownHandler({ evt }) {
   evt.stopImmediatePropagation();
 
   const actions = this.props.actions;
-  const pointer = this.props.table.getIn(['session', 'pointer']);
+  const pointer = this.props.table.session.pointer;
 
   const action = findKeyAction(evt, [
     {
@@ -58,12 +58,18 @@ export default function cellKeyDownHandler({ evt }) {
       action: () => {
         // NOTE: PERF: without batchActions: ~140ms. With batchActions: ~100ms (insignificant).
         // console.time('cellKeyDownHandler Escape');
-        const cellPosition = pointer.toJS();
+        const cellPosition = pointer;
         if (cellPosition) {
-          const previousValue = this.props.table.getIn(
-            ['layout', ROW, 'list', cellPosition[ROW].index, 'cells', cellPosition[COLUMN].index, 'value'],
-            ''
-          );
+          let previousValue;
+          try {
+            previousValue = this.props.table
+              .layout[ROW]
+              .list[cellPosition[ROW].index]
+              .cells[cellPosition[COLUMN].index]
+              .value;
+          } catch (e) {
+            previousValue = '';
+          }
           actions.setPointer({ value: previousValue });
         }
         actions.setPointer({ edit: false });
@@ -86,7 +92,7 @@ export default function cellKeyDownHandler({ evt }) {
 
         // REVIEW: this max() construction.
         const caretUpperBoundary = Math.max(selection.focusOffset, selection.anchorOffset);
-        const value = pointer.get('value');
+        const value = pointer.value;
         if (
           (evt.key === 'ArrowLeft' && caretUpperBoundary === 0) ||
           (evt.key === 'ArrowRight' && value.length === caretUpperBoundary)

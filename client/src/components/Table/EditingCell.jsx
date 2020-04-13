@@ -26,8 +26,8 @@ class EditingCell extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const currentIsEditing = this.props.table.getIn(['session', 'pointer', 'edit']);
-    const nextIsEditing = nextProps.table.getIn(['session', 'pointer', 'edit']);
+    const currentIsEditing = this.props.table.session.pointer.edit;
+    const nextIsEditing = nextProps.table.session.pointer.edit;
 
     return (currentIsEditing !== nextIsEditing);
   }
@@ -37,9 +37,9 @@ class EditingCell extends React.Component {
       return;
     }
 
-    const pointer = this.props.table.getIn(['session', 'pointer']);
-    const isEditing = pointer.get('edit');
-    const selectOnFocus = pointer.get('selectOnFocus');
+    const pointer = this.props.table.session.pointer;
+    const isEditing = pointer.edit;
+    const selectOnFocus = pointer.selectOnFocus;
 
     // Set selection and caret if cell is editing.
     if (isEditing && this.cell) {
@@ -76,32 +76,32 @@ class EditingCell extends React.Component {
       linesOffsets,
     } = this.props;
 
-    const vision = this.props.table.get('vision');
-    const pointer = table.getIn(['session', 'pointer']);
-    const value = pointer.get('value');
+    const vision = this.props.table.vision;
+    const pointer = table.session.pointer;
+    const value = pointer.value;
 
-    const isEditing = pointer.get('edit');
+    const isEditing = pointer.edit;
     if (!isEditing) {
       return <div></div>;
     }
 
     // NOTE: due to shouldComponentUpdate those values "saving" until EditingCell
     //   isn't visible so scroll won't shift position of component.
-    const scrollTop = vision.getIn([ROW, 'scrollSize']);
-    const scrollLeft = vision.getIn([COLUMN, 'scrollSize']);
-    const rowIndex = pointer.getIn([ROW, 'index']);
-    const columnIndex = pointer.getIn([COLUMN, 'index']);
-    const headerHeight = table.getIn(['layout', ROW, 'marginSize']);
-    const headerWidth = table.getIn(['layout', COLUMN, 'marginSize']);
-    const defaultCellHeight = table.getIn(['layout', ROW, 'defaultSize']);
-    const defaultCellWidth = table.getIn(['layout', COLUMN, 'defaultSize']);
+    const scrollTop = vision[ROW].scrollSize;
+    const scrollLeft = vision[COLUMN].scrollSize;
+    const rowIndex = pointer[ROW].index;
+    const columnIndex = pointer[COLUMN].index;
+    const headerHeight = table.layout[ROW].marginSize;
+    const headerWidth = table.layout[COLUMN].marginSize;
+    const defaultCellHeight = table.layout[ROW].defaultSize;
+    const defaultCellWidth = table.layout[COLUMN].defaultSize;
     const rowOffset = getLineOffset({
-      linesOffests: linesOffsets.get(ROW).toJS(),
+      linesOffests: linesOffsets[ROW],
       index: rowIndex,
       defaultLineSize: defaultCellHeight,
     });
     const columnOffset = getLineOffset({
-      linesOffests: linesOffsets.get(COLUMN).toJS(),
+      linesOffests: linesOffsets[COLUMN],
       index: columnIndex,
       defaultLineSize: defaultCellWidth,
     });
@@ -110,9 +110,19 @@ class EditingCell extends React.Component {
     top += headerHeight;
     left += headerWidth;
 
-    // NOTE: don't use second arg of getIn() so it won't fix null value (works only for undefined).
-    const height = table.getIn(['layout', ROW, 'list', rowIndex, 'size']) || defaultCellHeight;
-    const width = table.getIn(['layout', COLUMN, 'list', columnIndex, 'size']) || defaultCellWidth;
+    let height;
+    let width;
+    try {
+      // NOTE: size could be null, whitch won't raise error.
+      height = table.layout[ROW].list[rowIndex].size || defaultCellHeight;
+    } catch (e) {
+      height = defaultCellHeight;
+    }
+    try {
+      width = table.layout[COLUMN].list[columnIndex].size || defaultCellWidth;
+    } catch (e) {
+      width = defaultCellWidth;
+    }
 
     // NOTE: "minHeight: height" and "white-space: pre-line" so user can edit overflowing text.
     // TODO: allow to edit really long strings that cannot be wrapped using spaces.
@@ -144,7 +154,16 @@ class EditingCell extends React.Component {
           <div
             autoFocus={true}
             onInput={(evt) => {
-              const value = evt.nativeEvent.target.innerText;
+              // NOTE: HACK: REVIEW: fsr in Firefox innerText doesn't represent value correctly,
+              //   the last line is missing (after pressing Ctlr+Enter).
+              //   Using innerHTML fixes it, but how we need to replace <br> to '\n'...
+              //   Also, after that in Chrome wild unbreakable space appears at the end,
+              //   got to remove it... It's a mess overall. Sure it's buggy.
+              //   Btw, document.execCommand apparently is obsolete, don't know
+              //   what to use instead.
+              const value = evt.nativeEvent.target.innerHTML
+                .replace(new RegExp('<br>', 'g'), '\n')
+                .replace('&nbsp;', '');
               this.props.actions.setPointer({ value });
             }}
             className="cell-content"

@@ -30,20 +30,20 @@ class SettingsDialog extends React.PureComponent {
         label: 'Spreadsheet name',
         param: 'spreadsheetName',
         type: STRING,
-        value: props.settings.get('spreadsheetName'),
+        value: props.settings.spreadsheetName,
       },
       {
         // TODO: "clear all history" button if false.
         label: 'Automatically save cells\' history',
         param: 'autoSaveHistory',
         type: SWITCH,
-        value: props.settings.get('autoSaveHistory'),
+        value: props.settings.autoSaveHistory,
       },
       {
         label: 'Table has header',
         param: 'tableHasHeader',
         type: SWITCH,
-        value: props.settings.get('tableHasHeader'),
+        value: props.settings.tableHasHeader,
       },
     ];
 
@@ -79,7 +79,7 @@ class SettingsDialog extends React.PureComponent {
             {this.settingsMap.map((item, itemIndex) => {
               switch (item.type) {
                 case SWITCH: {
-                  const defaulValue = boolRenderMap[initialSettings.get(item.param)];
+                  const defaulValue = boolRenderMap[initialSettings[item.param]];
                   const label = (
                     <React.Fragment>
                       <span>{item.label}</span>
@@ -119,7 +119,7 @@ class SettingsDialog extends React.PureComponent {
                   return (
                     <TextField
                       autoFocus={autoFocus}
-                      helperText={`(default: ${initialSettings.get(item.param)})`}
+                      helperText={`(default: ${initialSettings[item.param]})`}
                       inputProps={{ 'data-component-name': SETTINGS }}
                       key={item.param}
                       label={item.label}

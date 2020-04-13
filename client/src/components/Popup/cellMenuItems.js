@@ -9,7 +9,7 @@ export default function cellMenuItems(props) {
     actions,
     ui,
   } = props;
-  const popup = ui.get('popup');
+  const popup = ui.popup;
 
   return [
     {
@@ -19,8 +19,7 @@ export default function cellMenuItems(props) {
         // NOTE: popup offsets stays the same, so CellHistory
         //   appears in the same place as Menu.
         actions.closePopup();
-        actions.setPopupKind(HISTORY);
-        actions.openPopup();
+        actions.openPopup(HISTORY);
       },
 
       // NOTE: there are no easy way to disable menu item
@@ -32,7 +31,7 @@ export default function cellMenuItems(props) {
       label: 'Insert row above',
       action: () => actions.insertLines({
         lineType: ROW,
-        index: popup.getIn([ROW, 'index']),
+        index: popup.cellProps[ROW].index,
         number: 1,
       }),
     },
@@ -40,7 +39,7 @@ export default function cellMenuItems(props) {
       label: 'Insert row below',
       action: () => actions.insertLines({
         lineType: ROW,
-        index: popup.getIn([ROW, 'index']) + 1,
+        index: popup.cellProps[ROW].index + 1,
         number: 1,
       }),
     },
@@ -48,7 +47,7 @@ export default function cellMenuItems(props) {
       label: 'Delete row',
       action: () => actions.deleteLines({
         lineType: ROW,
-        index: popup.getIn([ROW, 'index']),
+        index: popup.cellProps[ROW].index,
         number: 1,
       }),
     },
@@ -56,7 +55,7 @@ export default function cellMenuItems(props) {
       label: 'Insert column at left',
       action: () => actions.insertLines({
         lineType: COLUMN,
-        index: popup.getIn([COLUMN, 'index']),
+        index: popup.cellProps[COLUMN].index,
         number: 1,
       }),
     },
@@ -64,7 +63,7 @@ export default function cellMenuItems(props) {
       label: 'Insert column at right',
       action: () => actions.insertLines({
         lineType: COLUMN,
-        index: popup.getIn([COLUMN, 'index']) + 1,
+        index: popup.cellProps[COLUMN].index + 1,
         number: 1,
       }),
     },
@@ -72,7 +71,7 @@ export default function cellMenuItems(props) {
       label: 'Delete column',
       action: () => actions.deleteLines({
         lineType: COLUMN,
-        index: popup.getIn([COLUMN, 'index']),
+        index: popup.cellProps[COLUMN].index,
         number: 1,
       }),
     },

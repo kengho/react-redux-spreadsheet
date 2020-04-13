@@ -4,6 +4,7 @@ import MaterialDialog from '@material-ui/core/Dialog';
 import React from 'react';
 
 import './Dialog.css';
+import * as MetaActions from '../../actions/meta';
 import * as ServerActions from '../../actions/server';
 import * as SettingsActions from '../../actions/settings';
 import * as TableActions from '../../actions/table';
@@ -22,15 +23,16 @@ import {
 } from '../../constants';
 
 const mapStateToProps = (state) => ({
-  server: state.get('server'),
-  settings: state.get('settings'),
-  variant: state.getIn(['ui', 'dialog', 'variant']),
-  visibility: state.getIn(['ui', 'dialog', 'visibility']) || false,
+  server: state.server,
+  settings: state.settings,
+  variant: state.ui.dialog.variant,
+  visibility: state.ui.dialog.visibility || false,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   actions: {
     ...bindActionCreators({
+      ...MetaActions, // mergeServerState
       ...ServerActions, // makeServerRequest, setRequestFailed
       ...SettingsActions, // setSettings
       ...TableActions, // mergeServerState

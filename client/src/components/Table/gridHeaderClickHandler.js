@@ -1,20 +1,26 @@
 import {
   COLUMN,
-  ROW,
   GRID_HEADER,
+  MENU,
+  ROW,
 } from '../../constants';
 import { composeCellProps } from '../../lib/getCellProps';
 import getMousePosition from '../../lib/getMousePosition';
 
+const RIGHT_BUTTON = 2;
+
 export default function gridHeaderClickHandler({ evt }) {
+  const actions = this.props.actions;
+
   // test_845
   if (evt.type !== 'mouseover') {
-    this.props.actions.setPointer({ edit: false });
+    actions.setPointer({ edit: false });
   }
 
-  if ((evt.type === 'mousedown') && (evt.button === 2)) { // right click
-    this.props.actions.setMenu({
-      place: GRID_HEADER,
+  // test_2000
+  if ((evt.type === 'mousedown') && (evt.button === RIGHT_BUTTON)) {
+    actions.setPopupPlace(GRID_HEADER);
+    actions.setPopupCellProps({
       ...composeCellProps(
         {
           [ROW]: {
@@ -25,7 +31,7 @@ export default function gridHeaderClickHandler({ evt }) {
           },
         },
       ),
-    })
-    this.props.actions.openPopup();
+    });
+    actions.openPopup(MENU);
   }
 }

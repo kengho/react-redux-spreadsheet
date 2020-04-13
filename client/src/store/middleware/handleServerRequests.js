@@ -1,4 +1,4 @@
-import { push } from 'connected-react-router/immutable';
+import { push } from 'connected-react-router';
 
 import { closeDialog } from '../../actions/ui';
 import {
@@ -27,13 +27,13 @@ const composeSyncRequest = (store) => {
       // NOTE: serializing data here for rails not to parse json while updating.
       state: JSON.stringify(getSufficientState(store.getState())),
       client_timestamp: Date.now(),
-      short_id: store.getState().get('server').get('shortId'),
+      short_id: store.getState().server.shortId,
     },
   });
 };
 
 const composeDestroySpreadsheetRequest = (store) => {
-  const shortId = store.getState().get('server').get('shortId');
+  const shortId = store.getState().server.shortId;
 
   return ({
     type: DESTROY_SPREADSHEET,

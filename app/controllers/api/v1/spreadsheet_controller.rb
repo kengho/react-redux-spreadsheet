@@ -16,6 +16,8 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
     # https://stackoverflow.com/a/14039753/6376451
     state = params.permit!.to_h['state']
     @spreadsheet = Spreadsheet.create!(state: state.to_json)
+    # throw_error('external', 'test_error') and return
+    # response = { 'data' => { 'short_id' => 'test_error' } }
     response = { 'data' => { 'short_id' => @spreadsheet.short_id } }
     render json: response
   end
@@ -37,6 +39,7 @@ class Api::V1::SpreadsheetController < Api::V1::BaseController
 
     # TODO: data check, errors.
     # TODO: import response codes from constants.js somehow (or store them elsewhere).
+    # status = 'ERROR'
     status =
       if @spreadsheet.client_timestamp > client_timestamp
         'ERROR'
