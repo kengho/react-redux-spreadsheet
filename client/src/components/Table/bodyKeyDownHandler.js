@@ -25,14 +25,14 @@ export default function bodyKeyDownHandler(evt) {
           evt.preventDefault();
         }
 
-        const modifiers = { edit: true };
+        const pointerProps = { edit: true };
         if (evt.key !== 'F2') {
-          modifiers.selectOnFocus = true;
+          pointerProps.selectOnFocus = true;
         }
 
         // NOTE: 'input' renders after 'keydown', and symbols appears after 'keyup',
         //   therefore after `setState` input's value is already 'evt.key'.
-        actions.setPointer(modifiers);
+        actions.setPointerProps(pointerProps);
       },
     },
     {

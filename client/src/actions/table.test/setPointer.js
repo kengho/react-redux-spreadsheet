@@ -21,52 +21,40 @@ describe('set pointer', () => {
   ];
   setCellsValues(store, cells);
 
-  it('should set pointer if all args are present', () => {
+  it('should set pointer props', () => {
     process.logBelow = true;
 
-    pointer = {
-      [ROW]: {
-        index: 1,
-      },
-      [COLUMN]: {
-        index: 2,
-      },
-      value: 'asd',
+    store.dispatch(TableActions.setPointerProps({
+      value: '1',
       edit: true,
-      selectOnFocus: true,
-    };
-    store.dispatch(TableActions.setPointer(pointer));
-
+      selectOnFocus: false,
+    }));
     expectedPointer = {
       [ROW]: {
-        index: 1,
+        index: 0,
       },
       [COLUMN]: {
-        index: 2,
+        index: 0,
       },
-      value: 'asd',
+      value: '1',
       edit: true,
-      selectOnFocus: true,
+      selectOnFocus: false,
     };
 
     expect(getPointer(store)).to.deep.equal(expectedPointer);
   });
 
-  it('should set pointer and value from table if value not passed', () => {
+  it('should set pointer position and corresponding value (if cell exists)', () => {
     process.logBelow = true;
 
-    pointer = {
+    store.dispatch(TableActions.setPointerPosition({
       [ROW]: {
         index: 1,
       },
       [COLUMN]: {
         index: 2,
       },
-      edit: true,
-      selectOnFocus: true,
-    };
-    store.dispatch(TableActions.setPointer(pointer));
-
+    }));
     expectedPointer = {
       [ROW]: {
         index: 1,
@@ -76,51 +64,32 @@ describe('set pointer', () => {
       },
       value: '12',
       edit: true,
-      selectOnFocus: true,
-    };
-
-    expect(getPointer(store)).to.deep.equal(expectedPointer);
-  });
-
-  it('should set only value if only value is passed', () => {
-    process.logBelow = false;
-
-    pointer = { value: '12-2' };
-    store.dispatch(TableActions.setPointer(pointer));
-
-    expectedPointer = {
-      [ROW]: {
-        index: 1,
-      },
-      [COLUMN]: {
-        index: 2,
-      },
-      value: '12-2',
-      edit: true,
-      selectOnFocus: true,
-    };
-
-    expect(getPointer(store)).to.deep.equal(expectedPointer);
-  });
-
-  it('should set some flags and nothing else if only some flags passed', () => {
-    process.logBelow = false;
-
-    pointer = {
-      edit: false,
       selectOnFocus: false,
     };
-    store.dispatch(TableActions.setPointer(pointer));
 
-    expectedPointer = {
+    expect(getPointer(store)).to.deep.equal(expectedPointer);
+  });
+
+  it('should set pointer position and empty value (if cell doesn\'t exists)', () => {
+    process.logBelow = true;
+
+    store.dispatch(TableActions.setPointerPosition({
       [ROW]: {
-        index: 1,
+        index: 3,
       },
       [COLUMN]: {
-        index: 2,
+        index: 4,
       },
-      value: '12-2',
-      edit: false,
+    }));
+    expectedPointer = {
+      [ROW]: {
+        index: 3,
+      },
+      [COLUMN]: {
+        index: 4,
+      },
+      value: '',
+      edit: true,
       selectOnFocus: false,
     };
 

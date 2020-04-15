@@ -172,7 +172,6 @@ TODO: first element isn't highlighted yet.
 * (test_636) Ctlr+V on settings or any other input shouldn't lead to pasting into cells
 * Ctlr+C on body should copy selected cells' values to real clipboard making it \n- \t-formatted if there are many of them
 * // (legacy) after scrolling down, changing some cell and pressing Ctrl+Z layout shouldn't break
-* (test_845) if there is editing cell and user clicks anywhere but that cell, current value should be saved and pointed should become unediting (shouldn't work on just moving mouse there)
 * (test_752) context menu button should show context menu on pointer
 * (test_127) when cell is editing no matter how far user scroll the screen focus doesn't disappear
 * (test_992) clearing, cutting or pasting area should change history

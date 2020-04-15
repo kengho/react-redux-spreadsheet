@@ -12,10 +12,17 @@ export default store => next => action => {
   const getAdditionalActions = (store, action) => {
     const currentPointer = store.getState().table.present.major.session.pointer;
     const currentPointerEdit = currentPointer.edit;
-    const nextPointerEdit = (action.pointer.edit !== undefined) ? action.pointer.edit : currentPointerEdit;
-    const rowIndex = currentPointer[ROW].index;
-    const columnIndex = currentPointer[COLUMN].index;
+
+    let nextPointerEdit;
+    if (action.pointerProps.edit === undefined) {
+      nextPointerEdit = currentPointerEdit;
+    } else {
+      nextPointerEdit = action.pointerProps.edit;
+    }
+
     if (currentPointerEdit && !nextPointerEdit) {
+      const rowIndex = currentPointer[ROW].index;
+      const columnIndex = currentPointer[COLUMN].index;
       let currentPointedCellValue;
       try {
         currentPointedCellValue = store.getState().table.present.major
@@ -44,7 +51,7 @@ export default store => next => action => {
 
   if (action.type === ActionTypes.VENDOR_BATCH_ACTIONS) {
     action.payload.forEach((batchedAction) => {
-      if (batchedAction.type === ActionTypes.SET_POINTER) {
+      if (batchedAction.type === ActionTypes.SET_POINTER_PROPS) {
         const additionalActions = getAdditionalActions(store, batchedAction);
         if (additionalActions) {
           action.payload.push(...additionalActions);
@@ -53,7 +60,7 @@ export default store => next => action => {
     });
   }
 
-  if (action.type === ActionTypes.SET_POINTER) {
+  if (action.type === ActionTypes.SET_POINTER_PROPS) {
     // NOTE: seems line this branch isn't using anywhere.
     const additionalActions = getAdditionalActions(store, action);
     if (additionalActions) {

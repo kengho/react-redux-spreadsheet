@@ -39,7 +39,7 @@ export default function cellKeyDownHandler({ evt }) {
         // NOTE: actions should be batched until there are saveEditingCellValue middleware
         //   which works better with batched actions (there are many of them).
         actions.batchActions([
-          TableActions.setPointer({ edit: false }),
+          TableActions.setPointerProps({ edit: false }),
           TableActions.movePointer({ key: effectiveKey }),
         ]);
         // console.timeEnd('cellKeyDownHandler Enter');
@@ -70,9 +70,9 @@ export default function cellKeyDownHandler({ evt }) {
           } catch (e) {
             previousValue = '';
           }
-          actions.setPointer({ value: previousValue });
+          actions.setPointerProps({ value: previousValue });
         }
-        actions.setPointer({ edit: false });
+        actions.setPointerProps({ edit: false });
         // console.timeEnd('cellKeyDownHandler Escape');
       },
     },

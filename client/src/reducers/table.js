@@ -54,31 +54,29 @@ export default (state = initialState().table, action) => produce(state, draft =>
       break;
     }
 
-    case ActionTypes.SET_POINTER: {
+    case ActionTypes.SET_POINTER_PROPS: {
+      Object
+        .keys(action.pointerProps)
+        .forEach((key) => draft.major.session.pointer[key] = action.pointerProps[key]);
+
+      break;
+    }
+
+    case ActionTypes.SET_POINTER_POSITION: {
       let value;
-      if (action.pointer[ROW] && action.pointer[COLUMN]) {
-        try {
-          value = state
-          .major
-          .layout[ROW]
-          .list[action.pointer[ROW].index]
-          .cells[action.pointer[COLUMN].index]
-          .value;
-        } catch (e) {
-          // test_804
-          value = '';
-        }
+      try {
+        value = state
+        .major
+        .layout[ROW]
+        .list[action.pointerPosition[ROW].index]
+        .cells[action.pointerPosition[COLUMN].index]
+        .value;
+      } catch (e) {
+        // test_804
+        value = '';
       }
-      if (action.pointer.value) {
-        value = action.pointer.value;
-      }
-      const mergingObject = {
-        ...action.pointer,
-      };
-      if ((value /* test_9082 */ || value === '') && !action.pointer.value) {
-        mergingObject.value = value;
-      }
-      draft.major.session.pointer = Object.assign(draft.major.session.pointer, mergingObject);
+
+      Object.assign(draft.major.session.pointer, {...action.pointerPosition, value });
       break;
     }
 

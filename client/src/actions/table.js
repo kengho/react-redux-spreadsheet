@@ -257,11 +257,17 @@ export function setLinesOffsets(offsets) {
   };
 }
 
-
-export function setPointer(pointer) {
+export function setPointerProps(pointerProps) {
   return {
-    type: ActionTypes.SET_POINTER,
-    pointer,
+    type: ActionTypes.SET_POINTER_PROPS,
+    pointerProps,
+  };
+}
+
+export function setPointerPosition(pointerPosition) {
+  return {
+    type: ActionTypes.SET_POINTER_POSITION,
+    pointerPosition,
   };
 }
 

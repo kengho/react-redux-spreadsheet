@@ -35,7 +35,7 @@ describe('work on user specified area', () => {
     it('shouldn\'t fail on empty spreadsheet', () => {
       process.logBelow = false;
 
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 1,
         },
@@ -44,7 +44,7 @@ describe('work on user specified area', () => {
         },
       }));
       store.dispatch(TableActions.workOnUserSpecifiedArea(COPY));
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 0,
         },
@@ -68,7 +68,7 @@ describe('work on user specified area', () => {
         ['10', '11', '12'],
       ];
       setCellsValues(store, cells);
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 1,
         },
@@ -77,7 +77,7 @@ describe('work on user specified area', () => {
         },
       }));
       store.dispatch(TableActions.workOnUserSpecifiedArea(COPY));
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 0,
         },
@@ -100,7 +100,7 @@ describe('work on user specified area', () => {
       process.logBelow = false;
 
       store.dispatch(TableActions.workOnUserSpecifiedArea(CUT));
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 0,
         },
@@ -136,7 +136,7 @@ describe('work on user specified area', () => {
   it('should expand layout if necessary and keep clipboard content between actions', () => {
     process.logBelow = false;
 
-    store.dispatch(TableActions.setPointer({
+    store.dispatch(TableActions.setPointerPosition({
       [ROW]: {
         index: 2,
       },
@@ -207,7 +207,7 @@ describe('work on user specified area', () => {
       }));
       store.dispatch(TableActions.fixateCurrentSelection());
       store.dispatch(TableActions.workOnUserSpecifiedArea(COPY));
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 1,
         },
@@ -280,7 +280,7 @@ describe('work on user specified area', () => {
       }));
       store.dispatch(TableActions.fixateCurrentSelection());
       store.dispatch(TableActions.workOnUserSpecifiedArea(CUT));
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 3,
         },
@@ -387,7 +387,7 @@ describe('work on user specified area', () => {
       // c4	5
       // c6	c7	c8	c9
       const systemClipboardText = "c1\tc2\tc3\nc4\tc5\nc6\tc7\tc8\tc9";
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 2,
         },

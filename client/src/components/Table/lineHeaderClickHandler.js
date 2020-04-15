@@ -18,7 +18,7 @@ export default function lineHeaderClickHandler({ evt }) {
 
   // test_845
   if (evt.type !== 'mouseover') {
-    this.props.actions.setPointer({ edit: false });
+    this.props.actions.setPointerProps({ edit: false });
   }
 
   if ((evt.type === 'mousedown') && (evt.button === RIGHT_BUTTON)) {

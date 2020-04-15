@@ -91,7 +91,7 @@ describe('move pointer', () => {
     it('should move pointer with basic keys + ctrl through rows when available', () => {
       process.logBelow = false;
 
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 0,
         },
@@ -173,7 +173,7 @@ describe('move pointer', () => {
       expect(getPointerPosition(store)).to.deep.equal({ rowIndex: 7, columnIndex: 2 });
 
       // Starting point for ArrowUp.
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 10, // out of real range
         },
@@ -258,7 +258,7 @@ describe('move pointer', () => {
       expect(getPointerPosition(store)).to.deep.equal({ rowIndex: 0, columnIndex: 2 });
 
       // Starting point for columns.
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 1,
         },
@@ -298,7 +298,7 @@ describe('move pointer', () => {
       expect(getPointerPosition(store)).to.deep.equal({ rowIndex: 1, columnIndex: 8 });
 
       // Starting point for ArrowLeft.
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 1,
         },
@@ -342,7 +342,7 @@ describe('move pointer', () => {
       expect(getPointerPosition(store)).to.deep.equal({ rowIndex: 1, columnIndex: 0 });
 
       // Reseting.
-      store.dispatch(TableActions.setPointer({
+      store.dispatch(TableActions.setPointerPosition({
         [ROW]: {
           index: 0,
         },
@@ -452,10 +452,10 @@ describe('move pointer', () => {
       process.logBelow = false;
       // NOTE: moving pointer across columns just to be sure that there are no
       //   confusion between rows and columns in movePointer reducer.
-      store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 10 }}));
+      store.dispatch(TableActions.setPointerPosition({ [ROW]: { index: 0 }, [COLUMN]: { index: 10 }}));
       store.dispatch(TableActions.movePointer({ key: 'PageUp' }));
       expect(getPointerPosition(store)).to.deep.equal({ rowIndex: 0, columnIndex: 10 });
-      store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
+      store.dispatch(TableActions.setPointerPosition({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
     });
 
     it('should move pointer with Alt+PageDown and Alt+PageUp when available', () => {
@@ -533,10 +533,10 @@ describe('move pointer', () => {
 
     it('shouldn\'t move pointer with Alt+PageUp when unavailable', () => {
       process.logBelow = false;
-      store.dispatch(TableActions.setPointer({ [ROW]: { index: 10 }, [COLUMN]: { index: 0 }}));
+      store.dispatch(TableActions.setPointerPosition({ [ROW]: { index: 10 }, [COLUMN]: { index: 0 }}));
       store.dispatch(TableActions.movePointer({ key: 'PageUp', altKey: true }));
       expect(getPointerPosition(store)).to.deep.equal({ rowIndex: 10, columnIndex: 0 });
-      store.dispatch(TableActions.setPointer({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
+      store.dispatch(TableActions.setPointerPosition({ [ROW]: { index: 0 }, [COLUMN]: { index: 0 }}));
     });
   });
 

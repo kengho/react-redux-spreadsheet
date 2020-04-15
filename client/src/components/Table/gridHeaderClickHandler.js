@@ -14,7 +14,7 @@ export default function gridHeaderClickHandler({ evt }) {
 
   // test_845
   if (evt.type !== 'mouseover') {
-    actions.setPointer({ edit: false });
+    actions.setPointerProps({ edit: false });
   }
 
   // test_2000

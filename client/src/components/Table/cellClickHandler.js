@@ -89,7 +89,7 @@ export default function cellClickHandler({ evt }) {
         // test_816
         // NOTE: PERF: because it doesn't change state most of the time,
         //   Table don't rerender and performance doesn't degrade.
-        TableActions.setPointer({
+        TableActions.setPointerProps({
           edit: false,
           selectOnFocus: false,
         }),
@@ -137,13 +137,11 @@ export default function cellClickHandler({ evt }) {
         UiActions.openPopup(MENU),
 
         // TODO: don't set pointer if there is selection (when there is code for selection).
-        TableActions.setPointer({
-          ...cellPosition,
-          ...{
-            edit: false,
-            selectOnFocus: false,
-          },
+        TableActions.setPointerProps({
+          edit: false,
+          selectOnFocus: false,
         }),
+        TableActions.setPointerPosition(cellPosition),
       );
     }
 
@@ -175,13 +173,13 @@ export default function cellClickHandler({ evt }) {
         !(userWantsToPointCell && isCellPointed) &&
         !(userWantsToEditCell && isCellEditing)
       ) {
-        actionsToBatch.push(TableActions.setPointer({
-          ...cellPosition,
-          ...{
+        actionsToBatch.push(
+          TableActions.setPointerProps({
             edit: userWantsToEditCell,
             selectOnFocus: false,
-          },
-        }));
+          }),
+          TableActions.setPointerPosition(cellPosition),
+        );
       }
     }
   }

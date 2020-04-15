@@ -164,7 +164,7 @@ class EditingCell extends React.Component {
               const value = evt.nativeEvent.target.innerHTML
                 .replace(new RegExp('<br>', 'g'), '\n')
                 .replace('&nbsp;', '');
-              this.props.actions.setPointer({ value });
+              this.props.actions.setPointerProps({ value });
             }}
             className="cell-content"
             contentEditable="true"
