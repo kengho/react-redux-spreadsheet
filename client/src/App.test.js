@@ -133,7 +133,7 @@ TODO: Backspace.
 * Ctrl+Z/Ctrl+Y should undo/redo last changing data action, leaving last edited cell pointed, but uneditable
 
 // TODO:
-* undo/redo should consider pasting area as single action
+* undo/redo should consider batched actions as single action
 * when user sets cell's value and then do undo, that cell's history should be removed with the value
 * if backend is't responding to requests, error icon should appear where table actions icon was, and it should be always visible and have tooltip
 * after backend error frontend should attempt retry periodically until succeeded

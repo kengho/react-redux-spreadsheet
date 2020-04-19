@@ -6,8 +6,6 @@ import * as TableActions from '../table';
 import configureStore from '../../store/configureStore';
 
 describe('cell history', () => {
-  // Integrational testing using "pushCellHistoryOnValueChanges" middleware.
-
   const state = Core.initialState();
   const store = configureStore(state);
   let expectedCellHistory;
@@ -31,9 +29,9 @@ describe('cell history', () => {
   };
 
   it('should create and push cell history', () => {
-    store.dispatch(TableActions.setProp({ ...cell, prop: 'value', value: 'a' }));
-    store.dispatch(TableActions.setProp({ ...cell, prop: 'value', value: 'b' }));
-    store.dispatch(TableActions.setProp({ ...cell, prop: 'value', value: 'c' }));
+    store.dispatch(TableActions.pushCellHistory(cell, new Date('1970-01-01'), ''));
+    store.dispatch(TableActions.pushCellHistory(cell, new Date('1970-01-01'), 'a'));
+    store.dispatch(TableActions.pushCellHistory(cell, new Date('1970-01-01'), 'b'));
 
     expectedCellHistory = [
       {

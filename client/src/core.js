@@ -394,6 +394,7 @@ export function findLastNonemptyAdjacentCell({
   }
 
   // HACK: NOTE: cell is 2-level deep object, so naive Object.assign won't work properly.
+  // REVIEW: really?
   const currentCell = JSON.parse(JSON.stringify(startingCell));
   const nextCell = JSON.parse(JSON.stringify(startingCell));
 

@@ -28,7 +28,6 @@ export default store => next => action => {
       historyValue = '';
     }
 
-
     // REVIEW: should we filter empty value?
     //   It allows you to know when cell was first filled, but it's not that much.
     // NOTE: we don't test that value changes in reducer bacause it makes no sense,
