@@ -620,8 +620,8 @@ export async function convert({
     // APP => JSON
     } else if (outputFormat === JSON_FORMAT) {
       // Convert history timestamps.
-      const convertedTable = produce(table, draft => {
-        draft.layout[ROW].list.forEach((row, rowIndex) => {
+      const convertedTable = produce(table.layout, draft => {
+        draft[ROW].list.forEach((row, rowIndex) => {
           row.cells.forEach((cell, columnIndex) => {
             if (cell.history) {
               cell.history.forEach((record) => {
@@ -679,7 +679,7 @@ export async function convert({
           // Checking data and converting history timestamps.
           // TODO: fill lines' ids if there are none.
           // TODO: check parsedJSON data format.
-          state.table.major.layout = parsedJSON.table.layout;
+          state.table.major.layout = parsedJSON.table;
           state.table.major.layout[ROW].list.forEach((row, rowIndex) => {
             row.cells.forEach((cell, columnIndex) => {
               if (!cell) {
