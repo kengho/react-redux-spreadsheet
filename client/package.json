@@ -21,7 +21,7 @@
     "excel-column-name": "^1.0.0",
     "file-saver": "^2.0",
     "history": "^4.9.0",
-    "immer": "^3.2.0",
+    "immer": "^9.0.6",
     "loadable-components": "^2.2.3",
     "lodash": "^4.17.15",
     "papaparse": "^5.0.0",
